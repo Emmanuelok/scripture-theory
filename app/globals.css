@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html, body {
+  background-color: #f7f6f2;
+  color: #22201b;
+  -webkit-font-smoothing: antialiased;
+}
+
+.prose-scripture p {
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+  line-height: 1.75;
+}
+
+.glow-ring {
+  box-shadow: 0 0 0 1px rgba(34, 32, 27, 0.06), 0 12px 40px -12px rgba(34, 32, 27, 0.18);
+}
+
+.gradient-text {
+  background: linear-gradient(120deg, #c2410c 0%, #b45309 40%, #7c2d12 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
