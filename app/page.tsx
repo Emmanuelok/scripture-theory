@@ -17,29 +17,34 @@ export default function HomePage() {
           <div className="md:col-span-7">
             <span className="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white px-3 py-1 text-xs text-ink-600">
               <span className="h-1.5 w-1.5 rounded-full bg-flame-500" />
-              An inter-denominational, Scripture-centered platform
+              JESUS · One Gospel · One Body · For the world
             </span>
             <h1 className="mt-5 font-serif text-4xl md:text-6xl leading-[1.05] text-ink-900">
-              Encounter <span className="gradient-text">JESUS</span>.<br />
-              Engage the Word.<br />
-              Live the Kingdom.<br />
-              Belong to the Body.
+              It has always been about{" "}
+              <span className="gradient-text">JESUS</span>.
             </h1>
             <p className="mt-6 text-lg text-ink-700 leading-relaxed max-w-xl">
-              {mission.oneLine}
+              {mission.shorter}
             </p>
+            <p className="mt-4 text-ink-600 max-w-xl leading-relaxed">{mission.long}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                href="/lens"
-                className="inline-flex items-center rounded-full bg-ink-900 text-ink-50 px-5 py-2.5 text-sm hover:bg-flame-700 transition-colors"
+                href="/gospel"
+                className="inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-5 py-2.5 text-sm hover:bg-flame-700 transition-colors"
               >
-                Open the Verse Lens →
+                Read the Gospel →
               </Link>
               <Link
-                href="/roadmap"
+                href="/read"
+                className="inline-flex items-center rounded-full bg-ink-900 text-ink-50 px-5 py-2.5 text-sm hover:bg-flame-700 transition-colors"
+              >
+                Open the Word
+              </Link>
+              <Link
+                href="/pray"
                 className="inline-flex items-center rounded-full border border-ink-300 px-5 py-2.5 text-sm text-ink-800 hover:border-ink-900 transition-colors"
               >
-                12-month roadmap
+                Learn to pray
               </Link>
             </div>
           </div>
@@ -47,25 +52,18 @@ export default function HomePage() {
           <aside className="md:col-span-5">
             <div className="rounded-2xl bg-ink-900 text-ink-50 p-6 md:p-7 glow-ring">
               <div className="text-xs uppercase tracking-widest text-flame-300">
-                The unsolved pain point
+                The ONE Gospel, in one breath
               </div>
-              <p className="font-serif text-xl md:text-2xl mt-2 leading-snug">
-                Today's leading AI models misquote Scripture between
-                <span className="text-flame-300"> 15% and 60% </span>
-                of the time.
+              <p className="font-serif text-xl md:text-2xl mt-3 leading-snug">
+                Christ died for our sins. He was buried. He rose on the third day. He was seen. He
+                is alive. He is Lord.
               </p>
-              <p className="text-sm text-ink-200 mt-3">
-                That admission comes from the CEO of the largest Bible app on earth — which is why
-                even YouVersion (1B+ installs) deliberately refuses to ship an AI answer feature.
-                Believers are asking the most important questions of their lives, and getting
-                confidently wrong answers.
-              </p>
-              <p className="text-sm text-ink-200 mt-3">
-                Scripture Theory exists to close that gap — with citations, with many traditions
-                named honestly, and with a path that ends in a real local church.
-              </p>
-              <div className="mt-4 text-[10px] uppercase tracking-widest text-ink-400">
-                Source: YouVersion CEO Bobby Gruenewald · 2025
+              <p className="text-sm text-ink-300 mt-3 italic">1 Corinthians 15:3–8</p>
+              <div className="mt-5 border-t border-ink-700 pt-4">
+                <p className="text-sm text-ink-200">
+                  Two thousand years of Christians from every nation, language, and tradition have
+                  lived and died for this Gospel. There is no other. There has never been another.
+                </p>
               </div>
             </div>
           </aside>
@@ -87,7 +85,7 @@ export default function HomePage() {
       <section className="mx-auto max-w-6xl px-5 py-16 border-t border-ink-200">
         <div className="grid md:grid-cols-12 gap-10">
           <div className="md:col-span-5">
-            <span className="text-xs uppercase tracking-widest text-flame-700">The gap</span>
+            <span className="text-xs uppercase tracking-widest text-flame-700">Where we stand</span>
             <h2 className="font-serif text-3xl md:text-4xl mt-2 text-ink-900">{gap.headline}</h2>
             <p className="mt-4 text-ink-700 leading-relaxed">{gap.intro}</p>
             <p className="mt-6 text-ink-800 leading-relaxed font-medium">{gap.ourAnswer}</p>
@@ -107,9 +105,11 @@ export default function HomePage() {
       <section className="mx-auto max-w-6xl px-5 py-16 border-t border-ink-200">
         <div className="flex items-baseline justify-between gap-4 flex-wrap">
           <div>
-            <span className="text-xs uppercase tracking-widest text-flame-700">First products</span>
+            <span className="text-xs uppercase tracking-widest text-flame-700">
+              Day-one features
+            </span>
             <h2 className="font-serif text-3xl md:text-4xl mt-2 text-ink-900">
-              What we are building, in order.
+              Simple things, done with Jesus in view.
             </h2>
           </div>
           <Link href="/roadmap" className="text-sm text-ink-700 hover:text-flame-700">
@@ -154,7 +154,7 @@ export default function HomePage() {
               How we keep trust.
             </h2>
             <p className="mt-4 text-ink-700 leading-relaxed">
-              Trust is not a tagline. It is a set of constraints we accept before we ship.
+              Trust is not a tagline. It is a set of commitments we accept before we ship.
             </p>
           </div>
           <div className="md:col-span-7 grid sm:grid-cols-2 gap-4">
@@ -185,22 +185,34 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-6xl px-5 py-20 border-t border-ink-200">
         <div className="rounded-3xl bg-ink-900 text-ink-50 p-10 md:p-14 text-center">
-          <h2 className="font-serif text-3xl md:text-5xl">
-            "Sanctify them in the truth; your word is truth."
+          <h2 className="font-serif text-3xl md:text-5xl leading-snug">
+            "And I, when I am lifted up from the earth, will draw all people to myself."
           </h2>
-          <p className="mt-3 text-ink-300">John 17:17</p>
+          <p className="mt-3 text-ink-300">John 12:32 — Jesus</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link
-              href="/lens"
-              className="inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-5 py-2.5 text-sm hover:bg-flame-700 transition-colors"
+              href="/gospel"
+              className="inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-5 py-2.5 text-sm hover:bg-flame-700"
             >
-              Try the Verse Lens
+              Read the Gospel
             </Link>
             <Link
-              href="/disciple"
+              href="/read"
               className="inline-flex items-center rounded-full border border-ink-50/30 text-ink-50 px-5 py-2.5 text-sm hover:bg-ink-50/10"
             >
-              See the discipleship path
+              Open the Word
+            </Link>
+            <Link
+              href="/pray"
+              className="inline-flex items-center rounded-full border border-ink-50/30 text-ink-50 px-5 py-2.5 text-sm hover:bg-ink-50/10"
+            >
+              Learn to pray
+            </Link>
+            <Link
+              href="/witness"
+              className="inline-flex items-center rounded-full border border-ink-50/30 text-ink-50 px-5 py-2.5 text-sm hover:bg-ink-50/10"
+            >
+              Share Him
             </Link>
           </div>
         </div>

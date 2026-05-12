@@ -1,190 +1,201 @@
 export const mission = {
   oneLine:
-    "Help every person on earth encounter JESUS, engage the Word, live the Kingdom message, and belong to the local Body — in their own language, on any device.",
-  long: `Scripture Theory is an inter-denominational, Scripture-centered AI platform.
-We are not building another devotional feed. We are building the most trustworthy
-intelligent companion for the Bible — one that refuses to invent verses, refuses to
-hide its sources, and refuses to flatten the Church into a single tradition.
-We exist to put JESUS at the center, the Word as the source, and the local Body as the home.`,
+    "Help every person on earth encounter JESUS, hear the ONE Gospel, walk with Him in His Word, and belong to His one global Body — in their own language, on any device.",
+  shorter:
+    "JESUS at the center. The Gospel as our message. The Word as our food. The Body as our home.",
+  long: `Scripture Theory is not another Bible app and not an AI gimmick. It is a JESUS-centered,
+non-denominational platform built to lift up Christ Himself, to put the ONE Gospel of the New
+Testament back in the middle, and to gather believers around the only thing that has ever
+united the Church: the person and work of the Lord Jesus.
+We use technology quietly — only where it helps people hear Him, read Him, follow Him, and
+find a real, local body of His people.`,
 };
 
 export const audiences = [
   {
     title: "Seekers",
-    body: "People asking real questions about JESUS who are getting plausible but wrong answers from general-purpose chatbots.",
+    body: "Anyone wondering who Jesus really is. We give them the Gospel — clearly, kindly, in their language.",
   },
   {
-    title: "Disciples",
-    body: "Believers who want a measurable path of formation — not just content streams or daily-verse notifications.",
+    title: "New believers",
+    body: "People who just said yes to Jesus and need someone to show them how to walk with Him from day one.",
   },
   {
-    title: "Pastors & Leaders",
-    body: "Shepherds in 100+ countries who need fast, citation-grounded study tools that respect their tradition without trapping them in it.",
+    title: "Lifelong disciples",
+    body: "Those who want to grow deeper in Christ — the Word, prayer, witness, holiness, mission.",
   },
   {
-    title: "Youth (Gen Z & Alpha)",
-    body: "A generation discipled by algorithms by default. We give them an algorithm that points back to Christ and to a real local church.",
+    title: "Pastors & shepherds",
+    body: "Leaders in every land who need trustworthy tools that point their people to Jesus, never away from the local church.",
   },
   {
-    title: "Translators & the Underserved Church",
-    body: "Believers in the 2,000+ language groups still without a full Bible, and pastors in the Global South under-resourced for study.",
+    title: "Youth",
+    body: "A generation drowning in feeds. We offer them the face of Christ, the Word of God, and a real local family.",
   },
 ];
 
 export const pillars = [
   {
-    name: "Encounter",
-    verse: "John 17:3",
-    summary: "Every interaction is designed to point to the living JESUS, not merely to information about Him.",
+    name: "Jesus",
+    verse: "Colossians 1:18",
+    summary: "He must have first place in everything. Every page, every prompt, every prayer points to Him.",
   },
   {
-    name: "Engage",
-    verse: "2 Timothy 3:16",
-    summary: "Scripture is treated as God-breathed. Every AI answer is grounded in cited verses and recognized tradition.",
+    name: "Gospel",
+    verse: "1 Corinthians 15:3–8",
+    summary: "Christ died for our sins, was buried, rose on the third day, and was seen. We say this clearly, in every language.",
   },
   {
-    name: "Embody",
-    verse: "Matthew 28:19–20",
-    summary: "We move people from knowing to doing — measurable formation in love, holiness, witness, and mercy.",
+    name: "Word",
+    verse: "John 17:17",
+    summary: "Scripture is God's voice. We read it, obey it, and refuse to put anything above it.",
   },
   {
-    name: "Belong",
-    verse: "Hebrews 10:24–25",
-    summary: "Digital discipleship that hands people off to a real, local, embodied church — never replaces it.",
+    name: "One Body",
+    verse: "John 17:20–23",
+    summary: "Jesus prayed His people would be one. We exist to help His prayer answered — across nation, language, and denomination.",
   },
 ];
 
 export const gap = {
   headline:
-    "Every major Bible platform is missing the same three things — at the same time.",
+    "The world has multiplied divisions. The New Testament has ONE Gospel.",
   intro:
-    "We mapped the leading platforms (YouVersion, Logos, Pray.com, Hallow, Glorify, Bible Project, denominational chat tools) against what users, pastors, and researchers say is broken. Three failures recur — and no one is solving them together.",
+    "We mapped what believers, pastors, and seekers say they actually need — and we kept hearing the same three pains. Together they describe the most strategic, unmet need in global Christian life today.",
   failures: [
     {
-      title: "1. The Scripture-AI Trust Gap",
-      body: "YouVersion's own CEO has publicly said today's leading AI models misquote Scripture between 15% and 60% of the time — and so YouVersion (with 1B+ installs) deliberately will not ship an AI answer feature. Meanwhile, general-purpose chatbots confidently invent verses and attribute them to the Bible. There is no widely trusted, citation-grounded AI for Scripture.",
-      source: "YouVersion CEO Bobby Gruenewald, 2025",
+      title: "1. The ONE Gospel is being drowned out.",
+      body: "Estimates count over 45,000 Christian groupings worldwide. Most have the same Lord, the same Bible, and the same Gospel — but the public conversation is dominated by what divides them. Seekers cannot find the One Person they were meant to meet.",
+      source: "Center for the Study of Global Christianity, World Christian Database",
     },
     {
-      title: "2. The Single-Lens Bias Problem",
-      body: "Independent reviews of popular Bible chatbots have found that they quietly default to a narrow theological outlook. Believers in different traditions get answers shaped by the model's hidden assumptions — not by their tradition or the global Church. Unity suffers and trust collapses.",
-      source: "Christian Today, 2025 — 'Concerns raised over theological bias in AI Bible chatbots'",
+      title: "2. People are reading Scripture less, alone, and disconnected.",
+      body: "Bible engagement keeps falling, Gen Z dropout has risen from 59% to 64% in a decade, and only about half of pastors have an intentional plan to disciple their people. Apps push content; they rarely form Christ in anyone.",
+      source: "State of the Bible 2025 · Lifeway Research 2025",
     },
     {
-      title: "3. The Discipleship Deficit",
-      body: "Only ~52% of pastors say they have an intentional plan for discipleship. The 18–25 dropout rate has risen from 59% to 64% in a decade. Apps deliver content but rarely produce formed disciples connected to a local body. As one analyst put it: 'Digital discipleship is happening — it's just being led by an algorithm, not the church.'",
-      source: "Lifeway Research & State of the Bible, 2025",
+      title: "3. The local body and the global voice are disconnected.",
+      body: "Digital ministry has outpaced local discipleship. Believers find content online but can't find a brother, a pastor, or a table. As one analyst put it: 'Digital discipleship is happening — it's just being led by an algorithm, not the church.'",
+      source: "Outreach Magazine · Digital Discipleship, 2025",
     },
   ],
-  ourAnswer: `Scripture Theory is built on the exact intersection where these three failures meet.
-We pair (a) a citation-grounded Scripture AI that will not fabricate verses,
-with (b) a transparent multi-tradition lens that shows how Orthodox, Catholic, Reformed, Wesleyan,
-Pentecostal and Anabaptist streams have read a passage — side by side, charitably — and (c) a measurable
-discipleship path that ends in a real local church, not an endless feed.`,
+  ourAnswer: `Scripture Theory exists to set Jesus and His Gospel back at the center of all of this.
+We do not exist to add another voice to the noise. We exist to clear the noise so that the One Voice
+can be heard. We will quietly use the best available tools — including AI, where helpful — but those
+tools will always be servants of Scripture and ushers toward Christ, never the headline.`,
 };
 
 export const firstProducts = [
   {
-    name: "Verse Lens",
-    tag: "Live demo today",
-    body: "Search any passage and instantly see (i) the verified text, (ii) the historical-grammatical reading, and (iii) how 5+ major traditions have understood it — each with named sources. No invented verses, no hidden bias.",
+    name: "The Gospel",
+    tag: "Live",
+    body: "A clear, kind, four-movement presentation of the ONE Gospel: God, our sin, Jesus crucified and risen, our response. With Scripture, prayer, and next steps.",
   },
   {
-    name: "Ask Scripture",
-    tag: "Beta — Q2",
-    body: "Citation-grounded Q&A. Every claim must point to a Bible reference or a named ecclesial source (Father, Council, Reformer, modern theologian). When sources disagree, we say so. When we don't know, we say so.",
+    name: "Read the Word",
+    tag: "Live",
+    body: "Daily Scripture, with three simple plans that anyone can finish: 30 days in John, 30 days in the Psalms, and the whole New Testament in 90 days.",
+  },
+  {
+    name: "Pray",
+    tag: "Live",
+    body: "Guided prayer in the way Jesus taught — the Lord's Prayer walked line-by-line, ACTS, and a daily 'pray for the world' rotation across the nations.",
+  },
+  {
+    name: "Witness",
+    tag: "Live",
+    body: "Testimonies of Jesus from believers around the world, and simple tools to help any disciple tell their own story and share the Gospel with one person this week.",
   },
   {
     name: "The Path",
-    tag: "Beta — Q3",
-    body: "A 12-stage discipleship journey from first encounter to mature reproducer. Built on Matthew 28, measurable, and explicitly designed to hand the disciple off to a local pastor — not to keep them inside the app.",
+    tag: "Beta",
+    body: "A 12-stage discipleship journey from first encounter with Jesus to a reproducing disciple — handed off to a real local pastor, not kept in the app.",
   },
   {
-    name: "Local Body Connect",
-    tag: "Pilot — Q3",
-    body: "A church-finder that filters by confession, language, and discipleship culture, with a 'warm intro' to a local pastor instead of just a pin on a map.",
+    name: "Jesus in the Word",
+    tag: "Beta",
+    body: "Open any passage and see how it points to Christ — with the voices of brothers and sisters across the world and across the centuries, lifting Him up together.",
   },
   {
-    name: "Leader Studio",
-    tag: "Pilot — Q4",
-    body: "Sermon prep, small-group curriculum, and translation tools that respect a leader's tradition while exposing the wider Church's wisdom on the same text.",
-  },
-  {
-    name: "Youth Mode",
-    tag: "Pilot — Q4",
-    body: "A short-form, vertical-video discipleship surface for Gen Z and Alpha — algorithmically biased toward Scripture, formation, and the local church, not toward outrage or celebrity.",
+    name: "One Body",
+    tag: "Pilot",
+    body: "Find a Christ-centered local church and meet a real pastor through a warm introduction — not a pin on a map.",
   },
 ];
 
 export const principles = [
-  "JESUS is the subject. Every feature must serve encounter with Him.",
-  "Scripture is the source. We do not invent verses; we cite chapter and verse.",
-  "Many lenses, one Lord. We hold inter-denominational unity without doctrinal mush.",
-  "Local body, not just global feed. Digital must hand off to embodied.",
-  "Translate or it doesn't count. If it doesn't work in Swahili, Hindi and Spanish, it isn't shipped.",
-  "Pastors are partners, not competitors. The platform exists under, not over, the local church.",
-  "Youth-aware by design. Algorithms that disciple, not distract.",
-  "Open about uncertainty. When the Church disagrees, we show the disagreement.",
+  "Jesus is the point. Every feature must lead to Him.",
+  "One Gospel. We preach Christ crucified and risen — the same message in every language.",
+  "Scripture is God's voice. We don't put a tool above the Word.",
+  "Unity is non-negotiable. We will not pit one part of the Body against another.",
+  "Local church first. We are a bridge, not a destination.",
+  "Translate or it doesn't ship. If it doesn't work in Swahili, Hindi and Spanish, it isn't ready.",
+  "Youth-aware. Algorithms must disciple, not distract.",
+  "Quiet tools, loud Christ. Technology serves the message; it never replaces the Messenger.",
 ];
 
 export const roadmap = [
   {
-    quarter: "Q1 — Foundations",
+    quarter: "Q1 — Christ at the center",
     months: "Months 1–3",
     items: [
-      "Ship public Verse Lens (this site) with 5 traditions × 50 anchor passages.",
-      "Stand up the citation-grounded retrieval layer: public-domain Bibles + a curated corpus of Fathers, Reformers, Councils, and modern theologians.",
-      "Convene a 12-person Inter-Denominational Editorial Council (Orthodox, Catholic, Anglican, Reformed, Lutheran, Wesleyan, Baptist, Pentecostal, Anabaptist, African-Independent, Messianic, Global South lay).",
-      "Privacy, safety, and 'no invented verses' guardrails published openly.",
+      "Ship the public site: The Gospel, Read the Word, Pray, Witness, The Path, One Body — all leading to Jesus.",
+      "Translate the Gospel page into 12 languages: English, Spanish, Portuguese, French, Swahili, Hindi, Arabic, Mandarin, Tagalog, Russian, Korean, Indonesian.",
+      "Convene a 12-person Pastoral Council from across the global Church (Africa, Asia, Latin America, Europe, North America).",
+      "Publish our 'one-Gospel' editorial standard and our 'no invented verses' commitment openly.",
     ],
   },
   {
-    quarter: "Q2 — Ask Scripture (Beta)",
+    quarter: "Q2 — The daily rhythm",
     months: "Months 4–6",
     items: [
-      "Launch Ask Scripture beta: every answer carries citations; refusal-to-fabricate is a hard constraint.",
-      "Add 6 launch languages: English, Spanish, Portuguese, French, Swahili, Hindi.",
-      "Pastor pilot: 100 pastors across 12 countries stress-test the answers and flag bias.",
-      "Public bias dashboard — we publish where the system has been corrected and by whom.",
+      "Reading plans with progress tracking and offline support.",
+      "Prayer rhythms with morning, midday, evening prompts shaped by Scripture.",
+      "Witness sharing: simple templates and prompts for telling one person about Jesus.",
+      "Pastor pilot in 5 cities: trusted shepherds stress-test the experience for their flocks.",
     ],
   },
   {
-    quarter: "Q3 — The Path & Local Body",
+    quarter: "Q3 — The Path & One Body",
     months: "Months 7–9",
     items: [
-      "Release The Path: 12 stages from first encounter to reproducing disciple, tied to Scripture and tradition.",
-      "Ship Local Body Connect with warm pastor intros in 5 pilot cities (Lagos, São Paulo, Manila, Nairobi, Phoenix).",
+      "Release The Path: 12 measurable stages from first encounter to reproducing disciple.",
+      "Ship One Body in Lagos, São Paulo, Manila, Nairobi, and Phoenix — warm intros to vetted local pastors.",
       "Offline-first PWA for low-bandwidth regions.",
       "First partnerships with Bible translation agencies for under-resourced languages.",
     ],
   },
   {
-    quarter: "Q4 — Leaders, Youth & Scale",
+    quarter: "Q4 — Reach the youth, reach the nations",
     months: "Months 10–12",
     items: [
-      "Leader Studio: sermon prep, small-group curriculum, multi-tradition consultation.",
-      "Youth Mode: short-form discipleship surface with a Scripture-first algorithm.",
-      "Expand to 12 languages and 25 cities.",
-      "Publish the first annual State of Trust-Grounded Scripture AI report.",
+      "Youth Mode: short-form, Christ-centered formation surface for Gen Z and Alpha.",
+      "Leader Studio: sermon prep and small-group curriculum centered on Jesus and Scripture.",
+      "Expand to 25 cities and 12+ languages.",
+      "Publish the first annual 'State of the One Gospel' report.",
     ],
   },
 ];
 
 export const guardrails = [
   {
+    title: "Jesus or nothing",
+    body: "If a feature does not, in some way, lift up Jesus or carry someone toward Him, we don't ship it.",
+  },
+  {
     title: "No invented verses",
-    body: "If a quotation cannot be matched to a real chapter and verse in a recognized translation, the system refuses to assert it.",
+    body: "Any tool we use — AI or otherwise — must refuse to fabricate Scripture. If a quotation cannot be matched to chapter and verse, we will not assert it.",
   },
   {
-    title: "Tradition is named",
-    body: "When an answer reflects a tradition, we say which tradition — and we offer the contrasting readings beside it.",
+    title: "One Gospel, not many",
+    body: "We will not soften the Gospel and we will not narrow it. We preach Christ crucified and risen — the same Gospel held by the worldwide Church across history.",
   },
   {
-    title: "Pastor over-ride",
-    body: "A vetted local pastor can mark guidance for their congregation; their note appears alongside the AI's answer.",
+    title: "Pastor in the loop",
+    body: "Local pastors can claim their flock's experience here. Their voice over-rides ours. We exist under, not over, the local church.",
   },
   {
-    title: "Refusal is a feature",
-    body: "On contested or speculative questions, the system explicitly says 'the Church is not of one mind here' instead of inventing certainty.",
+    title: "Refusal is faithfulness",
+    body: "On contested or speculative questions, we will say 'we don't know' or 'the Church holds this in tension' instead of inventing certainty.",
   },
 ];

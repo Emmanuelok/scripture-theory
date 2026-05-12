@@ -34,14 +34,14 @@ const pilots = [
 export default function ConnectPage() {
   return (
     <section className="mx-auto max-w-5xl px-5 pt-12 pb-20">
-      <span className="text-xs uppercase tracking-widest text-flame-700">Local Body Connect</span>
+      <span className="text-xs uppercase tracking-widest text-flame-700">One Body</span>
       <h1 className="font-serif text-4xl md:text-5xl mt-2 text-ink-900">
-        Digital must hand off to embodied.
+        Jesus has one Church. Find your room in it.
       </h1>
       <p className="mt-4 text-ink-700 max-w-2xl leading-relaxed">
-        Researchers describe the hardest unsolved problem in digital ministry this way: "Digital
-        discipleship is happening — it's just being led by an algorithm, not the church." Local
-        Body Connect is our answer.
+        The Christian life is not lived alone. Jesus prayed His people would be one — and He has
+        a real, local body of His people near you. We exist to introduce you to them, not to
+        replace them.
       </p>
 
       <div className="mt-10 grid md:grid-cols-2 gap-5">
