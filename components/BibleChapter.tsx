@@ -7,6 +7,7 @@ import { passages as lensPassages } from "@/data/lens";
 import { translations, translationOrder, type TranslationId } from "@/data/bible/translations";
 import { crossRefsFor } from "@/data/bible/cross-refs";
 import { referenceHref } from "@/lib/reference";
+import AudioBibleControls from "@/components/AudioBibleControls";
 
 type Marks = {
   highlights: string[];
@@ -311,6 +312,8 @@ export default function BibleChapter({
           <span aria-hidden>✎</span> My marks
         </Link>
       </div>
+
+      <AudioBibleControls bookId={bookId} chapter={chapterNum} />
 
       {/* Tap-a-verse hint (one-time) */}
       {mounted && !hintDismissed && (
