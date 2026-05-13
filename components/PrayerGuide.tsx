@@ -79,6 +79,13 @@ export default function PrayerGuide() {
           Pray for the nations
         </ModeButton>
         <Link
+          href="/pray/wall"
+          className="rounded-full px-4 py-2 text-sm border border-flame-300 bg-flame-50 text-flame-700 hover:bg-flame-100 inline-flex items-center gap-2"
+        >
+          <span aria-hidden>🤝</span>
+          Prayer Wall · the global Body
+        </Link>
+        <Link
           href="/pray/live"
           className="rounded-full px-4 py-2 text-sm border bg-flame-600 text-white border-flame-600 hover:bg-flame-700 inline-flex items-center gap-2"
         >
