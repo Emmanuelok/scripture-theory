@@ -36,7 +36,7 @@ export default async function NationPage({
   const daysUntil = daysUntilNation(nation.iso);
 
   return (
-    <section className="mx-auto max-w-3xl px-5 pt-12 pb-20">
+    <section className="mx-auto max-w-4xl px-5 pt-12 pb-24">
       <Link href="/pray/nations" className="text-xs uppercase tracking-widest text-flame-700 hover:underline">
         ← Today's nation
       </Link>
