@@ -2,24 +2,63 @@ import { canon, getBook, type BookMeta } from "@/data/bible/canon";
 import {
   seed,
   findChapter as findSeedChapter,
-  loadedChapters as seedLoaded,
+  loadedChapters as seedLoadedChapters,
+  loadedTranslations as seedLoadedTranslations,
   type ChapterText,
 } from "@/data/bible/seed";
 import { ingested } from "@/data/bible/text";
+import {
+  translations,
+  translationOrder,
+  type TranslationId,
+  type TranslationMeta,
+} from "@/data/bible/translations";
 
-// Chapter resolution: ingested WEB text wins; otherwise the hand-verified seed.
-export function getChapter(bookId: string, chapter: number): ChapterText | undefined {
-  return ingested?.[bookId]?.[chapter] ?? findSeedChapter(bookId, chapter);
+export const DEFAULT_TRANSLATION: TranslationId = "WEB";
+
+// Resolve a chapter. Prefer the requested translation; if missing, fall back
+// to any available translation (preferring WEB).
+export function getChapter(
+  bookId: string,
+  chapter: number,
+  translation: TranslationId = DEFAULT_TRANSLATION
+): ChapterText | undefined {
+  // Ingested catalog
+  const fromIngested = ingested[translation]?.[bookId]?.[chapter];
+  if (fromIngested) return fromIngested;
+  // Hand seed
+  const fromSeed = findSeedChapter(bookId, chapter, translation);
+  if (fromSeed) return fromSeed;
+  // Fallback to any available translation for this chapter (WEB first)
+  for (const t of translationOrder) {
+    const fromIng = ingested[t]?.[bookId]?.[chapter];
+    if (fromIng) return fromIng;
+    const fromSd = findSeedChapter(bookId, chapter, t);
+    if (fromSd) return fromSd;
+  }
+  return undefined;
+}
+
+export function availableTranslations(bookId: string, chapter: number): TranslationId[] {
+  const set = new Set<TranslationId>();
+  for (const t of translationOrder) {
+    if (ingested[t]?.[bookId]?.[chapter]) set.add(t);
+  }
+  for (const t of seedLoadedTranslations(bookId, chapter)) set.add(t);
+  return Array.from(set);
 }
 
 export function isLoaded(bookId: string, chapter: number): boolean {
-  return Boolean(getChapter(bookId, chapter));
+  return availableTranslations(bookId, chapter).length > 0;
 }
 
 export function loadedChaptersOf(bookId: string): number[] {
-  const fromIngested = ingested[bookId] ? Object.keys(ingested[bookId]).map(Number) : [];
-  const fromSeed = seedLoaded(bookId);
-  return Array.from(new Set<number>([...fromIngested, ...fromSeed])).sort((a, b) => a - b);
+  const set = new Set<number>(seedLoadedChapters(bookId));
+  for (const t of translationOrder) {
+    const tBook = ingested[t]?.[bookId];
+    if (tBook) for (const k of Object.keys(tBook)) set.add(Number(k));
+  }
+  return Array.from(set).sort((a, b) => a - b);
 }
 
 export type LoadedSummary = {
@@ -27,6 +66,8 @@ export type LoadedSummary = {
   totalChapters: number;
   booksWithText: number;
   chaptersWithText: number;
+  translationsLoaded: number;
+  translationsCatalog: number;
 };
 
 export function loadedSummary(): LoadedSummary {
@@ -37,13 +78,26 @@ export function loadedSummary(): LoadedSummary {
     if (loaded.length > 0) booksWithText++;
     chaptersWithText += loaded.length;
   }
+  const translationsLoaded = new Set<TranslationId>();
+  for (const c of seed) translationsLoaded.add(c.translation);
+  for (const t of translationOrder) {
+    if (ingested[t] && Object.keys(ingested[t]!).length > 0) translationsLoaded.add(t);
+  }
   return {
     totalBooks: canon.length,
     totalChapters: canon.reduce((a, b) => a + b.chapters, 0),
     booksWithText,
     chaptersWithText,
+    translationsLoaded: translationsLoaded.size,
+    translationsCatalog: translationOrder.length,
   };
 }
 
-export { canon, getBook, seed };
-export type { BookMeta, ChapterText };
+export {
+  canon,
+  getBook,
+  seed,
+  translations,
+  translationOrder,
+};
+export type { BookMeta, ChapterText, TranslationId, TranslationMeta };

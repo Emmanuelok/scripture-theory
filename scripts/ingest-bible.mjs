@@ -1,12 +1,25 @@
 #!/usr/bin/env node
-// Ingest the World English Bible (WEB) — public domain — from bible-api.com.
-// Writes data/bible/text.ts as a single typed module the app imports at build time.
+// Ingest authentic, published, public-domain Bible translations from bible-api.com.
+// We never machine-translate Scripture. Every translation served is in its
+// original published wording.
 //
-// Run:  npm run ingest-bible
-// Optional:  npm run ingest-bible -- --books=john,romans,psalms
+// Run all available translations:
+//   npm run ingest-bible
+// Restrict to a subset:
+//   npm run ingest-bible -- --translations=kjv,asv
+//   npm run ingest-bible -- --books=john,romans,psalms
+//   npm run ingest-bible -- --translations=web --books=psalms
 //
-// WEB credit:  Michael Paul Johnson · eBible.org · Public domain
-// bible-api.com:  https://bible-api.com/ (free, no key)
+// bible-api.com is a free public-domain Scripture API (no key, no auth).
+// Source for each translation is the public-domain edition:
+//   WEB     — World English Bible (Michael Paul Johnson · eBible.org)
+//   KJV     — King James Version (1769 Oxford)
+//   ASV     — American Standard Version (1901)
+//   BBE     — Bible in Basic English (1949)
+//   YLT     — Young's Literal Translation (1898)
+//   Darby   — Darby Bible (1890)
+//   DRB     — Douay-Rheims (Challoner Revision, 1899)
+//   Almeida — João Ferreira de Almeida (Portuguese, public-domain edition)
 
 import { writeFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -15,6 +28,20 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..");
 const OUT_PATH = resolve(REPO_ROOT, "data/bible/text.ts");
+
+// Translations bible-api.com serves natively.
+// Add more here when other public-domain APIs are wired in (RVR1909, LSG,
+// Luther 1912, Synodal, CUV, Vulgate are catalogued for follow-up ingestion).
+const TRANSLATIONS = [
+  { id: "WEB", key: "web" },
+  { id: "KJV", key: "kjv" },
+  { id: "ASV", key: "asv" },
+  { id: "BBE", key: "bbe" },
+  { id: "YLT", key: "ylt" },
+  { id: "DARBY", key: "darby" },
+  { id: "DRA", key: "drb" },
+  { id: "ALMEIDA", key: "almeida" },
+];
 
 const CANON = [
   ["genesis", 50], ["exodus", 40], ["leviticus", 27], ["numbers", 36], ["deuteronomy", 34],
@@ -35,7 +62,6 @@ const CANON = [
   ["jude", 1], ["revelation", 22],
 ];
 
-// Map our slug to the URL-friendly book name bible-api.com accepts.
 const URL_NAME = {
   songofsongs: "song of solomon",
   "1samuel": "1 samuel",
@@ -58,57 +84,76 @@ const URL_NAME = {
 };
 
 const args = process.argv.slice(2);
-const booksArg = args.find((a) => a.startsWith("--books="));
-const onlyBooks = booksArg
-  ? new Set(booksArg.replace("--books=", "").split(",").map((s) => s.trim()))
+function arg(flag) {
+  const a = args.find((x) => x.startsWith(flag + "="));
+  return a ? a.replace(flag + "=", "") : null;
+}
+const booksArg = arg("--books");
+const translationsArg = arg("--translations");
+
+const onlyBooks = booksArg ? new Set(booksArg.split(",").map((s) => s.trim())) : null;
+const onlyTranslations = translationsArg
+  ? new Set(translationsArg.split(",").map((s) => s.trim().toLowerCase()))
   : null;
 
-async function fetchChapter(bookSlug, chapter) {
+async function fetchChapter(apiKey, bookSlug, chapter) {
   const bookForUrl = URL_NAME[bookSlug] ?? bookSlug;
-  const url = `https://bible-api.com/${encodeURIComponent(bookForUrl + " " + chapter)}?translation=web`;
+  const url = `https://bible-api.com/${encodeURIComponent(
+    bookForUrl + " " + chapter
+  )}?translation=${apiKey}`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`bible-api.com ${res.status} for ${bookSlug} ${chapter}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
-  if (!data.verses || data.verses.length === 0) throw new Error(`no verses for ${bookSlug} ${chapter}`);
-  return data.verses.map((v) => ({ v: v.verse, t: v.text.trim() }));
+  if (!data.verses || data.verses.length === 0) throw new Error("empty verses");
+  return data.verses.map((v) => ({ v: v.verse, t: (v.text || "").trim() }));
 }
 
 async function main() {
-  const catalog = {};
+  const catalog = {}; // catalog[translationId][book][chapter] = ChapterText
   let totalChapters = 0;
   let failed = 0;
 
-  for (const [slug, chapters] of CANON) {
-    if (onlyBooks && !onlyBooks.has(slug)) continue;
-    catalog[slug] = {};
-    for (let c = 1; c <= chapters; c++) {
-      try {
-        const verses = await fetchChapter(slug, c);
-        catalog[slug][c] = { book: slug, chapter: c, translation: "WEB", verses };
-        totalChapters++;
-        process.stdout.write(`\r  ${slug} ${c}/${chapters}      `);
-        // Be gentle to the public API.
-        await new Promise((r) => setTimeout(r, 80));
-      } catch (err) {
-        failed++;
-        console.error(`\n  ! ${slug} ${c}: ${err.message}`);
+  const activeTranslations = TRANSLATIONS.filter(
+    (t) => !onlyTranslations || onlyTranslations.has(t.key) || onlyTranslations.has(t.id.toLowerCase())
+  );
+
+  for (const tr of activeTranslations) {
+    console.log(`\n— ${tr.id} (${tr.key}) —`);
+    catalog[tr.id] = {};
+    for (const [slug, chapters] of CANON) {
+      if (onlyBooks && !onlyBooks.has(slug)) continue;
+      catalog[tr.id][slug] = {};
+      for (let c = 1; c <= chapters; c++) {
+        try {
+          const verses = await fetchChapter(tr.key, slug, c);
+          catalog[tr.id][slug][c] = { book: slug, chapter: c, translation: tr.id, verses };
+          totalChapters++;
+          process.stdout.write(`\r  ${slug} ${c}/${chapters}      `);
+          await new Promise((r) => setTimeout(r, 80));
+        } catch (err) {
+          failed++;
+          console.error(`\n  ! ${tr.id} ${slug} ${c}: ${err.message}`);
+        }
       }
+      process.stdout.write("\n");
     }
-    process.stdout.write("\n");
   }
 
   mkdirSync(dirname(OUT_PATH), { recursive: true });
   const header = `// Auto-generated by scripts/ingest-bible.mjs — do not edit by hand.
-// Source: bible-api.com · World English Bible (WEB) · Public domain
+// Authentic public-domain translations fetched from bible-api.com.
 // Generated at: ${new Date().toISOString()}
 import type { ChapterText } from "./seed";
+import type { TranslationId } from "./translations";
 
-export const ingested: Record<string, Record<number, ChapterText>> = `;
+export const ingested: Partial<
+  Record<TranslationId, Record<string, Record<number, ChapterText>>>
+> = `;
   const body = JSON.stringify(catalog, null, 0);
   writeFileSync(OUT_PATH, header + body + ";\n", "utf8");
 
   console.log(
-    `\nIngested ${totalChapters} chapters across ${Object.keys(catalog).length} books — ${failed} failure(s).`
+    `\nIngested ${totalChapters} chapter-translations · ${failed} failure(s).`
   );
   console.log(`Wrote ${OUT_PATH}`);
 }

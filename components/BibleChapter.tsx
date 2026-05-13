@@ -4,19 +4,21 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { ChapterText } from "@/data/bible/seed";
 import { passages as lensPassages } from "@/data/lens";
+import { translations, type TranslationId } from "@/data/bible/translations";
 
 type Marks = {
-  highlights: string[]; // "john:3:16"
+  highlights: string[];
   bookmarks: string[];
   notes: Record<string, string>;
 };
 
-const STORAGE = "scripture-theory-bible-marks";
+const MARKS_STORAGE = "scripture-theory-bible-marks";
+const TRANSLATION_PREF = "scripture-theory-translation";
 
 function loadMarks(): Marks {
   if (typeof window === "undefined") return { highlights: [], bookmarks: [], notes: {} };
   try {
-    const raw = window.localStorage.getItem(STORAGE);
+    const raw = window.localStorage.getItem(MARKS_STORAGE);
     if (!raw) return { highlights: [], bookmarks: [], notes: {} };
     const parsed = JSON.parse(raw);
     return {
@@ -31,38 +33,60 @@ function loadMarks(): Marks {
 
 function saveMarks(m: Marks) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(STORAGE, JSON.stringify(m));
+  window.localStorage.setItem(MARKS_STORAGE, JSON.stringify(m));
 }
 
-function verseKey(bookId: string, chapter: number, v: number) {
-  return `${bookId}:${chapter}:${v}`;
+function verseKey(translation: TranslationId, bookId: string, chapter: number, v: number) {
+  return `${translation}:${bookId}:${chapter}:${v}`;
 }
 
 export default function BibleChapter({
-  chapter,
+  chapters,
   bookId,
   bookName,
   chapterNum,
+  available,
   prev,
   next,
 }: {
-  chapter: ChapterText;
+  chapters: Record<TranslationId, ChapterText | undefined>;
   bookId: string;
   bookName: string;
   chapterNum: number;
+  available: TranslationId[];
   prev: { book: string; chapter: number; bookName: string } | null;
   next: { book: string; chapter: number; bookName: string } | null;
 }) {
+  const [translationId, setTranslationId] = useState<TranslationId>(available[0]);
   const [marks, setMarks] = useState<Marks>({ highlights: [], bookmarks: [], notes: {} });
   const [activeVerse, setActiveVerse] = useState<number | null>(null);
   const [noteDraft, setNoteDraft] = useState("");
   const [copied, setCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [compareIds, setCompareIds] = useState<TranslationId[]>([]);
 
   useEffect(() => {
     setMarks(loadMarks());
+    if (typeof window !== "undefined") {
+      const pref = window.localStorage.getItem(TRANSLATION_PREF) as TranslationId | null;
+      if (pref && available.includes(pref)) setTranslationId(pref);
+    }
     setMounted(true);
-  }, []);
+  }, [available]);
+
+  function pickTranslation(t: TranslationId) {
+    setTranslationId(t);
+    try {
+      window.localStorage.setItem(TRANSLATION_PREF, t);
+    } catch {}
+  }
+
+  function toggleCompare(t: TranslationId) {
+    setCompareIds((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
+  }
+
+  const chapter = chapters[translationId];
+  const meta = translations[translationId];
 
   const lensMatch = useMemo(() => {
     const ref = `${bookName} ${chapterNum}`.toLowerCase();
@@ -78,7 +102,7 @@ export default function BibleChapter({
   }
 
   function toggleHighlight(v: number) {
-    const key = verseKey(bookId, chapterNum, v);
+    const key = verseKey(translationId, bookId, chapterNum, v);
     update({
       highlights: marks.highlights.includes(key)
         ? marks.highlights.filter((k) => k !== key)
@@ -87,7 +111,7 @@ export default function BibleChapter({
   }
 
   function toggleBookmark(v: number) {
-    const key = verseKey(bookId, chapterNum, v);
+    const key = verseKey(translationId, bookId, chapterNum, v);
     update({
       bookmarks: marks.bookmarks.includes(key)
         ? marks.bookmarks.filter((k) => k !== key)
@@ -96,7 +120,7 @@ export default function BibleChapter({
   }
 
   function saveNote(v: number, text: string) {
-    const key = verseKey(bookId, chapterNum, v);
+    const key = verseKey(translationId, bookId, chapterNum, v);
     const notes = { ...marks.notes };
     if (text.trim()) notes[key] = text.trim();
     else delete notes[key];
@@ -105,28 +129,59 @@ export default function BibleChapter({
 
   async function copyVerse(v: number, t: string) {
     try {
-      await navigator.clipboard.writeText(`"${t}" — ${bookName} ${chapterNum}:${v} (WEB)`);
+      await navigator.clipboard.writeText(
+        `"${t}" — ${bookName} ${chapterNum}:${v} (${meta.abbrev})`
+      );
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
     } catch {}
   }
 
-  const totalNotes = Object.keys(marks.notes).filter((k) =>
-    k.startsWith(`${bookId}:${chapterNum}:`)
-  ).length;
-  const totalHighlights = marks.highlights.filter((k) =>
-    k.startsWith(`${bookId}:${chapterNum}:`)
-  ).length;
-  const totalBookmarks = marks.bookmarks.filter((k) =>
-    k.startsWith(`${bookId}:${chapterNum}:`)
-  ).length;
+  if (!chapter) return null;
 
   return (
     <article className="space-y-6">
-      <div className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8 glow-ring">
+      <div className="rounded-2xl border border-ink-200 bg-ink-50/60 p-4">
+        <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
+          <div className="text-xs uppercase tracking-widest text-ink-500">
+            Translation · {available.length} available for this chapter
+          </div>
+          <div className="text-xs text-ink-500">
+            {meta.publisher} · {meta.year} · {meta.license}
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {available.map((id) => {
+            const t = translations[id];
+            const active = id === translationId;
+            return (
+              <button
+                key={id}
+                onClick={() => pickTranslation(id)}
+                className={`rounded-full px-3 py-1 text-xs border transition-colors ${
+                  active
+                    ? "bg-ink-900 text-ink-50 border-ink-900"
+                    : "bg-white text-ink-700 border-ink-200 hover:border-ink-400"
+                }`}
+                title={`${t.name} · ${t.languageNative}`}
+              >
+                <span className="font-medium">{t.abbrev}</span>{" "}
+                <span className={active ? "text-ink-300" : "text-ink-500"}>
+                  · {t.languageNative}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div
+        className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8 glow-ring"
+        lang={meta.language.toLowerCase().slice(0, 2)}
+      >
         <div className="prose-scripture text-ink-900">
           {chapter.verses.map((verse) => {
-            const key = verseKey(bookId, chapterNum, verse.v);
+            const key = verseKey(translationId, bookId, chapterNum, verse.v);
             const isHi = mounted && marks.highlights.includes(key);
             const isBk = mounted && marks.bookmarks.includes(key);
             const hasNote = mounted && Boolean(marks.notes[key]);
@@ -160,15 +215,67 @@ export default function BibleChapter({
             );
           })}
         </div>
-
-        {mounted && (totalHighlights + totalBookmarks + totalNotes > 0) && (
-          <div className="mt-6 border-t border-ink-100 pt-3 text-xs text-ink-500 flex flex-wrap gap-3">
-            {totalHighlights > 0 && <span>{totalHighlights} highlight{totalHighlights > 1 && "s"}</span>}
-            {totalBookmarks > 0 && <span>{totalBookmarks} bookmark{totalBookmarks > 1 && "s"}</span>}
-            {totalNotes > 0 && <span>{totalNotes} note{totalNotes > 1 && "s"}</span>}
-          </div>
-        )}
       </div>
+
+      {available.length > 1 && (
+        <details className="rounded-3xl border border-ink-200 bg-white p-6">
+          <summary className="cursor-pointer text-sm text-ink-700 hover:text-flame-700">
+            Compare side-by-side ({available.length - 1} other{" "}
+            {available.length - 1 === 1 ? "translation" : "translations"} available)
+          </summary>
+          <div className="mt-4">
+            <div className="flex flex-wrap gap-2 mb-4">
+              {available
+                .filter((id) => id !== translationId)
+                .map((id) => {
+                  const t = translations[id];
+                  const on = compareIds.includes(id);
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => toggleCompare(id)}
+                      className={`rounded-full px-3 py-1 text-xs border transition-colors ${
+                        on
+                          ? "bg-ink-900 text-ink-50 border-ink-900"
+                          : "bg-white text-ink-700 border-ink-200 hover:border-ink-400"
+                      }`}
+                    >
+                      {t.abbrev} · {t.languageNative}
+                    </button>
+                  );
+                })}
+            </div>
+            {compareIds.length > 0 && (
+              <div className="space-y-4">
+                {compareIds.map((id) => {
+                  const cText = chapters[id];
+                  const m = translations[id];
+                  if (!cText) return null;
+                  return (
+                    <div
+                      key={id}
+                      className="rounded-2xl border border-ink-200 p-4"
+                      lang={m.language.toLowerCase().slice(0, 2)}
+                    >
+                      <div className="text-xs uppercase tracking-widest text-flame-700 mb-2">
+                        {m.name} · {m.year}
+                      </div>
+                      <div className="prose-scripture text-ink-800 text-sm">
+                        {cText.verses.map((v) => (
+                          <span key={v.v}>
+                            <sup className="text-[10px] text-flame-700 mr-0.5">{v.v}</sup>
+                            <span>{v.t}</span>{" "}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </details>
+      )}
 
       {mounted && activeVerse !== null && (
         <div
@@ -177,7 +284,8 @@ export default function BibleChapter({
         >
           <div className="flex flex-wrap items-baseline justify-between gap-3">
             <h3 className="font-serif text-xl text-ink-900">
-              {bookName} {chapterNum}:{activeVerse}
+              {bookName} {chapterNum}:{activeVerse}{" "}
+              <span className="text-xs text-ink-500 font-sans">({meta.abbrev})</span>
             </h3>
             <button
               onClick={() => setActiveVerse(null)}
@@ -195,15 +303,15 @@ export default function BibleChapter({
               onClick={() => toggleHighlight(activeVerse)}
               className="rounded-full bg-ink-900 text-ink-50 px-3.5 py-1.5 text-xs hover:bg-flame-700"
             >
-              {marks.highlights.includes(verseKey(bookId, chapterNum, activeVerse))
+              {marks.highlights.includes(verseKey(translationId, bookId, chapterNum, activeVerse))
                 ? "Remove highlight"
-                : "Highlight verse"}
+                : "Highlight"}
             </button>
             <button
               onClick={() => toggleBookmark(activeVerse)}
               className="rounded-full border border-ink-300 px-3.5 py-1.5 text-xs text-ink-800 hover:border-ink-900"
             >
-              {marks.bookmarks.includes(verseKey(bookId, chapterNum, activeVerse))
+              {marks.bookmarks.includes(verseKey(translationId, bookId, chapterNum, activeVerse))
                 ? "Remove bookmark"
                 : "Bookmark"}
             </button>
@@ -232,7 +340,7 @@ export default function BibleChapter({
               value={noteDraft}
               onChange={(e) => setNoteDraft(e.target.value)}
               rows={3}
-              placeholder="What is the Spirit saying to you in this verse?"
+              placeholder="What is the Spirit saying to you here?"
               className="mt-1.5 w-full rounded-xl border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-flame-300"
             />
             <div className="mt-2 flex gap-2">
@@ -242,7 +350,7 @@ export default function BibleChapter({
               >
                 Save note
               </button>
-              {marks.notes[verseKey(bookId, chapterNum, activeVerse)] && (
+              {marks.notes[verseKey(translationId, bookId, chapterNum, activeVerse)] && (
                 <button
                   onClick={() => {
                     saveNote(activeVerse, "");
@@ -255,7 +363,7 @@ export default function BibleChapter({
               )}
             </div>
             <p className="mt-2 text-[11px] text-ink-500">
-              Notes, highlights, and bookmarks live only on this device.
+              Notes, highlights, and bookmarks live only on this device, keyed by translation.
             </p>
           </div>
         </div>

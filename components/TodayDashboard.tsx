@@ -8,6 +8,10 @@ import { localizedPlan, localizedDay } from "@/data/readings-i18n";
 import { worldPrayer, todaysRegionIndex } from "@/data/prayers";
 import { prayerLocales } from "@/data/prayers-i18n";
 import { locales, type LocaleCode } from "@/data/gospel-i18n";
+import { seed as bibleSeed } from "@/data/bible/seed";
+import { translations as transMeta } from "@/data/bible/translations";
+import { canon as bibleCanon } from "@/data/bible/canon";
+import { referenceHref } from "@/lib/reference";
 import PrayingForList from "@/components/PrayingForList";
 
 const PLAN_PROGRESS_KEY = "scripture-theory-progress";
@@ -75,6 +79,23 @@ export default function TodayDashboard() {
 
   // Today's region of the world
   const region = worldPrayer[todaysRegionIndex()];
+
+  // Today's verse — rotated daily from the WEB seed (authentic public-domain text).
+  const dailyVerse = useMemo(() => {
+    const webChapters = bibleSeed.filter((c) => c.translation === "WEB");
+    if (webChapters.length === 0) return null;
+    // Flatten to (book, chapter, verse) tuples and pick one by day-of-year.
+    const tuples: { book: string; chapter: number; v: number; t: string }[] = [];
+    for (const c of webChapters) {
+      for (const v of c.verses) tuples.push({ book: c.book, chapter: c.chapter, v: v.v, t: v.t });
+    }
+    const pick = tuples[dayOfYear(now) % tuples.length];
+    const bookMeta = bibleCanon.find((b) => b.id === pick.book);
+    return {
+      ...pick,
+      bookName: bookMeta?.name ?? pick.book,
+    };
+  }, [now]);
 
   // Today's curated next step, based on stage
   const nextStep = useMemo(() => {
@@ -177,6 +198,28 @@ export default function TodayDashboard() {
         </Link>
       </section>
 
+      {dailyVerse && (
+        <section className="rounded-3xl border border-flame-300 bg-gradient-to-br from-flame-50 to-white p-6 md:p-8 glow-ring">
+          <div className="text-xs uppercase tracking-widest text-flame-700">
+            Today's verse · {transMeta.WEB.abbrev}
+          </div>
+          <blockquote className="mt-3 prose-scripture text-ink-900 text-lg md:text-xl">
+            "{dailyVerse.t}"
+          </blockquote>
+          <div className="mt-3 flex flex-wrap items-baseline justify-between gap-3">
+            <span className="text-sm text-ink-600 italic">
+              — {dailyVerse.bookName} {dailyVerse.chapter}:{dailyVerse.v} ({transMeta.WEB.abbrev})
+            </span>
+            <Link
+              href={`/bible/${dailyVerse.book}/${dailyVerse.chapter}#v${dailyVerse.v}`}
+              className="text-xs text-flame-700 hover:underline"
+            >
+              Open in the Bible →
+            </Link>
+          </div>
+        </section>
+      )}
+
       <PrayingForList />
 
       <div className="grid md:grid-cols-2 gap-5">
@@ -188,12 +231,25 @@ export default function TodayDashboard() {
           <div className="text-sm text-ink-500 mt-0.5">{nextRef}</div>
           <p className="mt-3 font-serif text-lg text-ink-900">{nextTitle}</p>
           <p className="mt-2 text-ink-700 leading-relaxed text-sm">{nextMed}</p>
-          <Link
-            href="/read"
-            className="mt-4 inline-flex items-center rounded-full bg-ink-900 text-ink-50 px-4 py-1.5 text-sm hover:bg-flame-700"
-          >
-            Open the reading
-          </Link>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {(() => {
+              const href = referenceHref(nextReading.reference);
+              return href ? (
+                <Link
+                  href={href}
+                  className="inline-flex items-center rounded-full bg-ink-900 text-ink-50 px-4 py-1.5 text-sm hover:bg-flame-700"
+                >
+                  Open in the Bible
+                </Link>
+              ) : null;
+            })()}
+            <Link
+              href="/read"
+              className="inline-flex items-center rounded-full border border-ink-300 px-4 py-1.5 text-sm text-ink-800 hover:border-ink-900"
+            >
+              Open plan
+            </Link>
+          </div>
         </section>
 
         <section

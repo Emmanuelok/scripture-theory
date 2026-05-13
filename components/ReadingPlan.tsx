@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { readingPlans } from "@/data/readings";
 import { localizedPlan, localizedDay } from "@/data/readings-i18n";
 import { locales, type LocaleCode } from "@/data/gospel-i18n";
+import { referenceHref } from "@/lib/reference";
 
 type Progress = Record<string, number[]>;
 
@@ -130,14 +132,27 @@ export default function ReadingPlanView() {
             <span className="text-sm text-ink-300">{nextTitle}</span>
           </div>
           <p className="mt-3 text-ink-200 leading-relaxed">{nextMeditation}</p>
-          {mounted && (
-            <button
-              onClick={() => toggle(nextDay.day)}
-              className="mt-5 inline-flex items-center rounded-full bg-flame-600 hover:bg-flame-700 text-ink-50 px-5 py-2 text-sm"
-            >
-              {done.includes(nextDay.day) ? "Mark unread" : "Mark today read"}
-            </button>
-          )}
+          <div className="mt-5 flex flex-wrap gap-2">
+            {(() => {
+              const href = referenceHref(nextDay.reference);
+              return href ? (
+                <Link
+                  href={href}
+                  className="inline-flex items-center rounded-full bg-flame-600 hover:bg-flame-700 text-ink-50 px-5 py-2 text-sm"
+                >
+                  Open in the Bible →
+                </Link>
+              ) : null;
+            })()}
+            {mounted && (
+              <button
+                onClick={() => toggle(nextDay.day)}
+                className="inline-flex items-center rounded-full border border-ink-50/30 text-ink-50 px-5 py-2 text-sm hover:bg-ink-50/10"
+              >
+                {done.includes(nextDay.day) ? "Mark unread" : "Mark today read"}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

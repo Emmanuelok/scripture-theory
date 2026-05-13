@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { canon, getBook } from "@/data/bible/canon";
-import { getChapter, isLoaded } from "@/lib/bible";
+import { getChapter, isLoaded, availableTranslations } from "@/lib/bible";
 import BibleChapter from "@/components/BibleChapter";
-import { TRANSLATION_NAME } from "@/data/bible/seed";
+import type { ChapterText } from "@/data/bible/seed";
+import type { TranslationId } from "@/data/bible/translations";
+import { translations as transMeta, translationOrder } from "@/data/bible/translations";
 
 export function generateStaticParams() {
   const out: { book: string; chapter: string }[] = [];
@@ -26,9 +28,12 @@ export default async function ChapterPage({
   const chapter = Number(chapterStr);
   if (Number.isNaN(chapter) || chapter < 1 || chapter > book.chapters) notFound();
 
-  const text = getChapter(book.id, chapter);
+  const available = availableTranslations(book.id, chapter);
+  const chaptersByTranslation = {} as Record<TranslationId, ChapterText | undefined>;
+  for (const t of translationOrder) {
+    chaptersByTranslation[t] = getChapter(book.id, chapter, t);
+  }
 
-  // Compute prev/next within the canon, walking ingested or seeded text only when possible.
   const prev = computeNeighbor(book.id, chapter, -1);
   const next = computeNeighbor(book.id, chapter, +1);
 
@@ -43,15 +48,20 @@ export default async function ChapterPage({
       <h1 className="font-serif text-4xl md:text-5xl mt-3 text-ink-900 leading-tight">
         {book.name} {chapter}
       </h1>
-      <p className="mt-2 text-sm text-ink-500">{TRANSLATION_NAME}</p>
+      <p className="mt-2 text-sm text-ink-500">
+        {available.length > 0
+          ? `${available.length} authentic translation${available.length === 1 ? "" : "s"} available · all public domain`
+          : "Not yet ingested"}
+      </p>
 
       <div className="mt-8">
-        {text ? (
+        {available.length > 0 ? (
           <BibleChapter
-            chapter={text}
+            chapters={chaptersByTranslation}
             bookId={book.id}
             bookName={book.name}
             chapterNum={chapter}
+            available={available}
             prev={prev}
             next={next}
           />
@@ -71,18 +81,23 @@ function NotIngested({ book, chapter }: { book: string; chapter: number }) {
         {book} {chapter} is part of the canon — it just isn't loaded in this build yet.
       </h2>
       <p className="mt-3 text-ink-700 leading-relaxed">
-        The World English Bible is fully public domain. To fill in the rest of the canon, run the
-        ingestion script in the repo:
+        Every Bible served here is an <em>authentic, published, public-domain translation</em> — no
+        machine translation. To fill in more of the canon and more translations, run the ingestion
+        script:
       </p>
       <pre className="mt-3 rounded-xl bg-ink-900 text-ink-50 p-4 text-sm overflow-x-auto">
 {`# from the project root
-npm run ingest-bible`}
+npm run ingest-bible
+# or restrict to one translation:
+npm run ingest-bible -- --translations=kjv
+# or one book in many translations:
+npm run ingest-bible -- --books=psalms`}
       </pre>
       <p className="mt-3 text-sm text-ink-500 leading-relaxed">
-        It fetches WEB from <code className="bg-ink-100 px-1.5 py-0.5 rounded">bible-api.com</code>{" "}
-        (public-domain) and writes <code className="bg-ink-100 px-1.5 py-0.5 rounded">data/bible/text.ts</code>.
-        Hand-verified seed chapters (Psalms 1, 23, 100, 117, 150) are already loaded so the
-        architecture is honest from day one.
+        It fetches authentic public-domain editions from
+        <code className="bg-ink-100 px-1.5 py-0.5 rounded">bible-api.com</code>{" "}
+        (WEB, KJV, ASV, BBE, YLT, Darby, Douay-Rheims, Almeida) and writes
+        <code className="bg-ink-100 px-1.5 py-0.5 rounded">data/bible/text.ts</code>.
       </p>
     </div>
   );
@@ -95,23 +110,22 @@ function computeNeighbor(
 ): { book: string; chapter: number; bookName: string } | null {
   const book = getBook(bookId);
   if (!book) return null;
-
-  // Try same book first
   const targetCh = chapter + step;
   if (targetCh >= 1 && targetCh <= book.chapters && isLoaded(bookId, targetCh)) {
     return { book: bookId, chapter: targetCh, bookName: book.name };
   }
-
-  // Walk forward/backward through canon for any loaded chapter
   const order = step > 0 ? canon : [...canon].reverse();
   const idx = order.findIndex((b) => b.id === bookId);
   for (let i = idx; i < order.length; i++) {
     const b = order[i];
-    const start = b.id === bookId ? (step > 0 ? chapter + 1 : chapter - 1) : step > 0 ? 1 : b.chapters;
+    const start =
+      b.id === bookId ? (step > 0 ? chapter + 1 : chapter - 1) : step > 0 ? 1 : b.chapters;
     if (step > 0) {
-      for (let c = start; c <= b.chapters; c++) if (isLoaded(b.id, c)) return { book: b.id, chapter: c, bookName: b.name };
+      for (let c = start; c <= b.chapters; c++)
+        if (isLoaded(b.id, c)) return { book: b.id, chapter: c, bookName: b.name };
     } else {
-      for (let c = start; c >= 1; c--) if (isLoaded(b.id, c)) return { book: b.id, chapter: c, bookName: b.name };
+      for (let c = start; c >= 1; c--)
+        if (isLoaded(b.id, c)) return { book: b.id, chapter: c, bookName: b.name };
     }
   }
   return null;
