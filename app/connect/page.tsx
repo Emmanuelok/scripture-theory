@@ -1,7 +1,9 @@
+import ChurchFinder from "@/components/ChurchFinder";
+
 export const metadata = {
-  title: "Local Body Connect — Scripture Theory",
+  title: "One Body — Scripture Theory",
   description:
-    "We exist under, not over, the local church. Local Body Connect hands each disciple off to a real pastor — not just a pin on a map.",
+    "Jesus has one Church. Search the pilot directory across Lagos, São Paulo, Manila, Nairobi, and Phoenix — and request a warm intro to a real local pastor.",
 };
 
 const principles = [
@@ -11,24 +13,16 @@ const principles = [
   },
   {
     title: "Warm intros, not cold pins.",
-    body: "Instead of a map of churches you'll never visit, we connect you to a vetted local pastor or small-group leader with a brief, optional introduction.",
+    body: "Instead of a map of churches you'll never visit, we connect you to a vetted local pastor or welcome-team leader with a brief, optional introduction.",
   },
   {
-    title: "Confession-honest filtering.",
-    body: "Filter by language, distance, accessibility, and tradition — Orthodox, Catholic, Anglican, Reformed, Lutheran, Wesleyan, Baptist, Pentecostal, Anabaptist, African-Independent, Messianic, Non-denominational.",
+    title: "Tradition-honest filtering.",
+    body: "Filter by city, language, and tradition — Anglican, Baptist, Catholic, Evangelical, Lutheran, Methodist, Non-denominational, Orthodox, Pentecostal, Presbyterian, Reformed.",
   },
   {
     title: "Pastor in the loop.",
-    body: "Local pastors can claim their listing, set their discipleship culture, and over-ride AI answers for their own congregation.",
+    body: "Local pastors can claim their listing, set their discipleship culture, and shape how their flock is welcomed here.",
   },
-];
-
-const pilots = [
-  { city: "Lagos, Nigeria", note: "African Independent + Pentecostal + Anglican" },
-  { city: "São Paulo, Brazil", note: "Pentecostal + Roman Catholic + Reformed" },
-  { city: "Manila, Philippines", note: "Roman Catholic + Evangelical + Charismatic" },
-  { city: "Nairobi, Kenya", note: "Anglican + Pentecostal + Reformed" },
-  { city: "Phoenix, USA", note: "Non-denominational + Roman Catholic + Reformed" },
 ];
 
 export default function ConnectPage() {
@@ -53,30 +47,30 @@ export default function ConnectPage() {
         ))}
       </div>
 
-      <div className="mt-12 rounded-2xl border border-ink-200 bg-ink-50 p-6 md:p-8">
-        <h2 className="font-serif text-2xl text-ink-900">Five pilot cities (Q3)</h2>
-        <p className="mt-2 text-sm text-ink-600">
-          We are starting where the global Church is most plural and most growing.
-        </p>
-        <ul className="mt-5 grid md:grid-cols-5 gap-3">
-          {pilots.map((p) => (
-            <li
-              key={p.city}
-              className="rounded-xl bg-white border border-ink-200 p-4"
-            >
-              <div className="font-serif text-ink-900">{p.city}</div>
-              <div className="text-xs text-ink-500 mt-1 leading-snug">{p.note}</div>
-            </li>
-          ))}
-        </ul>
+      <div className="mt-14">
+        <div className="flex items-baseline justify-between gap-3 flex-wrap">
+          <div>
+            <span className="text-xs uppercase tracking-widest text-flame-700">Pilot directory</span>
+            <h2 className="font-serif text-3xl md:text-4xl mt-2 text-ink-900">
+              Search the five pilot cities.
+            </h2>
+          </div>
+          <span className="text-xs text-ink-500 max-w-xs text-right">
+            Pilot preview — 25 illustrative listings across 11 traditions. Real claimed listings open
+            in Q3.
+          </span>
+        </div>
+
+        <div className="mt-8">
+          <ChurchFinder />
+        </div>
       </div>
 
-      <div className="mt-12 rounded-2xl bg-ink-900 text-ink-50 p-8 text-center">
-        <p className="font-serif text-2xl">
-          "And let us consider how to stir up one another to love and good works, not neglecting to
-          meet together..."
+      <div className="mt-16 rounded-3xl bg-ink-900 text-ink-50 p-8 text-center">
+        <p className="font-serif text-2xl leading-snug">
+          "...that they may all be one... so that the world may believe that you have sent me."
         </p>
-        <p className="mt-2 text-ink-300">Hebrews 10:24–25</p>
+        <p className="mt-2 text-ink-300">John 17:21 — Jesus</p>
       </div>
     </section>
   );
