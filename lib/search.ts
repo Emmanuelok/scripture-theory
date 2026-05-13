@@ -1,7 +1,6 @@
 import { passages } from "@/data/lens";
 import { readingPlans } from "@/data/readings";
 import { lordsPrayer, acts, worldPrayer } from "@/data/prayers";
-import { churches, cities, traditionLabels } from "@/data/churches";
 import { gospelMovements } from "@/data/gospel";
 import { testimonies } from "@/data/testimonies";
 import { canon } from "@/data/bible/canon";
@@ -12,7 +11,6 @@ export type SearchKind =
   | "bible"
   | "plan"
   | "prayer"
-  | "church"
   | "gospel"
   | "testimony";
 
@@ -30,7 +28,6 @@ const KIND_LABEL: Record<SearchKind, string> = {
   bible: "Bible (WEB)",
   plan: "Reading plan",
   prayer: "Prayer",
-  church: "Church",
   gospel: "The Gospel",
   testimony: "Testimony",
 };
@@ -135,21 +132,6 @@ function buildIndex(): Indexed[] {
     });
   }
 
-  // Churches
-  for (const c of churches) {
-    const city = cities[c.city];
-    const tradition = traditionLabels[c.tradition];
-    items.push({
-      kind: "church",
-      title: c.name,
-      subtitle: `${tradition} · ${c.neighborhood}, ${city.label}`,
-      snippet: c.discipleship,
-      href: "/connect",
-      weight: 3,
-      hay: `${c.name} ${c.neighborhood} ${city.label} ${city.country} ${tradition} ${c.languages.join(" ")} ${c.discipleship}`.toLowerCase(),
-    });
-  }
-
   // Gospel movements
   for (const m of gospelMovements) {
     items.push({
@@ -241,7 +223,6 @@ export function quickStats() {
     bible: 0,
     plan: 0,
     prayer: 0,
-    church: 0,
     gospel: 0,
     testimony: 0,
   };

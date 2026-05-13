@@ -9,12 +9,11 @@ const KIND_COLOR: Record<SearchKind, string> = {
   scripture: "bg-flame-100 text-flame-900",
   plan: "bg-emerald-100 text-emerald-900",
   prayer: "bg-sky-100 text-sky-900",
-  church: "bg-amber-100 text-amber-900",
   gospel: "bg-rose-100 text-rose-900",
   testimony: "bg-violet-100 text-violet-900",
 };
 
-const ALL_KINDS: SearchKind[] = ["bible", "scripture", "plan", "prayer", "church", "gospel", "testimony"];
+const ALL_KINDS: SearchKind[] = ["bible", "scripture", "plan", "prayer", "gospel", "testimony"];
 
 const SUGGESTIONS = [
   "John 3",

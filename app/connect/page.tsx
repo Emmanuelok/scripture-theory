@@ -1,9 +1,9 @@
-import ChurchFinder from "@/components/ChurchFinder";
+import ChurchFinderWizard from "@/components/ChurchFinderWizard";
 
 export const metadata = {
   title: "One Body — Scripture Theory",
   description:
-    "Jesus has one Church. Search the pilot directory across Lagos, São Paulo, Manila, Nairobi, and Phoenix — and request a warm intro to a real local pastor.",
+    "Find a real local Christian church anywhere on earth. Powered by OpenStreetMap (the same open data used by Apple Maps and Wikipedia). We ask you three questions, then surface real churches near you — never fabricated.",
 };
 
 const principles = [
@@ -12,58 +12,43 @@ const principles = [
     body: "Scripture Theory is designed to make itself the second-most-used Christian tool in your life. Your local church should always be first.",
   },
   {
-    title: "Warm intros, not cold pins.",
-    body: "Instead of a map of churches you'll never visit, we connect you to a vetted local pastor or welcome-team leader with a brief, optional introduction.",
+    title: "Real data, never invented.",
+    body: "Every church we show comes from OpenStreetMap — the world's open, community-edited map. We will never mislead you with fabricated listings.",
   },
   {
-    title: "Tradition-honest filtering.",
-    body: "Filter by city, language, and tradition — Anglican, Baptist, Catholic, Evangelical, Lutheran, Methodist, Non-denominational, Orthodox, Pentecostal, Presbyterian, Reformed.",
+    title: "Three questions, then results.",
+    body: "We ask where you are, how far you can travel, and what tradition you'd like to start with. You can widen any of these from the results screen.",
   },
   {
-    title: "Pastor in the loop.",
-    body: "Local pastors can claim their listing, set their discipleship culture, and shape how their flock is welcomed here.",
+    title: "Verify before you visit.",
+    body: "Each result links to Google Maps directions, the church's website (if listed), and the source entry on OpenStreetMap. Confirm details with the church directly.",
   },
 ];
 
 export default function ConnectPage() {
   return (
-    <section className="mx-auto max-w-5xl px-5 pt-12 pb-20">
+    <section className="mx-auto max-w-3xl px-5 pt-12 pb-20">
       <span className="text-xs uppercase tracking-widest text-flame-700">One Body</span>
       <h1 className="font-serif text-4xl md:text-5xl mt-2 text-ink-900">
         Jesus has one Church. Find your room in it.
       </h1>
       <p className="mt-4 text-ink-700 max-w-2xl leading-relaxed">
         The Christian life is not lived alone. Jesus prayed His people would be one — and He has
-        a real, local body of His people near you. We exist to introduce you to them, not to
-        replace them.
+        a real, local body of His people near you. Answer three short questions and we'll surface
+        the churches that match, anywhere on earth.
       </p>
 
-      <div className="mt-10 grid md:grid-cols-2 gap-5">
-        {principles.map((p) => (
-          <div key={p.title} className="rounded-2xl bg-card border border-ink-200 p-6">
-            <div className="font-serif text-xl text-ink-900">{p.title}</div>
-            <p className="mt-2 text-ink-700 leading-relaxed text-sm">{p.body}</p>
-          </div>
-        ))}
+      <div className="mt-10">
+        <ChurchFinderWizard />
       </div>
 
-      <div className="mt-14">
-        <div className="flex items-baseline justify-between gap-3 flex-wrap">
-          <div>
-            <span className="text-xs uppercase tracking-widest text-flame-700">Pilot directory</span>
-            <h2 className="font-serif text-3xl md:text-4xl mt-2 text-ink-900">
-              Search the five pilot cities.
-            </h2>
+      <div className="mt-14 grid md:grid-cols-2 gap-4">
+        {principles.map((p) => (
+          <div key={p.title} className="rounded-2xl bg-card border border-ink-200 p-5">
+            <div className="font-serif text-lg text-ink-900">{p.title}</div>
+            <p className="mt-1.5 text-ink-700 leading-relaxed text-sm">{p.body}</p>
           </div>
-          <span className="text-xs text-ink-500 max-w-xs text-right">
-            Pilot preview — 25 illustrative listings across 11 traditions. Real claimed listings open
-            in Q3.
-          </span>
-        </div>
-
-        <div className="mt-8">
-          <ChurchFinder />
-        </div>
+        ))}
       </div>
 
       <div className="mt-14 rounded-3xl border border-flame-200 bg-flame-50/60 p-6 md:p-8">
@@ -71,12 +56,20 @@ export default function ConnectPage() {
           <div>
             <div className="text-xs uppercase tracking-widest text-flame-700">For pastors</div>
             <h3 className="font-serif text-2xl text-ink-900 mt-1">
-              Pastor of a local church? Claim your listing.
+              Pastor of a local church?
             </h3>
             <p className="text-sm text-ink-700 mt-2 leading-relaxed max-w-xl">
-              We exist <em>under</em> your work, not over it. Tell us about your church and we'll
-              route newcomers to you on your terms — verified by a real person on our team before
-              anything goes live.
+              We surface every Christian church OpenStreetMap has tagged. If your church is missing
+              or its details are outdated, the best fix is to{" "}
+              <a
+                href="https://www.openstreetmap.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-flame-700 underline"
+              >
+                edit it directly on OpenStreetMap
+              </a>
+              {" "}— the change flows to us automatically. You can also claim your presence on Scripture Theory below.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -102,6 +95,11 @@ export default function ConnectPage() {
         </p>
         <p className="mt-2 text-ink-300">John 17:21 — Jesus</p>
       </div>
+
+      <p className="mt-6 text-xs text-ink-500 leading-relaxed text-center max-w-xl mx-auto">
+        Data: © OpenStreetMap contributors (ODbL). Geocoding: Nominatim · OpenStreetMap.
+        We never sell, share, or store your location.
+      </p>
     </section>
   );
 }
