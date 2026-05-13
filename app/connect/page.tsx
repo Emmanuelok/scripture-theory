@@ -79,12 +79,20 @@ export default function ConnectPage() {
               anything goes live.
             </p>
           </div>
-          <a
-            href="/connect/claim"
-            className="inline-flex items-center rounded-full bg-ink-900 text-ink-50 px-5 py-2.5 text-sm hover:bg-flame-700 transition-colors whitespace-nowrap"
-          >
-            Claim your church →
-          </a>
+          <div className="flex flex-wrap gap-2">
+            <a
+              href="/connect/claim"
+              className="inline-flex items-center rounded-full bg-ink-900 text-ink-50 px-5 py-2.5 text-sm hover:bg-flame-700 transition-colors whitespace-nowrap"
+            >
+              Claim your church →
+            </a>
+            <a
+              href="/connect/dashboard"
+              className="inline-flex items-center rounded-full border border-ink-300 px-5 py-2.5 text-sm text-ink-800 hover:border-ink-900 transition-colors whitespace-nowrap"
+            >
+              Preview the dashboard
+            </a>
+          </div>
         </div>
       </div>
 

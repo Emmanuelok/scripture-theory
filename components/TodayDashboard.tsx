@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useProfile, stageInfo } from "@/lib/profile";
 import { readingPlans } from "@/data/readings";
+import { localizedPlan, localizedDay } from "@/data/readings-i18n";
 import { worldPrayer, todaysRegionIndex } from "@/data/prayers";
 import { prayerLocales } from "@/data/prayers-i18n";
 import { locales, type LocaleCode } from "@/data/gospel-i18n";
@@ -60,6 +61,11 @@ export default function TodayDashboard() {
   const nextReading =
     activePlan.days.find((d) => !activeDone.includes(d.day)) ??
     activePlan.days[activePlan.days.length - 1];
+  const localizedNext = localizedDay(locale as LocaleCode, activePlan.id, nextReading.day);
+  const nextRef = localizedNext?.reference ?? nextReading.reference;
+  const nextTitle = localizedNext?.title ?? nextReading.title;
+  const nextMed = localizedNext?.meditation ?? nextReading.meditation;
+  const activePlanLocalName = localizedPlan(locale as LocaleCode, activePlan.id)?.name ?? activePlan.name;
 
   // Today's Lord's Prayer line, rotated by day
   const prayerLine = useMemo(() => {
@@ -146,7 +152,7 @@ export default function TodayDashboard() {
         <div className="mt-6 grid md:grid-cols-3 gap-4">
           <Mini
             label="Active plan"
-            value={activePlan.name}
+            value={activePlanLocalName}
             sub={`${activeDone.length} of ${activePlan.totalDays} days read`}
           />
           <Mini label="Language" value={locales[locale].meta.nativeName} sub={locales[locale].meta.languageName} />
@@ -174,14 +180,14 @@ export default function TodayDashboard() {
       <PrayingForList />
 
       <div className="grid md:grid-cols-2 gap-5">
-        <section className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8" lang={locale}>
+        <section className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8" lang={locale} dir={dir}>
           <div className="text-xs uppercase tracking-widest text-flame-700">Today's Word</div>
           <h2 className="font-serif text-2xl text-ink-900 mt-1">
-            {activePlan.name} · Day {nextReading.day}
+            {activePlanLocalName} · Day {nextReading.day}
           </h2>
-          <div className="text-sm text-ink-500 mt-0.5">{nextReading.reference}</div>
-          <p className="mt-3 font-serif text-lg text-ink-900">{nextReading.title}</p>
-          <p className="mt-2 text-ink-700 leading-relaxed text-sm">{nextReading.meditation}</p>
+          <div className="text-sm text-ink-500 mt-0.5">{nextRef}</div>
+          <p className="mt-3 font-serif text-lg text-ink-900">{nextTitle}</p>
+          <p className="mt-2 text-ink-700 leading-relaxed text-sm">{nextMed}</p>
           <Link
             href="/read"
             className="mt-4 inline-flex items-center rounded-full bg-ink-900 text-ink-50 px-4 py-1.5 text-sm hover:bg-flame-700"

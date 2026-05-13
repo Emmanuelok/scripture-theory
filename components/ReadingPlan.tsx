@@ -2,10 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { readingPlans } from "@/data/readings";
+import { localizedPlan, localizedDay } from "@/data/readings-i18n";
+import { locales, type LocaleCode } from "@/data/gospel-i18n";
 
 type Progress = Record<string, number[]>;
 
 const STORAGE = "scripture-theory-progress";
+const LOCALE_STORAGE = "scripture-theory-locale";
 
 function loadProgress(): Progress {
   if (typeof window === "undefined") return {};
@@ -25,10 +28,15 @@ function saveProgress(p: Progress) {
 export default function ReadingPlanView() {
   const [activeId, setActiveId] = useState(readingPlans[0].id);
   const [progress, setProgress] = useState<Progress>({});
+  const [locale, setLocale] = useState<LocaleCode>("en");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setProgress(loadProgress());
+    if (typeof window !== "undefined") {
+      const saved = window.localStorage.getItem(LOCALE_STORAGE) as LocaleCode | null;
+      if (saved && locales[saved]) setLocale(saved);
+    }
     setMounted(true);
   }, []);
 
@@ -36,11 +44,21 @@ export default function ReadingPlanView() {
     () => readingPlans.find((p) => p.id === activeId) ?? readingPlans[0],
     [activeId]
   );
+  const i18nPlan = useMemo(() => localizedPlan(locale, plan.id), [locale, plan.id]);
+  const planName = i18nPlan?.name ?? plan.name;
+  const planTagline = i18nPlan?.tagline ?? plan.tagline;
+  const planDescription = i18nPlan?.description ?? plan.description;
+  const dir = locales[locale].meta.dir;
+
   const done = progress[plan.id] ?? [];
   const nextDay = useMemo(() => {
     for (const d of plan.days) if (!done.includes(d.day)) return d;
     return plan.days[plan.days.length - 1];
   }, [plan, done]);
+  const nextLocalized = localizedDay(locale, plan.id, nextDay.day);
+  const nextReference = nextLocalized?.reference ?? nextDay.reference;
+  const nextTitle = nextLocalized?.title ?? nextDay.title;
+  const nextMeditation = nextLocalized?.meditation ?? nextDay.meditation;
 
   function toggle(day: number) {
     setProgress((prev) => {
@@ -58,32 +76,40 @@ export default function ReadingPlanView() {
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap gap-2">
-        {readingPlans.map((p) => (
-          <button
-            key={p.id}
-            onClick={() => setActiveId(p.id)}
-            className={`rounded-full px-4 py-2 text-sm border transition-colors ${
-              p.id === activeId
-                ? "bg-ink-900 text-ink-50 border-ink-900"
-                : "bg-white text-ink-700 border-ink-200 hover:border-ink-400"
-            }`}
-          >
-            {p.name}
-          </button>
-        ))}
+        {readingPlans.map((p) => {
+          const localizedName = localizedPlan(locale, p.id)?.name ?? p.name;
+          return (
+            <button
+              key={p.id}
+              onClick={() => setActiveId(p.id)}
+              className={`rounded-full px-4 py-2 text-sm border transition-colors ${
+                p.id === activeId
+                  ? "bg-ink-900 text-ink-50 border-ink-900"
+                  : "bg-white text-ink-700 border-ink-200 hover:border-ink-400"
+              }`}
+              lang={locale}
+            >
+              {localizedName}
+            </button>
+          );
+        })}
       </div>
 
-      <div className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8 glow-ring">
+      <div
+        className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8 glow-ring"
+        dir={dir}
+        lang={locale}
+      >
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <div>
-            <h2 className="font-serif text-3xl text-ink-900">{plan.name}</h2>
-            <p className="text-ink-500 mt-1">{plan.tagline}</p>
+            <h2 className="font-serif text-3xl text-ink-900">{planName}</h2>
+            <p className="text-ink-500 mt-1">{planTagline}</p>
           </div>
           <span className="text-xs uppercase tracking-widest text-ink-400">
             {mounted ? `${done.length} / ${plan.totalDays} read` : `${plan.totalDays} days`}
           </span>
         </div>
-        <p className="mt-4 text-ink-700 leading-relaxed">{plan.description}</p>
+        <p className="mt-4 text-ink-700 leading-relaxed">{planDescription}</p>
 
         {mounted && (
           <div className="mt-5 h-2 bg-ink-100 rounded-full overflow-hidden">
@@ -99,11 +125,11 @@ export default function ReadingPlanView() {
           <div className="text-xs uppercase tracking-widest text-flame-300">Today's reading</div>
           <div className="mt-1 flex flex-wrap items-baseline justify-between gap-3">
             <h3 className="font-serif text-2xl">
-              Day {nextDay.day} — {nextDay.reference}
+              Day {nextDay.day} — {nextReference}
             </h3>
-            <span className="text-sm text-ink-300">{nextDay.title}</span>
+            <span className="text-sm text-ink-300">{nextTitle}</span>
           </div>
-          <p className="mt-3 text-ink-200 leading-relaxed">{nextDay.meditation}</p>
+          <p className="mt-3 text-ink-200 leading-relaxed">{nextMeditation}</p>
           {mounted && (
             <button
               onClick={() => toggle(nextDay.day)}
@@ -120,6 +146,9 @@ export default function ReadingPlanView() {
         <ol className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
           {plan.days.map((d) => {
             const isDone = done.includes(d.day);
+            const local = localizedDay(locale, plan.id, d.day);
+            const ref = local?.reference ?? d.reference;
+            const title = local?.title ?? d.title;
             return (
               <li key={d.day}>
                 <button
@@ -129,12 +158,14 @@ export default function ReadingPlanView() {
                       ? "bg-emerald-50 border-emerald-200 text-emerald-900"
                       : "bg-white border-ink-200 hover:border-ink-400 text-ink-800"
                   }`}
+                  lang={locale}
+                  dir={dir}
                 >
                   <div className="flex items-baseline justify-between gap-2">
                     <span className="font-medium">Day {d.day}</span>
-                    <span className="text-xs text-ink-500">{d.reference}</span>
+                    <span className="text-xs text-ink-500">{ref}</span>
                   </div>
-                  <div className="text-xs text-ink-500 mt-0.5">{d.title}</div>
+                  <div className="text-xs text-ink-500 mt-0.5">{title}</div>
                 </button>
               </li>
             );
