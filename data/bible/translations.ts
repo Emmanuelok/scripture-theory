@@ -1,26 +1,30 @@
-// Registry of authentic, published, mainstream-accepted, public-domain Bible
-// translations. Editorial standard:
+// Registry of authentic, published, public-domain Bible translations.
+// Editorial standard:
 //
 //   - Every translation is real, named, and published by a recognized
 //     publisher or translation committee.
-//   - We never machine-translate or AI-paraphrase Scripture.
 //   - We do NOT include paraphrases (e.g., The Message, The Passion
-//     Translation, Living Bible) or sectarian translations rejected by the
-//     mainstream Church (e.g., New World Translation).
-//   - We do NOT include niche-only or extreme-literal editions (e.g.,
-//     Young's Literal, Darby, Bible in Basic English) that are scholarly
-//     curiosities rather than the Bibles ordinary Christians read in their
-//     congregations.
+//     Translation, Living Bible) — they are not translations.
+//   - We do NOT include sectarian editions rejected by the mainstream
+//     Church (e.g., the New World Translation).
+//   - We do NOT include AI / machine-translated text of any kind. Scripture
+//     must be translated by named human translators.
 //
-// What remains is the set of historically accepted, denominationally trusted,
-// public-domain Bibles in major world languages — the kind of catalog you
-// would find on YouVersion or in a respected denominational study Bible.
+// What remains is the breadth of authentic public-domain Bibles in major
+// world languages — including widely-used mainstream editions (KJV, ASV,
+// WEB, Reina-Valera, Almeida, Louis Segond, Luther, Synodal, CUV, Vulgate,
+// Douay-Rheims) AND legitimate scholarly/historical editions (YLT, Darby,
+// BBE). We carry them so readers can compare and choose — we do not gate
+// the catalog beyond what the editorial standard above demands.
 
 export type TranslationId =
   // English
   | "WEB"     // World English Bible (eBible.org, public domain)
   | "KJV"     // King James Version (1769 Oxford)
   | "ASV"     // American Standard Version (1901)
+  | "BBE"     // Bible in Basic English (1949)
+  | "YLT"     // Young's Literal Translation (1898)
+  | "DARBY"   // Darby Bible (1890)
   | "DRA"     // Douay-Rheims (Challoner Revision, 1899) — Roman Catholic
   // Spanish
   | "RVR1909" // Reina-Valera 1909
@@ -49,6 +53,7 @@ export type TranslationMeta = {
   source?: string;
   ingestKey?: string;
   dir?: "ltr" | "rtl";
+  note?: string;
 };
 
 export const translations: Record<TranslationId, TranslationMeta> = {
@@ -74,6 +79,30 @@ export const translations: Record<TranslationId, TranslationMeta> = {
     publisher: "Thomas Nelson & Sons",
     license: "Public domain",
     ingestKey: "asv",
+  },
+  BBE: {
+    id: "BBE", name: "Bible in Basic English", abbrev: "BBE",
+    language: "English", languageNative: "English (Basic)", year: 1949,
+    publisher: "Samuel Hooke · Cambridge University Press",
+    license: "Public domain",
+    ingestKey: "bbe",
+    note: "Simplified-vocabulary edition. Useful for English-as-a-second-language readers.",
+  },
+  YLT: {
+    id: "YLT", name: "Young's Literal Translation", abbrev: "YLT",
+    language: "English", languageNative: "English", year: 1898,
+    publisher: "Robert Young",
+    license: "Public domain",
+    ingestKey: "ylt",
+    note: "Strictly literal word-for-word rendering. A study tool, not a reading Bible.",
+  },
+  DARBY: {
+    id: "DARBY", name: "Darby Bible", abbrev: "Darby",
+    language: "English", languageNative: "English", year: 1890,
+    publisher: "John Nelson Darby",
+    license: "Public domain",
+    ingestKey: "darby",
+    note: "Translated by J. N. Darby; widely used in Plymouth Brethren and study contexts.",
   },
   DRA: {
     id: "DRA", name: "Douay-Rheims (Challoner)", abbrev: "DRA",
@@ -130,11 +159,11 @@ export const translations: Record<TranslationId, TranslationMeta> = {
 };
 
 export const translationOrder: TranslationId[] = [
-  "WEB", "KJV", "ASV", "DRA",
+  "WEB", "KJV", "ASV", "BBE", "YLT", "DARBY", "DRA",
   "RVR1909", "ALMEIDA", "LSG", "LUT1912", "SYNODAL", "CUV", "VULGATE",
 ];
 
-export const englishTranslations: TranslationId[] = ["WEB", "KJV", "ASV", "DRA"];
+export const englishTranslations: TranslationId[] = ["WEB", "KJV", "ASV", "BBE", "YLT", "DARBY", "DRA"];
 
-// Why this catalog is what it is (shown on /bible):
-export const EDITORIAL_NOTE = `Every Bible served here is an authentic, published, mainstream-accepted, public-domain translation made by named translators and recognized by the worldwide Church. We do not include paraphrases (The Message, The Passion Translation, Living Bible), sectarian translations rejected by the mainstream Church (e.g., New World Translation), AI or machine-translated text, or niche/extreme-literal scholarly editions (Young's Literal, Darby, Bible in Basic English). The remaining catalog is the set of Bibles ordinary Christians actually read in their congregations across major world languages.`;
+// Why this catalog is what it is (shown on /bible).
+export const EDITORIAL_NOTE = `Every Bible served here is an authentic, published, public-domain translation made by named human translators. We deliberately exclude paraphrases (The Message, The Passion Translation, Living Bible) because they are not translations; sectarian editions rejected by the mainstream Church (e.g., the New World Translation); and AI or machine-translated text of any kind. Within that line, we carry the full breadth of legitimate public-domain Bibles — widely-used mainstream editions and scholarly/historical ones alike — so that readers can compare them and choose for themselves. We are not in the business of gatekeeping which faithful Bible a believer is allowed to read.`;

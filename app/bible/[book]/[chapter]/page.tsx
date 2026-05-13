@@ -94,9 +94,9 @@ npm run ingest-bible -- --translations=kjv
 npm run ingest-bible -- --books=psalms`}
       </pre>
       <p className="mt-3 text-sm text-ink-500 leading-relaxed">
-        It fetches authentic, mainstream-accepted, public-domain editions from
+        It fetches authentic public-domain editions from
         {" "}<code className="bg-ink-100 px-1.5 py-0.5 rounded">bible-api.com</code>{" "}
-        (WEB, KJV, ASV, Douay-Rheims, Almeida) and writes
+        (WEB, KJV, ASV, BBE, YLT, Darby, Douay-Rheims, Almeida) and writes
         {" "}<code className="bg-ink-100 px-1.5 py-0.5 rounded">data/bible/text.ts</code>.
       </p>
     </div>

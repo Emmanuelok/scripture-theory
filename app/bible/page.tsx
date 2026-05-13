@@ -7,7 +7,7 @@ import { seed } from "@/data/bible/seed";
 export const metadata = {
   title: "The Bible — Scripture Theory",
   description:
-    "Read mainstream, denominationally accepted, public-domain Bible translations — WEB, KJV, ASV, Douay-Rheims, Reina-Valera 1909, Almeida, Louis Segond, Luther, Synodal, CUV, Vulgate — with per-verse study tools.",
+    "Read authentic, public-domain Bible translations — WEB, KJV, ASV, BBE, YLT, Darby, Douay-Rheims, Reina-Valera 1909, Almeida, Louis Segond, Luther, Synodal, CUV, Vulgate — with per-verse study tools. No paraphrases, no AI translation.",
 };
 
 export default function BiblePage() {
@@ -24,10 +24,10 @@ export default function BiblePage() {
         The Word of God, in your hands.
       </h1>
       <p className="mt-4 text-ink-700 max-w-2xl leading-relaxed">
-        Every Bible served here is an <em>authentic, published, mainstream-accepted,
-        public-domain translation</em> — the kind of Bible ordinary Christians read in their
-        congregations. We never machine-translate Scripture. We do not carry paraphrases or
-        controversial editions. Read freely. Compare side-by-side. Highlight. Take notes.
+        Every Bible served here is an <em>authentic, published, public-domain translation</em>{" "}
+        by named human translators. We exclude paraphrases, sectarian editions, and AI-translated
+        text — but within that line we carry the full breadth of legitimate public-domain Bibles,
+        mainstream and scholarly alike, so readers can compare them and choose for themselves.
       </p>
 
       <div className="mt-8 grid md:grid-cols-3 gap-4">
@@ -79,6 +79,11 @@ export default function BiblePage() {
                   {t.languageNative} · {t.year}
                 </div>
                 <div className="text-[11px] text-ink-400 mt-1.5 leading-snug">{t.publisher}</div>
+                {t.note && (
+                  <div className="text-[11px] text-flame-700 mt-1.5 leading-snug italic">
+                    {t.note}
+                  </div>
+                )}
               </li>
             );
           })}
