@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import { AuthProvider } from "@/lib/auth";
+import { ProfileSyncBridge } from "@/components/ProfileSyncBridge";
 
 export const metadata: Metadata = {
   title: "Scripture Theory — Encounter JESUS. Engage the Word. Live the Kingdom.",
@@ -56,9 +58,12 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
       </head>
       <body className="min-h-screen flex flex-col bg-ink-50 text-ink-900">
-        <Nav />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <AuthProvider>
+          <ProfileSyncBridge />
+          <Nav />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

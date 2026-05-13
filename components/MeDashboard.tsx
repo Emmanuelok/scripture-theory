@@ -8,6 +8,7 @@ import { localizedPlan } from "@/data/readings-i18n";
 import { locales, type LocaleCode } from "@/data/gospel-i18n";
 import { findNation } from "@/data/nations";
 import { flagEmoji } from "@/lib/flags";
+import { useAuth } from "@/lib/auth";
 
 const PROFILE_KEY = "scripture-theory-profile";
 const PLAN_PROGRESS_KEY = "scripture-theory-progress";
@@ -121,6 +122,8 @@ export default function MeDashboard() {
       />
 
       <StatGrid stats={stats} />
+
+      <SignInBanner />
 
       <SecretPlaceCard profile={profile} />
 
@@ -985,6 +988,51 @@ function BackupCard() {
         </p>
       )}
     </section>
+  );
+}
+
+function SignInBanner() {
+  const { configured, ready, user } = useAuth();
+  if (!configured || !ready) return null;
+  if (user) {
+    return (
+      <Link
+        href="/account"
+        className="block rounded-2xl border border-ink-200 bg-card-subtle p-4 hover:border-flame-500 transition-colors"
+      >
+        <div className="flex items-baseline justify-between gap-3">
+          <div>
+            <div className="text-[10px] uppercase tracking-widest text-flame-700">
+              Signed in · syncing
+            </div>
+            <div className="text-sm text-ink-700 mt-1">
+              {user.email} — your walk travels with you.
+            </div>
+          </div>
+          <span className="text-xs text-flame-700 shrink-0">Account →</span>
+        </div>
+      </Link>
+    );
+  }
+  return (
+    <Link
+      href="/account"
+      className="block rounded-3xl border border-flame-300 bg-flame-50/60 p-5 hover:bg-flame-50 transition-colors"
+    >
+      <div className="flex items-baseline justify-between gap-3">
+        <div>
+          <div className="text-xs uppercase tracking-widest text-flame-700">Optional</div>
+          <div className="font-serif text-lg text-ink-900 mt-1">
+            Sign in so you don't lose your walk when you change devices.
+          </div>
+          <p className="text-sm text-ink-700 mt-1 leading-relaxed">
+            One passwordless link to your email. The Secret Place stays on this device unless you
+            opt it in.
+          </p>
+        </div>
+        <span className="text-xs text-flame-700 shrink-0">Sign in →</span>
+      </div>
+    </Link>
   );
 }
 

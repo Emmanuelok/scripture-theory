@@ -10,6 +10,7 @@
     "ingest-bible": "node scripts/ingest-bible.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.105.4",
     "d3-geo": "^3.1.1",
     "next": "^16.2.6",
     "react": "18.3.1",

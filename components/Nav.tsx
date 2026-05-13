@@ -1,5 +1,7 @@
 import Link from "next/link";
+import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
+import AccountChip from "@/components/AccountChip";
 
 const links = [
   { href: "/today", label: "Today" },
@@ -16,10 +18,8 @@ export default function Nav() {
   return (
     <header className="sticky top-0 z-30 backdrop-blur bg-ink-50/80 border-b border-ink-200">
       <nav className="mx-auto max-w-6xl px-5 h-16 flex items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2 group shrink-0">
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-ink-900 text-flame-300 font-serif text-lg">
-            ST
-          </span>
+        <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+          <Logo size={36} className="shrink-0" />
           <span className="font-serif text-lg tracking-tight text-ink-900 group-hover:text-flame-700 transition-colors">
             Scripture Theory
           </span>
@@ -55,6 +55,7 @@ export default function Nav() {
             </svg>
           </Link>
           <ThemeToggle />
+          <AccountChip />
           <Link
             href="/start"
             className="hidden md:inline-flex items-center rounded-full bg-flame-600 text-white px-4 py-1.5 text-sm hover:bg-flame-700 transition-colors"
