@@ -34,6 +34,7 @@ export default function Footer() {
           <div className="text-ink-700 font-medium">Grow & go</div>
           <ul className="mt-2 space-y-1">
             <li><Link href="/today" className="hover:text-ink-900">Today</Link></li>
+            <li><Link href="/me" className="hover:text-ink-900">My walk</Link></li>
             <li><Link href="/secret-place" className="hover:text-ink-900">My Secret Place</Link></li>
             <li><Link href="/disciple" className="hover:text-ink-900">The Path</Link></li>
             <li><Link href="/disciple/journey" className="hover:text-ink-900">Discipleship Journey</Link></li>

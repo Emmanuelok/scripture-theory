@@ -164,7 +164,9 @@ export default function TodayDashboard() {
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <div>
             <div className="text-xs uppercase tracking-widest text-flame-300">
-              {greeting(now, locale)} {profile.stage && `· ${stageInfo[profile.stage].label}`}
+              {greeting(now, locale)}
+              {profile.name ? `, ${profile.name}` : ""}
+              {profile.stage && ` · ${stageInfo[profile.stage].label}`}
             </div>
             <h1 className="font-serif text-3xl md:text-4xl mt-1">
               {now.toLocaleDateString(locale === "en" ? undefined : locale, {
@@ -259,6 +261,56 @@ export default function TodayDashboard() {
       <EncourageMe />
 
       <PrayingForList />
+
+      <section className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8">
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <div>
+            <div className="text-xs uppercase tracking-widest text-flame-700">Practices</div>
+            <h2 className="font-serif text-2xl text-ink-900 mt-1">
+              Old paths for today.
+            </h2>
+            <p className="mt-1 text-sm text-ink-600">
+              The disciplines that have actually formed believers across history. Pick one tonight.
+            </p>
+          </div>
+          <Link
+            href="/practices"
+            className="text-xs text-flame-700 hover:underline"
+          >
+            All practices →
+          </Link>
+        </div>
+        <div className="mt-5 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <PracticeChip href="/hours" eyebrow="Now" title="The Daily Office" sub="Pray the hour you're in" />
+          <PracticeChip href="/examen" eyebrow="5 minutes" title="Daily Examen" sub="End the day with Him" />
+          <PracticeChip href="/listen" eyebrow="His voice" title="Listening prayer" sub="Quiet down. Open the Word. Hear." />
+          <PracticeChip href="/fast" eyebrow="Matt 6:16" title="Fasting" sub="When, not if." />
+          <PracticeChip href="/lament" eyebrow="Psalms" title="Lament" sub="Bring the wound to Him" />
+          <PracticeChip href="/forgive" eyebrow="70 × 7" title="Forgiveness walk" sub="Lay down the debt" />
+          <PracticeChip href="/heal" eyebrow="James 5" title="Healing prayer" sub="Pray for the sick" />
+          <PracticeChip href="/sabbath" eyebrow="Exod 20:8" title="Sabbath" sub="One day in seven" />
+          <PracticeChip href="/catechism" eyebrow="1 of 52" title="Catechism" sub="This week's Lord's Day" />
+        </div>
+      </section>
+
+      <Link
+        href="/persecuted"
+        className="block rounded-3xl border border-ink-200 bg-card p-6 hover:border-flame-500 transition-colors"
+      >
+        <div className="flex items-baseline justify-between gap-3">
+          <div>
+            <div className="text-xs uppercase tracking-widest text-flame-700">
+              Hebrews 13:3 · This month
+            </div>
+            <h2 className="font-serif text-2xl text-ink-900 mt-1">Remember the persecuted Church.</h2>
+            <p className="mt-2 text-sm text-ink-700 leading-relaxed">
+              ~365 million believers face high or extreme pressure for following Jesus. They are
+              your family. Pray for them by name.
+            </p>
+          </div>
+          <span className="text-xs text-flame-700 shrink-0">Open →</span>
+        </div>
+      </Link>
 
       <div className="grid md:grid-cols-2 gap-5">
         <section className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8" lang={locale} dir={dir}>
@@ -408,5 +460,30 @@ function Mini({ label, value, sub }: { label: string; value: string; sub: string
       <div className="font-serif text-lg text-ink-50 mt-1">{value}</div>
       <div className="text-xs text-ink-300 mt-0.5">{sub}</div>
     </div>
+  );
+}
+
+function PracticeChip({
+  href,
+  eyebrow,
+  title,
+  sub,
+}: {
+  href: string;
+  eyebrow: string;
+  title: string;
+  sub: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group rounded-2xl border border-ink-200 bg-card-subtle p-4 hover:border-flame-500 transition-colors"
+    >
+      <div className="text-[10px] uppercase tracking-widest text-flame-700">{eyebrow}</div>
+      <div className="font-serif text-ink-900 mt-1 group-hover:text-flame-700 transition-colors">
+        {title}
+      </div>
+      <div className="text-xs text-ink-500 mt-0.5">{sub}</div>
+    </Link>
   );
 }

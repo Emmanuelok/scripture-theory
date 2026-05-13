@@ -47,6 +47,30 @@ const TOOLS = [
     title: "Jesus in the Word",
     sub: "How Orthodox, Catholic, Reformed, Wesleyan, Pentecostal, and Anabaptist believers have read the same passage — together pointing to Christ.",
   },
+  {
+    href: "/practices",
+    eyebrow: "23 ancient practices",
+    title: "Practices hub",
+    sub: "Daily Office, fasting, examen, lament, forgiveness, listening prayer, family altar, the Lord's Supper at home, the rule of life, healing prayer, marriage and parenting rhythms, and more.",
+  },
+  {
+    href: "/catechism",
+    eyebrow: "1563 · 52 Lord's Days",
+    title: "Heidelberg Catechism",
+    sub: "The warmest of the Reformation catechisms — 129 questions and answers in three movements: misery, deliverance, gratitude. One Lord's Day per week.",
+  },
+  {
+    href: "/apologetics",
+    eyebrow: "1 Peter 3:15",
+    title: "Apologetics",
+    sub: "Pastoral, honest answers to the hardest questions Christians are asked — God, the Bible, Jesus, suffering, science, hell, sexuality, hypocrisy.",
+  },
+  {
+    href: "/hymns",
+    eyebrow: "21 public-domain hymns",
+    title: "The hymns",
+    sub: "Wesley, Watts, Luther, Spafford, Newton — the songs the Church has sung for centuries, in full text.",
+  },
 ];
 
 export default function ResourcesHub() {
