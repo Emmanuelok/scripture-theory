@@ -119,3 +119,56 @@ html {
     transition-duration: 0.01ms !important;
   }
 }
+
+/*
+ * Accessibility — user-controlled overrides.
+ * These apply when data-* attributes are set on <html> by the
+ * AccessibilityPanel or AccessibilityBoot script.
+ */
+
+html[data-a11y-text="lg"] { font-size: 17.5px; }
+html[data-a11y-text="xl"] { font-size: 19.5px; }
+html[data-a11y-text="xxl"] { font-size: 22px; }
+
+html[data-a11y-font="dyslexic"] body,
+html[data-a11y-font="dyslexic"] body * {
+  font-family: "OpenDyslexic", "Atkinson Hyperlegible", "Lexend", ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: 0.02em;
+}
+
+html[data-a11y-contrast="high"] {
+  --ink-900: 0 0 0;
+  --ink-50: 255 255 255;
+  --ink-200: 0 0 0;
+  --flame-700: 153 51 0;
+}
+html[data-a11y-contrast="high"][data-theme="dark"] {
+  --ink-900: 255 255 255;
+  --ink-50: 0 0 0;
+  --ink-200: 255 255 255;
+  --flame-700: 255 196 130;
+}
+html[data-a11y-contrast="high"] * {
+  text-shadow: none !important;
+}
+
+html[data-a11y-motion="reduced"] *,
+html[data-a11y-motion="reduced"] *::before,
+html[data-a11y-motion="reduced"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+html[data-a11y-underline="on"] a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Always-visible focus ring */
+:focus-visible {
+  outline: 2px solid rgb(var(--flame-500));
+  outline-offset: 2px;
+  border-radius: 4px;
+}

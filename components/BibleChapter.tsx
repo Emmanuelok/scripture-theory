@@ -9,6 +9,7 @@ import { crossRefsFor } from "@/data/bible/cross-refs";
 import { referenceHref } from "@/lib/reference";
 import { studyLinksFor } from "@/lib/study-tools";
 import AudioBibleControls from "@/components/AudioBibleControls";
+import VerseCardModal from "@/components/VerseCardModal";
 
 type Marks = {
   highlights: string[];
@@ -98,6 +99,7 @@ export default function BibleChapter({
   const [marks, setMarks] = useState<Marks>({ highlights: [], bookmarks: [], notes: {} });
   const [prefs, setPrefs] = useState<ReaderPrefs>({ fontScale: 1, spacing: "comfortable" });
   const [activeVerse, setActiveVerse] = useState<number | null>(null);
+  const [shareVerse, setShareVerse] = useState<number | null>(null);
   const [noteDraft, setNoteDraft] = useState("");
   const [copied, setCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -117,6 +119,23 @@ export default function BibleChapter({
     }
     setMounted(true);
   }, [available]);
+
+  // Remember last-read position
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(
+        "scripture-theory-last-read",
+        JSON.stringify({
+          bookId,
+          bookName,
+          chapter: chapterNum,
+          translation: translationId,
+          at: new Date().toISOString(),
+        })
+      );
+    } catch {}
+  }, [bookId, bookName, chapterNum, translationId]);
 
   // Fetch the active translation if not provided + not yet fetched.
   useEffect(() => {
@@ -314,7 +333,13 @@ export default function BibleChapter({
         </Link>
       </div>
 
-      <AudioBibleControls bookId={bookId} chapter={chapterNum} />
+      <AudioBibleControls
+        bookId={bookId}
+        chapter={chapterNum}
+        bookName={bookName}
+        verses={chapter?.verses}
+        langCode={meta.language.toLowerCase().slice(0, 2)}
+      />
 
       {/* Tap-a-verse hint (one-time) */}
       {mounted && !hintDismissed && (
@@ -526,15 +551,13 @@ export default function BibleChapter({
               >
                 Share text
               </button>
-              <a
-                href={`/api/verse-card/${bookId}/${chapterNum}/${activeVerse}?translation=${translationId}`}
-                target="_blank"
-                rel="noopener"
+              <button
+                onClick={() => setShareVerse(activeVerse)}
                 className="rounded-full border border-flame-300 bg-card text-flame-700 px-3.5 py-1.5 text-xs hover:bg-flame-50"
-                title="Open a 1080x1080 verse card you can save and share"
+                title="Make a beautiful verse card to share"
               >
                 Share as image
-              </a>
+              </button>
               {lensMatch && (
                 <Link
                   href="/lens"
@@ -665,6 +688,19 @@ export default function BibleChapter({
         <div className="fixed bottom-5 right-5 rounded-full bg-ink-900 text-ink-50 px-4 py-2 text-xs shadow-lg">
           Loading {translations[loadingTranslation].abbrev}…
         </div>
+      )}
+
+      {mounted && shareVerse !== null && chapter && (
+        <VerseCardModal
+          bookId={bookId}
+          bookName={bookName}
+          chapter={chapterNum}
+          verse={shareVerse}
+          verseText={chapter.verses.find((v) => v.v === shareVerse)?.t ?? ""}
+          translation={translationId}
+          translationAbbrev={meta.abbrev}
+          onClose={() => setShareVerse(null)}
+        />
       )}
     </article>
   );

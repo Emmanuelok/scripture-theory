@@ -2,6 +2,7 @@ import Link from "next/link";
 import { canon, oldTestament, newTestament } from "@/data/bible/canon";
 import { loadedSummary } from "@/lib/bible";
 import { translationOrder } from "@/data/bible/translations";
+import ContinueReadingCard from "@/components/ContinueReadingCard";
 
 export const metadata = {
   title: "The Bible — Scripture Theory",
@@ -44,6 +45,8 @@ export default function BiblePage() {
           </Link>
         </div>
       </div>
+
+      <ContinueReadingCard />
 
       <Testament name="Old Testament" books={oldTestament} />
       <Testament name="New Testament" books={newTestament} />
