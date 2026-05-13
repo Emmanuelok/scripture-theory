@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { NewsItem } from "@/lib/news";
+import WorldMapView from "@/components/WorldMapView";
 
 type Item = NewsItem & { prayerWorthy?: boolean };
 type FilterMode = "all" | "urgent";
@@ -110,6 +111,8 @@ export default function WorldFeed() {
           </button>
         </div>
       </div>
+
+      {items.length > 0 && <WorldMapView items={items} />}
 
       {status === "loading" && items.length === 0 && <FeedSkeleton />}
 

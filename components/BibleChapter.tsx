@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { ChapterText } from "@/data/bible/seed";
 import { passages as lensPassages } from "@/data/lens";
-import { translations, type TranslationId } from "@/data/bible/translations";
+import { translations, translationOrder, type TranslationId } from "@/data/bible/translations";
 
 type Marks = {
   highlights: string[];
@@ -12,8 +12,21 @@ type Marks = {
   notes: Record<string, string>;
 };
 
+type ReaderPrefs = {
+  fontScale: number; // 1 = base, 0.875 small, 1.125 comfortable, 1.25 large
+  spacing: "compact" | "comfortable";
+};
+
 const MARKS_STORAGE = "scripture-theory-bible-marks";
 const TRANSLATION_PREF = "scripture-theory-translation";
+const READER_PREFS = "scripture-theory-reader";
+
+const FONT_SCALES = [
+  { value: 0.875, label: "S" },
+  { value: 1, label: "M" },
+  { value: 1.125, label: "L" },
+  { value: 1.25, label: "XL" },
+];
 
 function loadMarks(): Marks {
   if (typeof window === "undefined") return { highlights: [], bookmarks: [], notes: {} };
@@ -34,6 +47,26 @@ function loadMarks(): Marks {
 function saveMarks(m: Marks) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(MARKS_STORAGE, JSON.stringify(m));
+}
+
+function loadPrefs(): ReaderPrefs {
+  if (typeof window === "undefined") return { fontScale: 1, spacing: "comfortable" };
+  try {
+    const raw = window.localStorage.getItem(READER_PREFS);
+    if (!raw) return { fontScale: 1, spacing: "comfortable" };
+    const parsed = JSON.parse(raw);
+    return {
+      fontScale: typeof parsed.fontScale === "number" ? parsed.fontScale : 1,
+      spacing: parsed.spacing === "compact" ? "compact" : "comfortable",
+    };
+  } catch {
+    return { fontScale: 1, spacing: "comfortable" };
+  }
+}
+
+function savePrefs(p: ReaderPrefs) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(READER_PREFS, JSON.stringify(p));
 }
 
 function verseKey(translation: TranslationId, bookId: string, chapter: number, v: number) {
@@ -59,19 +92,24 @@ export default function BibleChapter({
 }) {
   const [translationId, setTranslationId] = useState<TranslationId>(available[0] ?? "WEB");
   const [marks, setMarks] = useState<Marks>({ highlights: [], bookmarks: [], notes: {} });
+  const [prefs, setPrefs] = useState<ReaderPrefs>({ fontScale: 1, spacing: "comfortable" });
   const [activeVerse, setActiveVerse] = useState<number | null>(null);
   const [noteDraft, setNoteDraft] = useState("");
   const [copied, setCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [compareOpen, setCompareOpen] = useState(false);
   const [compareIds, setCompareIds] = useState<TranslationId[]>([]);
   const [fetched, setFetched] = useState<Partial<Record<TranslationId, ChapterText>>>({});
   const [loadingTranslation, setLoadingTranslation] = useState<TranslationId | null>(null);
+  const [hintDismissed, setHintDismissed] = useState(false);
 
   useEffect(() => {
     setMarks(loadMarks());
+    setPrefs(loadPrefs());
     if (typeof window !== "undefined") {
       const pref = window.localStorage.getItem(TRANSLATION_PREF) as TranslationId | null;
       if (pref && available.includes(pref)) setTranslationId(pref);
+      setHintDismissed(window.localStorage.getItem("scripture-theory-bible-hint") === "1");
     }
     setMounted(true);
   }, [available]);
@@ -102,18 +140,7 @@ export default function BibleChapter({
     };
   }, [translationId, bookId, chapterNum, chapters, fetched, mounted]);
 
-  function pickTranslation(t: TranslationId) {
-    setTranslationId(t);
-    try {
-      window.localStorage.setItem(TRANSLATION_PREF, t);
-    } catch {}
-  }
-
-  function toggleCompare(t: TranslationId) {
-    setCompareIds((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
-  }
-
-  // When a comparison translation is selected, fetch it too.
+  // Fetch any selected comparison translations.
   useEffect(() => {
     for (const id of compareIds) {
       if (chapters[id] || fetched[id]) continue;
@@ -130,6 +157,32 @@ export default function BibleChapter({
         .catch(() => {});
     }
   }, [compareIds, chapters, fetched, bookId, chapterNum]);
+
+  function pickTranslation(t: TranslationId) {
+    setTranslationId(t);
+    try {
+      window.localStorage.setItem(TRANSLATION_PREF, t);
+    } catch {}
+  }
+
+  function toggleCompare(t: TranslationId) {
+    setCompareIds((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
+  }
+
+  function updatePrefs(patch: Partial<ReaderPrefs>) {
+    setPrefs((prev) => {
+      const next = { ...prev, ...patch };
+      savePrefs(next);
+      return next;
+    });
+  }
+
+  function dismissHint() {
+    setHintDismissed(true);
+    try {
+      window.localStorage.setItem("scripture-theory-bible-hint", "1");
+    } catch {}
+  }
 
   const chapter = chapters[translationId] ?? fetched[translationId];
   const meta = translations[translationId];
@@ -183,67 +236,126 @@ export default function BibleChapter({
     } catch {}
   }
 
+  const totalHighlights = marks.highlights.filter((k) => k.includes(`:${bookId}:${chapterNum}:`)).length;
+  const totalBookmarks = marks.bookmarks.filter((k) => k.includes(`:${bookId}:${chapterNum}:`)).length;
+  const totalNotes = Object.keys(marks.notes).filter((k) => k.includes(`:${bookId}:${chapterNum}:`)).length;
+  const hasMarks = totalHighlights + totalBookmarks + totalNotes > 0;
+
+  const fontScale = mounted ? prefs.fontScale : 1;
+  const lineLeading = mounted && prefs.spacing === "compact" ? "leading-relaxed" : "leading-loose";
+
   return (
     <article className="space-y-6">
-      <div className="rounded-2xl border border-ink-200 bg-card-subtle p-4">
-        <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
-          <div className="text-xs uppercase tracking-widest text-ink-500">
-            Translation · {available.length} available
+      {/* Reader controls bar */}
+      <div className="rounded-2xl border border-ink-200 bg-card-subtle p-3 md:p-4 flex flex-wrap items-center gap-3">
+        {/* Translation dropdown */}
+        <label className="flex items-center gap-2">
+          <span className="text-[10px] uppercase tracking-widest text-ink-500">Translation</span>
+          <div className="relative">
+            <select
+              value={translationId}
+              onChange={(e) => pickTranslation(e.target.value as TranslationId)}
+              className="appearance-none rounded-full border border-ink-300 bg-card pl-3 pr-8 py-1.5 text-sm text-ink-900 hover:border-ink-900 focus:outline-none focus:ring-2 focus:ring-flame-300 cursor-pointer"
+            >
+              {available.map((id) => {
+                const t = translations[id];
+                return (
+                  <option key={id} value={id}>
+                    {t.abbrev} — {t.name}
+                  </option>
+                );
+              })}
+            </select>
+            <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-ink-500 text-xs">
+              ▾
+            </span>
           </div>
-          <div className="text-xs text-ink-500">
-            {meta.publisher} · {meta.year} · {meta.license}
-          </div>
+        </label>
+
+        {/* Font size controls */}
+        <div className="flex items-center gap-1 ml-auto">
+          <span className="text-[10px] uppercase tracking-widest text-ink-500 mr-1">Size</span>
+          {FONT_SCALES.map((s) => (
+            <button
+              key={s.value}
+              onClick={() => updatePrefs({ fontScale: s.value })}
+              className={`h-7 w-7 rounded-full text-xs font-medium transition-colors ${
+                Math.abs(fontScale - s.value) < 0.01
+                  ? "bg-ink-900 text-ink-50"
+                  : "text-ink-500 hover:text-ink-900"
+              }`}
+              aria-pressed={Math.abs(fontScale - s.value) < 0.01}
+              title={`Text size ${s.label}`}
+            >
+              {s.label}
+            </button>
+          ))}
         </div>
-        <div className="flex flex-wrap gap-2">
-          {available.map((id) => {
-            const t = translations[id];
-            const active = id === translationId;
-            return (
-              <button
-                key={id}
-                onClick={() => pickTranslation(id)}
-                className={`rounded-full px-3 py-1 text-xs border transition-colors ${
-                  active
-                    ? "bg-ink-900 text-ink-50 border-ink-900"
-                    : "bg-card text-ink-700 border-ink-200 hover:border-ink-400"
-                }`}
-                title={`${t.name} · ${t.languageNative}`}
-              >
-                <span className="font-medium">{t.abbrev}</span>{" "}
-                <span className={active ? "opacity-70" : "text-ink-500"}>· {t.languageNative}</span>
-              </button>
-            );
-          })}
-        </div>
+
+        {/* Spacing toggle */}
+        <button
+          onClick={() => updatePrefs({ spacing: prefs.spacing === "compact" ? "comfortable" : "compact" })}
+          className="rounded-full border border-ink-300 px-3 py-1 text-xs text-ink-700 hover:border-ink-900"
+          title="Toggle line spacing"
+        >
+          {prefs.spacing === "compact" ? "Comfortable" : "Compact"}
+        </button>
+
+        <Link
+          href="/bible/my"
+          className="rounded-full border border-ink-300 px-3 py-1 text-xs text-ink-700 hover:border-ink-900 inline-flex items-center gap-1.5"
+          title="Your highlights, bookmarks, and notes"
+        >
+          <span aria-hidden>✎</span> My marks
+        </Link>
       </div>
+
+      {/* Tap-a-verse hint (one-time) */}
+      {mounted && !hintDismissed && (
+        <div className="rounded-2xl border border-flame-200 bg-flame-50/60 p-4 text-sm text-flame-900 flex items-start justify-between gap-3">
+          <span>
+            <strong>Tip:</strong> tap any verse to highlight it, bookmark it, copy it, or save a personal note.
+          </span>
+          <button
+            onClick={dismissHint}
+            className="text-xs text-flame-700 hover:underline shrink-0"
+          >
+            Got it
+          </button>
+        </div>
+      )}
 
       <div
         className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8 glow-ring"
         lang={meta.language.toLowerCase().slice(0, 2)}
+        style={{ fontSize: `${fontScale}rem` }}
       >
         {chapter ? (
-          <div className="prose-scripture text-ink-900">
+          <div className={`prose-scripture text-ink-900 ${lineLeading}`}>
             {chapter.verses.map((verse) => {
               const key = verseKey(translationId, bookId, chapterNum, verse.v);
               const isHi = mounted && marks.highlights.includes(key);
               const isBk = mounted && marks.bookmarks.includes(key);
               const hasNote = mounted && Boolean(marks.notes[key]);
+              const isActive = activeVerse === verse.v;
               return (
                 <span
                   key={verse.v}
                   id={`v${verse.v}`}
-                  className={`group cursor-pointer scroll-mt-24 ${
-                    isHi ? "bg-flame-100/80 rounded px-1 -mx-1" : ""
+                  className={`group cursor-pointer scroll-mt-24 transition-colors ${
+                    isHi ? "bg-flame-100 dark:bg-flame-100/30 rounded px-1 -mx-1" : ""
+                  } ${
+                    isActive ? "ring-2 ring-flame-300 ring-offset-2 ring-offset-card rounded" : ""
                   }`}
                   onClick={() => {
                     setActiveVerse(activeVerse === verse.v ? null : verse.v);
                     setNoteDraft(marks.notes[key] ?? "");
                   }}
                 >
-                  <sup className="text-[11px] text-flame-700 font-sans font-medium align-super mr-0.5 select-none">
+                  <sup className="text-[0.6em] text-flame-700 font-sans font-medium align-super mr-0.5 select-none">
                     {verse.v}
                   </sup>
-                  <span className="leading-relaxed">{verse.t}</span>
+                  <span>{verse.t}</span>
                   {isBk && (
                     <span className="text-flame-600 ml-1 select-none" aria-label="bookmarked">★</span>
                   )}
@@ -257,74 +369,90 @@ export default function BibleChapter({
         ) : (
           <ChapterSkeleton />
         )}
+
+        {hasMarks && (
+          <div className="mt-6 pt-3 border-t border-ink-100 text-xs text-ink-500 flex flex-wrap gap-3">
+            {totalHighlights > 0 && <span>{totalHighlights} highlight{totalHighlights > 1 && "s"}</span>}
+            {totalBookmarks > 0 && <span>★ {totalBookmarks} bookmark{totalBookmarks > 1 && "s"}</span>}
+            {totalNotes > 0 && <span>✎ {totalNotes} note{totalNotes > 1 && "s"}</span>}
+          </div>
+        )}
       </div>
 
       {available.length > 1 && (
-        <details className="rounded-3xl border border-ink-200 bg-card p-6">
-          <summary className="cursor-pointer text-sm text-ink-700 hover:text-flame-700">
-            Compare side-by-side ({available.length - 1} other{" "}
-            {available.length - 1 === 1 ? "translation" : "translations"} available)
-          </summary>
-          <div className="mt-4">
-            <div className="flex flex-wrap gap-2 mb-4">
-              {available
-                .filter((id) => id !== translationId)
-                .map((id) => {
-                  const t = translations[id];
-                  const on = compareIds.includes(id);
-                  return (
-                    <button
-                      key={id}
-                      onClick={() => toggleCompare(id)}
-                      className={`rounded-full px-3 py-1 text-xs border transition-colors ${
-                        on
-                          ? "bg-ink-900 text-ink-50 border-ink-900"
-                          : "bg-card text-ink-700 border-ink-200 hover:border-ink-400"
-                      }`}
-                    >
-                      {t.abbrev} · {t.languageNative}
-                    </button>
-                  );
-                })}
-            </div>
-            {compareIds.length > 0 && (
-              <div className="space-y-4">
-                {compareIds.map((id) => {
-                  const cText = chapters[id] ?? fetched[id];
-                  const m = translations[id];
-                  return (
-                    <div
-                      key={id}
-                      className="rounded-2xl border border-ink-200 p-4"
-                      lang={m.language.toLowerCase().slice(0, 2)}
-                    >
-                      <div className="text-xs uppercase tracking-widest text-flame-700 mb-2">
-                        {m.name} · {m.year}
-                      </div>
-                      {cText ? (
-                        <div className="prose-scripture text-ink-800 text-sm">
-                          {cText.verses.map((v) => (
-                            <span key={v.v}>
-                              <sup className="text-[10px] text-flame-700 mr-0.5">{v.v}</sup>
-                              <span>{v.t}</span>{" "}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-xs text-ink-500 italic">Loading…</div>
-                      )}
-                    </div>
-                  );
-                })}
+        <div className="rounded-3xl border border-ink-200 bg-card p-6">
+          <button
+            onClick={() => setCompareOpen((v) => !v)}
+            className="w-full text-left flex items-center justify-between text-sm text-ink-700 hover:text-flame-700"
+          >
+            <span>
+              Compare side-by-side ({available.length - 1} other{" "}
+              {available.length - 1 === 1 ? "translation" : "translations"} available)
+            </span>
+            <span className="text-flame-700 font-serif text-xl">{compareOpen ? "−" : "+"}</span>
+          </button>
+          {compareOpen && (
+            <div className="mt-4">
+              <div className="flex flex-wrap gap-2 mb-4">
+                {available
+                  .filter((id) => id !== translationId)
+                  .map((id) => {
+                    const t = translations[id];
+                    const on = compareIds.includes(id);
+                    return (
+                      <button
+                        key={id}
+                        onClick={() => toggleCompare(id)}
+                        className={`rounded-full px-3 py-1 text-xs border transition-colors ${
+                          on
+                            ? "bg-ink-900 text-ink-50 border-ink-900"
+                            : "bg-card text-ink-700 border-ink-200 hover:border-ink-400"
+                        }`}
+                      >
+                        {t.abbrev} · {t.languageNative}
+                      </button>
+                    );
+                  })}
               </div>
-            )}
-          </div>
-        </details>
+              {compareIds.length > 0 && (
+                <div className="space-y-4">
+                  {compareIds.map((id) => {
+                    const cText = chapters[id] ?? fetched[id];
+                    const m = translations[id];
+                    return (
+                      <div
+                        key={id}
+                        className="rounded-2xl border border-ink-200 p-4"
+                        lang={m.language.toLowerCase().slice(0, 2)}
+                      >
+                        <div className="text-xs uppercase tracking-widest text-flame-700 mb-2">
+                          {m.name} · {m.year}
+                        </div>
+                        {cText ? (
+                          <div className="prose-scripture text-ink-800 text-sm">
+                            {cText.verses.map((v) => (
+                              <span key={v.v}>
+                                <sup className="text-[10px] text-flame-700 mr-0.5">{v.v}</sup>
+                                <span>{v.t}</span>{" "}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-xs text-ink-500 italic">Loading…</div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       )}
 
       {mounted && activeVerse !== null && chapter && (
         <div
-          className="rounded-3xl border border-flame-300 bg-flame-50/50 p-5 md:p-6 sticky bottom-4"
+          className="rounded-3xl border border-flame-300 bg-flame-50/50 p-5 md:p-6 sticky bottom-4 shadow-lg"
           role="dialog"
         >
           <div className="flex flex-wrap items-baseline justify-between gap-3">
@@ -335,8 +463,9 @@ export default function BibleChapter({
             <button
               onClick={() => setActiveVerse(null)}
               className="text-xs text-ink-500 hover:text-ink-900"
+              aria-label="Close"
             >
-              Close
+              Close ✕
             </button>
           </div>
           <p className="mt-2 prose-scripture text-ink-800">
@@ -358,7 +487,7 @@ export default function BibleChapter({
             >
               {marks.bookmarks.includes(verseKey(translationId, bookId, chapterNum, activeVerse))
                 ? "Remove bookmark"
-                : "Bookmark"}
+                : "★ Bookmark"}
             </button>
             <button
               onClick={() => {
@@ -368,6 +497,20 @@ export default function BibleChapter({
               className="rounded-full border border-ink-300 px-3.5 py-1.5 text-xs text-ink-800 hover:border-ink-900"
             >
               {copied ? "Copied!" : "Copy verse"}
+            </button>
+            <button
+              onClick={async () => {
+                const t = chapter.verses.find((v) => v.v === activeVerse)?.t ?? "";
+                const text = `"${t}" — ${bookName} ${chapterNum}:${activeVerse} (${meta.abbrev})`;
+                if (navigator.share) {
+                  try { await navigator.share({ title: `${bookName} ${chapterNum}:${activeVerse}`, text }); } catch {}
+                } else {
+                  copyVerse(activeVerse, t);
+                }
+              }}
+              className="rounded-full border border-ink-300 px-3.5 py-1.5 text-xs text-ink-800 hover:border-ink-900"
+            >
+              Share
             </button>
             {lensMatch && (
               <Link
@@ -391,7 +534,7 @@ export default function BibleChapter({
             <div className="mt-2 flex gap-2">
               <button
                 onClick={() => saveNote(activeVerse, noteDraft)}
-                className="rounded-full bg-flame-600 text-ink-50 px-3.5 py-1.5 text-xs hover:bg-flame-700"
+                className="rounded-full bg-flame-600 text-white px-3.5 py-1.5 text-xs hover:bg-flame-700"
               >
                 Save note
               </button>
@@ -407,9 +550,6 @@ export default function BibleChapter({
                 </button>
               )}
             </div>
-            <p className="mt-2 text-[11px] text-ink-500">
-              Notes, highlights, and bookmarks live only on this device, keyed by translation.
-            </p>
           </div>
         </div>
       )}
