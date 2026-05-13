@@ -69,19 +69,6 @@ export default function PrivacyPage() {
               not aggregate or share these.
             </li>
             <li>
-              <strong>Audio Bible.</strong> If you press play on the human-narrated KJV audio,
-              your browser streams the MP3 from{" "}
-              <a
-                href="https://www.wordproject.org"
-                rel="noopener"
-                target="_blank"
-                className="text-flame-700 hover:underline"
-              >
-                wordproject.org
-              </a>
-              , a long-running missionary site. Their servers see the request.
-            </li>
-            <li>
               <strong>World map data.</strong> The realistic world map on{" "}
               <Link href="/pray/live" className="text-flame-700 hover:underline">/pray/live</Link>{" "}
               is rendered from a Natural Earth TopoJSON file we proxy. Your browser downloads it

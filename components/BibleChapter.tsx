@@ -8,7 +8,6 @@ import { translations, translationOrder, type TranslationId } from "@/data/bible
 import { crossRefsFor } from "@/data/bible/cross-refs";
 import { referenceHref } from "@/lib/reference";
 import { studyLinksFor } from "@/lib/study-tools";
-import AudioBibleControls from "@/components/AudioBibleControls";
 import VerseCardModal from "@/components/VerseCardModal";
 
 type Marks = {
@@ -332,14 +331,6 @@ export default function BibleChapter({
           <span aria-hidden>✎</span> My marks
         </Link>
       </div>
-
-      <AudioBibleControls
-        bookId={bookId}
-        chapter={chapterNum}
-        bookName={bookName}
-        verses={chapter?.verses}
-        langCode={meta.language.toLowerCase().slice(0, 2)}
-      />
 
       {/* Tap-a-verse hint (one-time) */}
       {mounted && !hintDismissed && (

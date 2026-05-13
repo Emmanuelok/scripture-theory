@@ -11,11 +11,10 @@
 //   - Static assets: cache-first
 //   - Everything else (cross-origin, POST): pass through
 
-const VERSION = "v1";
+const VERSION = "v2";
 const CORE_CACHE = `st-core-${VERSION}`;
 const PAGE_CACHE = `st-pages-${VERSION}`;
 const BIBLE_CACHE = `st-bible-${VERSION}`;
-const AUDIO_CACHE = `st-audio-${VERSION}`;
 const STATIC_CACHE = `st-static-${VERSION}`;
 
 // Pre-cache the routes most likely to be needed offline.
@@ -48,7 +47,7 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     (async () => {
       const keys = await caches.keys();
-      const live = new Set([CORE_CACHE, PAGE_CACHE, BIBLE_CACHE, AUDIO_CACHE, STATIC_CACHE]);
+      const live = new Set([CORE_CACHE, PAGE_CACHE, BIBLE_CACHE, STATIC_CACHE]);
       await Promise.all(keys.filter((k) => !live.has(k)).map((k) => caches.delete(k)));
       await self.clients.claim();
     })()
@@ -61,10 +60,6 @@ function isNavigation(req) {
 
 function isBibleApi(url) {
   return url.pathname.startsWith("/api/bible/");
-}
-
-function isAudioApi(url) {
-  return url.pathname.startsWith("/api/audio-bible/");
 }
 
 function isStaticAsset(url) {
@@ -139,10 +134,6 @@ self.addEventListener("fetch", (event) => {
 
   if (isBibleApi(url)) {
     event.respondWith(cacheFirst(req, BIBLE_CACHE));
-    return;
-  }
-  if (isAudioApi(url)) {
-    event.respondWith(cacheFirst(req, AUDIO_CACHE));
     return;
   }
   if (isStaticAsset(url)) {
