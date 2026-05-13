@@ -6,6 +6,7 @@ import { useProfile, type Profile } from "@/lib/profile";
 import { STAGES as PATH_STAGES, findStage } from "@/data/path";
 import { Glyph, type GlyphId } from "@/components/ui/Glyph";
 import { feastOn, nextFeastWithin, seasonOn } from "@/lib/calendar";
+import { COURSE_WEEKS } from "@/data/course";
 
 /* ──────────────────────────────────────────────────────────────────
    ForYouToday — pastoral, contextual nudges based on profile + time.
@@ -90,6 +91,48 @@ function buildSignals(profile: Profile, now: Date): Signal[] {
       href: "/calendar",
       glyph: SEASON_GLYPH[season.id] ?? "flame",
       variant: next && next.in <= 7 ? "active" : "encouragement",
+    });
+  }
+
+  // 0a. Foundations course — high priority if in progress or unstarted-as-new-believer
+  if (profile.course) {
+    const done = new Set(profile.course.weeksComplete ?? []);
+    const allDone = done.size === COURSE_WEEKS.length;
+    const next = COURSE_WEEKS.find((w) => !done.has(w.week));
+    if (allDone && !profile.course.passed) {
+      signals.push({
+        id: "course-exam",
+        priority: 95,
+        eyebrow: "Foundations · final exam waiting",
+        title: "All twelve weeks done — take the exam",
+        sub: "24 questions · pass at 80% for your certificate.",
+        href: "/course/exam",
+        glyph: "wreath",
+        variant: "active",
+      });
+    } else if (next && done.size > 0) {
+      signals.push({
+        id: "course-next",
+        priority: 85,
+        eyebrow: `Foundations · Week ${next.week} of ${COURSE_WEEKS.length}`,
+        title: next.title,
+        sub: next.tagline,
+        href: `/course/week/${next.week}`,
+        glyph: "open-book",
+        variant: "active",
+      });
+    }
+  } else if (profile.stage === "new") {
+    // Surface the course as a nudge for new believers who haven't started
+    signals.push({
+      id: "course-start",
+      priority: 90,
+      eyebrow: "For new believers",
+      title: "Begin Foundations of the Faith",
+      sub: "Twelve weeks. A certificate at the end. Start Week 1 today.",
+      href: "/course",
+      glyph: "open-book",
+      variant: "nudge",
     });
   }
 

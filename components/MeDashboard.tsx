@@ -10,6 +10,7 @@ import { findNation } from "@/data/nations";
 import { flagEmoji } from "@/lib/flags";
 import { useAuth } from "@/lib/auth";
 import { STAGES as PATH_STAGES } from "@/data/path";
+import { COURSE_WEEKS } from "@/data/course";
 import { slotKey, SLOT_CHANGE_EVENT } from "@/lib/slots";
 import ProfileSwitcher from "@/components/ProfileSwitcher";
 
@@ -140,6 +141,8 @@ export default function MeDashboard() {
       <StatGrid stats={stats} />
 
       <SignInBanner />
+
+      <CourseCard profile={profile} />
 
       <PathCard profile={profile} />
 
@@ -300,6 +303,12 @@ function buildStats(profile: Profile, plans: PlanProgress, marks: BibleMarks): S
 
   return [
     { label: "The Path", value: `${pathDone}/${PATH_STAGES.length}`, sub: "stages walked", href: "/disciple" },
+    {
+      label: "Foundations",
+      value: `${profile.course?.weeksComplete?.length ?? 0}/${COURSE_WEEKS.length}`,
+      sub: profile.course?.passed ? "certified ✓" : "weeks complete",
+      href: "/course",
+    },
     { label: "Chapters read", value: totalChaptersRead, sub: "across plans", href: "/read" },
     { label: "Verses memorized", value: memoryCount, sub: `${mastered} mastered`, href: "/memory" },
     { label: "People I pray for", value: prayingForCount, sub: `${prayersCount} prayers offered`, href: "/pray" },
@@ -343,6 +352,101 @@ function StatBody({ label, value, sub }: Stat) {
       <div className="font-serif text-2xl text-ink-900 mt-1">{value}</div>
       {sub && <div className="text-xs text-ink-500 mt-0.5">{sub}</div>}
     </>
+  );
+}
+
+/* ────────────────────────────────────────────────────────── */
+
+function CourseCard({ profile }: { profile: Profile }) {
+  const course = profile.course;
+  const done = new Set(course?.weeksComplete ?? []);
+  const total = COURSE_WEEKS.length;
+  const completeCount = done.size;
+  const pct = Math.round((completeCount / total) * 100);
+
+  const next = COURSE_WEEKS.find((w) => !done.has(w.week));
+  const allWeeksDone = completeCount === total;
+
+  // Empty state — hide unless they've at least opened week 1 or completed something
+  if (completeCount === 0 && !course) return null;
+
+  const targetHref = course?.passed
+    ? "/course/certificate"
+    : allWeeksDone
+    ? "/course/exam"
+    : next
+    ? `/course/week/${next.week}`
+    : "/course";
+
+  const label = course?.passed
+    ? "Certificate earned · open"
+    : allWeeksDone
+    ? "Take the final exam"
+    : next
+    ? `Continue Week ${next.week}`
+    : "Open course";
+
+  return (
+    <Link
+      href={targetHref}
+      className="group relative block overflow-hidden rounded-3xl border border-ink-200 bg-card p-6 md:p-7 hover:-translate-y-0.5 hover:border-flame-500/60 hover:shadow-[0_18px_50px_-20px_rgba(249,115,22,0.28)] transition-all"
+    >
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-flame-50/40 to-transparent"
+      />
+      <div className="relative">
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <div>
+            <div className="text-[10px] uppercase tracking-widest text-flame-700">
+              Foundations of the Faith
+            </div>
+            <h2 className="font-serif text-2xl text-ink-900 mt-1 group-hover:text-flame-700 transition-colors">
+              {course?.passed
+                ? "Course complete · certificate earned"
+                : allWeeksDone
+                ? "All twelve weeks done — exam awaits"
+                : next
+                ? `Week ${next.week} · ${next.title}`
+                : "Begin"}
+            </h2>
+            {next && !allWeeksDone && (
+              <p className="text-sm text-ink-600 mt-1 leading-relaxed">{next.tagline}</p>
+            )}
+          </div>
+          <span className="text-xs text-flame-700 shrink-0">{label} →</span>
+        </div>
+
+        {/* Twelve-week strip */}
+        <ol className="mt-5 grid grid-cols-12 gap-1.5">
+          {COURSE_WEEKS.map((w) => {
+            const isDone = done.has(w.week);
+            const isCurrent = next?.week === w.week;
+            return (
+              <li key={w.week}>
+                <div
+                  className={[
+                    "h-2 rounded-full",
+                    isDone
+                      ? "bg-gradient-to-r from-emerald-500 to-emerald-300"
+                      : isCurrent
+                      ? "bg-flame-300"
+                      : "bg-ink-200",
+                  ].join(" ")}
+                  title={`Week ${w.week} · ${w.title}${isDone ? " (complete)" : ""}`}
+                />
+              </li>
+            );
+          })}
+        </ol>
+        <div className="mt-2 text-xs text-ink-500">
+          {completeCount} of {total} weeks · {pct}%
+          {course?.examScore != null && (
+            <span> · Exam best: {course.examScore}/24</span>
+          )}
+        </div>
+      </div>
+    </Link>
   );
 }
 

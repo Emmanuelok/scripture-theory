@@ -1,6 +1,8 @@
+import Link from "next/link";
 import NewBelieverPath from "@/components/NewBelieverPath";
 import { PageHero, Tile } from "@/components/ui/Tile";
 import { Glyph } from "@/components/ui/Glyph";
+import { COURSE_TITLE } from "@/data/course";
 
 export const metadata = {
   title: "Just said yes to Jesus? — Scripture Theory",
@@ -60,7 +62,31 @@ export default function NewBelieverPage() {
         className="mt-12"
       />
 
+      {/* Foundations course — for the believer who wants depth */}
+      <Tile
+        size="wide"
+        tone="flame"
+        eyebrow="A 12-week course · with a certificate"
+        title={
+          <>
+            {COURSE_TITLE} —{" "}
+            <span className="text-ink-50/80">a structured walk for new believers.</span>
+          </>
+        }
+        sub="Twelve weeks. Twelve themes. Weekly lessons, anchor scripture, reflection, practice, a 5-question quiz, then a 24-question final exam. Pass at 80% and Scripture Theory gives you a printable certificate of completion."
+        glyph={<Glyph id="wreath" size={120} />}
+        href="/course"
+        className="mt-6"
+      />
+
       <div className="mt-12">
+        <h2 className="font-serif text-2xl md:text-3xl text-ink-900 mb-2">
+          A gentler start: First 30 Days
+        </h2>
+        <p className="text-sm text-ink-600 mb-4 max-w-2xl">
+          If the 12-week course feels like a lot, walk this first — one short Scripture and a small
+          step each day for a month. Then come back to Foundations.
+        </p>
         <NewBelieverPath />
       </div>
 

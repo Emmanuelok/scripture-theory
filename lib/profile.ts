@@ -350,6 +350,25 @@ export type Profile = {
   calling?: CallingNote[];
   catechismProgress?: number[]; // Heidelberg Lord's Day completed (1..52)
   path?: PathProgress;
+  course?: CourseProgress;
+};
+
+// ─── Foundations of the Faith — course progress ───────────────
+export type CourseProgress = {
+  /** Weeks completed (1..12). A week is complete when its quiz is passed. */
+  weeksComplete?: number[];
+  /** Best score per week (raw correct / 5). */
+  quizScores?: Partial<Record<number, number>>;
+  /** ISO date a week was first marked complete. */
+  weekCompletedAt?: Partial<Record<number, string>>;
+  /** Final-exam best score (correct out of 24). */
+  examScore?: number;
+  /** Whether the believer has passed the final exam. */
+  passed?: boolean;
+  /** Date the certificate was issued (ISO). */
+  certifiedAt?: string;
+  /** Name printed on the certificate. */
+  certifiedName?: string;
 };
 
 import { slotKey, SLOT_CHANGE_EVENT } from "@/lib/slots";

@@ -48,6 +48,7 @@ const DEFAULT_SYNCABLE: SyncableKey[] = [
   "calling",
   "catechismProgress",
   "path",
+  "course",
 ];
 
 const SYNC_PREFS_KEY = "scripture-theory-sync-prefs";

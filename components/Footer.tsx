@@ -28,6 +28,7 @@ export default function Footer() {
             <li><Link href="/read" className="hover:text-ink-900">Reading plans</Link></li>
             <li><Link href="/read/build" className="hover:text-ink-900">Build a plan</Link></li>
             <li><Link href="/devotional" className="hover:text-ink-900">Devotional library</Link></li>
+            <li><Link href="/course" className="hover:text-ink-900">Foundations of the Faith (12 wks)</Link></li>
             <li><Link href="/memory" className="hover:text-ink-900">Scripture memory</Link></li>
             <li><Link href="/pray" className="hover:text-ink-900">Pray</Link></li>
             <li><Link href="/pray/nations" className="hover:text-ink-900">Praying for the nations</Link></li>
