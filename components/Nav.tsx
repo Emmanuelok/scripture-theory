@@ -8,6 +8,7 @@ const links = [
   { href: "/pray", label: "Pray" },
   { href: "/secret-place", label: "Secret Place" },
   { href: "/disciple/journey", label: "Journey" },
+  { href: "/me", label: "My walk" },
   { href: "/resources", label: "Resources" },
 ];
 
