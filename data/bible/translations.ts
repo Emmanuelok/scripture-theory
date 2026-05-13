@@ -1,22 +1,31 @@
-// Registry of authentic, published, public-domain Bible translations.
-// We only include real translations published by real translators — never
-// machine-translated or AI-paraphrased text. Each translation has its own
-// publisher, license, and original wording. The Bible reader displays the
-// translation as the translators wrote it.
+// Registry of authentic, published, mainstream-accepted, public-domain Bible
+// translations. Editorial standard:
+//
+//   - Every translation is real, named, and published by a recognized
+//     publisher or translation committee.
+//   - We never machine-translate or AI-paraphrase Scripture.
+//   - We do NOT include paraphrases (e.g., The Message, The Passion
+//     Translation, Living Bible) or sectarian translations rejected by the
+//     mainstream Church (e.g., New World Translation).
+//   - We do NOT include niche-only or extreme-literal editions (e.g.,
+//     Young's Literal, Darby, Bible in Basic English) that are scholarly
+//     curiosities rather than the Bibles ordinary Christians read in their
+//     congregations.
+//
+// What remains is the set of historically accepted, denominationally trusted,
+// public-domain Bibles in major world languages — the kind of catalog you
+// would find on YouVersion or in a respected denominational study Bible.
 
 export type TranslationId =
   // English
   | "WEB"     // World English Bible (eBible.org, public domain)
   | "KJV"     // King James Version (1769 Oxford)
   | "ASV"     // American Standard Version (1901)
-  | "BBE"     // Bible in Basic English (1949 / 1964)
-  | "YLT"     // Young's Literal Translation (1862 / 1898)
-  | "DARBY"   // Darby Bible (1890)
-  | "DRA"     // Douay-Rheims Challoner Revision (1899) — Roman Catholic
+  | "DRA"     // Douay-Rheims (Challoner Revision, 1899) — Roman Catholic
   // Spanish
   | "RVR1909" // Reina-Valera 1909
   // Portuguese
-  | "ALMEIDA" // João Ferreira de Almeida (older corrigida-style, public domain)
+  | "ALMEIDA" // João Ferreira de Almeida (Corrigida)
   // French
   | "LSG"     // Louis Segond 1910
   // German
@@ -38,7 +47,7 @@ export type TranslationMeta = {
   publisher: string;
   license: string;
   source?: string;
-  ingestKey?: string; // key used by bible-api.com or other source; undefined = hand-seed only for now
+  ingestKey?: string;
   dir?: "ltr" | "rtl";
 };
 
@@ -54,7 +63,7 @@ export const translations: Record<TranslationId, TranslationMeta> = {
   KJV: {
     id: "KJV", name: "King James Version", abbrev: "KJV",
     language: "English", languageNative: "English", year: 1769,
-    publisher: "Oxford / Authorized Version",
+    publisher: "Authorized Version (Oxford)",
     license: "Public domain (worldwide; UK Crown Patent for printing only)",
     source: "Authorized Version, 1769 Oxford standard",
     ingestKey: "kjv",
@@ -65,27 +74,6 @@ export const translations: Record<TranslationId, TranslationMeta> = {
     publisher: "Thomas Nelson & Sons",
     license: "Public domain",
     ingestKey: "asv",
-  },
-  BBE: {
-    id: "BBE", name: "Bible in Basic English", abbrev: "BBE",
-    language: "English", languageNative: "English (Basic)", year: 1949,
-    publisher: "Samuel Hooke / Cambridge University Press",
-    license: "Public domain",
-    ingestKey: "bbe",
-  },
-  YLT: {
-    id: "YLT", name: "Young's Literal Translation", abbrev: "YLT",
-    language: "English", languageNative: "English", year: 1898,
-    publisher: "Robert Young",
-    license: "Public domain",
-    ingestKey: "ylt",
-  },
-  DARBY: {
-    id: "DARBY", name: "Darby Bible", abbrev: "Darby",
-    language: "English", languageNative: "English", year: 1890,
-    publisher: "John Nelson Darby",
-    license: "Public domain",
-    ingestKey: "darby",
   },
   DRA: {
     id: "DRA", name: "Douay-Rheims (Challoner)", abbrev: "DRA",
@@ -142,8 +130,11 @@ export const translations: Record<TranslationId, TranslationMeta> = {
 };
 
 export const translationOrder: TranslationId[] = [
-  "WEB", "KJV", "ASV", "BBE", "YLT", "DARBY", "DRA",
+  "WEB", "KJV", "ASV", "DRA",
   "RVR1909", "ALMEIDA", "LSG", "LUT1912", "SYNODAL", "CUV", "VULGATE",
 ];
 
-export const englishTranslations: TranslationId[] = ["WEB", "KJV", "ASV", "BBE", "YLT", "DARBY", "DRA"];
+export const englishTranslations: TranslationId[] = ["WEB", "KJV", "ASV", "DRA"];
+
+// Why this catalog is what it is (shown on /bible):
+export const EDITORIAL_NOTE = `Every Bible served here is an authentic, published, mainstream-accepted, public-domain translation made by named translators and recognized by the worldwide Church. We do not include paraphrases (The Message, The Passion Translation, Living Bible), sectarian translations rejected by the mainstream Church (e.g., New World Translation), AI or machine-translated text, or niche/extreme-literal scholarly editions (Young's Literal, Darby, Bible in Basic English). The remaining catalog is the set of Bibles ordinary Christians actually read in their congregations across major world languages.`;

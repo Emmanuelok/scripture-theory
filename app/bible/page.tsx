@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { canon, oldTestament, newTestament } from "@/data/bible/canon";
 import { loadedChaptersOf, loadedSummary } from "@/lib/bible";
-import { translations, translationOrder } from "@/data/bible/translations";
+import { translations, translationOrder, EDITORIAL_NOTE } from "@/data/bible/translations";
 import { seed } from "@/data/bible/seed";
 
 export const metadata = {
   title: "The Bible — Scripture Theory",
   description:
-    "Read authentic, public-domain Bible translations — WEB, KJV, ASV, BBE, YLT, Darby, Douay-Rheims, Reina-Valera 1909, Almeida, Louis Segond, Luther, Synodal, CUV, Vulgate — with per-verse study tools.",
+    "Read mainstream, denominationally accepted, public-domain Bible translations — WEB, KJV, ASV, Douay-Rheims, Reina-Valera 1909, Almeida, Louis Segond, Luther, Synodal, CUV, Vulgate — with per-verse study tools.",
 };
 
 export default function BiblePage() {
@@ -24,10 +24,10 @@ export default function BiblePage() {
         The Word of God, in your hands.
       </h1>
       <p className="mt-4 text-ink-700 max-w-2xl leading-relaxed">
-        Every Bible served here is an <em>authentic, published, public-domain translation</em> —
-        translated by real translators, in their own published wording. We never machine-translate
-        Scripture. Read freely. Compare side-by-side. Highlight. Take notes. Bookmark. Open a
-        passage in the Verse Lens.
+        Every Bible served here is an <em>authentic, published, mainstream-accepted,
+        public-domain translation</em> — the kind of Bible ordinary Christians read in their
+        congregations. We never machine-translate Scripture. We do not carry paraphrases or
+        controversial editions. Read freely. Compare side-by-side. Highlight. Take notes.
       </p>
 
       <div className="mt-8 grid md:grid-cols-3 gap-4">
@@ -89,20 +89,16 @@ export default function BiblePage() {
       <Testament name="New Testament" books={newTestament} />
 
       <div className="mt-12 rounded-3xl bg-ink-900 text-ink-50 p-8">
-        <h2 className="font-serif text-2xl">Authentic. Open. Honest.</h2>
-        <p className="mt-3 text-ink-200 leading-relaxed">
-          We never machine-translate Scripture. Every translation in this Bible was made by named
-          translators, published by named publishers, and is in the public domain. You are free to
-          read, copy, share, preach, and print every word.
-        </p>
+        <h2 className="font-serif text-2xl">Our editorial standard</h2>
+        <p className="mt-3 text-ink-200 leading-relaxed">{EDITORIAL_NOTE}</p>
         <p className="mt-3 text-ink-300 text-sm leading-relaxed">
-          Hand-verified seed chapters are bundled with the repo so the architecture is honest from
-          day one. To ingest the full canon across all available translations, run
+          To ingest the full canon across the accepted English and Portuguese translations, run
           {" "}<code className="bg-ink-800 px-1.5 py-0.5 rounded">npm run ingest-bible</code>. It
-          fetches authentic editions from <code className="bg-ink-800 px-1.5 py-0.5 rounded">bible-api.com</code>{" "}
-          (WEB, KJV, ASV, BBE, YLT, Darby, Douay-Rheims, Almeida). The remaining translations
-          (RVR1909, LSG, Luther, Synodal, CUV, Vulgate) are catalogued so they can be ingested from
-          eBible.org and other public-domain sources as a Q1 task.
+          fetches authentic editions of WEB, KJV, ASV, Douay-Rheims, and Almeida from
+          {" "}<code className="bg-ink-800 px-1.5 py-0.5 rounded">bible-api.com</code>. The remaining
+          accepted translations (RVR1909, LSG, Luther 1912, Synodal, CUV, Vulgate) are seeded by
+          hand for Psalm 23 today and will be ingested from eBible.org's public-domain USFM
+          archives in a follow-up adapter.
         </p>
       </div>
     </section>

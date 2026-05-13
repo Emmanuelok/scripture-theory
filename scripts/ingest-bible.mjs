@@ -11,14 +11,11 @@
 //   npm run ingest-bible -- --translations=web --books=psalms
 //
 // bible-api.com is a free public-domain Scripture API (no key, no auth).
-// Source for each translation is the public-domain edition:
+// Mainstream, denominationally accepted, public-domain editions only:
 //   WEB     — World English Bible (Michael Paul Johnson · eBible.org)
 //   KJV     — King James Version (1769 Oxford)
 //   ASV     — American Standard Version (1901)
-//   BBE     — Bible in Basic English (1949)
-//   YLT     — Young's Literal Translation (1898)
-//   Darby   — Darby Bible (1890)
-//   DRB     — Douay-Rheims (Challoner Revision, 1899)
+//   DRB     — Douay-Rheims (Challoner Revision, 1899) · Roman Catholic
 //   Almeida — João Ferreira de Almeida (Portuguese, public-domain edition)
 
 import { writeFileSync, mkdirSync } from "node:fs";
@@ -29,16 +26,18 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..");
 const OUT_PATH = resolve(REPO_ROOT, "data/bible/text.ts");
 
-// Translations bible-api.com serves natively.
-// Add more here when other public-domain APIs are wired in (RVR1909, LSG,
-// Luther 1912, Synodal, CUV, Vulgate are catalogued for follow-up ingestion).
+// Translations bible-api.com serves natively that meet our editorial standard:
+// mainstream, denominationally accepted, public-domain Bibles only.
+// (BBE, YLT, and Darby are intentionally excluded as niche/extreme-literal
+// editions that are not used as primary Bibles in churches.)
+//
+// The other six in our catalog (RVR1909, LSG, Luther 1912, Synodal, CUV,
+// Vulgate) are seeded by hand for Psalm 23 and will be ingested from
+// eBible.org's USFM archives in a follow-up adapter.
 const TRANSLATIONS = [
   { id: "WEB", key: "web" },
   { id: "KJV", key: "kjv" },
   { id: "ASV", key: "asv" },
-  { id: "BBE", key: "bbe" },
-  { id: "YLT", key: "ylt" },
-  { id: "DARBY", key: "darby" },
   { id: "DRA", key: "drb" },
   { id: "ALMEIDA", key: "almeida" },
 ];
