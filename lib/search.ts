@@ -5,6 +5,14 @@ import { gospelMovements } from "@/data/gospel";
 import { testimonies } from "@/data/testimonies";
 import { canon } from "@/data/bible/canon";
 import { seedChaptersOf, getChapterSync } from "@/lib/bible";
+import { GLOSSARY } from "@/data/resources/glossary";
+import { TOPICS } from "@/data/resources/topics";
+import { CREEDS } from "@/data/resources/creeds";
+import { DISCIPLINES } from "@/data/resources/disciplines";
+import { heidelberg } from "@/data/catechism";
+import { apologetics, topicInfo as apolTopicInfo } from "@/data/apologetics";
+import { hymns } from "@/data/hymns";
+import { STAGES as PATH_STAGES } from "@/data/path";
 
 export type SearchKind =
   | "scripture"
@@ -12,7 +20,15 @@ export type SearchKind =
   | "plan"
   | "prayer"
   | "gospel"
-  | "testimony";
+  | "testimony"
+  | "glossary"
+  | "topical"
+  | "creed"
+  | "catechism"
+  | "apologetic"
+  | "hymn"
+  | "discipline"
+  | "path";
 
 export type SearchResult = {
   kind: SearchKind;
@@ -30,6 +46,14 @@ const KIND_LABEL: Record<SearchKind, string> = {
   prayer: "Prayer",
   gospel: "The Gospel",
   testimony: "Testimony",
+  glossary: "Glossary",
+  topical: "Topical",
+  creed: "Creed",
+  catechism: "Catechism",
+  apologetic: "Apologetics",
+  hymn: "Hymn",
+  discipline: "Discipline",
+  path: "The Path",
 };
 
 export function searchKindLabel(k: SearchKind) {
@@ -177,6 +201,113 @@ function buildIndex(): Indexed[] {
     });
   }
 
+  // Glossary
+  for (const g of GLOSSARY) {
+    items.push({
+      kind: "glossary",
+      title: g.word,
+      subtitle: g.short,
+      snippet: g.long,
+      href: `/resources/glossary#letter-${g.word[0]?.toUpperCase() ?? "A"}`,
+      weight: 3,
+      hay: `${g.word} ${g.short} ${g.long} ${(g.refs ?? []).join(" ")}`.toLowerCase(),
+    });
+  }
+
+  // Topical index
+  for (const t of TOPICS) {
+    items.push({
+      kind: "topical",
+      title: t.title,
+      subtitle: `${t.category} · ${t.verses.length} verses`,
+      snippet: t.blurb,
+      href: `/resources/topical-index`,
+      weight: 3,
+      hay: `${t.title} ${t.category} ${t.blurb} ${t.verses.map((v) => `${v.ref} ${v.text}`).join(" ")}`.toLowerCase(),
+    });
+  }
+
+  // Creeds
+  for (const c of CREEDS) {
+    items.push({
+      kind: "creed",
+      title: c.name,
+      subtitle: `${c.era} · ${c.origin}`,
+      snippet: c.why,
+      href: `/resources/creeds#${c.slug}`,
+      weight: 4,
+      hay: `${c.name} ${c.era} ${c.origin} ${c.why} ${c.text}`.toLowerCase(),
+    });
+  }
+
+  // Disciplines
+  for (const d of DISCIPLINES) {
+    items.push({
+      kind: "discipline",
+      title: d.name,
+      subtitle: d.oneLine,
+      snippet: d.why,
+      href: `/resources/disciplines`,
+      weight: 3,
+      hay: `${d.name} ${d.oneLine} ${d.why} ${d.start.join(" ")} ${d.scriptures.map((s) => `${s.ref} ${s.text}`).join(" ")}`.toLowerCase(),
+    });
+  }
+
+  // Heidelberg Catechism — one entry per Q&A
+  for (const ld of heidelberg) {
+    for (const qa of ld.qas) {
+      items.push({
+        kind: "catechism",
+        title: `Q${qa.q}. ${qa.question}`,
+        subtitle: `Lord's Day ${ld.ld} · ${ld.theme}`,
+        snippet: qa.answer,
+        href: `/catechism`,
+        weight: 3,
+        hay: `lords day ${ld.ld} ${ld.theme} question ${qa.q} ${qa.question} ${qa.answer}`.toLowerCase(),
+      });
+    }
+  }
+
+  // Apologetics
+  for (const a of apologetics) {
+    const topicLabel = apolTopicInfo[a.topic]?.label ?? a.topic;
+    items.push({
+      kind: "apologetic",
+      title: a.question,
+      subtitle: topicLabel,
+      snippet: a.oneLine,
+      href: `/apologetics`,
+      weight: 3,
+      hay: `${a.question} ${a.oneLine} ${a.answer.join(" ")} ${a.scripture.join(" ")} ${topicLabel}`.toLowerCase(),
+    });
+  }
+
+  // Hymns
+  for (const h of hymns) {
+    items.push({
+      kind: "hymn",
+      title: h.title,
+      subtitle: `${h.author} · ${h.year}`,
+      snippet: h.verses[0] ?? "",
+      href: `/hymns`,
+      weight: 2,
+      hay: `${h.title} ${h.author} ${h.year} ${h.category} ${h.verses.join(" ")} ${h.refrain ?? ""} ${h.scriptures.join(" ")}`.toLowerCase(),
+    });
+  }
+
+  // The Path stages
+  for (const s of PATH_STAGES) {
+    items.push({
+      kind: "path",
+      title: `Stage ${s.stage} · ${s.name}`,
+      subtitle: s.scripture,
+      snippet: s.focus,
+      href: "/disciple",
+      weight: 3,
+      hay: `stage ${s.stage} ${s.name} ${s.scripture} ${s.focus} ${s.observable} ${s.nextStep} ${s.kind}`.toLowerCase(),
+    });
+  }
+
   CACHE = items;
   return items;
 }
@@ -189,11 +320,12 @@ function tokenize(q: string): string[] {
     .filter((t) => t.length >= 2);
 }
 
-export function search(q: string, limit = 30): SearchResult[] {
+export function search(q: string, limit = 40): SearchResult[] {
   const query = q.trim();
   if (!query) return [];
   const tokens = tokenize(query);
   if (tokens.length === 0) return [];
+  const fullLower = query.toLowerCase();
 
   const index = buildIndex();
   const scored = index
@@ -203,7 +335,10 @@ export function search(q: string, limit = 30): SearchResult[] {
         if (item.hay.includes(token)) hits++;
       }
       if (hits === 0) return null;
-      const score = hits * 10 + item.weight + (item.title.toLowerCase().includes(query.toLowerCase()) ? 20 : 0);
+      let score = hits * 10 + item.weight;
+      if (item.title.toLowerCase().includes(fullLower)) score += 30;
+      if (item.subtitle.toLowerCase().includes(fullLower)) score += 10;
+      if (item.hay.includes(fullLower)) score += 5;
       return { item, score };
     })
     .filter(Boolean) as { item: Indexed; score: number }[];
@@ -216,16 +351,24 @@ export function search(q: string, limit = 30): SearchResult[] {
   });
 }
 
-export function quickStats() {
+export function quickStats(): Record<SearchKind, number> {
   const index = buildIndex();
-  const counts: Record<SearchKind, number> = {
+  const counts = {
     scripture: 0,
     bible: 0,
     plan: 0,
     prayer: 0,
     gospel: 0,
     testimony: 0,
-  };
+    glossary: 0,
+    topical: 0,
+    creed: 0,
+    catechism: 0,
+    apologetic: 0,
+    hymn: 0,
+    discipline: 0,
+    path: 0,
+  } as Record<SearchKind, number>;
   for (const item of index) counts[item.kind]++;
   return counts;
 }

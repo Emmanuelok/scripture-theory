@@ -1,4 +1,5 @@
 import ParentingView from "@/components/ParentingView";
+import { PageHero } from "@/components/ui/Tile";
 
 export const metadata = {
   title: "Parenting Prayer Rhythm — Scripture Theory",
@@ -8,21 +9,15 @@ export const metadata = {
 
 export default function ParentingPage() {
   return (
-    <section className="mx-auto max-w-3xl px-5 pt-12 pb-20">
-      <span className="text-xs uppercase tracking-widest text-flame-700">Practice · Parenting</span>
-      <h1 className="font-serif text-4xl md:text-5xl mt-2 text-ink-900 leading-tight">
-        Pray your children. By name.
-      </h1>
-      <p className="mt-4 text-ink-700 max-w-2xl leading-relaxed">
-        Of everything you will do for your children — your prayer is the most consequential and
-        the most invisible. Seven daily themes shaped by Scripture, with space to add each child
-        by name and today's focus.
-      </p>
-      <p className="mt-2 text-xs text-ink-500">
-        "Train up a child in the way he should go: and when he is old, he will not depart from
-        it." — Proverbs 22:6
-      </p>
-
+    <section className="mx-auto max-w-4xl px-5 pt-12 pb-24">
+      <PageHero
+        eyebrow="Practice · Psalm 78:4"
+        title="Pray your children."
+        titleAccent="By name."
+        intro="Of everything you will do for your children — your prayer is the most consequential and the most invisible. Seven daily themes shaped by Scripture, with space to add each child by name and today's focus."
+        scripture="Train up a child in the way he should go: and when he is old, he will not depart from it."
+        scriptureRef="Proverbs 22:6"
+      />
       <div className="mt-10">
         <ParentingView />
       </div>

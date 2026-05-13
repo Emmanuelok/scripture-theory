@@ -9,25 +9,28 @@ import { locales, type LocaleCode } from "@/data/gospel-i18n";
 import { findNation } from "@/data/nations";
 import { flagEmoji } from "@/lib/flags";
 import { useAuth } from "@/lib/auth";
+import { STAGES as PATH_STAGES } from "@/data/path";
+import { slotKey, SLOT_CHANGE_EVENT } from "@/lib/slots";
+import ProfileSwitcher from "@/components/ProfileSwitcher";
 
-const PROFILE_KEY = "scripture-theory-profile";
-const PLAN_PROGRESS_KEY = "scripture-theory-progress";
-const BIBLE_MARKS_KEY = "scripture-theory-bible-marks";
-const FIRSTDAYS_KEY = "scripture-theory-firstdays";
-const LOCALE_KEY = "scripture-theory-locale";
-const THEME_KEY = "scripture-theory-theme";
-const TRANSLATION_KEY = "scripture-theory-translation";
-const READER_KEY = "scripture-theory-reader";
+// Per-slot bases (each slot has its own row in localStorage)
+const PER_SLOT_BASES = [
+  "scripture-theory-profile",
+  "scripture-theory-progress",
+  "scripture-theory-bible-marks",
+  "scripture-theory-firstdays",
+  "scripture-theory-last-read",
+];
 
-const ALL_KEYS = [
-  PROFILE_KEY,
-  PLAN_PROGRESS_KEY,
-  BIBLE_MARKS_KEY,
-  FIRSTDAYS_KEY,
-  LOCALE_KEY,
-  THEME_KEY,
-  TRANSLATION_KEY,
-  READER_KEY,
+// Global keys (one copy per device)
+const GLOBAL_KEYS = [
+  "scripture-theory-locale",
+  "scripture-theory-theme",
+  "scripture-theory-translation",
+  "scripture-theory-reader",
+  "scripture-theory-a11y",
+  "scripture-theory-slots",
+  "scripture-theory-active-slot",
 ];
 
 type PlanProgress = Record<string, number[]>;
@@ -80,14 +83,24 @@ export default function MeDashboard() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    try {
-      const p = window.localStorage.getItem(PLAN_PROGRESS_KEY);
-      setPlanProgress(p ? JSON.parse(p) : {});
-    } catch {}
-    try {
-      const m = window.localStorage.getItem(BIBLE_MARKS_KEY);
-      setBibleMarks(m ? JSON.parse(m) : {});
-    } catch {}
+    function refresh() {
+      try {
+        const p = window.localStorage.getItem(slotKey("scripture-theory-progress"));
+        setPlanProgress(p ? JSON.parse(p) : {});
+      } catch {
+        setPlanProgress({});
+      }
+      try {
+        const m = window.localStorage.getItem(slotKey("scripture-theory-bible-marks"));
+        setBibleMarks(m ? JSON.parse(m) : {});
+      } catch {
+        setBibleMarks({});
+      }
+    }
+    refresh();
+    const onSlot = () => refresh();
+    window.addEventListener(SLOT_CHANGE_EVENT, onSlot);
+    return () => window.removeEventListener(SLOT_CHANGE_EVENT, onSlot);
   }, [mounted]);
 
   const stats = useMemo(
@@ -127,6 +140,8 @@ export default function MeDashboard() {
       <StatGrid stats={stats} />
 
       <SignInBanner />
+
+      <PathCard profile={profile} />
 
       <SecretPlaceCard profile={profile} />
 
@@ -184,8 +199,11 @@ function HeroHeader({
 
   return (
     <section className="rounded-3xl bg-ink-900 text-ink-50 p-6 md:p-8 glow-ring">
-      <div className="text-xs uppercase tracking-widest text-flame-300">
-        My walk with Jesus · on this device only
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <div className="text-xs uppercase tracking-widest text-flame-300">
+          My walk with Jesus · on this device only
+        </div>
+        <ProfileSwitcher variant="hero" />
       </div>
       {editing ? (
         <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -278,8 +296,10 @@ function buildStats(profile: Profile, plans: PlanProgress, marks: BibleMarks): S
   const highlightsCount = marks.highlights?.length ?? 0;
   const notesCount = Object.keys(marks.notes ?? {}).length;
   const catechismProgress = profile.catechismProgress?.length ?? 0;
+  const pathDone = profile.path?.completed?.length ?? 0;
 
   return [
+    { label: "The Path", value: `${pathDone}/${PATH_STAGES.length}`, sub: "stages walked", href: "/disciple" },
     { label: "Chapters read", value: totalChaptersRead, sub: "across plans", href: "/read" },
     { label: "Verses memorized", value: memoryCount, sub: `${mastered} mastered`, href: "/memory" },
     { label: "People I pray for", value: prayingForCount, sub: `${prayersCount} prayers offered`, href: "/pray" },
@@ -289,7 +309,6 @@ function buildStats(profile: Profile, plans: PlanProgress, marks: BibleMarks): S
     { label: "Examens", value: examenCount, sub: "end-of-day reviews", href: "/examen" },
     { label: "Nations prayed for", value: nationsPrayed, sub: "distinct days", href: "/pray/nations" },
     { label: "Disciples walking", value: disciplesCount, sub: "people I'm with", href: "/disciple/journey" },
-    { label: "Sermon notes", value: sermonsCount, sub: "kept", href: "/today" },
     { label: "Bible highlights", value: highlightsCount, sub: `${notesCount} notes`, href: "/bible" },
     { label: "Catechism", value: `${catechismProgress}/52`, sub: "Lord's Days", href: "/catechism" },
   ];
@@ -324,6 +343,93 @@ function StatBody({ label, value, sub }: Stat) {
       <div className="font-serif text-2xl text-ink-900 mt-1">{value}</div>
       {sub && <div className="text-xs text-ink-500 mt-0.5">{sub}</div>}
     </>
+  );
+}
+
+/* ────────────────────────────────────────────────────────── */
+
+function PathCard({ profile }: { profile: Profile }) {
+  const path = profile.path;
+  const completed = new Set(path?.completed ?? []);
+  const pastorConfirmed = new Set(path?.pastorConfirmed ?? []);
+  const total = PATH_STAGES.length;
+  const done = completed.size;
+  const pct = Math.round((done / total) * 100);
+
+  const current = PATH_STAGES.find((s) => !completed.has(s.stage));
+  const lastCompletedIso = path?.completedAt
+    ? Object.values(path.completedAt).sort().reverse()[0]
+    : undefined;
+
+  // Empty state — haven't started
+  if (done === 0 && !current) {
+    return null;
+  }
+
+  return (
+    <Link
+      href="/disciple"
+      className="group relative block overflow-hidden rounded-3xl border border-ink-200 bg-card p-6 md:p-7 hover:-translate-y-0.5 hover:border-flame-500/60 hover:shadow-[0_18px_50px_-20px_rgba(249,115,22,0.28)] transition-all"
+    >
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-flame-50/40 to-transparent"
+      />
+      <div className="relative">
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <div>
+            <div className="text-[10px] uppercase tracking-widest text-flame-700">The Path</div>
+            <h2 className="font-serif text-2xl text-ink-900 mt-1 group-hover:text-flame-700 transition-colors">
+              {current
+                ? <>Stage {current.stage} · {current.name}</>
+                : "All twelve stages walked"}
+            </h2>
+            {current && (
+              <p className="text-sm text-ink-600 mt-1 leading-relaxed">
+                Next: {current.nextStep}
+              </p>
+            )}
+          </div>
+          <span className="text-xs text-flame-700">Open The Path →</span>
+        </div>
+
+        {/* Dotted stage strip */}
+        <ol className="mt-5 grid grid-cols-12 gap-1.5">
+          {PATH_STAGES.map((s) => {
+            const isDone = completed.has(s.stage);
+            const isCurrent = current?.stage === s.stage;
+            const isConf = pastorConfirmed.has(s.stage);
+            return (
+              <li key={s.stage} className="relative">
+                <div
+                  className={[
+                    "h-2 rounded-full",
+                    isDone
+                      ? "bg-gradient-to-r from-flame-500 to-flame-300"
+                      : isCurrent
+                      ? "bg-flame-300"
+                      : "bg-ink-200",
+                  ].join(" ")}
+                  title={`Stage ${s.stage} · ${s.name}${isDone ? " (complete)" : ""}${isConf ? " · pastor-confirmed" : ""}`}
+                />
+                {isConf && (
+                  <span
+                    aria-hidden
+                    className="absolute -top-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-flame-600"
+                  />
+                )}
+              </li>
+            );
+          })}
+        </ol>
+        <div className="mt-2 flex items-baseline justify-between text-xs text-ink-500">
+          <span>
+            {done} of {total} stages · {pct}%
+          </span>
+          {lastCompletedIso && <span>Last marked {fmtRelative(lastCompletedIso)}</span>}
+        </div>
+      </div>
+    </Link>
   );
 }
 
@@ -917,11 +1023,7 @@ function BackupCard() {
         "Erase EVERYTHING on this device — Secret Place, reading progress, prayers, journal? This cannot be undone."
       )
     ) {
-      ALL_KEYS.forEach((k) => {
-        try {
-          window.localStorage.removeItem(k);
-        } catch {}
-      });
+      eraseAllData();
       setStatus("All data cleared. Refresh the page.");
     }
   }
@@ -1060,12 +1162,24 @@ function MiniBlock({ label, value }: { label: string; value: string }) {
 /* ────────────────────────────────────────────────────────── */
 /* Backup helpers — WebCrypto AES-GCM with PBKDF2 key derivation */
 
+/** True if the given storage key belongs to Scripture Theory and is safe to back up. */
+function isOurKey(key: string): boolean {
+  if (GLOBAL_KEYS.includes(key)) return true;
+  for (const base of PER_SLOT_BASES) {
+    if (key === base || key.startsWith(`${base}:`)) return true;
+  }
+  return false;
+}
+
 function collectAllData(): Record<string, string> {
   const out: Record<string, string> = {};
   if (typeof window === "undefined") return out;
-  for (const key of ALL_KEYS) {
-    const v = window.localStorage.getItem(key);
-    if (v != null) out[key] = v;
+  // Enumerate every key, include only ours (covers every slot)
+  for (let i = 0; i < window.localStorage.length; i++) {
+    const k = window.localStorage.key(i);
+    if (!k || !isOurKey(k)) continue;
+    const v = window.localStorage.getItem(k);
+    if (v != null) out[k] = v;
   }
   return out;
 }
@@ -1073,9 +1187,21 @@ function collectAllData(): Record<string, string> {
 function restoreAllData(payload: Record<string, string>) {
   if (typeof window === "undefined") return;
   for (const [key, value] of Object.entries(payload)) {
-    if (ALL_KEYS.includes(key) && typeof value === "string") {
+    if (isOurKey(key) && typeof value === "string") {
       window.localStorage.setItem(key, value);
     }
+  }
+}
+
+function eraseAllData() {
+  if (typeof window === "undefined") return;
+  const toRemove: string[] = [];
+  for (let i = 0; i < window.localStorage.length; i++) {
+    const k = window.localStorage.key(i);
+    if (k && isOurKey(k)) toRemove.push(k);
+  }
+  for (const k of toRemove) {
+    try { window.localStorage.removeItem(k); } catch {}
   }
 }
 

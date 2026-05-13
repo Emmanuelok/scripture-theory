@@ -1,4 +1,5 @@
 import ForgiveView from "@/components/Forgive";
+import { PageHero } from "@/components/ui/Tile";
 
 export const metadata = {
   title: "Forgiveness — Scripture Theory",
@@ -8,21 +9,15 @@ export const metadata = {
 
 export default function ForgivePage() {
   return (
-    <section className="mx-auto max-w-3xl px-5 pt-12 pb-20">
-      <span className="text-xs uppercase tracking-widest text-flame-700">Practice · Forgiveness</span>
-      <h1 className="font-serif text-4xl md:text-5xl mt-2 text-ink-900 leading-tight">
-        Lay down the debt.
-      </h1>
-      <p className="mt-4 text-ink-700 max-w-2xl leading-relaxed">
-        Jesus said to forgive seventy-seven times — and from the heart. He would not command what
-        He does not also empower. This is a private walk. It does not minimize what was done. It
-        hands the debt to the One who keeps the books.
-      </p>
-      <p className="mt-2 text-xs text-ink-500">
-        "Be kind to one another, tenderhearted, forgiving one another, even as God in Christ
-        forgave you." — Ephesians 4:32
-      </p>
-
+    <section className="mx-auto max-w-4xl px-5 pt-12 pb-24">
+      <PageHero
+        eyebrow="Practice · Seventy times seven"
+        title="Lay down"
+        titleAccent="the debt."
+        intro="Jesus said to forgive seventy-seven times — and from the heart. He would not command what He does not also empower. This is a private walk. It does not minimize what was done. It hands the debt to the One who keeps the books."
+        scripture="Be kind to one another, tenderhearted, forgiving one another, even as God in Christ forgave you."
+        scriptureRef="Ephesians 4:32"
+      />
       <div className="mt-10">
         <ForgiveView />
       </div>

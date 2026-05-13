@@ -1,7 +1,9 @@
-import { nations, rotationCycleDay, todaysNation } from "@/data/nations";
+import { nations, rotationCycleDay, todaysNation, NATION_CYCLE_LENGTH } from "@/data/nations";
 import NationOfTheDay from "@/components/NationOfTheDay";
 import NationsRhythm from "@/components/NationsRhythm";
 import NationsTriptych from "@/components/NationsTriptych";
+import { PageHero, Tile } from "@/components/ui/Tile";
+import { Glyph } from "@/components/ui/Glyph";
 
 export const metadata = {
   title: "Praying for the Nations — Scripture Theory",
@@ -14,48 +16,37 @@ export default function NationsPage() {
   const day = rotationCycleDay();
 
   return (
-    <section className="mx-auto max-w-3xl px-5 pt-10 pb-20">
-      <div className="text-center">
-        <span className="text-xs uppercase tracking-widest text-flame-700">
-          Praying for the Nations
-        </span>
-        <h1 className="font-serif text-3xl md:text-4xl mt-2 text-ink-900 leading-tight">
-          Today the Body of Christ is praying for…
-        </h1>
-      </div>
+    <section className="mx-auto max-w-5xl px-5 pt-12 pb-24">
+      <PageHero
+        eyebrow={`Day ${day} of ${NATION_CYCLE_LENGTH} · Praying for the Nations`}
+        title="Today the Body of Christ"
+        titleAccent="is praying for…"
+        intro={`Every day, one specific country is lifted up by the whole platform — with prayer points unique to its spiritual, pastoral, and humanitarian situation. The cycle runs through ${nations.length} nations, then begins again. Wherever you are in the world, when you open this page today, you are praying with every other believer who opens it.`}
+        scripture="Ask of me, and I will make the nations your heritage, and the ends of the earth your possession."
+        scriptureRef="Psalm 2:8"
+      />
 
-      <div className="mt-8">
+      <div className="mt-12">
         <NationOfTheDay nation={nation} rotationDay={day} />
       </div>
 
-      <div className="mt-8">
+      <div className="mt-10">
         <NationsRhythm />
       </div>
 
-      <div className="mt-12">
+      <div className="mt-14">
         <NationsTriptych />
       </div>
 
-      <div className="mt-12 rounded-2xl border border-ink-200 bg-ink-50/60 p-5 text-sm text-ink-700">
-        <div className="text-xs uppercase tracking-widest text-flame-700 mb-2">
-          How the rotation works
-        </div>
-        <p className="leading-relaxed">
-          Every day, one specific country is lifted up with prayer points unique to its
-          spiritual, pastoral, and humanitarian situation. The cycle runs through {nations.length}{" "}
-          nations in {nations.length} days, then begins again. Wherever you are in the world,
-          when you open this page today you are praying for <strong>{nation.name}</strong>{" "}
-          alongside every other believer who opens it. The Lord of the nations is one God.
-        </p>
-      </div>
-
-      <div className="mt-12 rounded-3xl bg-ink-900 text-ink-50 p-8 text-center">
-        <p className="font-serif text-2xl leading-snug">
-          "Ask of me, and I will make the nations your heritage, and the ends of the earth your
-          possession."
-        </p>
-        <p className="mt-2 text-ink-300">Psalm 2:8</p>
-      </div>
+      <Tile
+        size="wide"
+        tone="dark"
+        eyebrow="How the rotation works"
+        title="One Lord. One field. Every nation, in time."
+        sub={`Each opening of the cycle lifts up a different country — by name, with prayer points unique to its situation. The pattern runs through ${nations.length} nations in ${nations.length} days, then begins again. Today, you are praying for ${nation.name} alongside every other believer who opens this page.`}
+        glyph={<Glyph id="globe" size={120} />}
+        className="mt-14"
+      />
     </section>
   );
 }

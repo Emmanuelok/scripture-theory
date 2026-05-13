@@ -292,6 +292,36 @@ export type CallingNote = {
   body: string;
 };
 
+// ─── The Path — discipleship progression ─────────────────────
+export type PathStageNum = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+
+export type PathEventType =
+  | "completed"
+  | "uncompleted"
+  | "pastor_request"
+  | "pastor_confirmed";
+
+export type PathEvent = {
+  id: string;
+  type: PathEventType;
+  stage: PathStageNum;
+  at: string;
+  note?: string;
+};
+
+export type PathProgress = {
+  /** Stages the believer has marked complete. */
+  completed?: PathStageNum[];
+  /** ISO date each stage was completed. */
+  completedAt?: Partial<Record<PathStageNum, string>>;
+  /** Pastor-confirmed stages (stages 3 & 7 typically). */
+  pastorConfirmed?: PathStageNum[];
+  /** Free-form note per stage. */
+  notes?: Partial<Record<PathStageNum, string>>;
+  /** Append-only event log. */
+  events?: PathEvent[];
+};
+
 export type Profile = {
   name?: string;
   stage?: DiscipleStage;
@@ -319,15 +349,22 @@ export type Profile = {
   sabbath?: SabbathPlan;
   calling?: CallingNote[];
   catechismProgress?: number[]; // Heidelberg Lord's Day completed (1..52)
+  path?: PathProgress;
 };
 
-const STORAGE = "scripture-theory-profile";
+import { slotKey, SLOT_CHANGE_EVENT } from "@/lib/slots";
+
+const PROFILE_BASE = "scripture-theory-profile";
 const LOCALE_STORAGE = "scripture-theory-locale";
+
+function profileKey() {
+  return slotKey(PROFILE_BASE);
+}
 
 export function loadProfile(): Profile {
   if (typeof window === "undefined") return {};
   try {
-    const raw = window.localStorage.getItem(STORAGE);
+    const raw = window.localStorage.getItem(profileKey());
     const profile = raw ? (JSON.parse(raw) as Profile) : {};
     if (!profile.locale) {
       const sharedLocale = window.localStorage.getItem(LOCALE_STORAGE) as LocaleCode | null;
@@ -344,7 +381,7 @@ export const PROFILE_CHANGE_EVENT = "scripture-theory:profile-change";
 export function saveProfile(profile: Profile) {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(STORAGE, JSON.stringify(profile));
+    window.localStorage.setItem(profileKey(), JSON.stringify(profile));
     if (profile.locale) {
       window.localStorage.setItem(LOCALE_STORAGE, profile.locale);
     }
@@ -362,12 +399,17 @@ export function useProfile() {
     setProfile(loadProfile());
     setMounted(true);
     if (typeof window === "undefined") return;
-    const handler = (e: Event) => {
+    const onProfile = (e: Event) => {
       const detail = (e as CustomEvent<Profile>).detail;
       if (detail) setProfile(detail);
     };
-    window.addEventListener(PROFILE_CHANGE_EVENT, handler);
-    return () => window.removeEventListener(PROFILE_CHANGE_EVENT, handler);
+    const onSlot = () => setProfile(loadProfile());
+    window.addEventListener(PROFILE_CHANGE_EVENT, onProfile);
+    window.addEventListener(SLOT_CHANGE_EVENT, onSlot);
+    return () => {
+      window.removeEventListener(PROFILE_CHANGE_EVENT, onProfile);
+      window.removeEventListener(SLOT_CHANGE_EVENT, onSlot);
+    };
   }, []);
 
   function update(patch: Partial<Profile>) {
@@ -380,7 +422,7 @@ export function useProfile() {
     setProfile({});
     if (typeof window !== "undefined") {
       try {
-        window.localStorage.removeItem(STORAGE);
+        window.localStorage.removeItem(profileKey());
         window.dispatchEvent(new CustomEvent<Profile>(PROFILE_CHANGE_EVENT, { detail: {} }));
       } catch {}
     }

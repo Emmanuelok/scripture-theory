@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { canon, getBook } from "@/data/bible/canon";
+import { slotKey, SLOT_CHANGE_EVENT } from "@/lib/slots";
 import { translations, type TranslationId } from "@/data/bible/translations";
 
 type Marks = {
@@ -11,7 +12,10 @@ type Marks = {
   notes: Record<string, string>;
 };
 
-const MARKS_STORAGE = "scripture-theory-bible-marks";
+const MARKS_BASE = "scripture-theory-bible-marks";
+function MARKS_STORAGE() {
+  return slotKey(MARKS_BASE);
+}
 
 type Mark = {
   type: "highlight" | "bookmark" | "note";
@@ -41,7 +45,7 @@ function parseKey(key: string): {
 function loadMarks(): Marks {
   if (typeof window === "undefined") return { highlights: [], bookmarks: [], notes: {} };
   try {
-    const raw = window.localStorage.getItem(MARKS_STORAGE);
+    const raw = window.localStorage.getItem(MARKS_STORAGE());
     if (!raw) return { highlights: [], bookmarks: [], notes: {} };
     const parsed = JSON.parse(raw);
     return {
@@ -56,7 +60,7 @@ function loadMarks(): Marks {
 
 function saveMarks(m: Marks) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(MARKS_STORAGE, JSON.stringify(m));
+  window.localStorage.setItem(MARKS_STORAGE(), JSON.stringify(m));
 }
 
 export default function MyBible() {
@@ -67,6 +71,10 @@ export default function MyBible() {
   useEffect(() => {
     setMarks(loadMarks());
     setMounted(true);
+    if (typeof window === "undefined") return;
+    const onSlot = () => setMarks(loadMarks());
+    window.addEventListener(SLOT_CHANGE_EVENT, onSlot);
+    return () => window.removeEventListener(SLOT_CHANGE_EVENT, onSlot);
   }, []);
 
   const all: Mark[] = useMemo(() => {

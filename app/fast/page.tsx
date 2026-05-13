@@ -1,4 +1,5 @@
 import FastingView from "@/components/Fasting";
+import { PageHero } from "@/components/ui/Tile";
 
 export const metadata = {
   title: "Fasting — Scripture Theory",
@@ -8,21 +9,15 @@ export const metadata = {
 
 export default function FastPage() {
   return (
-    <section className="mx-auto max-w-3xl px-5 pt-12 pb-20">
-      <span className="text-xs uppercase tracking-widest text-flame-700">Practice · Fasting</span>
-      <h1 className="font-serif text-4xl md:text-5xl mt-2 text-ink-900 leading-tight">
-        "When you fast." — Jesus
-      </h1>
-      <p className="mt-4 text-ink-700 max-w-2xl leading-relaxed">
-        Not <em>if</em>. <em>When.</em> Fasting is one of the lost rhythms of the Western church —
-        an old, normal, joyful weapon. Here is how to begin, what kind of fast to choose, what
-        Scripture says, and a quiet tracker that lives only on your device.
-      </p>
-      <p className="mt-2 text-xs text-ink-500">
-        "Whenever you fast… anoint your head and wash your face, that your fasting may not be seen
-        by people, but by your Father, who is in secret." — Matthew 6:17-18
-      </p>
-
+    <section className="mx-auto max-w-4xl px-5 pt-12 pb-24">
+      <PageHero
+        eyebrow="Practice · Matthew 6:16"
+        title={<>"When you fast." <span className="text-ink-500">— Jesus</span></>}
+        titleAccent="Not if. When."
+        intro="Fasting is one of the lost rhythms of the Western church — an old, normal, joyful weapon. How to begin, what kind of fast to choose, what Scripture says, and a quiet tracker that lives only on your device."
+        scripture="Whenever you fast… anoint your head and wash your face, that your fasting may not be seen by people, but by your Father, who is in secret."
+        scriptureRef="Matthew 6:17–18"
+      />
       <div className="mt-10">
         <FastingView />
       </div>

@@ -7,15 +7,17 @@ import { localizedPlan, localizedDay } from "@/data/readings-i18n";
 import { locales, type LocaleCode } from "@/data/gospel-i18n";
 import { referenceHref } from "@/lib/reference";
 
+import { slotKey, SLOT_CHANGE_EVENT } from "@/lib/slots";
+
 type Progress = Record<string, number[]>;
 
-const STORAGE = "scripture-theory-progress";
+const STORAGE_BASE = "scripture-theory-progress";
 const LOCALE_STORAGE = "scripture-theory-locale";
 
 function loadProgress(): Progress {
   if (typeof window === "undefined") return {};
   try {
-    const raw = window.localStorage.getItem(STORAGE);
+    const raw = window.localStorage.getItem(slotKey(STORAGE_BASE));
     return raw ? (JSON.parse(raw) as Progress) : {};
   } catch {
     return {};
@@ -24,7 +26,7 @@ function loadProgress(): Progress {
 
 function saveProgress(p: Progress) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(STORAGE, JSON.stringify(p));
+  window.localStorage.setItem(slotKey(STORAGE_BASE), JSON.stringify(p));
 }
 
 export default function ReadingPlanView() {
@@ -40,6 +42,10 @@ export default function ReadingPlanView() {
       if (saved && locales[saved]) setLocale(saved);
     }
     setMounted(true);
+    if (typeof window === "undefined") return;
+    const onSlot = () => setProgress(loadProgress());
+    window.addEventListener(SLOT_CHANGE_EVENT, onSlot);
+    return () => window.removeEventListener(SLOT_CHANGE_EVENT, onSlot);
   }, []);
 
   const plan = useMemo(

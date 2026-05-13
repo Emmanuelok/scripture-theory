@@ -47,6 +47,7 @@ const DEFAULT_SYNCABLE: SyncableKey[] = [
   "sabbath",
   "calling",
   "catechismProgress",
+  "path",
 ];
 
 const SYNC_PREFS_KEY = "scripture-theory-sync-prefs";
