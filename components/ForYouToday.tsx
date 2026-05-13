@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useProfile, type Profile } from "@/lib/profile";
 import { STAGES as PATH_STAGES, findStage } from "@/data/path";
 import { Glyph, type GlyphId } from "@/components/ui/Glyph";
+import { feastOn, nextFeastWithin, seasonOn } from "@/lib/calendar";
 
 /* ──────────────────────────────────────────────────────────────────
    ForYouToday — pastoral, contextual nudges based on profile + time.
@@ -44,11 +45,53 @@ function todayIso(d: Date) {
   return d.toISOString().slice(0, 10);
 }
 
+const SEASON_GLYPH: Record<string, GlyphId> = {
+  advent: "lamp",
+  christmas: "lamp",
+  epiphany: "globe",
+  "ordinary-pre-lent": "tree",
+  lent: "door",
+  "holy-week": "cross",
+  easter: "flame",
+  "pentecost-season": "dove",
+  "ordinary-after-pentecost": "tree",
+};
+
 function buildSignals(profile: Profile, now: Date): Signal[] {
   const signals: Signal[] = [];
   const hour = now.getHours();
   const today = todayIso(now);
   const dow = now.getDay(); // 0=Sun
+
+  // 0. Liturgical day — feast today takes precedence over season
+  const feastToday = feastOn(now);
+  if (feastToday) {
+    signals.push({
+      id: "feast",
+      priority: 110,
+      eyebrow: `Feast · ${feastToday.name}`,
+      title: feastToday.tagline,
+      sub: feastToday.scripture.text.slice(0, 140) + (feastToday.scripture.text.length > 140 ? "…" : ""),
+      href: "/calendar",
+      glyph: "lamp",
+      variant: "active",
+    });
+  } else {
+    // Surface the season at a quieter priority + show "in N days" hint
+    // when a feast is near
+    const season = seasonOn(now).season;
+    const next = nextFeastWithin(now, 14);
+    signals.push({
+      id: "season",
+      priority: 30,
+      eyebrow: `Season · ${season.name}`,
+      title: next ? `${next.feast.name} in ${next.in} days` : season.tagline,
+      sub: next ? next.feast.tagline : season.pray[0],
+      href: "/calendar",
+      glyph: SEASON_GLYPH[season.id] ?? "flame",
+      variant: next && next.in <= 7 ? "active" : "encouragement",
+    });
+  }
 
   // 1. Active fast — most urgent, surface always
   const activeFast = (profile.fasts ?? []).find((f) => !f.endedAt && !f.broken);

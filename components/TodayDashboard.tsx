@@ -302,6 +302,7 @@ export default function TodayDashboard() {
           <PracticeChip href="/heal" eyebrow="James 5" title="Healing prayer" sub="Pray for the sick" />
           <PracticeChip href="/sabbath" eyebrow="Exod 20:8" title="Sabbath" sub="One day in seven" />
           <PracticeChip href="/catechism" eyebrow="1 of 52" title="Catechism" sub="This week's Lord's Day" />
+          <PracticeChip href="/calendar" eyebrow="The Year" title="Christian calendar" sub="Today in the story of Christ" />
         </div>
       </section>
 
