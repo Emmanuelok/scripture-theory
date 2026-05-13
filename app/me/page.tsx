@@ -1,4 +1,5 @@
 import MeDashboard from "@/components/MeDashboard";
+import PersonalSubNav from "@/components/PersonalSubNav";
 
 export const metadata = {
   title: "My walk — Scripture Theory",
@@ -20,6 +21,7 @@ export default function MePage() {
       </p>
 
       <div className="mt-10">
+        <PersonalSubNav />
         <MeDashboard />
       </div>
     </section>
