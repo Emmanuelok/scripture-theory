@@ -1,8 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { search, searchKindLabel, quickStats, type SearchKind, type SearchResult } from "@/lib/search";
+import { useMemo, useRef, useState } from "react";
+import {
+  search,
+  searchKindLabel,
+  quickStats,
+  type SearchKind,
+  type SearchResult,
+} from "@/lib/search";
 
 const KIND_COLOR: Record<SearchKind, string> = {
   bible: "bg-ink-900 text-ink-50",
@@ -11,33 +17,67 @@ const KIND_COLOR: Record<SearchKind, string> = {
   prayer: "bg-sky-100 text-sky-900",
   gospel: "bg-rose-100 text-rose-900",
   testimony: "bg-violet-100 text-violet-900",
+  glossary: "bg-amber-100 text-amber-900",
+  topical: "bg-lime-100 text-lime-900",
+  creed: "bg-stone-200 text-stone-900",
+  catechism: "bg-teal-100 text-teal-900",
+  apologetic: "bg-indigo-100 text-indigo-900",
+  hymn: "bg-yellow-100 text-yellow-900",
+  discipline: "bg-orange-100 text-orange-900",
+  path: "bg-flame-600 text-ink-50",
 };
 
-const ALL_KINDS: SearchKind[] = ["bible", "scripture", "plan", "prayer", "gospel", "testimony"];
+const ALL_KINDS: SearchKind[] = [
+  "bible",
+  "scripture",
+  "topical",
+  "catechism",
+  "glossary",
+  "creed",
+  "apologetic",
+  "hymn",
+  "discipline",
+  "path",
+  "plan",
+  "prayer",
+  "gospel",
+  "testimony",
+];
 
 const SUGGESTIONS = [
   "John 3",
   "Romans 8",
   "Beatitudes",
   "Lord's Prayer",
-  "Sub-Saharan Africa",
-  "Lagos",
-  "Pentecostal",
+  "anxiety",
   "forgiveness",
-  "hope",
-  "abide",
+  "atonement",
+  "Trinity",
+  "Sub-Saharan Africa",
+  "Pentecostal",
 ];
 
 export default function SearchView() {
   const [q, setQ] = useState("");
   const [enabled, setEnabled] = useState<Set<SearchKind>>(new Set(ALL_KINDS));
   const stats = useMemo(() => quickStats(), []);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const allResults = useMemo(() => search(q), [q]);
+  const allResults = useMemo(() => search(q, 80), [q]);
   const results = useMemo(
     () => allResults.filter((r) => enabled.has(r.kind)),
     [allResults, enabled]
   );
+
+  // Group by kind for nicer display
+  const grouped = useMemo(() => {
+    const m = new Map<SearchKind, SearchResult[]>();
+    for (const r of results) {
+      if (!m.has(r.kind)) m.set(r.kind, []);
+      m.get(r.kind)!.push(r);
+    }
+    return Array.from(m.entries());
+  }, [results]);
 
   function toggle(k: SearchKind) {
     setEnabled((prev) => {
@@ -48,24 +88,58 @@ export default function SearchView() {
     });
   }
 
+  function setAll(on: boolean) {
+    setEnabled(on ? new Set(ALL_KINDS) : new Set());
+  }
+
+  const total = ALL_KINDS.reduce((n, k) => n + (stats[k] ?? 0), 0);
+
   return (
     <div className="space-y-6">
+      {/* Search input */}
       <div className="rounded-3xl border border-ink-200 bg-card p-5 md:p-7 glow-ring">
         <label className="block">
-          <span className="text-xs uppercase tracking-widest text-ink-400">
-            Search across the platform
+          <span className="text-[10px] uppercase tracking-[0.18em] text-flame-700">
+            One search · {total.toLocaleString()} entries indexed
           </span>
-          <input
-            type="search"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="A verse, a topic, a city, a tradition…"
-            className="mt-2 w-full rounded-xl border border-ink-200 bg-ink-50 px-4 py-3 text-lg text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-flame-300"
-            autoFocus
-          />
+          <div className="relative mt-2">
+            <svg
+              aria-hidden
+              viewBox="0 0 24 24"
+              className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-ink-400"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="m20 20-3.5-3.5" />
+            </svg>
+            <input
+              ref={inputRef}
+              type="search"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="A verse, a topic, a doctrine, a city, a hymn line…"
+              className="w-full rounded-2xl border border-ink-200 bg-ink-50 pl-12 pr-10 py-3 text-lg text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-flame-300"
+              autoFocus
+            />
+            {q && (
+              <button
+                onClick={() => {
+                  setQ("");
+                  inputRef.current?.focus();
+                }}
+                aria-label="Clear search"
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-ink-200 hover:bg-ink-300 text-ink-700 h-6 w-6 flex items-center justify-center text-xs"
+              >
+                ✕
+              </button>
+            )}
+          </div>
         </label>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className="mt-4 flex flex-wrap items-center gap-1.5">
           {ALL_KINDS.map((k) => {
             const on = enabled.has(k);
             return (
@@ -84,18 +158,27 @@ export default function SearchView() {
               </button>
             );
           })}
+          <button
+            onClick={() => setAll(enabled.size < ALL_KINDS.length)}
+            className="ml-auto text-xs text-ink-500 hover:text-ink-900 underline"
+          >
+            {enabled.size < ALL_KINDS.length ? "Select all" : "Deselect all"}
+          </button>
         </div>
       </div>
 
+      {/* Suggestions when no query */}
       {!q && (
-        <div className="rounded-2xl border border-ink-200 bg-ink-50/60 p-5">
-          <div className="text-xs uppercase tracking-widest text-ink-500 mb-3">Try one</div>
+        <div className="rounded-3xl border border-ink-200 bg-card-subtle p-5 md:p-6">
+          <div className="text-[10px] uppercase tracking-widest text-flame-700 mb-3">
+            Try one
+          </div>
           <div className="flex flex-wrap gap-2">
             {SUGGESTIONS.map((s) => (
               <button
                 key={s}
                 onClick={() => setQ(s)}
-                className="rounded-full bg-card border border-ink-200 px-3 py-1 text-sm text-ink-700 hover:border-flame-500"
+                className="rounded-full bg-card border border-ink-200 px-3 py-1.5 text-sm text-ink-700 hover:border-flame-500 hover:text-flame-700 transition-colors"
               >
                 {s}
               </button>
@@ -104,6 +187,7 @@ export default function SearchView() {
         </div>
       )}
 
+      {/* Result summary */}
       {q && (
         <div className="text-sm text-ink-600">
           <strong className="text-ink-900">{results.length}</strong> result
@@ -114,40 +198,96 @@ export default function SearchView() {
         </div>
       )}
 
+      {/* Empty state */}
       {q && results.length === 0 && (
-        <div className="rounded-2xl border border-ink-200 bg-card p-8 text-center text-ink-600">
-          No matches yet. The platform is small at pilot — try a Bible reference, a city, a
-          tradition, or a topic like "hope" or "forgiveness".
+        <div className="rounded-3xl border border-ink-200 bg-card p-8 md:p-10 text-center">
+          <p className="text-ink-700">
+            No matches for <strong className="text-ink-900">"{q}"</strong>.
+          </p>
+          <p className="mt-2 text-sm text-ink-500">
+            Try a Bible reference, a topic like "anxiety", a doctrine like "atonement", or the
+            name of a hymn.
+          </p>
         </div>
       )}
 
-      {results.length > 0 && (
-        <ul className="space-y-3">
-          {results.map((r, i) => (
-            <Result key={`${r.kind}-${r.href}-${i}`} r={r} />
+      {/* Grouped results */}
+      {grouped.length > 0 && (
+        <div className="space-y-8">
+          {grouped.map(([kind, items]) => (
+            <section key={kind}>
+              <div className="flex items-baseline gap-3 mb-3">
+                <span
+                  className={`inline-flex rounded-full px-2.5 py-0.5 text-[11px] ${KIND_COLOR[kind]}`}
+                >
+                  {searchKindLabel(kind)}
+                </span>
+                <span className="text-xs text-ink-500">{items.length} match{items.length === 1 ? "" : "es"}</span>
+              </div>
+              <ul className="grid sm:grid-cols-2 gap-3">
+                {items.map((r, i) => (
+                  <Result key={`${r.kind}-${r.href}-${i}`} r={r} q={q} />
+                ))}
+              </ul>
+            </section>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
 }
 
-function Result({ r }: { r: SearchResult }) {
+/** Highlight every occurrence of any query token inside a string. */
+function highlight(text: string, q: string): React.ReactNode {
+  const tokens = q
+    .toLowerCase()
+    .split(/\s+/)
+    .map((t) => t.replace(/[^\p{L}\p{N}:]/gu, ""))
+    .filter((t) => t.length >= 2);
+  if (tokens.length === 0) return text;
+  // Build a single regex with all tokens
+  const escaped = tokens.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const re = new RegExp(`(${escaped.join("|")})`, "gi");
+  const parts = text.split(re);
+  return parts.map((p, i) =>
+    re.test(p) ? (
+      <mark
+        key={i}
+        className="bg-flame-100 text-flame-900 rounded px-0.5"
+      >
+        {p}
+      </mark>
+    ) : (
+      <span key={i}>{p}</span>
+    )
+  );
+}
+
+function Result({ r, q }: { r: SearchResult; q: string }) {
   return (
     <li>
       <Link
         href={r.href}
-        className="block rounded-2xl border border-ink-200 bg-card p-5 hover:border-flame-500 transition-colors"
+        className="group relative block h-full overflow-hidden rounded-2xl border border-ink-200 bg-card p-5 hover:-translate-y-0.5 hover:border-flame-500/60 hover:shadow-[0_18px_50px_-20px_rgba(249,115,22,0.28)] transition-all"
       >
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <span className={`inline-flex rounded-full px-2.5 py-0.5 text-[11px] ${KIND_COLOR[r.kind]}`}>
-            {searchKindLabel(r.kind)}
-          </span>
-          <span className="text-xs text-ink-400">{r.href}</span>
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-flame-50/40 to-transparent"
+        />
+        <div className="relative">
+          <div className="font-serif text-lg text-ink-900 group-hover:text-flame-700 transition-colors">
+            {highlight(r.title, q)}
+          </div>
+          {r.subtitle && (
+            <div className="text-xs text-ink-500 mt-0.5 italic">{r.subtitle}</div>
+          )}
+          <p className="mt-2 text-sm text-ink-700 leading-relaxed line-clamp-3">
+            {highlight(r.snippet, q)}
+          </p>
+          <div className="mt-3 text-[10px] uppercase tracking-widest text-flame-700/70">
+            Open →
+          </div>
         </div>
-        <div className="mt-2 font-serif text-lg text-ink-900">{r.title}</div>
-        {r.subtitle && <div className="text-xs text-ink-500 mt-0.5 italic">{r.subtitle}</div>}
-        <p className="mt-2 text-sm text-ink-700 leading-relaxed line-clamp-3">{r.snippet}</p>
       </Link>
     </li>
   );

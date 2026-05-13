@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import { AuthProvider } from "@/lib/auth";
 import { ProfileSyncBridge } from "@/components/ProfileSyncBridge";
 import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
+import InstallPrompt from "@/components/InstallPrompt";
 
 export const metadata: Metadata = {
   title: "Scripture Theory — Encounter JESUS. Engage the Word. Live the Kingdom.",
@@ -65,6 +66,7 @@ export default function RootLayout({
           <Nav />
           <main className="flex-1">{children}</main>
           <Footer />
+          <InstallPrompt />
         </AuthProvider>
       </body>
     </html>
