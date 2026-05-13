@@ -67,6 +67,66 @@ export type DiscipleRecord = {
   events: JourneyEvent[];
 };
 
+// ─── Secret Place — Matthew 6:6 ────────────────────────────────
+// A private, contemplative space. Lives only on this device. Never synced.
+
+export type Season =
+  | "waiting"
+  | "wrestling"
+  | "growing"
+  | "grieving"
+  | "joyful"
+  | "called"
+  | "restoring"
+  | "resting"
+  | "listening"
+  | "surrendering";
+
+export type JournalKind =
+  | "reflection"
+  | "prayer"
+  | "gratitude"
+  | "confession"
+  | "lesson"
+  | "letter";
+
+export type JournalEntry = {
+  id: string;
+  kind: JournalKind;
+  title?: string;
+  body: string;
+  scriptureRef?: string;
+  date: string; // ISO
+};
+
+export type SecretPrayer = {
+  id: string;
+  title: string;
+  body?: string;
+  date: string;
+  status: "active" | "answered" | "released";
+  answeredAt?: string;
+  answerNote?: string;
+};
+
+export type Gratitude = {
+  id: string;
+  text: string;
+  date: string;
+};
+
+export type SecretPlaceState = {
+  alias?: string;
+  season?: Season;
+  anchorVerse?: string;
+  anchorRef?: string;
+  setupComplete?: boolean;
+  startedAt?: string;
+  entries?: JournalEntry[];
+  prayers?: SecretPrayer[];
+  gratitudes?: Gratitude[];
+};
+
 export type Profile = {
   stage?: DiscipleStage;
   locale?: LocaleCode;
@@ -77,6 +137,7 @@ export type Profile = {
   nationsPrayed?: NationPrayed[];
   adoptedNationIso?: string;
   disciples?: DiscipleRecord[];
+  secretPlace?: SecretPlaceState;
 };
 
 const STORAGE = "scripture-theory-profile";

@@ -6,9 +6,9 @@ const links = [
   { href: "/bible", label: "Bible" },
   { href: "/memory", label: "Memory" },
   { href: "/pray", label: "Pray" },
+  { href: "/secret-place", label: "Secret Place" },
   { href: "/disciple/journey", label: "Journey" },
   { href: "/resources", label: "Resources" },
-  { href: "/connect", label: "One Body" },
 ];
 
 export default function Nav() {
