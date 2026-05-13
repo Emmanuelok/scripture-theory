@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { todaysNation, regions as nationRegions, rotationDay } from "@/data/nations";
+import { todaysNation, regions as nationRegions, rotationCycleDay, NATION_CYCLE_LENGTH } from "@/data/nations";
 import { flagEmoji } from "@/lib/flags";
 import { thisWeeksVerse } from "@/data/memory";
 import { whichOfficeNow, offices } from "@/data/hours";
@@ -55,7 +55,7 @@ export default function ExploreGrid() {
     return {
       d,
       nation,
-      nationDay: rotationDay(d),
+      nationDay: rotationCycleDay(d),
       memory,
       office,
       ld,
@@ -169,7 +169,7 @@ export default function ExploreGrid() {
         <Tile
           href="/pray/nations"
           variant="tall"
-          eyebrow={`Day ${data.nationDay} of 110`}
+          eyebrow={`Day ${data.nationDay} of ${NATION_CYCLE_LENGTH}`}
           title="The Nations"
           tag="Intercession"
         >

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { nations, findNation, daysUntilNation, rotationDay, todaysNation } from "@/data/nations";
+import { nations, findNation, daysUntilNation, rotationCycleDay, todaysNation } from "@/data/nations";
 import NationOfTheDay from "@/components/NationOfTheDay";
 import { flagEmoji } from "@/lib/flags";
 
@@ -57,7 +57,14 @@ export default async function NationPage({
       )}
 
       <div className="mt-6">
-        <NationOfTheDay nation={nation} rotationDay={rotationDay() + (isToday ? 0 : daysUntil)} />
+        <NationOfTheDay
+          nation={nation}
+          rotationDay={
+            isToday
+              ? rotationCycleDay()
+              : rotationCycleDay(new Date(Date.now() + daysUntil * 86_400_000))
+          }
+        />
       </div>
     </section>
   );

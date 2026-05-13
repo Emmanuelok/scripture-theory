@@ -1621,6 +1621,19 @@ export function rotationDay(d = new Date()): number {
   return here - EPOCH_DAY;
 }
 
+/** Length of the full rotation — every nation we pray for, exactly once. */
+export const NATION_CYCLE_LENGTH = nations.length;
+
+/**
+ * The day-within-current-cycle, 1..NATION_CYCLE_LENGTH.
+ * Use this for any "Day X of N" UI label — rotationDay() returns a raw
+ * day-since-epoch counter that grows forever and is not meant for display.
+ */
+export function rotationCycleDay(d = new Date()): number {
+  const n = nations.length;
+  return (((rotationDay(d) % n) + n) % n) + 1;
+}
+
 export function nationForDay(offsetDays = 0, base = new Date()): Nation {
   const day = rotationDay(base) + offsetDays;
   // JavaScript's % can return negative for negative operands — normalize.

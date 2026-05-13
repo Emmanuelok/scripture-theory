@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { Nation } from "@/data/nations";
-import { regions } from "@/data/nations";
+import { regions, NATION_CYCLE_LENGTH } from "@/data/nations";
 import { nativeNameFor } from "@/data/nations-native";
 import { flagEmoji } from "@/lib/flags";
 import NationFlag from "@/components/NationFlag";
@@ -95,7 +95,7 @@ export default function NationOfTheDay({
           <div className="absolute inset-0 bg-gradient-to-b from-ink-900/40 via-ink-900/10 to-ink-900/80" />
           <div className="absolute top-4 left-5 md:top-6 md:left-7 flex items-center gap-2">
             <span className="text-xs uppercase tracking-widest text-flame-300">
-              Day {rotationDay} · Praying for the Nations
+              Day {rotationDay} of {NATION_CYCLE_LENGTH} · Praying for the Nations
             </span>
           </div>
           <div className="absolute bottom-5 left-5 md:bottom-7 md:left-7 right-5">
