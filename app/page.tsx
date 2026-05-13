@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  mission,
   audiences,
   pillars,
   gap,
@@ -8,67 +7,12 @@ import {
   principles,
   guardrails,
 } from "@/data/strategy";
+import HomeHero from "@/components/HomeHero";
 
 export default function HomePage() {
   return (
     <>
-      <section className="mx-auto max-w-6xl px-5 pt-16 md:pt-24 pb-12">
-        <div className="grid md:grid-cols-12 gap-10 items-start">
-          <div className="md:col-span-7">
-            <span className="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white px-3 py-1 text-xs text-ink-600">
-              <span className="h-1.5 w-1.5 rounded-full bg-flame-500" />
-              JESUS · One Gospel · One Body · For the world
-            </span>
-            <h1 className="mt-5 font-serif text-4xl md:text-6xl leading-[1.05] text-ink-900">
-              It has always been about{" "}
-              <span className="gradient-text">JESUS</span>.
-            </h1>
-            <p className="mt-6 text-lg text-ink-700 leading-relaxed max-w-xl">
-              {mission.shorter}
-            </p>
-            <p className="mt-4 text-ink-600 max-w-xl leading-relaxed">{mission.long}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href="/gospel"
-                className="inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-5 py-2.5 text-sm hover:bg-flame-700 transition-colors"
-              >
-                Read the Gospel →
-              </Link>
-              <Link
-                href="/read"
-                className="inline-flex items-center rounded-full bg-ink-900 text-ink-50 px-5 py-2.5 text-sm hover:bg-flame-700 transition-colors"
-              >
-                Open the Word
-              </Link>
-              <Link
-                href="/pray"
-                className="inline-flex items-center rounded-full border border-ink-300 px-5 py-2.5 text-sm text-ink-800 hover:border-ink-900 transition-colors"
-              >
-                Learn to pray
-              </Link>
-            </div>
-          </div>
-
-          <aside className="md:col-span-5">
-            <div className="rounded-2xl bg-ink-900 text-ink-50 p-6 md:p-7 glow-ring">
-              <div className="text-xs uppercase tracking-widest text-flame-300">
-                The ONE Gospel, in one breath
-              </div>
-              <p className="font-serif text-xl md:text-2xl mt-3 leading-snug">
-                Christ died for our sins. He was buried. He rose on the third day. He was seen. He
-                is alive. He is Lord.
-              </p>
-              <p className="text-sm text-ink-300 mt-3 italic">1 Corinthians 15:3–8</p>
-              <div className="mt-5 border-t border-ink-700 pt-4">
-                <p className="text-sm text-ink-200">
-                  Two thousand years of Christians from every nation, language, and tradition have
-                  lived and died for this Gospel. There is no other. There has never been another.
-                </p>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </section>
+      <HomeHero />
 
       <section className="mx-auto max-w-6xl px-5 py-12">
         <div className="grid md:grid-cols-4 gap-6">

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 const links = [
+  { href: "/today", label: "Today" },
   { href: "/gospel", label: "Gospel" },
   { href: "/read", label: "Read" },
   { href: "/pray", label: "Pray" },
@@ -31,10 +32,10 @@ export default function Nav() {
           ))}
         </ul>
         <Link
-          href="/gospel"
+          href="/start"
           className="hidden md:inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-4 py-1.5 text-sm hover:bg-flame-700 transition-colors shrink-0"
         >
-          Meet Jesus
+          Start here
         </Link>
       </nav>
     </header>

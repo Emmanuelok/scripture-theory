@@ -1,4 +1,5 @@
 import { testimonies, sharePrompts } from "@/data/testimonies";
+import Link from "next/link";
 
 export const metadata = {
   title: "Witness — Scripture Theory",
@@ -18,6 +19,15 @@ export default function WitnessPage() {
         gather their testimonies — not to celebrate the stories, but to lift up the Lord who is in
         them.
       </p>
+
+      <div className="mt-6">
+        <Link
+          href="/witness/share"
+          className="inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-5 py-2.5 text-sm hover:bg-flame-700 transition-colors"
+        >
+          Share your testimony →
+        </Link>
+      </div>
 
       <ol className="mt-12 space-y-5">
         {testimonies.map((t) => (
