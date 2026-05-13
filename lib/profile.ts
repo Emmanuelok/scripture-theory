@@ -292,6 +292,36 @@ export type CallingNote = {
   body: string;
 };
 
+// ─── The Path — discipleship progression ─────────────────────
+export type PathStageNum = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+
+export type PathEventType =
+  | "completed"
+  | "uncompleted"
+  | "pastor_request"
+  | "pastor_confirmed";
+
+export type PathEvent = {
+  id: string;
+  type: PathEventType;
+  stage: PathStageNum;
+  at: string;
+  note?: string;
+};
+
+export type PathProgress = {
+  /** Stages the believer has marked complete. */
+  completed?: PathStageNum[];
+  /** ISO date each stage was completed. */
+  completedAt?: Partial<Record<PathStageNum, string>>;
+  /** Pastor-confirmed stages (stages 3 & 7 typically). */
+  pastorConfirmed?: PathStageNum[];
+  /** Free-form note per stage. */
+  notes?: Partial<Record<PathStageNum, string>>;
+  /** Append-only event log. */
+  events?: PathEvent[];
+};
+
 export type Profile = {
   name?: string;
   stage?: DiscipleStage;
@@ -319,6 +349,7 @@ export type Profile = {
   sabbath?: SabbathPlan;
   calling?: CallingNote[];
   catechismProgress?: number[]; // Heidelberg Lord's Day completed (1..52)
+  path?: PathProgress;
 };
 
 const STORAGE = "scripture-theory-profile";
