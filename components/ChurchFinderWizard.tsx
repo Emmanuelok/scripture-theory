@@ -50,7 +50,7 @@ export default function ChurchFinderWizard() {
     setResults(null);
     try {
       const res = await fetch(
-        `/api/churches/search?lat=${p.lat}&lng=${p.lng}&radius=${r}&denomination=${d}&limit=30`
+        `/api/churches/search?lat=${p.lat}&lng=${p.lng}&radius=${r}&denomination=${encodeURIComponent(d)}&limit=30`
       );
       const data = await res.json();
       if (!res.ok || !data.ok) {
@@ -62,13 +62,6 @@ export default function ChurchFinderWizard() {
       setError(String(e));
     } finally {
       setLoading(false);
-    }
-  }
-
-  function go(next: Step) {
-    setStep(next);
-    if (next === "results" && place) {
-      runSearch(place, radiusKm, tradition);
     }
   }
 
@@ -86,13 +79,21 @@ export default function ChurchFinderWizard() {
       <Stepper step={step} />
 
       {step === "location" && (
-        <LocationStep onPicked={(p) => { setPlace(p); go("distance"); }} />
+        <LocationStep
+          onPicked={(p) => {
+            setPlace(p);
+            setStep("distance");
+          }}
+        />
       )}
 
       {step === "distance" && (
         <DistanceStep
           value={radiusKm}
-          onPick={(km) => { setRadiusKm(km); go("tradition"); }}
+          onPick={(km) => {
+            setRadiusKm(km);
+            setStep("tradition");
+          }}
           onBack={() => setStep("location")}
         />
       )}
@@ -100,7 +101,17 @@ export default function ChurchFinderWizard() {
       {step === "tradition" && (
         <TraditionStep
           value={tradition}
-          onPick={(t) => { setTradition(t); go("results"); }}
+          // CRITICAL: pass the freshly-picked `t` directly into runSearch.
+          // If we relied on `tradition` state inside this closure, React's
+          // async setState would leave us calling runSearch with the previous
+          // value (e.g. "any") even though the user just chose "pentecostal".
+          // That's the bug that returned Catholic churches when Pentecostal
+          // was selected.
+          onPick={(t) => {
+            setTradition(t);
+            setStep("results");
+            if (place) runSearch(place, radiusKm, t);
+          }}
           onBack={() => setStep("distance")}
         />
       )}

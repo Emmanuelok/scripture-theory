@@ -100,6 +100,79 @@ type OverpassElement = {
   tags?: OverpassTags;
 };
 
+// Each entry is the canonical OSM `denomination=` tag value(s) for that
+// tradition. Drawn from OpenStreetMap taginfo (community tag frequency).
+// Synonyms are mutually exclusive — no tag value appears in more than one
+// list, so picking "Pentecostal" can never return Catholic, and vice versa.
+export const DENOMINATION_SYNONYMS: Record<string, string[]> = {
+  catholic: [
+    "catholic", "roman_catholic", "old_catholic",
+  ],
+  orthodox: [
+    "orthodox", "eastern_orthodox", "greek_orthodox", "russian_orthodox",
+    "serbian_orthodox", "romanian_orthodox", "bulgarian_orthodox",
+    "georgian_orthodox", "antiochian_orthodox", "ukrainian_orthodox",
+    "coptic_orthodox", "ethiopian_orthodox", "eritrean_orthodox",
+    "armenian_apostolic", "oriental_orthodox", "syriac_orthodox",
+    "indian_orthodox", "malankara_orthodox",
+  ],
+  anglican: [
+    "anglican", "episcopalian", "episcopal", "anglican_communion",
+    "church_of_england", "church_in_wales", "scottish_episcopal",
+    "church_of_ireland",
+  ],
+  baptist: [
+    "baptist", "southern_baptist", "american_baptist", "national_baptist",
+    "general_baptist", "free_baptist", "primitive_baptist",
+    "independent_baptist", "missionary_baptist", "reformed_baptist",
+    "freewill_baptist", "free_will_baptist",
+  ],
+  methodist: [
+    "methodist", "united_methodist", "free_methodist", "wesleyan",
+    "wesleyan_methodist", "african_methodist_episcopal", "ame", "ame_zion",
+    "amez", "cme", "global_methodist",
+  ],
+  lutheran: [
+    "lutheran", "evangelical_lutheran", "elca", "lcms", "wels",
+    "missouri_synod", "wisconsin_synod", "evangelical_lutheran_in_america",
+    "evangelische", "lutheran_church",
+  ],
+  presbyterian: [
+    "presbyterian", "presbyterian_church", "pca", "pcusa", "opc", "epc",
+    "cumberland_presbyterian", "free_presbyterian",
+  ],
+  reformed: [
+    "reformed", "dutch_reformed", "christian_reformed", "crc", "rca",
+    "united_reformed", "reformed_church", "swiss_reformed", "calvinist",
+  ],
+  evangelical: [
+    "evangelical", "evangelical_christian", "evangelical_free",
+    "evangelical_protestant", "evangelical_community",
+    "free_evangelical", "evangelical_free_church",
+  ],
+  pentecostal: [
+    "pentecostal", "charismatic", "assemblies_of_god", "assembly_of_god",
+    "foursquare", "international_foursquare", "apostolic",
+    "united_pentecostal", "pentecostal_holiness", "vineyard",
+    "calvary_chapel", "elim", "redeemed_christian_church_of_god",
+    "rccg", "deeper_life", "winners_chapel", "mountain_of_fire",
+  ],
+  nondenominational: [
+    "nondenominational", "non_denominational", "non-denominational",
+    "independent", "interdenominational", "community_church",
+  ],
+  adventist: [
+    "adventist", "seventh_day_adventist", "seventh-day_adventist",
+    "sda",
+  ],
+  protestant: [
+    // "protestant" without further specificity. Kept distinct so users who
+    // pick a specific Protestant tradition don't get generic Protestant
+    // tags mixed in.
+    "protestant",
+  ],
+};
+
 function buildQuery(opts: {
   lat: number;
   lng: number;
@@ -109,26 +182,8 @@ function buildQuery(opts: {
   // Some denominations have multiple OSM synonyms — accept any of them.
   const denomFilter = (() => {
     if (!opts.denomination || opts.denomination === "any") return "";
-    const synonyms: Record<string, string[]> = {
-      catholic: ["catholic", "roman_catholic"],
-      orthodox: [
-        "orthodox", "greek_orthodox", "russian_orthodox", "serbian_orthodox",
-        "coptic_orthodox", "ethiopian_orthodox", "romanian_orthodox",
-        "oriental_orthodox", "syriac_orthodox",
-      ],
-      anglican: ["anglican", "episcopalian", "episcopal"],
-      baptist: ["baptist", "southern_baptist"],
-      methodist: ["methodist", "united_methodist", "free_methodist"],
-      lutheran: ["lutheran", "evangelical_lutheran"],
-      presbyterian: ["presbyterian"],
-      reformed: ["reformed"],
-      evangelical: ["evangelical"],
-      pentecostal: ["pentecostal", "charismatic", "assembly_of_god", "church_of_god"],
-      nondenominational: ["nondenominational", "non_denominational"],
-      adventist: ["adventist", "seventh_day_adventist"],
-      protestant: ["protestant"],
-    };
-    const list = synonyms[opts.denomination] ?? [opts.denomination];
+    const list = DENOMINATION_SYNONYMS[opts.denomination] ?? [opts.denomination];
+    // Anchored, case-insensitive, exact match over the union of synonyms.
     const re = `^(${list.join("|")})$`;
     return `["denomination"~"${re}",i]`;
   })();
