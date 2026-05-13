@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { STAGES, type Stage, type PathStage } from "@/data/path";
 import { useProfile, type PathProgress, type PathStageNum, type PathEvent } from "@/lib/profile";
 import { Glyph } from "@/components/ui/Glyph";
+import IntroRequestModal from "@/components/IntroRequestModal";
 
 /* ──────────────────────────────────────────────────────────────────
    PathTracker — the believer can actually walk the twelve stages.
@@ -31,6 +32,7 @@ export default function PathTracker() {
   const path: PathProgress = profile.path ?? {};
   const [openStage, setOpenStage] = useState<PathStageNum | null>(null);
   const [noteDraft, setNoteDraft] = useState<string>("");
+  const [introStage, setIntroStage] = useState<PathStageNum | null>(null);
 
   const completed = useMemo(() => new Set(path.completed ?? []), [path.completed]);
   const pastorConfirmed = useMemo(
@@ -314,9 +316,7 @@ export default function PathTracker() {
                             <button
                               onClick={() => {
                                 recordPastorRequest(s.stage);
-                                window.alert(
-                                  "Noted on your device. Next: find a local pastor and bring this conversation to them. The Connect page can help."
-                                );
+                                setIntroStage(s.stage);
                               }}
                               className="inline-flex items-center rounded-full border border-ink-300 bg-card px-4 py-1.5 text-xs text-ink-700 hover:border-ink-900"
                             >
@@ -379,6 +379,14 @@ export default function PathTracker() {
           </div>
         </div>
       </section>
+
+      {introStage !== null && (
+        <IntroRequestModal
+          stage={introStage}
+          defaultAlias={profile.name ?? profile.secretPlace?.alias}
+          onClose={() => setIntroStage(null)}
+        />
+      )}
     </div>
   );
 }
