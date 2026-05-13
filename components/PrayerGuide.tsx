@@ -78,6 +78,13 @@ export default function PrayerGuide() {
         <ModeButton current={mode} value="nations" onClick={setMode}>
           Pray for the nations
         </ModeButton>
+        <Link
+          href="/pray/live"
+          className="rounded-full px-4 py-2 text-sm border bg-flame-600 text-white border-flame-600 hover:bg-flame-700 inline-flex items-center gap-2"
+        >
+          <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+          Pray for the world · live
+        </Link>
         <ModeButton current={mode} value="world" onClick={setMode}>
           {t.modes.world}
         </ModeButton>

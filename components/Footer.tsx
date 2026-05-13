@@ -20,6 +20,7 @@ export default function Footer() {
             <li><Link href="/memory" className="hover:text-ink-900">Scripture memory</Link></li>
             <li><Link href="/pray" className="hover:text-ink-900">Pray</Link></li>
             <li><Link href="/pray/nations" className="hover:text-ink-900">Praying for the nations</Link></li>
+            <li><Link href="/pray/live" className="hover:text-ink-900">Pray for the world · live</Link></li>
             <li><Link href="/witness" className="hover:text-ink-900">Witness</Link></li>
           </ul>
         </div>
