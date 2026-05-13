@@ -1,8 +1,11 @@
-import Link from "next/link";
 import { TOPICS } from "@/data/resources/topics";
 import { CREEDS } from "@/data/resources/creeds";
 import { GLOSSARY } from "@/data/resources/glossary";
 import { DISCIPLINES } from "@/data/resources/disciplines";
+import { translationOrder } from "@/data/bible/translations";
+import { heidelberg } from "@/data/catechism";
+import { Tile, Bento, PageHero } from "@/components/ui/Tile";
+import { Glyph } from "@/components/ui/Glyph";
 
 export const metadata = {
   title: "Resources — Scripture Theory",
@@ -10,109 +13,177 @@ export const metadata = {
     "Every tool a believer needs for study and spiritual growth: a topical Scripture index, the historic creeds, a theological glossary, and a guide to the great spiritual disciplines.",
 };
 
-const TOOLS = [
-  {
-    href: "/resources/topical-index",
-    eyebrow: `${TOPICS.length} topics · ${TOPICS.reduce((n, t) => n + t.verses.length, 0)} verses`,
-    title: "Topical Scripture index",
-    sub: "What the Bible says about anxiety, forgiveness, marriage, money, the Cross, and more — with verses to pray and memorize.",
-  },
-  {
-    href: "/resources/creeds",
-    eyebrow: `${CREEDS.length} historic creeds`,
-    title: "The Church's creeds",
-    sub: "The Apostles' Creed, the Nicene, Chalcedonian, and Athanasian — the confessions that have united the global Church for over a millennium.",
-  },
-  {
-    href: "/resources/glossary",
-    eyebrow: `${GLOSSARY.length} terms`,
-    title: "Theological glossary",
-    sub: "Plain-language definitions of the words every Christian needs to know — atonement, grace, justification, the Trinity, and more.",
-  },
-  {
-    href: "/resources/disciplines",
-    eyebrow: `${DISCIPLINES.length} disciplines`,
-    title: "Spiritual disciplines",
-    sub: "How the saints have actually grown — Scripture, prayer, fasting, Sabbath, solitude, confession, generosity, service.",
-  },
-  {
-    href: "/bible/translations",
-    eyebrow: "Bible references",
-    title: "Translations catalog",
-    sub: "The 14 authentic, public-domain Bible translations Scripture Theory serves — never machine-translated.",
-  },
-  {
-    href: "/lens",
-    eyebrow: "Multi-tradition lens",
-    title: "Jesus in the Word",
-    sub: "How Orthodox, Catholic, Reformed, Wesleyan, Pentecostal, and Anabaptist believers have read the same passage — together pointing to Christ.",
-  },
-  {
-    href: "/practices",
-    eyebrow: "23 ancient practices",
-    title: "Practices hub",
-    sub: "Daily Office, fasting, examen, lament, forgiveness, listening prayer, family altar, the Lord's Supper at home, the rule of life, healing prayer, marriage and parenting rhythms, and more.",
-  },
-  {
-    href: "/catechism",
-    eyebrow: "1563 · 52 Lord's Days",
-    title: "Heidelberg Catechism",
-    sub: "The warmest of the Reformation catechisms — 129 questions and answers in three movements: misery, deliverance, gratitude. One Lord's Day per week.",
-  },
-  {
-    href: "/apologetics",
-    eyebrow: "1 Peter 3:15",
-    title: "Apologetics",
-    sub: "Pastoral, honest answers to the hardest questions Christians are asked — God, the Bible, Jesus, suffering, science, hell, sexuality, hypocrisy.",
-  },
-  {
-    href: "/hymns",
-    eyebrow: "21 public-domain hymns",
-    title: "The hymns",
-    sub: "Wesley, Watts, Luther, Spafford, Newton — the songs the Church has sung for centuries, in full text.",
-  },
-];
-
 export default function ResourcesHub() {
+  const verses = TOPICS.reduce((n, t) => n + t.verses.length, 0);
+  const sampleTopics = TOPICS.slice(0, 4).map((t) => t.title);
+  const sampleCreeds = CREEDS.slice(0, 4).map((c) => c.name);
+  const sampleTerms = GLOSSARY.slice(0, 6).map((g) => g.word);
+
   return (
-    <section className="mx-auto max-w-5xl px-5 pt-12 pb-20">
-      <span className="text-xs uppercase tracking-widest text-flame-700">Resources</span>
-      <h1 className="font-serif text-4xl md:text-5xl mt-2 text-ink-900 leading-tight">
-        Every tool a believer needs.
-      </h1>
-      <p className="mt-4 text-ink-700 max-w-2xl leading-relaxed">
-        Topical Scripture by life situation, the creeds the worldwide Church has confessed since
-        the early centuries, plain-language definitions of theological terms, and a guide to the
-        spiritual disciplines that have actually formed believers across history. All free, all
-        searchable, all on your device.
-      </p>
+    <section className="mx-auto max-w-6xl px-5 pt-12 pb-24">
+      <PageHero
+        eyebrow="Resources"
+        title="Every tool"
+        titleAccent="a believer needs."
+        intro="Topical Scripture by life situation, the creeds the worldwide Church has confessed since the early centuries, plain-language definitions of theological terms, and a guide to the spiritual disciplines that have actually formed believers across history. All free, all searchable, all on your device."
+        scripture="Study to show yourself approved by God, a workman who doesn't need to be ashamed, properly handling the Word of Truth."
+        scriptureRef="2 Timothy 2:15"
+      />
 
-      <ul className="mt-10 grid sm:grid-cols-2 gap-4">
-        {TOOLS.map((t) => (
-          <li key={t.href}>
-            <Link
-              href={t.href}
-              className="group block rounded-3xl border border-ink-200 bg-card p-6 hover:border-flame-500 hover:shadow-md transition-all"
-            >
-              <div className="text-[10px] uppercase tracking-widest text-flame-700">{t.eyebrow}</div>
-              <div className="font-serif text-2xl text-ink-900 mt-1 group-hover:text-flame-700 transition-colors">
-                {t.title}
-              </div>
-              <p className="text-sm text-ink-600 mt-2 leading-relaxed">{t.sub}</p>
-              <div className="mt-4 text-xs text-ink-400 group-hover:text-flame-700 transition-colors">
-                Open →
-              </div>
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <div className="mt-12">
+        <Bento>
+          {/* HERO — Topical index, the most-used resource */}
+          <Tile
+            href="/resources/topical-index"
+            size="hero"
+            tone="dark"
+            eyebrow={`${TOPICS.length} topics · ${verses} verses`}
+            title={
+              <>
+                Topical Scripture <span className="text-flame-300">by life situation.</span>
+              </>
+            }
+            sub="When you're anxious, when you've sinned, when you're grieving, when you're rich, when you're tempted — what the Bible actually says, with verses to pray and memorize."
+            glyph={<Glyph id="open-book" size={120} />}
+          >
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {sampleTopics.map((t) => (
+                <span
+                  key={t}
+                  className="inline-flex items-center rounded-full bg-ink-800/60 border border-ink-700/60 px-2.5 py-0.5 text-[10px] uppercase tracking-widest text-flame-300"
+                >
+                  {t}
+                </span>
+              ))}
+              <span className="inline-flex items-center rounded-full bg-ink-800/40 border border-ink-700/40 px-2.5 py-0.5 text-[10px] uppercase tracking-widest text-ink-300">
+                + {TOPICS.length - 4} more
+              </span>
+            </div>
+          </Tile>
 
-      <div className="mt-14 rounded-3xl bg-ink-900 text-ink-50 p-8 text-center">
-        <p className="font-serif text-2xl leading-snug">
-          "Study to show yourself approved by God, a workman who doesn't need to be ashamed,
-          properly handling the Word of Truth."
-        </p>
-        <p className="mt-2 text-ink-300">2 Timothy 2:15</p>
+          {/* CREEDS — tall pillar */}
+          <Tile
+            href="/resources/creeds"
+            size="tall"
+            tone="dark"
+            eyebrow={`${CREEDS.length} historic creeds`}
+            title="The Church's creeds"
+            sub="The confessions that have united the global Body since the early centuries."
+            glyph={<Glyph id="wreath" size={48} />}
+          >
+            <ul className="mt-2 space-y-1.5 text-xs text-ink-300">
+              {sampleCreeds.map((c) => (
+                <li key={c} className="flex items-baseline gap-2">
+                  <span className="text-flame-300">·</span>
+                  <span>{c}</span>
+                </li>
+              ))}
+            </ul>
+          </Tile>
+
+          {/* GLOSSARY — tall pillar */}
+          <Tile
+            href="/resources/glossary"
+            size="tall"
+            tone="dark"
+            eyebrow={`${GLOSSARY.length} terms`}
+            title="Theological glossary"
+            sub="Plain-language definitions of the words every Christian needs to know."
+            glyph={<Glyph id="tablet" size={48} />}
+          >
+            <div className="mt-2 flex flex-wrap gap-1">
+              {sampleTerms.map((t) => (
+                <span
+                  key={t}
+                  className="text-[10px] uppercase tracking-widest text-flame-300/90 after:content-['·'] after:ml-1 last:after:content-none"
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          </Tile>
+
+          {/* DISCIPLINES */}
+          <Tile
+            href="/resources/disciplines"
+            eyebrow={`${DISCIPLINES.length} disciplines`}
+            title="Spiritual disciplines"
+            sub="How the saints have actually grown — Scripture, prayer, fasting, Sabbath, solitude, confession, generosity, service."
+            glyph={<Glyph id="rule" size={48} />}
+          />
+
+          {/* TRANSLATIONS */}
+          <Tile
+            href="/bible/translations"
+            eyebrow={`${translationOrder.length} Bible translations`}
+            title="Translations catalog"
+            sub="Every translation we serve — authentic, public-domain, never machine-translated."
+            glyph={<Glyph id="library" size={48} />}
+          />
+
+          {/* JESUS IN THE WORD */}
+          <Tile
+            href="/lens"
+            eyebrow="Six traditions"
+            title="Jesus in the Word"
+            sub="How Orthodox, Catholic, Reformed, Wesleyan, Pentecostal, and Anabaptist believers have read the same passage — together pointing to Christ."
+            glyph={<Glyph id="eye" size={48} />}
+          />
+
+          {/* PRACTICES */}
+          <Tile
+            href="/practices"
+            eyebrow="23 ancient practices"
+            title="Practices hub"
+            sub="Daily Office, fasting, examen, lament, forgiveness, listening prayer, family altar, the Lord's Supper at home, the rule of life — and more."
+            glyph={<Glyph id="flame" size={48} />}
+          />
+
+          {/* HEIDELBERG */}
+          <Tile
+            href="/catechism"
+            eyebrow={`1563 · ${heidelberg.length} Lord's Days`}
+            title="Heidelberg Catechism"
+            sub="The warmest of the Reformation catechisms — 129 questions and answers in three movements: misery, deliverance, gratitude."
+            glyph={<Glyph id="catechism" size={48} />}
+          />
+
+          {/* APOLOGETICS */}
+          <Tile
+            href="/apologetics"
+            eyebrow="1 Peter 3:15"
+            title="Apologetics"
+            sub="Pastoral, honest answers to the hardest questions — God, the Bible, Jesus, suffering, science, hell, sexuality, hypocrisy."
+            glyph={<Glyph id="shield" size={48} />}
+          />
+
+          {/* HYMNS */}
+          <Tile
+            href="/hymns"
+            eyebrow="21 public-domain hymns"
+            title="The hymns"
+            sub="Wesley, Watts, Luther, Spafford, Newton — the songs the Church has sung for centuries, in full text."
+            glyph={<Glyph id="harp" size={48} />}
+          />
+        </Bento>
+      </div>
+
+      {/* Closing scripture card */}
+      <div className="mt-16 rounded-3xl bg-ink-900 text-ink-50 p-8 md:p-10 text-center relative overflow-hidden">
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-90"
+          style={{
+            background:
+              "radial-gradient(60% 50% at 50% 0%, rgba(249,115,22,0.22), transparent 60%), radial-gradient(60% 50% at 50% 100%, rgba(184,66,12,0.18), transparent 60%)",
+          }}
+        />
+        <div className="relative">
+          <p className="font-serif text-2xl md:text-3xl leading-snug">
+            "Open my eyes, that I may behold wondrous things out of Your law."
+          </p>
+          <p className="mt-2 text-ink-300">Psalm 119:18</p>
+        </div>
       </div>
     </section>
   );
