@@ -25,6 +25,11 @@ export type MemoryRecord = {
   level: MemoryLevel;
 };
 
+export type NationPrayed = {
+  iso: string;
+  date: string; // YYYY-MM-DD
+};
+
 export type Profile = {
   stage?: DiscipleStage;
   locale?: LocaleCode;
@@ -32,6 +37,8 @@ export type Profile = {
   startedAt?: string;
   prayingFor?: PrayingForRecord[];
   memory?: MemoryRecord[];
+  nationsPrayed?: NationPrayed[];
+  adoptedNationIso?: string;
 };
 
 const STORAGE = "scripture-theory-profile";

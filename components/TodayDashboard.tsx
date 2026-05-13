@@ -5,14 +5,14 @@ import { useEffect, useMemo, useState } from "react";
 import { useProfile, stageInfo } from "@/lib/profile";
 import { readingPlans } from "@/data/readings";
 import { localizedPlan, localizedDay } from "@/data/readings-i18n";
-import { worldPrayer, todaysRegionIndex } from "@/data/prayers";
 import { prayerLocales } from "@/data/prayers-i18n";
 import { locales, type LocaleCode } from "@/data/gospel-i18n";
 import { seed as bibleSeed } from "@/data/bible/seed";
 import { translations as transMeta } from "@/data/bible/translations";
 import { canon as bibleCanon } from "@/data/bible/canon";
 import { referenceHref } from "@/lib/reference";
-import { todaysNation, regions as nationRegions } from "@/data/nations";
+import { todaysNation, regions as nationRegions, rotationDay, findNation } from "@/data/nations";
+import { flagEmoji, flagSvgUrl } from "@/lib/flags";
 import { thisWeeksVerse } from "@/data/memory";
 import PrayingForList from "@/components/PrayingForList";
 
@@ -79,10 +79,10 @@ export default function TodayDashboard() {
     return lines[dayOfYear(now) % lines.length];
   }, [locale, now]);
 
-  // Today's region of the world (broad rotation)
-  const region = worldPrayer[todaysRegionIndex()];
   // Today's nation in the rotation (specific country)
   const nation = todaysNation(now);
+  const nationDay = rotationDay(now);
+  const adopted = profile.adoptedNationIso ? findNation(profile.adoptedNationIso) : undefined;
   // This week's memory verse
   const memoryVerse = thisWeeksVerse(now);
   const memoryRecord = profile.memory?.find((r) => r.verseId === memoryVerse.id);
@@ -185,9 +185,9 @@ export default function TodayDashboard() {
           />
           <Mini label="Language" value={locales[locale].meta.nativeName} sub={locales[locale].meta.languageName} />
           <Mini
-            label="Today's region of the world"
-            value={region.region}
-            sub={region.focus}
+            label="Today's nation"
+            value={`${flagEmoji(nation.iso)} ${nation.name}`}
+            sub={nationRegions[nation.region]}
           />
         </div>
       </section>
@@ -308,38 +308,60 @@ export default function TodayDashboard() {
         </section>
       </div>
 
-      <section className="rounded-3xl border border-flame-300 bg-gradient-to-br from-flame-50 to-white p-6 md:p-8 glow-ring" dir="ltr">
-        <div className="text-xs uppercase tracking-widest text-flame-700">
-          Pray for the nations today
+      <Link
+        href="/pray/nations"
+        className="block rounded-3xl overflow-hidden border border-ink-200 bg-white glow-ring hover:border-flame-500 transition-colors"
+        dir="ltr"
+      >
+        <div className="relative aspect-[16/7] bg-ink-800">
+          <img
+            src={flagSvgUrl(nation.iso, 640)}
+            alt={`Flag of ${nation.name}`}
+            className="absolute inset-0 h-full w-full object-cover"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-ink-900/30 via-ink-900/10 to-ink-900/80" />
+          <div className="absolute top-3 left-4">
+            <span className="text-[10px] uppercase tracking-widest text-flame-300">
+              Day {nationDay} · Praying for the Nations
+            </span>
+          </div>
+          <div className="absolute bottom-4 left-4 right-4 flex items-end gap-3">
+            <span className="text-4xl leading-none" aria-hidden>
+              {flagEmoji(nation.iso)}
+            </span>
+            <div>
+              <div className="font-serif text-2xl md:text-3xl text-ink-50 leading-none">
+                {nation.name}
+              </div>
+              <div className="text-xs text-ink-300 mt-1">{nationRegions[nation.region]}</div>
+            </div>
+          </div>
         </div>
-        <div className="mt-1 flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="font-serif text-2xl text-ink-900">{nation.name}</h2>
-          <span className="text-xs text-ink-500">{nationRegions[nation.region]}</span>
+        <div className="p-5">
+          <p className="text-ink-700 text-sm leading-relaxed">{nation.context}</p>
+          <div className="mt-4 text-xs text-flame-700">
+            Tap to read all prayer points and intercede →
+          </div>
         </div>
-        <p className="mt-2 text-ink-700 leading-relaxed text-sm">{nation.context}</p>
-        <ul className="mt-4 space-y-2">
-          {nation.prayer.slice(0, 3).map((p, i) => (
-            <li key={i} className="flex gap-3 text-ink-800 text-sm leading-relaxed">
-              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-flame-500 shrink-0" />
-              <span>{p}</span>
-            </li>
-          ))}
-        </ul>
-        <div className="mt-5 flex flex-wrap gap-2">
-          <Link
-            href="/pray/nations"
-            className="inline-flex items-center rounded-full bg-ink-900 text-ink-50 px-4 py-1.5 text-sm hover:bg-flame-700"
-          >
-            All prayer points for {nation.name} →
-          </Link>
-          <Link
-            href="/pray"
-            className="inline-flex items-center rounded-full border border-ink-300 px-4 py-1.5 text-sm text-ink-800 hover:border-ink-900"
-          >
-            See today's region: {region.region}
-          </Link>
-        </div>
-      </section>
+      </Link>
+
+      {adopted && adopted.iso !== nation.iso && (
+        <Link
+          href={`/pray/nations/${adopted.iso.toLowerCase()}`}
+          className="block rounded-2xl border border-flame-300 bg-flame-50/60 p-4 hover:bg-flame-50"
+        >
+          <div className="text-xs uppercase tracking-widest text-flame-700">
+            Your adopted nation · pray daily
+          </div>
+          <div className="mt-1 flex items-baseline gap-3">
+            <span className="text-2xl" aria-hidden>
+              {flagEmoji(adopted.iso)}
+            </span>
+            <span className="font-serif text-xl text-ink-900">{adopted.name}</span>
+          </div>
+        </Link>
+      )}
 
       <section className="rounded-2xl border border-ink-200 bg-ink-50 p-5 text-sm text-ink-600">
         <div className="flex flex-wrap items-baseline justify-between gap-3">

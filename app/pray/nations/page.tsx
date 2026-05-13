@@ -1,36 +1,55 @@
-import Link from "next/link";
-import NationsView from "@/components/NationsView";
-import { nations } from "@/data/nations";
+import { nations, rotationDay, todaysNation } from "@/data/nations";
+import NationOfTheDay from "@/components/NationOfTheDay";
+import NationsRhythm from "@/components/NationsRhythm";
+import NationsTriptych from "@/components/NationsTriptych";
 
 export const metadata = {
   title: "Praying for the Nations — Scripture Theory",
   description:
-    "A daily rotation through the countries of the world. Every day a specific nation is lifted up with prayer points unique to its spiritual, pastoral, and humanitarian situation.",
+    "Every day, one nation. One flag. One focused moment of intercession. The whole Body of Christ praying for the same country, all over the world.",
 };
 
 export default function NationsPage() {
-  return (
-    <section className="mx-auto max-w-3xl px-5 pt-12 pb-20">
-      <Link href="/pray" className="text-xs uppercase tracking-widest text-flame-700 hover:underline">
-        ← Pray
-      </Link>
-      <h1 className="font-serif text-4xl md:text-5xl mt-3 text-ink-900 leading-tight">
-        Praying for the Nations.
-      </h1>
-      <p className="mt-4 text-ink-700 leading-relaxed">
-        Every day, one country. Specific prayer points from that nation's actual situation —
-        persecution, war, gospel access, leaders, the suffering and the seeking. The Lord of the
-        nations wants His Church praying His Kingdom into every corner of the earth.
-      </p>
-      <p className="mt-2 text-xs text-ink-500">
-        {nations.length} nations in the rotation today · expanding toward all 195 countries.
-      </p>
+  const nation = todaysNation();
+  const day = rotationDay();
 
-      <div className="mt-10">
-        <NationsView />
+  return (
+    <section className="mx-auto max-w-3xl px-5 pt-10 pb-20">
+      <div className="text-center">
+        <span className="text-xs uppercase tracking-widest text-flame-700">
+          Praying for the Nations
+        </span>
+        <h1 className="font-serif text-3xl md:text-4xl mt-2 text-ink-900 leading-tight">
+          Today the Body of Christ is praying for…
+        </h1>
       </div>
 
-      <div className="mt-14 rounded-3xl bg-ink-900 text-ink-50 p-8 text-center">
+      <div className="mt-8">
+        <NationOfTheDay nation={nation} rotationDay={day} />
+      </div>
+
+      <div className="mt-8">
+        <NationsRhythm />
+      </div>
+
+      <div className="mt-12">
+        <NationsTriptych />
+      </div>
+
+      <div className="mt-12 rounded-2xl border border-ink-200 bg-ink-50/60 p-5 text-sm text-ink-700">
+        <div className="text-xs uppercase tracking-widest text-flame-700 mb-2">
+          How the rotation works
+        </div>
+        <p className="leading-relaxed">
+          Every day, one specific country is lifted up with prayer points unique to its
+          spiritual, pastoral, and humanitarian situation. The cycle runs through {nations.length}{" "}
+          nations in {nations.length} days, then begins again. Wherever you are in the world,
+          when you open this page today you are praying for <strong>{nation.name}</strong>{" "}
+          alongside every other believer who opens it. The Lord of the nations is one God.
+        </p>
+      </div>
+
+      <div className="mt-12 rounded-3xl bg-ink-900 text-ink-50 p-8 text-center">
         <p className="font-serif text-2xl leading-snug">
           "Ask of me, and I will make the nations your heritage, and the ends of the earth your
           possession."

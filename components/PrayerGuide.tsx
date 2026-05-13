@@ -5,7 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { worldPrayer, todaysRegionIndex } from "@/data/prayers";
 import { prayerLocales } from "@/data/prayers-i18n";
 import { locales, localeOrder, type LocaleCode } from "@/data/gospel-i18n";
-import { todaysNation, regions as nationRegions } from "@/data/nations";
+import { todaysNation, regions as nationRegions, rotationDay } from "@/data/nations";
+import { flagEmoji, flagSvgUrl } from "@/lib/flags";
 
 type Mode = "lords" | "acts" | "world" | "nations";
 
@@ -198,34 +199,56 @@ function ActsView({ t, dir }: { t: ReturnType<typeof useT>; dir: "ltr" | "rtl" }
 
 function NationsTeaser() {
   const today = todaysNation();
+  const day = rotationDay();
   return (
     <div className="space-y-5" dir="ltr">
-      <div className="rounded-3xl bg-ink-900 text-ink-50 p-6 md:p-8 glow-ring">
-        <div className="text-xs uppercase tracking-widest text-flame-300">
-          Today's nation in the rotation
+      <div className="rounded-3xl overflow-hidden border border-ink-200 bg-white glow-ring">
+        <div className="relative aspect-[16/7] bg-ink-800">
+          <img
+            src={flagSvgUrl(today.iso, 640)}
+            alt={`Flag of ${today.name}`}
+            className="absolute inset-0 h-full w-full object-cover"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-ink-900/30 via-ink-900/10 to-ink-900/80" />
+          <div className="absolute top-4 left-5">
+            <span className="text-[10px] uppercase tracking-widest text-flame-300">
+              Day {day} · Praying for the Nations
+            </span>
+          </div>
+          <div className="absolute bottom-4 left-5 right-5 flex items-end gap-3">
+            <span className="text-4xl leading-none" aria-hidden>
+              {flagEmoji(today.iso)}
+            </span>
+            <div>
+              <div className="font-serif text-2xl md:text-3xl text-ink-50 leading-none">
+                {today.name}
+              </div>
+              <div className="text-xs text-ink-300 mt-1">{nationRegions[today.region]}</div>
+            </div>
+          </div>
         </div>
-        <h3 className="font-serif text-3xl md:text-4xl mt-1">{today.name}</h3>
-        <div className="text-xs text-ink-300 mt-1">{nationRegions[today.region]}</div>
-        <p className="mt-4 text-ink-200 leading-relaxed">{today.context}</p>
-        <ul className="mt-5 space-y-2">
-          {today.prayer.slice(0, 3).map((p, i) => (
-            <li key={i} className="flex gap-3 text-ink-100 text-sm leading-relaxed">
-              <span className="font-serif text-flame-300">{i + 1}.</span>
-              <span>{p}</span>
-            </li>
-          ))}
-        </ul>
-        <Link
-          href="/pray/nations"
-          className="mt-6 inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-5 py-2 text-sm hover:bg-flame-700"
-        >
-          Open Praying for the Nations →
-        </Link>
+        <div className="p-6">
+          <p className="text-ink-700 leading-relaxed text-sm">{today.context}</p>
+          <ul className="mt-4 space-y-2">
+            {today.prayer.slice(0, 2).map((p, i) => (
+              <li key={i} className="flex gap-3 text-ink-800 text-sm leading-relaxed">
+                <span className="font-serif text-flame-700">{i + 1}.</span>
+                <span>{p}</span>
+              </li>
+            ))}
+          </ul>
+          <Link
+            href="/pray/nations"
+            className="mt-5 inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-5 py-2 text-sm hover:bg-flame-700"
+          >
+            Open today's full intercession →
+          </Link>
+        </div>
       </div>
       <p className="text-xs text-ink-500 leading-relaxed">
-        Every day a specific country is lifted up with prayer points unique to its situation. The
-        rotation covers every region of the world — Africa, the Middle East, Europe, Asia, the
-        Americas, and Oceania.
+        Every day one specific country is lifted up. Tomorrow another. The rotation covers every
+        region of the world. Like the verse of the day — but for the nations.
       </p>
     </div>
   );

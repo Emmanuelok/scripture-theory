@@ -1609,17 +1609,45 @@ export const nations: Nation[] = [
   },
 ];
 
-// Day-of-year rotation: every day picks one nation. The 365-day cycle wraps
-// around our dataset so each country is prayed for once every (nations.length)
-// days. As the dataset grows, the cycle grows.
-export function dayOfYear(d = new Date()) {
-  const start = Date.UTC(d.getUTCFullYear(), 0, 0);
-  const here = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
-  return Math.floor((here - start) / 86400000);
+// Day-of-rotation: a stable integer that maps each calendar day to one
+// nation. Uses an absolute epoch day so the rotation continues smoothly
+// across year boundaries.
+const EPOCH_DAY = Math.floor(Date.UTC(2024, 0, 1) / 86400000);
+
+export function rotationDay(d = new Date()): number {
+  const here = Math.floor(
+    Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) / 86400000
+  );
+  return here - EPOCH_DAY;
+}
+
+export function nationForDay(offsetDays = 0, base = new Date()): Nation {
+  const day = rotationDay(base) + offsetDays;
+  // JavaScript's % can return negative for negative operands — normalize.
+  const idx = ((day % nations.length) + nations.length) % nations.length;
+  return nations[idx];
 }
 
 export function todaysNation(d = new Date()): Nation {
-  return nations[dayOfYear(d) % nations.length];
+  return nationForDay(0, d);
+}
+
+export function yesterdaysNation(d = new Date()): Nation {
+  return nationForDay(-1, d);
+}
+
+export function tomorrowsNation(d = new Date()): Nation {
+  return nationForDay(1, d);
+}
+
+export function upcomingNations(days = 7, base = new Date()): { date: Date; nation: Nation }[] {
+  const out: { date: Date; nation: Nation }[] = [];
+  for (let i = 0; i < days; i++) {
+    const d = new Date(base);
+    d.setUTCDate(d.getUTCDate() + i);
+    out.push({ date: d, nation: nationForDay(i, base) });
+  }
+  return out;
 }
 
 export function findNation(iso: string): Nation | undefined {
@@ -1627,9 +1655,23 @@ export function findNation(iso: string): Nation | undefined {
   return nations.find((n) => n.iso === id);
 }
 
-export function nationsByRegion(): Record<Region, Nation[]> {
-  const out = {} as Record<Region, Nation[]>;
-  for (const r of Object.keys(regions) as Region[]) out[r] = [];
-  for (const n of nations) out[n.region].push(n);
-  return out;
+export function nationIsoToday(d = new Date()): string {
+  return todaysNation(d).iso;
+}
+
+// When will the rotation next reach a given nation?
+export function daysUntilNation(iso: string, base = new Date()): number {
+  const target = nations.findIndex((n) => n.iso === iso.toUpperCase());
+  if (target < 0) return -1;
+  const todayIdx = ((rotationDay(base) % nations.length) + nations.length) % nations.length;
+  let delta = target - todayIdx;
+  if (delta < 0) delta += nations.length;
+  return delta;
+}
+
+// Backwards-compat: kept for callers still using the old name (none now).
+export function dayOfYear(d = new Date()) {
+  const start = Date.UTC(d.getUTCFullYear(), 0, 0);
+  const here = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  return Math.floor((here - start) / 86400000);
 }
