@@ -66,6 +66,28 @@ export default function ConnectPage() {
         </div>
       </div>
 
+      <div className="mt-14 rounded-3xl border border-flame-200 bg-flame-50/60 p-6 md:p-8">
+        <div className="grid md:grid-cols-[1fr_auto] gap-4 items-center">
+          <div>
+            <div className="text-xs uppercase tracking-widest text-flame-700">For pastors</div>
+            <h3 className="font-serif text-2xl text-ink-900 mt-1">
+              Pastor of a local church? Claim your listing.
+            </h3>
+            <p className="text-sm text-ink-700 mt-2 leading-relaxed max-w-xl">
+              We exist <em>under</em> your work, not over it. Tell us about your church and we'll
+              route newcomers to you on your terms — verified by a real person on our team before
+              anything goes live.
+            </p>
+          </div>
+          <a
+            href="/connect/claim"
+            className="inline-flex items-center rounded-full bg-ink-900 text-ink-50 px-5 py-2.5 text-sm hover:bg-flame-700 transition-colors whitespace-nowrap"
+          >
+            Claim your church →
+          </a>
+        </div>
+      </div>
+
       <div className="mt-16 rounded-3xl bg-ink-900 text-ink-50 p-8 text-center">
         <p className="font-serif text-2xl leading-snug">
           "...that they may all be one... so that the world may believe that you have sent me."

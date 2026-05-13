@@ -92,6 +92,7 @@ export default function GospelView() {
                    locale === "sw" ? "Tazama pia" :
                    locale === "hi" ? "यह भी देखें" :
                    locale === "ar" ? "انظر أيضًا" :
+                   locale === "zh" ? "另见" :
                    "Also see"}
                 </div>
                 <div className="mt-1.5 flex flex-wrap gap-2">
