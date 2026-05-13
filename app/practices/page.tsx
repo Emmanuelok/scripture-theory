@@ -7,11 +7,18 @@ export const metadata = {
 };
 
 const PRACTICES = [
+  // — Prayer & listening —
   {
     href: "/secret-place",
     eyebrow: "Matthew 6:6",
     title: "The Secret Place",
     sub: "Your private journal, prayers, gratitudes, and confessions. Lives only on this device.",
+  },
+  {
+    href: "/hours",
+    eyebrow: "Psalm 119:164",
+    title: "The Daily Office",
+    sub: "Four short prayer offices — Morning, Midday, Evening, Night. Five minutes apiece, ancient and Scripture-built.",
   },
   {
     href: "/listen",
@@ -26,12 +33,6 @@ const PRACTICES = [
     sub: "End the day with Him: thanksgiving, encounter, repentance, longing for tomorrow.",
   },
   {
-    href: "/fast",
-    eyebrow: "Matthew 6:16",
-    title: "Fasting",
-    sub: "Biblical guide and private tracker for full, partial, Daniel, sundown, media, and custom fasts.",
-  },
-  {
     href: "/lament",
     eyebrow: "The Psalms",
     title: "Lament",
@@ -44,22 +45,58 @@ const PRACTICES = [
     sub: "A pastoral, scriptural release — for someone else, for yourself, or before God.",
   },
   {
+    href: "/heal",
+    eyebrow: "James 5",
+    title: "Healing prayer",
+    sub: "Pray for the sick — confession, anointing, the prayer of faith — with a private journal.",
+  },
+
+  // — Rhythms of life —
+  {
+    href: "/rule",
+    eyebrow: "John 15",
+    title: "Rule of Life",
+    sub: "A trellis for the vine — daily, weekly, and monthly disciplines you choose and keep.",
+  },
+  {
+    href: "/sabbath",
+    eyebrow: "Exodus 20:8",
+    title: "Sabbath planner",
+    sub: "Plan a real, doable Sabbath — when, what you'll stop, what you'll do instead.",
+  },
+  {
+    href: "/fast",
+    eyebrow: "Matthew 6:16",
+    title: "Fasting",
+    sub: "Biblical guide and private tracker for full, partial, Daniel, sundown, media, and custom fasts.",
+  },
+
+  // — Household —
+  {
     href: "/family",
     eyebrow: "Deuteronomy 6:7",
     title: "Family altar",
     sub: "Ten-minute household worship for littles, kids, youth, and adults. A different theme each day.",
   },
   {
+    href: "/marriage",
+    eyebrow: "Ephesians 5:32",
+    title: "Marriage rhythm",
+    sub: "Seven daily prayer themes for your spouse — words, repentance, joy, sabbath, worship.",
+  },
+  {
+    href: "/parenting",
+    eyebrow: "Psalm 78:4",
+    title: "Parenting rhythm",
+    sub: "Pray your children by name — seven daily themes, every child added to the wall.",
+  },
+
+  // — Worship & word —
+  {
     href: "/communion",
     eyebrow: "1 Corinthians 11",
     title: "The Lord's Supper at home",
     sub: "A reverent, non-denominational liturgy for sickness, isolation, persecution, or family worship.",
-  },
-  {
-    href: "/rule",
-    eyebrow: "John 15",
-    title: "Rule of Life",
-    sub: "A trellis for the vine — daily, weekly, and monthly disciplines you choose and keep.",
   },
   {
     href: "/hymns",
@@ -68,16 +105,56 @@ const PRACTICES = [
     sub: "Twenty-one public-domain hymns the global church has sung for centuries.",
   },
   {
-    href: "/persecuted",
-    eyebrow: "Hebrews 13:3",
-    title: "The persecuted Church",
-    sub: "Twelve nations, one each month, with specific prayer points. Remember the prisoners.",
+    href: "/sermons",
+    eyebrow: "Acts 17:11",
+    title: "Sermon notes",
+    sub: "Catch what your pastor preaches — passage, big idea, outline, application, prayer.",
   },
   {
     href: "/memory",
     eyebrow: "Psalm 119:11",
     title: "Scripture memory",
     sub: "Read · first letters · blanks · recite. Hide the Word in your heart.",
+  },
+  {
+    href: "/catechism",
+    eyebrow: "1563 · 52 weeks",
+    title: "Heidelberg Catechism",
+    sub: "129 questions and answers — your only comfort in life and in death. One Lord's Day per week.",
+  },
+
+  // — Formation & discernment —
+  {
+    href: "/gifts",
+    eyebrow: "1 Corinthians 12",
+    title: "Spiritual gifts",
+    sub: "Discern how the Spirit has gifted you to serve the body — twenty gifts, forty statements.",
+  },
+  {
+    href: "/fruit",
+    eyebrow: "Galatians 5:22-23",
+    title: "Fruit of the Spirit check",
+    sub: "Periodic, honest growth check on love, joy, peace, patience, kindness, goodness, faithfulness, gentleness, self-control.",
+  },
+  {
+    href: "/calling",
+    eyebrow: "1 Thess 5:24",
+    title: "Calling discernment",
+    sub: "Seven-step walk for vocation and life direction — love, wiring, world, Word, wise, yes, next.",
+  },
+  {
+    href: "/apologetics",
+    eyebrow: "1 Peter 3:15",
+    title: "Apologetics",
+    sub: "Pastoral, honest answers to the hardest questions — God, the Bible, Jesus, suffering, science, religion.",
+  },
+
+  // — The world & the wider Church —
+  {
+    href: "/persecuted",
+    eyebrow: "Hebrews 13:3",
+    title: "The persecuted Church",
+    sub: "Twelve nations, one each month, with specific prayer points. Remember the prisoners.",
   },
 ];
 

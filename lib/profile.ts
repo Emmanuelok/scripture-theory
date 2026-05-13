@@ -194,6 +194,104 @@ export type FamilyAltarLog = {
   dayId: string;
 };
 
+// ─── Sermon notes ─────────────────────────────────────────────
+export type SermonNote = {
+  id: string;
+  date: string;            // ISO
+  preacher?: string;
+  church?: string;
+  passage?: string;
+  title?: string;
+  bigIdea?: string;
+  outline?: string;
+  questions?: string;      // questions you want to study
+  application?: string;
+  prayer?: string;
+};
+
+// ─── Spiritual gifts result ──────────────────────────────────
+export type GiftId =
+  | "prophecy" | "serving" | "teaching" | "exhortation" | "giving" | "leadership" | "mercy"
+  | "wisdom" | "knowledge" | "faith" | "healing" | "miracles" | "discernment" | "tongues" | "interpretation"
+  | "apostleship" | "evangelism" | "shepherding" | "hospitality" | "administration";
+
+export type GiftsResult = {
+  takenAt: string;
+  responses: Record<string, number>; // statementId -> 0..4
+  top: GiftId[];                     // top 3-5 gifts by score
+};
+
+// ─── Fruit of the Spirit check ───────────────────────────────
+export type FruitFacet =
+  | "love" | "joy" | "peace" | "patience" | "kindness"
+  | "goodness" | "faithfulness" | "gentleness" | "self-control";
+
+export type FruitCheck = {
+  id: string;
+  date: string;
+  scores: Record<FruitFacet, number>; // 1..5
+  notes?: string;
+};
+
+// ─── Healing prayer / James 5 ────────────────────────────────
+export type HealingRequest = {
+  id: string;
+  who: string;        // name or initials (can be self)
+  forWhat: string;
+  startedAt: string;
+  status: "praying" | "improving" | "answered" | "released";
+  updates?: { at: string; note: string }[];
+};
+
+// ─── Marriage rhythm ─────────────────────────────────────────
+export type MarriageState = {
+  partnerName?: string;
+  anniversary?: string;   // YYYY-MM-DD
+  beganAt?: string;
+  daysLogged?: string[];  // YYYY-MM-DD
+  intentions?: string[];  // freeform vows / intentions
+};
+
+// ─── Parenting rhythm ────────────────────────────────────────
+export type Child = {
+  id: string;
+  name: string;
+  ageOrBirth?: string;
+  prayerFocus?: string;
+};
+
+export type ParentingState = {
+  children?: Child[];
+  beganAt?: string;
+  daysLogged?: string[];
+};
+
+// ─── Sabbath plan ────────────────────────────────────────────
+export type SabbathPlan = {
+  day?: "fri-sat" | "sat-sun" | "sun" | "custom";
+  startsAt?: string;       // HH:MM
+  endsAt?: string;
+  rhythms?: string[];      // chosen rest practices
+  abstain?: string[];      // things stopped
+  customNotes?: string;
+  weeksKept?: string[];    // YYYY-WW
+};
+
+// ─── Calling discernment ─────────────────────────────────────
+export type CallingNote = {
+  id: string;
+  date: string;
+  step:
+    | "love"            // what you love
+    | "wired"           // how you're wired
+    | "world"           // the world's need you see
+    | "word"            // Scriptures that have spoken
+    | "wise"            // wise believers' counsel
+    | "yes"             // what you sense He's saying
+    | "next";           // next obedient step
+  body: string;
+};
+
 export type Profile = {
   stage?: DiscipleStage;
   locale?: LocaleCode;
@@ -211,6 +309,15 @@ export type Profile = {
   rule?: RuleOfLife;
   listening?: ListeningEntry[];
   familyAltar?: FamilyAltarLog[];
+  sermons?: SermonNote[];
+  gifts?: GiftsResult;
+  fruit?: FruitCheck[];
+  healing?: HealingRequest[];
+  marriage?: MarriageState;
+  parenting?: ParentingState;
+  sabbath?: SabbathPlan;
+  calling?: CallingNote[];
+  catechismProgress?: number[]; // Heidelberg Lord's Day completed (1..52)
 };
 
 const STORAGE = "scripture-theory-profile";

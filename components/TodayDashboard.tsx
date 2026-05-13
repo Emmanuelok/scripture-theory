@@ -279,12 +279,15 @@ export default function TodayDashboard() {
           </Link>
         </div>
         <div className="mt-5 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <PracticeChip href="/hours" eyebrow="Now" title="The Daily Office" sub="Pray the hour you're in" />
           <PracticeChip href="/examen" eyebrow="5 minutes" title="Daily Examen" sub="End the day with Him" />
           <PracticeChip href="/listen" eyebrow="His voice" title="Listening prayer" sub="Quiet down. Open the Word. Hear." />
           <PracticeChip href="/fast" eyebrow="Matt 6:16" title="Fasting" sub="When, not if." />
           <PracticeChip href="/lament" eyebrow="Psalms" title="Lament" sub="Bring the wound to Him" />
           <PracticeChip href="/forgive" eyebrow="70 × 7" title="Forgiveness walk" sub="Lay down the debt" />
-          <PracticeChip href="/family" eyebrow="Deut 6:7" title="Family altar" sub="Ten minutes, every age" />
+          <PracticeChip href="/heal" eyebrow="James 5" title="Healing prayer" sub="Pray for the sick" />
+          <PracticeChip href="/sabbath" eyebrow="Exod 20:8" title="Sabbath" sub="One day in seven" />
+          <PracticeChip href="/catechism" eyebrow="1 of 52" title="Catechism" sub="This week's Lord's Day" />
         </div>
       </section>
 

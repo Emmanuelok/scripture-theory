@@ -33,16 +33,16 @@ export default function HomePage() {
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
           <Tile href="/today" eyebrow="Personal" title="Today" sub="Your verse, your nation, your people, your rhythm" />
           <Tile href="/bible" eyebrow="11 translations" title="The Bible" sub="WEB · KJV · ASV · RVR · LSG · CUV · Vulgate · and more" />
-          <Tile href="/practices" eyebrow="12 ancient practices" title="Practices" sub="Fasting · Examen · Lament · Forgiveness · Listening · Family altar" />
+          <Tile href="/practices" eyebrow="23 ancient practices" title="Practices" sub="Hours · Examen · Fasting · Lament · Forgiveness · Family altar · Healing · Calling" />
           <Tile href="/secret-place" eyebrow="Matthew 6:6" title="The Secret Place" sub="Private journal, prayers, gratitudes — only on this device" />
+          <Tile href="/hours" eyebrow="Psalm 119:164" title="The Daily Office" sub="Morning · Midday · Evening · Night prayer" />
+          <Tile href="/catechism" eyebrow="1563 · 52 weeks" title="Heidelberg Catechism" sub="Your only comfort in life and in death." />
           <Tile href="/pray/nations" eyebrow="110-day rotation" title="Praying for the Nations" sub="One country, one flag, every day" />
           <Tile href="/persecuted" eyebrow="Hebrews 13:3" title="The Persecuted Church" sub="Twelve nations, one each month, by name" />
-          <Tile href="/memory" eyebrow="36 verses" title="Scripture Memory" sub="Read · First letters · Blanks · Recite" />
-          <Tile href="/hymns" eyebrow="21 hymns" title="The Hymns" sub="Wesley, Watts, Luther, Spafford — public domain" />
+          <Tile href="/gifts" eyebrow="1 Corinthians 12" title="Spiritual Gifts" sub="Discern how the Spirit has gifted you to serve" />
           <Tile href="/disciple" eyebrow="12 stages" title="The Path" sub="From first encounter to reproducing disciple" />
-          <Tile href="/family" eyebrow="Deuteronomy 6:7" title="Family Altar" sub="Ten-minute household worship, every age" />
           <Tile href="/connect" eyebrow="Local body" title="Find a Church" sub="Real congregations near you, every tradition" />
-          <Tile href="/resources" eyebrow="Study & creeds" title="Resources" sub="Topical index · creeds · disciplines · glossary" />
+          <Tile href="/resources" eyebrow="Study & creeds" title="Resources" sub="Topical index · creeds · disciplines · glossary · catechism" />
         </div>
       </section>
 
