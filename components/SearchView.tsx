@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { search, searchKindLabel, quickStats, type SearchKind, type SearchResult } from "@/lib/search";
 
 const KIND_COLOR: Record<SearchKind, string> = {
+  bible: "bg-ink-900 text-ink-50",
   scripture: "bg-flame-100 text-flame-900",
   plan: "bg-emerald-100 text-emerald-900",
   prayer: "bg-sky-100 text-sky-900",
@@ -13,7 +14,7 @@ const KIND_COLOR: Record<SearchKind, string> = {
   testimony: "bg-violet-100 text-violet-900",
 };
 
-const ALL_KINDS: SearchKind[] = ["scripture", "plan", "prayer", "church", "gospel", "testimony"];
+const ALL_KINDS: SearchKind[] = ["bible", "scripture", "plan", "prayer", "church", "gospel", "testimony"];
 
 const SUGGESTIONS = [
   "John 3",

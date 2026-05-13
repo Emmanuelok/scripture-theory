@@ -2,11 +2,11 @@ import Link from "next/link";
 
 const links = [
   { href: "/today", label: "Today" },
+  { href: "/bible", label: "Bible" },
   { href: "/gospel", label: "Gospel" },
   { href: "/read", label: "Read" },
   { href: "/pray", label: "Pray" },
   { href: "/witness", label: "Witness" },
-  { href: "/disciple", label: "Disciple" },
   { href: "/connect", label: "One Body" },
 ];
 

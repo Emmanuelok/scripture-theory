@@ -4,9 +4,12 @@ import { lordsPrayer, acts, worldPrayer } from "@/data/prayers";
 import { churches, cities, traditionLabels } from "@/data/churches";
 import { gospelMovements } from "@/data/gospel";
 import { testimonies } from "@/data/testimonies";
+import { canon } from "@/data/bible/canon";
+import { loadedChaptersOf, getChapter } from "@/lib/bible";
 
 export type SearchKind =
   | "scripture"
+  | "bible"
   | "plan"
   | "prayer"
   | "church"
@@ -23,7 +26,8 @@ export type SearchResult = {
 };
 
 const KIND_LABEL: Record<SearchKind, string> = {
-  scripture: "Scripture",
+  scripture: "Verse Lens",
+  bible: "Bible (WEB)",
   plan: "Reading plan",
   prayer: "Prayer",
   church: "Church",
@@ -159,6 +163,25 @@ function buildIndex(): Indexed[] {
     });
   }
 
+  // Loaded Bible chapters (seed + any ingested)
+  for (const book of canon) {
+    for (const ch of loadedChaptersOf(book.id)) {
+      const chapter = getChapter(book.id, ch);
+      if (!chapter) continue;
+      const fullText = chapter.verses.map((v) => `${v.v} ${v.t}`).join(" ");
+      const preview = chapter.verses.slice(0, 2).map((v) => v.t).join(" ");
+      items.push({
+        kind: "bible",
+        title: `${book.name} ${ch}`,
+        subtitle: `WEB · ${chapter.verses.length} verses`,
+        snippet: preview,
+        href: `/bible/${book.id}/${ch}`,
+        weight: 6,
+        hay: `${book.name} ${book.abbrev} ${ch} ${fullText}`.toLowerCase(),
+      });
+    }
+  }
+
   // Testimonies
   for (const t of testimonies) {
     items.push({
@@ -215,6 +238,7 @@ export function quickStats() {
   const index = buildIndex();
   const counts: Record<SearchKind, number> = {
     scripture: 0,
+    bible: 0,
     plan: 0,
     prayer: 0,
     church: 0,
