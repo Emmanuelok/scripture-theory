@@ -7,6 +7,7 @@ import { readingPlans } from "@/data/readings";
 import { worldPrayer, todaysRegionIndex } from "@/data/prayers";
 import { prayerLocales } from "@/data/prayers-i18n";
 import { locales, type LocaleCode } from "@/data/gospel-i18n";
+import PrayingForList from "@/components/PrayingForList";
 
 const PLAN_PROGRESS_KEY = "scripture-theory-progress";
 
@@ -169,6 +170,8 @@ export default function TodayDashboard() {
           {nextStep.cta} →
         </Link>
       </section>
+
+      <PrayingForList />
 
       <div className="grid md:grid-cols-2 gap-5">
         <section className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8" lang={locale}>

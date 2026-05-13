@@ -6,11 +6,21 @@ import type { LocaleCode } from "@/data/gospel-i18n";
 export type DiscipleStage = "seeker" | "new" | "growing" | "leader" | "pastor";
 export type DailyNeed = "meet" | "word" | "pray" | "belong" | "today";
 
+export type PrayingForRecord = {
+  id: string;
+  name: string;
+  note?: string;
+  addedAt: string;
+  prayedAt: string[];
+  sharedAt?: string;
+};
+
 export type Profile = {
   stage?: DiscipleStage;
   locale?: LocaleCode;
   need?: DailyNeed;
   startedAt?: string;
+  prayingFor?: PrayingForRecord[];
 };
 
 const STORAGE = "scripture-theory-profile";

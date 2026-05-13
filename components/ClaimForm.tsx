@@ -35,10 +35,18 @@ const empty: Form = {
   consent: false,
 };
 
+type SendState =
+  | { status: "idle" }
+  | { status: "sending" }
+  | { status: "sent" }
+  | { status: "queued"; message: string }
+  | { status: "error"; message: string };
+
 export default function ClaimForm() {
   const [form, setForm] = useState<Form>(empty);
   const [submitted, setSubmitted] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [send, setSend] = useState<SendState>({ status: "idle" });
 
   function set<K extends keyof Form>(key: K, value: Form[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -108,6 +116,45 @@ export default function ClaimForm() {
       setTimeout(() => setCopied(false), 2500);
     } catch {
       setCopied(false);
+    }
+  }
+
+  async function sendViaSite() {
+    setSend({ status: "sending" });
+    try {
+      const res = await fetch("/api/intake", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          kind: "claim",
+          subject,
+          body,
+          replyTo: form.contact.includes("@") ? form.contact : undefined,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setSend({
+          status: "error",
+          message: (data && data.error) || "We could not reach the server. Please use email or copy.",
+        });
+        return;
+      }
+      if (data.delivered) {
+        setSend({ status: "sent" });
+      } else {
+        setSend({
+          status: "queued",
+          message:
+            data.message ||
+            "Your message was validated. The website is in pilot mode — please use the email or copy options to reach our team directly.",
+        });
+      }
+    } catch (err) {
+      setSend({
+        status: "error",
+        message: "Network error. Please use the email or copy options to reach our team.",
+      });
     }
   }
 
@@ -287,6 +334,17 @@ ${body}`}
           </pre>
 
           <div className="mt-5 flex flex-wrap gap-3">
+            <button
+              onClick={sendViaSite}
+              disabled={send.status === "sending" || send.status === "sent"}
+              className="inline-flex items-center rounded-full bg-ink-900 text-ink-50 px-5 py-2.5 text-sm hover:bg-flame-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {send.status === "sending"
+                ? "Sending…"
+                : send.status === "sent"
+                  ? "Sent ✓"
+                  : "Send via Scripture Theory"}
+            </button>
             <a
               href={mailto}
               className="inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-5 py-2.5 text-sm hover:bg-flame-700"
@@ -300,12 +358,31 @@ ${body}`}
               {copied ? "Copied!" : "Copy the whole message"}
             </button>
             <button
-              onClick={() => setSubmitted(false)}
+              onClick={() => {
+                setSubmitted(false);
+                setSend({ status: "idle" });
+              }}
               className="inline-flex items-center rounded-full border border-ink-200 px-5 py-2.5 text-sm text-ink-500 hover:border-ink-400"
             >
               Edit my answers
             </button>
           </div>
+
+          {send.status === "sent" && (
+            <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+              Sent. Our onboarding team will reply personally within five business days.
+            </div>
+          )}
+          {send.status === "queued" && (
+            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+              {send.message}
+            </div>
+          )}
+          {send.status === "error" && (
+            <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900">
+              {send.message}
+            </div>
+          )}
 
           <p className="mt-6 text-xs text-ink-500 leading-relaxed">
             Pilot note: during Q3 we hand-onboard every claimed church and verify each pastor before

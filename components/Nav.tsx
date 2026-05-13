@@ -31,12 +31,34 @@ export default function Nav() {
             </li>
           ))}
         </ul>
-        <Link
-          href="/start"
-          className="hidden md:inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-4 py-1.5 text-sm hover:bg-flame-700 transition-colors shrink-0"
-        >
-          Start here
-        </Link>
+        <div className="hidden md:flex items-center gap-2 shrink-0">
+          <Link
+            href="/search"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-ink-200 text-ink-600 hover:border-ink-900 hover:text-ink-900 transition-colors"
+            aria-label="Search"
+            title="Search the platform"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-4 w-4"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="m20 20-3.5-3.5" />
+            </svg>
+          </Link>
+          <Link
+            href="/start"
+            className="inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-4 py-1.5 text-sm hover:bg-flame-700 transition-colors"
+          >
+            Start here
+          </Link>
+        </div>
       </nav>
     </header>
   );
