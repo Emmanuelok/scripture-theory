@@ -4,7 +4,7 @@ const links = [
   { href: "/today", label: "Today" },
   { href: "/bible", label: "Bible" },
   { href: "/gospel", label: "Gospel" },
-  { href: "/read", label: "Read" },
+  { href: "/memory", label: "Memory" },
   { href: "/pray", label: "Pray" },
   { href: "/witness", label: "Witness" },
   { href: "/connect", label: "One Body" },

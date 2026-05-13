@@ -13,6 +13,7 @@ import { translations as transMeta } from "@/data/bible/translations";
 import { canon as bibleCanon } from "@/data/bible/canon";
 import { referenceHref } from "@/lib/reference";
 import { todaysNation, regions as nationRegions } from "@/data/nations";
+import { thisWeeksVerse } from "@/data/memory";
 import PrayingForList from "@/components/PrayingForList";
 
 const PLAN_PROGRESS_KEY = "scripture-theory-progress";
@@ -82,6 +83,9 @@ export default function TodayDashboard() {
   const region = worldPrayer[todaysRegionIndex()];
   // Today's nation in the rotation (specific country)
   const nation = todaysNation(now);
+  // This week's memory verse
+  const memoryVerse = thisWeeksVerse(now);
+  const memoryRecord = profile.memory?.find((r) => r.verseId === memoryVerse.id);
 
   // Today's verse — rotated daily from the WEB seed (authentic public-domain text).
   const dailyVerse = useMemo(() => {
@@ -222,6 +226,30 @@ export default function TodayDashboard() {
           </div>
         </section>
       )}
+
+      <section className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8 glow-ring">
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <div>
+            <div className="text-xs uppercase tracking-widest text-flame-700">
+              This week's memory verse
+            </div>
+            <h2 className="font-serif text-2xl text-ink-900 mt-1">{memoryVerse.ref}</h2>
+          </div>
+          {memoryRecord && (
+            <span className="text-xs uppercase tracking-widest text-flame-700">
+              {memoryRecord.level === "mastered" ? "Mastered ✓" : `Level: ${memoryRecord.level}`}
+            </span>
+          )}
+        </div>
+        <p className="mt-3 prose-scripture text-ink-900">{memoryVerse.text}</p>
+        <p className="mt-3 text-xs text-ink-500 italic">{memoryVerse.why}</p>
+        <Link
+          href="/memory"
+          className="mt-4 inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-4 py-1.5 text-sm hover:bg-flame-700"
+        >
+          Practice now →
+        </Link>
+      </section>
 
       <PrayingForList />
 

@@ -15,12 +15,23 @@ export type PrayingForRecord = {
   sharedAt?: string;
 };
 
+export type MemoryLevel = "reading" | "first-letters" | "blanks" | "recited" | "mastered";
+
+export type MemoryRecord = {
+  verseId: string;
+  startedAt: string;
+  lastPracticedAt?: string;
+  attempts: number;
+  level: MemoryLevel;
+};
+
 export type Profile = {
   stage?: DiscipleStage;
   locale?: LocaleCode;
   need?: DailyNeed;
   startedAt?: string;
   prayingFor?: PrayingForRecord[];
+  memory?: MemoryRecord[];
 };
 
 const STORAGE = "scripture-theory-profile";

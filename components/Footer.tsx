@@ -17,6 +17,7 @@ export default function Footer() {
             <li><Link href="/gospel" className="hover:text-ink-900">The Gospel</Link></li>
             <li><Link href="/bible" className="hover:text-ink-900">The Bible</Link></li>
             <li><Link href="/read" className="hover:text-ink-900">Reading plans</Link></li>
+            <li><Link href="/memory" className="hover:text-ink-900">Scripture memory</Link></li>
             <li><Link href="/pray" className="hover:text-ink-900">Pray</Link></li>
             <li><Link href="/pray/nations" className="hover:text-ink-900">Praying for the nations</Link></li>
             <li><Link href="/witness" className="hover:text-ink-900">Witness</Link></li>
