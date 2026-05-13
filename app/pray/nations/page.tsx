@@ -1,9 +1,7 @@
-import Link from "next/link";
 import { nations, rotationDay, todaysNation } from "@/data/nations";
 import NationOfTheDay from "@/components/NationOfTheDay";
 import NationsRhythm from "@/components/NationsRhythm";
 import NationsTriptych from "@/components/NationsTriptych";
-import NationNews from "@/components/NationNews";
 
 export const metadata = {
   title: "Praying for the Nations — Scripture Theory",
@@ -28,22 +26,6 @@ export default function NationsPage() {
 
       <div className="mt-8">
         <NationOfTheDay nation={nation} rotationDay={day} />
-      </div>
-
-      <div className="mt-8">
-        <NationNews iso={nation.iso} nationName={nation.name} />
-      </div>
-
-      <div className="mt-10 rounded-2xl border border-flame-200 bg-flame-50/60 p-5 text-sm flex flex-wrap items-center justify-between gap-3">
-        <span className="text-flame-900">
-          The whole world calls for prayer right now. Stand in the gap.
-        </span>
-        <Link
-          href="/pray/live"
-          className="inline-flex items-center rounded-full bg-flame-600 text-white px-4 py-2 text-xs font-medium hover:bg-flame-700"
-        >
-          Open the live world feed →
-        </Link>
       </div>
 
       <div className="mt-8">

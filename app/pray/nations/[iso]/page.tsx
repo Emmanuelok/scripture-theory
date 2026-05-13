@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { nations, findNation, daysUntilNation, rotationDay, todaysNation } from "@/data/nations";
 import NationOfTheDay from "@/components/NationOfTheDay";
-import NationNews from "@/components/NationNews";
 import { flagEmoji } from "@/lib/flags";
 
 export function generateStaticParams() {
@@ -59,10 +58,6 @@ export default async function NationPage({
 
       <div className="mt-6">
         <NationOfTheDay nation={nation} rotationDay={rotationDay() + (isToday ? 0 : daysUntil)} />
-      </div>
-
-      <div className="mt-8">
-        <NationNews iso={nation.iso} nationName={nation.name} />
       </div>
     </section>
   );

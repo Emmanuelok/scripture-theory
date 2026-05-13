@@ -451,107 +451,116 @@ export default function BibleChapter({
       )}
 
       {mounted && activeVerse !== null && chapter && (
-        <div
-          className="rounded-3xl border border-flame-300 bg-flame-50/50 p-5 md:p-6 sticky bottom-4 shadow-lg"
-          role="dialog"
-        >
-          <div className="flex flex-wrap items-baseline justify-between gap-3">
-            <h3 className="font-serif text-xl text-ink-900">
-              {bookName} {chapterNum}:{activeVerse}{" "}
-              <span className="text-xs text-ink-500 font-sans">({meta.abbrev})</span>
-            </h3>
-            <button
-              onClick={() => setActiveVerse(null)}
-              className="text-xs text-ink-500 hover:text-ink-900"
-              aria-label="Close"
-            >
-              Close ✕
-            </button>
-          </div>
-          <p className="mt-2 prose-scripture text-ink-800">
-            {chapter.verses.find((v) => v.v === activeVerse)?.t}
-          </p>
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            <button
-              onClick={() => toggleHighlight(activeVerse)}
-              className="rounded-full bg-ink-900 text-ink-50 px-3.5 py-1.5 text-xs hover:bg-flame-700"
-            >
-              {marks.highlights.includes(verseKey(translationId, bookId, chapterNum, activeVerse))
-                ? "Remove highlight"
-                : "Highlight"}
-            </button>
-            <button
-              onClick={() => toggleBookmark(activeVerse)}
-              className="rounded-full border border-ink-300 px-3.5 py-1.5 text-xs text-ink-800 hover:border-ink-900"
-            >
-              {marks.bookmarks.includes(verseKey(translationId, bookId, chapterNum, activeVerse))
-                ? "Remove bookmark"
-                : "★ Bookmark"}
-            </button>
-            <button
-              onClick={() => {
-                const t = chapter.verses.find((v) => v.v === activeVerse)?.t ?? "";
-                copyVerse(activeVerse, t);
-              }}
-              className="rounded-full border border-ink-300 px-3.5 py-1.5 text-xs text-ink-800 hover:border-ink-900"
-            >
-              {copied ? "Copied!" : "Copy verse"}
-            </button>
-            <button
-              onClick={async () => {
-                const t = chapter.verses.find((v) => v.v === activeVerse)?.t ?? "";
-                const text = `"${t}" — ${bookName} ${chapterNum}:${activeVerse} (${meta.abbrev})`;
-                if (navigator.share) {
-                  try { await navigator.share({ title: `${bookName} ${chapterNum}:${activeVerse}`, text }); } catch {}
-                } else {
-                  copyVerse(activeVerse, t);
-                }
-              }}
-              className="rounded-full border border-ink-300 px-3.5 py-1.5 text-xs text-ink-800 hover:border-ink-900"
-            >
-              Share
-            </button>
-            {lensMatch && (
-              <Link
-                href="/lens"
-                className="rounded-full border border-flame-300 text-flame-700 px-3.5 py-1.5 text-xs hover:bg-flame-50"
-              >
-                Open in Verse Lens
-              </Link>
-            )}
-          </div>
-
-          <div className="mt-4">
-            <label className="text-xs uppercase tracking-widest text-ink-400">Your note</label>
-            <textarea
-              value={noteDraft}
-              onChange={(e) => setNoteDraft(e.target.value)}
-              rows={3}
-              placeholder="What is the Spirit saying to you here?"
-              className="mt-1.5 w-full rounded-xl border border-ink-200 bg-card px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-flame-300"
-            />
-            <div className="mt-2 flex gap-2">
+        <>
+          {/* Backdrop dims the chapter behind for legibility */}
+          <div
+            className="fixed inset-0 z-40 bg-ink-50/70 backdrop-blur-sm"
+            onClick={() => setActiveVerse(null)}
+            aria-hidden
+          />
+          <div
+            className="fixed left-1/2 -translate-x-1/2 bottom-4 z-50 w-[calc(100%-2rem)] max-w-2xl rounded-3xl border border-flame-300 bg-card p-5 md:p-6 shadow-2xl"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="flex flex-wrap items-baseline justify-between gap-3">
+              <h3 className="font-serif text-xl text-ink-900">
+                {bookName} {chapterNum}:{activeVerse}{" "}
+                <span className="text-xs text-ink-500 font-sans">({meta.abbrev})</span>
+              </h3>
               <button
-                onClick={() => saveNote(activeVerse, noteDraft)}
-                className="rounded-full bg-flame-600 text-white px-3.5 py-1.5 text-xs hover:bg-flame-700"
+                onClick={() => setActiveVerse(null)}
+                className="text-xs text-ink-500 hover:text-ink-900"
+                aria-label="Close"
               >
-                Save note
+                Close ✕
               </button>
-              {marks.notes[verseKey(translationId, bookId, chapterNum, activeVerse)] && (
-                <button
-                  onClick={() => {
-                    saveNote(activeVerse, "");
-                    setNoteDraft("");
-                  }}
-                  className="rounded-full border border-ink-200 px-3.5 py-1.5 text-xs text-ink-500 hover:border-ink-400"
+            </div>
+            <p className="mt-2 prose-scripture text-ink-800">
+              {chapter.verses.find((v) => v.v === activeVerse)?.t}
+            </p>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                onClick={() => toggleHighlight(activeVerse)}
+                className="rounded-full bg-ink-900 text-ink-50 px-3.5 py-1.5 text-xs hover:bg-flame-700"
+              >
+                {marks.highlights.includes(verseKey(translationId, bookId, chapterNum, activeVerse))
+                  ? "Remove highlight"
+                  : "Highlight"}
+              </button>
+              <button
+                onClick={() => toggleBookmark(activeVerse)}
+                className="rounded-full border border-ink-300 bg-card px-3.5 py-1.5 text-xs text-ink-800 hover:border-ink-900"
+              >
+                {marks.bookmarks.includes(verseKey(translationId, bookId, chapterNum, activeVerse))
+                  ? "Remove bookmark"
+                  : "★ Bookmark"}
+              </button>
+              <button
+                onClick={() => {
+                  const t = chapter.verses.find((v) => v.v === activeVerse)?.t ?? "";
+                  copyVerse(activeVerse, t);
+                }}
+                className="rounded-full border border-ink-300 bg-card px-3.5 py-1.5 text-xs text-ink-800 hover:border-ink-900"
+              >
+                {copied ? "Copied!" : "Copy verse"}
+              </button>
+              <button
+                onClick={async () => {
+                  const t = chapter.verses.find((v) => v.v === activeVerse)?.t ?? "";
+                  const text = `"${t}" — ${bookName} ${chapterNum}:${activeVerse} (${meta.abbrev})`;
+                  if (navigator.share) {
+                    try { await navigator.share({ title: `${bookName} ${chapterNum}:${activeVerse}`, text }); } catch {}
+                  } else {
+                    copyVerse(activeVerse, t);
+                  }
+                }}
+                className="rounded-full border border-ink-300 bg-card px-3.5 py-1.5 text-xs text-ink-800 hover:border-ink-900"
+              >
+                Share
+              </button>
+              {lensMatch && (
+                <Link
+                  href="/lens"
+                  className="rounded-full border border-flame-300 bg-card text-flame-700 px-3.5 py-1.5 text-xs hover:bg-flame-50"
                 >
-                  Delete note
-                </button>
+                  Open in Verse Lens
+                </Link>
               )}
             </div>
+
+            <div className="mt-4">
+              <label className="text-xs uppercase tracking-widest text-ink-500">Your note</label>
+              <textarea
+                value={noteDraft}
+                onChange={(e) => setNoteDraft(e.target.value)}
+                rows={3}
+                placeholder="What is the Spirit saying to you here?"
+                className="mt-1.5 w-full rounded-xl border border-ink-200 bg-card-subtle px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-flame-300"
+              />
+              <div className="mt-2 flex gap-2">
+                <button
+                  onClick={() => saveNote(activeVerse, noteDraft)}
+                  className="rounded-full bg-flame-600 text-white px-3.5 py-1.5 text-xs hover:bg-flame-700"
+                >
+                  Save note
+                </button>
+                {marks.notes[verseKey(translationId, bookId, chapterNum, activeVerse)] && (
+                  <button
+                    onClick={() => {
+                      saveNote(activeVerse, "");
+                      setNoteDraft("");
+                    }}
+                    className="rounded-full border border-ink-300 bg-card px-3.5 py-1.5 text-xs text-ink-500 hover:border-ink-400"
+                  >
+                    Delete note
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       <div className="flex items-center justify-between">
