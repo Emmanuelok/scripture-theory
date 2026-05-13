@@ -35,6 +35,18 @@ export default function DisciplePage() {
         pastor, not to keep them in our app.
       </p>
 
+      <div className="mt-6 rounded-2xl border border-flame-200 bg-flame-50/60 p-5 flex flex-wrap items-center justify-between gap-3">
+        <span className="text-sm text-flame-900">
+          Track the souls you're praying for, witnessing to, and discipling.
+        </span>
+        <Link
+          href="/disciple/journey"
+          className="inline-flex items-center rounded-full bg-flame-600 text-white px-4 py-2 text-sm font-medium hover:bg-flame-700 whitespace-nowrap"
+        >
+          Open your journey →
+        </Link>
+      </div>
+
       <div className="mt-10 rounded-2xl bg-ink-900 text-ink-50 p-6 md:p-8">
         <div className="grid md:grid-cols-3 gap-6">
           <Stat number="12" label="Scriptural stages from first encounter to reproducer" />

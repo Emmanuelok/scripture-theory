@@ -30,6 +30,43 @@ export type NationPrayed = {
   date: string; // YYYY-MM-DD
 };
 
+export type JourneyStage =
+  | "outside"        // not yet a believer — we're praying
+  | "conversation"   // spiritual conversation happening
+  | "studying"       // reading the Bible / discussing together
+  | "responded"      // they said yes to Jesus
+  | "baptized"       // publicly confessed faith
+  | "community"      // committed to a local church
+  | "reproducing";   // now discipling someone else
+
+export type JourneyEventType =
+  | "prayed_for"
+  | "shared_gospel"
+  | "conversation"
+  | "studied_scripture"
+  | "discipleship_meeting"
+  | "responded"
+  | "baptized"
+  | "joined_community"
+  | "began_discipling";
+
+export type JourneyEvent = {
+  id: string;
+  type: JourneyEventType;
+  date: string; // ISO datetime
+  note?: string;
+};
+
+export type DiscipleRecord = {
+  id: string;
+  name: string;
+  city?: string;
+  notes?: string;
+  startedAt: string;
+  stage: JourneyStage;
+  events: JourneyEvent[];
+};
+
 export type Profile = {
   stage?: DiscipleStage;
   locale?: LocaleCode;
@@ -39,6 +76,7 @@ export type Profile = {
   memory?: MemoryRecord[];
   nationsPrayed?: NationPrayed[];
   adoptedNationIso?: string;
+  disciples?: DiscipleRecord[];
 };
 
 const STORAGE = "scripture-theory-profile";

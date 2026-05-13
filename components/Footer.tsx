@@ -29,6 +29,12 @@ export default function Footer() {
           <ul className="mt-2 space-y-1">
             <li><Link href="/today" className="hover:text-ink-900">Today</Link></li>
             <li><Link href="/disciple" className="hover:text-ink-900">The Path</Link></li>
+            <li><Link href="/disciple/journey" className="hover:text-ink-900">Discipleship Journey</Link></li>
+            <li><Link href="/resources" className="hover:text-ink-900">Resources</Link></li>
+            <li><Link href="/resources/topical-index" className="hover:text-ink-900">Topical Scripture</Link></li>
+            <li><Link href="/resources/creeds" className="hover:text-ink-900">Historic creeds</Link></li>
+            <li><Link href="/resources/glossary" className="hover:text-ink-900">Theological glossary</Link></li>
+            <li><Link href="/resources/disciplines" className="hover:text-ink-900">Spiritual disciplines</Link></li>
             <li><Link href="/connect" className="hover:text-ink-900">One Body (local church)</Link></li>
             <li><Link href="/lens" className="hover:text-ink-900">Jesus in the Word</Link></li>
             <li><Link href="/search" className="hover:text-ink-900">Search</Link></li>
