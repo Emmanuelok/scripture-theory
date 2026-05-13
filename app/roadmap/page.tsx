@@ -22,7 +22,7 @@ export default function RoadmapPage() {
         {roadmap.map((q, idx) => (
           <article
             key={q.quarter}
-            className="rounded-2xl border border-ink-200 bg-white p-6 md:p-8"
+            className="rounded-2xl border border-ink-200 bg-card p-6 md:p-8"
           >
             <div className="flex flex-wrap items-baseline justify-between gap-3">
               <div>

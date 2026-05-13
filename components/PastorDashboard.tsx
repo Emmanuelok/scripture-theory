@@ -88,7 +88,7 @@ export default function PastorDashboard() {
             <li key={r.title}>
               <Link
                 href={r.href}
-                className="block rounded-2xl border border-ink-200 bg-white p-5 hover:border-flame-500 transition-colors"
+                className="block rounded-2xl border border-ink-200 bg-card p-5 hover:border-flame-500 transition-colors"
               >
                 <div className="font-serif text-lg text-ink-900">{r.title}</div>
                 <p className="text-sm text-ink-600 mt-1 leading-relaxed">{r.body}</p>
@@ -134,7 +134,7 @@ function IntroCard({
 
   return (
     <li
-      className={`rounded-2xl border bg-white transition-colors ${
+      className={`rounded-2xl border bg-card transition-colors ${
         done ? "border-emerald-200" : "border-ink-200"
       }`}
     >
@@ -178,14 +178,14 @@ function IntroCard({
                   className={`rounded-full px-3 py-1 text-xs border transition-colors ${
                     i === tplIndex
                       ? "bg-ink-900 text-ink-50 border-ink-900"
-                      : "bg-white text-ink-700 border-ink-200 hover:border-ink-400"
+                      : "bg-card text-ink-700 border-ink-200 hover:border-ink-400"
                   }`}
                 >
                   {t.label}
                 </button>
               ))}
             </div>
-            <pre className="rounded-2xl bg-white border border-ink-200 p-4 text-sm text-ink-800 leading-relaxed whitespace-pre-wrap font-sans">
+            <pre className="rounded-2xl bg-card border border-ink-200 p-4 text-sm text-ink-800 leading-relaxed whitespace-pre-wrap font-sans">
 {filled}
             </pre>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -200,7 +200,7 @@ function IntroCard({
                 className={`inline-flex items-center rounded-full px-4 py-1.5 text-sm border transition-colors ${
                   done
                     ? "bg-emerald-100 text-emerald-900 border-transparent"
-                    : "bg-white text-ink-800 border-ink-300 hover:border-ink-900"
+                    : "bg-card text-ink-800 border-ink-300 hover:border-ink-900"
                 }`}
               >
                 {done ? "Marked replied ✓" : "Mark as replied"}

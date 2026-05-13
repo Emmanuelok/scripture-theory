@@ -57,7 +57,7 @@ export default function PrayerGuide() {
               className={`rounded-full px-3 py-1 text-sm border transition-colors ${
                 active
                   ? "bg-ink-900 text-ink-50 border-ink-900"
-                  : "bg-white text-ink-700 border-ink-200 hover:border-ink-400"
+                  : "bg-card text-ink-700 border-ink-200 hover:border-ink-400"
               }`}
               aria-pressed={active}
             >
@@ -113,7 +113,7 @@ function ModeButton({
       className={`rounded-full px-4 py-2 text-sm border transition-colors ${
         active
           ? "bg-ink-900 text-ink-50 border-ink-900"
-          : "bg-white text-ink-700 border-ink-200 hover:border-ink-400"
+          : "bg-card text-ink-700 border-ink-200 hover:border-ink-400"
       }`}
     >
       {children}
@@ -146,7 +146,7 @@ function LordsPrayerView({
         {t.lords.lines.map((l, i) => (
           <li
             key={i}
-            className="rounded-2xl border border-ink-200 bg-white p-5 md:p-6 glow-ring"
+            className="rounded-2xl border border-ink-200 bg-card p-5 md:p-6 glow-ring"
           >
             <div className={`flex items-baseline gap-4 ${dir === "rtl" ? "flex-row-reverse" : ""}`}>
               <span className="font-serif text-flame-700 text-2xl leading-none">
@@ -176,7 +176,7 @@ function ActsView({ t, dir }: { t: ReturnType<typeof useT>; dir: "ltr" | "rtl" }
       <p className="text-ink-700 leading-relaxed max-w-2xl">{t.acts.intro}</p>
       <ol className="grid md:grid-cols-2 gap-4">
         {t.acts.movements.map((m, i) => (
-          <li key={i} className="rounded-2xl border border-ink-200 bg-white p-6 glow-ring">
+          <li key={i} className="rounded-2xl border border-ink-200 bg-card p-6 glow-ring">
             <div className={`flex items-baseline gap-3 ${dir === "rtl" ? "flex-row-reverse" : ""}`}>
               <span className="font-serif text-flame-700 text-4xl leading-none">{m.letter}</span>
               <h3 className="font-serif text-2xl text-ink-900">{m.word}</h3>
@@ -202,7 +202,7 @@ function NationsTeaser() {
   const day = rotationDay();
   return (
     <div className="space-y-5" dir="ltr">
-      <div className="rounded-3xl overflow-hidden border border-ink-200 bg-white glow-ring">
+      <div className="rounded-3xl overflow-hidden border border-ink-200 bg-card glow-ring">
         <div className="relative aspect-[16/7] bg-ink-800">
           <img
             src={flagSvgUrl(today.iso, 640)}
@@ -258,7 +258,7 @@ function WorldView() {
   const today = worldPrayer[todaysRegionIndex()];
   return (
     <div dir="ltr" className="space-y-6">
-      <div className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8 glow-ring">
+      <div className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8 glow-ring">
         <div className="text-xs uppercase tracking-widest text-flame-700">Today's focus</div>
         <h3 className="font-serif text-3xl text-ink-900 mt-1">{today.region}</h3>
         <p className="text-ink-500 italic mt-1">{today.focus}</p>

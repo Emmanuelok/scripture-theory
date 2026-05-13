@@ -166,7 +166,7 @@ export default function ClaimForm() {
             e.preventDefault();
             if (isReady) setSubmitted(true);
           }}
-          className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8 glow-ring space-y-6"
+          className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8 glow-ring space-y-6"
         >
           <div className="grid sm:grid-cols-2 gap-4">
             <Field label="Your full name" required>
@@ -318,7 +318,7 @@ export default function ClaimForm() {
           </div>
         </form>
       ) : (
-        <div className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8 glow-ring">
+        <div className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8 glow-ring">
           <div className="text-xs uppercase tracking-widest text-flame-700">Final step</div>
           <h3 className="font-serif text-2xl text-ink-900 mt-1">Review & send</h3>
           <p className="text-sm text-ink-600 mt-2">

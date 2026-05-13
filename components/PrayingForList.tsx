@@ -56,7 +56,7 @@ export default function PrayingForList() {
   if (!mounted) return null;
 
   return (
-    <section className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8 glow-ring">
+    <section className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8 glow-ring">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <div>
           <div className="text-xs uppercase tracking-widest text-flame-700">
@@ -191,4 +191,4 @@ export default function PrayingForList() {
 }
 
 const inputCls =
-  "mt-1.5 w-full rounded-xl border border-ink-200 bg-white px-3 py-2.5 text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-flame-300";
+  "mt-1.5 w-full rounded-xl border border-ink-200 bg-card px-3 py-2.5 text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-flame-300";

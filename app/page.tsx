@@ -1,166 +1,78 @@
 import Link from "next/link";
-import {
-  audiences,
-  pillars,
-  gap,
-  firstProducts,
-  principles,
-  guardrails,
-} from "@/data/strategy";
 import HomeHero from "@/components/HomeHero";
+import LiveTiles from "@/components/LiveTiles";
 
 export default function HomePage() {
   return (
     <>
       <HomeHero />
+      <LiveTiles />
 
-      <section className="mx-auto max-w-6xl px-5 py-12">
-        <div className="grid md:grid-cols-4 gap-6">
-          {pillars.map((p) => (
-            <div key={p.name} className="rounded-2xl bg-white border border-ink-200 p-6">
-              <div className="text-xs uppercase tracking-widest text-flame-700">{p.verse}</div>
-              <div className="font-serif text-2xl text-ink-900 mt-1">{p.name}</div>
-              <p className="text-sm text-ink-600 mt-2 leading-relaxed">{p.summary}</p>
-            </div>
-          ))}
+      {/* The ONE Gospel — single, calm, beautiful */}
+      <section className="mx-auto max-w-3xl px-5 py-24 md:py-32 text-center">
+        <span className="text-xs uppercase tracking-widest text-flame-700">
+          1 Corinthians 15:3–8
+        </span>
+        <p className="mt-5 font-serif text-2xl md:text-4xl text-ink-900 leading-snug">
+          Christ died for our sins.<br />
+          He was buried.<br />
+          He rose on the third day.<br />
+          He was seen.<br />
+          <span className="gradient-text">He is alive. He is Lord.</span>
+        </p>
+        <Link
+          href="/gospel"
+          className="mt-10 inline-flex items-center rounded-full bg-ink-900 text-ink-50 px-6 py-3 text-sm font-medium hover:bg-flame-700 transition-colors"
+        >
+          Read the Gospel →
+        </Link>
+      </section>
+
+      {/* What's inside — six tiles, no walls of text */}
+      <section className="mx-auto max-w-6xl px-5 pb-20">
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <Tile href="/bible" eyebrow="11 translations" title="The Bible" sub="WEB · KJV · ASV · RVR · LSG · CUV · Vulgate · and more" />
+          <Tile href="/memory" eyebrow="36 verses" title="Scripture Memory" sub="Read · First letters · Blanks · Recite" />
+          <Tile href="/pray/nations" eyebrow="110-day rotation" title="Praying for the Nations" sub="One country, one flag, every day" />
+          <Tile href="/today" eyebrow="Personal" title="Today" sub="Your verse, your nation, your people, your rhythm" />
+          <Tile href="/disciple" eyebrow="12 stages" title="The Path" sub="From first encounter to reproducing disciple" />
+          <Tile href="/connect" eyebrow="11 traditions" title="One Body" sub="Find a real local church near you" />
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-5 py-16 border-t border-ink-200">
-        <div className="grid md:grid-cols-12 gap-10">
-          <div className="md:col-span-5">
-            <span className="text-xs uppercase tracking-widest text-flame-700">Where we stand</span>
-            <h2 className="font-serif text-3xl md:text-4xl mt-2 text-ink-900">{gap.headline}</h2>
-            <p className="mt-4 text-ink-700 leading-relaxed">{gap.intro}</p>
-            <p className="mt-6 text-ink-800 leading-relaxed font-medium">{gap.ourAnswer}</p>
-          </div>
-          <div className="md:col-span-7 space-y-4">
-            {gap.failures.map((f) => (
-              <div key={f.title} className="rounded-2xl bg-white border border-ink-200 p-6">
-                <div className="font-serif text-xl text-ink-900">{f.title}</div>
-                <p className="mt-2 text-ink-700 leading-relaxed">{f.body}</p>
-                <div className="mt-3 text-xs text-ink-400 italic">{f.source}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-5 py-16 border-t border-ink-200">
-        <div className="flex items-baseline justify-between gap-4 flex-wrap">
-          <div>
-            <span className="text-xs uppercase tracking-widest text-flame-700">
-              Day-one features
-            </span>
-            <h2 className="font-serif text-3xl md:text-4xl mt-2 text-ink-900">
-              Simple things, done with Jesus in view.
-            </h2>
-          </div>
-          <Link href="/roadmap" className="text-sm text-ink-700 hover:text-flame-700">
-            See full 12-month plan →
-          </Link>
-        </div>
-        <div className="mt-8 grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {firstProducts.map((p) => (
-            <div key={p.name} className="rounded-2xl bg-white border border-ink-200 p-6">
-              <div className="flex items-center justify-between gap-2">
-                <div className="font-serif text-xl text-ink-900">{p.name}</div>
-                <span className="text-[10px] uppercase tracking-widest rounded-full bg-ink-100 text-ink-600 px-2 py-0.5">
-                  {p.tag}
-                </span>
-              </div>
-              <p className="mt-2 text-ink-700 leading-relaxed text-sm">{p.body}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-5 py-16 border-t border-ink-200">
-        <span className="text-xs uppercase tracking-widest text-flame-700">For whom</span>
-        <h2 className="font-serif text-3xl md:text-4xl mt-2 text-ink-900">
-          Five audiences. One Lord.
-        </h2>
-        <div className="mt-8 grid md:grid-cols-5 gap-4">
-          {audiences.map((a) => (
-            <div key={a.title} className="rounded-2xl bg-ink-50 border border-ink-200 p-5">
-              <div className="font-serif text-lg text-ink-900">{a.title}</div>
-              <p className="mt-1.5 text-sm text-ink-600 leading-relaxed">{a.body}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-5 py-16 border-t border-ink-200">
-        <div className="grid md:grid-cols-12 gap-10">
-          <div className="md:col-span-5">
-            <span className="text-xs uppercase tracking-widest text-flame-700">Guardrails</span>
-            <h2 className="font-serif text-3xl md:text-4xl mt-2 text-ink-900">
-              How we keep trust.
-            </h2>
-            <p className="mt-4 text-ink-700 leading-relaxed">
-              Trust is not a tagline. It is a set of commitments we accept before we ship.
-            </p>
-          </div>
-          <div className="md:col-span-7 grid sm:grid-cols-2 gap-4">
-            {guardrails.map((g) => (
-              <div key={g.title} className="rounded-2xl bg-white border border-ink-200 p-5">
-                <div className="font-serif text-lg text-ink-900">{g.title}</div>
-                <p className="mt-1.5 text-sm text-ink-600 leading-relaxed">{g.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-5 py-16 border-t border-ink-200">
-        <span className="text-xs uppercase tracking-widest text-flame-700">Posture</span>
-        <h2 className="font-serif text-3xl md:text-4xl mt-2 text-ink-900">Eight commitments.</h2>
-        <ol className="mt-8 grid md:grid-cols-2 gap-3">
-          {principles.map((p, i) => (
-            <li key={p} className="flex gap-4 rounded-xl bg-white border border-ink-200 p-4">
-              <span className="font-serif text-flame-700 text-lg leading-none mt-0.5">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <span className="text-ink-800 text-sm leading-relaxed">{p}</span>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-5 py-20 border-t border-ink-200">
-        <div className="rounded-3xl bg-ink-900 text-ink-50 p-10 md:p-14 text-center">
-          <h2 className="font-serif text-3xl md:text-5xl leading-snug">
-            "And I, when I am lifted up from the earth, will draw all people to myself."
-          </h2>
-          <p className="mt-3 text-ink-300">John 12:32 — Jesus</p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link
-              href="/gospel"
-              className="inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-5 py-2.5 text-sm hover:bg-flame-700"
-            >
-              Read the Gospel
-            </Link>
-            <Link
-              href="/read"
-              className="inline-flex items-center rounded-full border border-ink-50/30 text-ink-50 px-5 py-2.5 text-sm hover:bg-ink-50/10"
-            >
-              Open the Word
-            </Link>
-            <Link
-              href="/pray"
-              className="inline-flex items-center rounded-full border border-ink-50/30 text-ink-50 px-5 py-2.5 text-sm hover:bg-ink-50/10"
-            >
-              Learn to pray
-            </Link>
-            <Link
-              href="/witness"
-              className="inline-flex items-center rounded-full border border-ink-50/30 text-ink-50 px-5 py-2.5 text-sm hover:bg-ink-50/10"
-            >
-              Share Him
-            </Link>
-          </div>
-        </div>
+      {/* Single, quiet closing */}
+      <section className="mx-auto max-w-3xl px-5 pb-24 text-center">
+        <p className="font-serif text-xl md:text-2xl text-ink-700 italic">
+          "And I, when I am lifted up from the earth, will draw all people to myself."
+        </p>
+        <p className="mt-2 text-sm text-ink-500">John 12:32 — Jesus</p>
       </section>
     </>
+  );
+}
+
+function Tile({
+  href,
+  eyebrow,
+  title,
+  sub,
+}: {
+  href: string;
+  eyebrow: string;
+  title: string;
+  sub: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group rounded-2xl border border-ink-200 bg-card p-5 hover:border-flame-500 hover:shadow-md transition-all"
+    >
+      <div className="text-[10px] uppercase tracking-widest text-flame-700">{eyebrow}</div>
+      <div className="font-serif text-xl text-ink-900 mt-1 group-hover:text-flame-700 transition-colors">
+        {title}
+      </div>
+      <div className="text-xs text-ink-500 mt-1.5 leading-snug">{sub}</div>
+      <div className="mt-3 text-xs text-ink-400 group-hover:text-flame-700 transition-colors">→</div>
+    </Link>
   );
 }

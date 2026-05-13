@@ -41,7 +41,7 @@ export default function NationsRhythm() {
 
   if (!mounted) {
     return (
-      <div className="rounded-3xl border border-ink-200 bg-white p-6 grid sm:grid-cols-3 gap-4 text-sm text-ink-500">
+      <div className="rounded-3xl border border-ink-200 bg-card p-6 grid sm:grid-cols-3 gap-4 text-sm text-ink-500">
         <Skeleton />
         <Skeleton />
         <Skeleton />
@@ -118,7 +118,7 @@ function Stat({
       ? "text-flame-700"
       : "text-ink-900";
   return (
-    <div className="rounded-2xl border border-ink-200 bg-white p-4">
+    <div className="rounded-2xl border border-ink-200 bg-card p-4">
       <div className="text-[10px] uppercase tracking-widest text-ink-500">{label}</div>
       <div className={`font-serif text-2xl mt-0.5 ${accentCls}`}>{value}</div>
       {sub && <div className="text-xs text-ink-500 mt-0.5">{sub}</div>}
@@ -128,7 +128,7 @@ function Stat({
 
 function Skeleton() {
   return (
-    <div className="rounded-2xl border border-ink-200 bg-white p-4">
+    <div className="rounded-2xl border border-ink-200 bg-card p-4">
       <div className="h-2 w-12 bg-ink-100 rounded" />
       <div className="mt-3 h-6 w-20 bg-ink-100 rounded" />
     </div>

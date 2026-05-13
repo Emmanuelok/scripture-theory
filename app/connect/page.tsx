@@ -40,7 +40,7 @@ export default function ConnectPage() {
 
       <div className="mt-10 grid md:grid-cols-2 gap-5">
         {principles.map((p) => (
-          <div key={p.title} className="rounded-2xl bg-white border border-ink-200 p-6">
+          <div key={p.title} className="rounded-2xl bg-card border border-ink-200 p-6">
             <div className="font-serif text-xl text-ink-900">{p.title}</div>
             <p className="mt-2 text-ink-700 leading-relaxed text-sm">{p.body}</p>
           </div>

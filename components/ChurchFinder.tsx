@@ -28,7 +28,7 @@ export default function ChurchFinder() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-ink-200 bg-white p-5 md:p-6 glow-ring">
+      <div className="rounded-2xl border border-ink-200 bg-card p-5 md:p-6 glow-ring">
         <label className="text-xs uppercase tracking-widest text-ink-400">Search</label>
         <input
           type="search"
@@ -102,7 +102,7 @@ export default function ChurchFinder() {
             return (
               <li
                 key={c.id}
-                className="rounded-2xl border border-ink-200 bg-white p-5 flex flex-col"
+                className="rounded-2xl border border-ink-200 bg-card p-5 flex flex-col"
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <h3 className="font-serif text-lg text-ink-900">{c.name}</h3>

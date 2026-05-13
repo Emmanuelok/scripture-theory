@@ -42,7 +42,7 @@ export default function GospelView() {
               className={`rounded-full px-3 py-1 text-sm border transition-colors ${
                 active
                   ? "bg-ink-900 text-ink-50 border-ink-900"
-                  : "bg-white text-ink-700 border-ink-200 hover:border-ink-400"
+                  : "bg-card text-ink-700 border-ink-200 hover:border-ink-400"
               }`}
               aria-pressed={active}
               aria-label={`Read in ${item.meta.languageName}`}
@@ -64,7 +64,7 @@ export default function GospelView() {
           {t.movements.map((m) => (
             <li
               key={m.number}
-              className="rounded-3xl border border-ink-200 bg-white p-6 md:p-9 glow-ring"
+              className="rounded-3xl border border-ink-200 bg-card p-6 md:p-9 glow-ring"
             >
               <div className={`flex flex-wrap items-baseline gap-4 ${dir === "rtl" ? "flex-row-reverse" : ""}`}>
                 <span className="font-serif text-5xl text-flame-700 leading-none">{m.number}</span>
@@ -131,7 +131,7 @@ export default function GospelView() {
           <h2 className="font-serif text-2xl md:text-3xl text-ink-900">{t.next.heading}</h2>
           <div className="mt-6 grid sm:grid-cols-2 gap-4">
             {t.next.steps.map((s, i) => (
-              <div key={s.title} className="rounded-2xl bg-white border border-ink-200 p-5">
+              <div key={s.title} className="rounded-2xl bg-card border border-ink-200 p-5">
                 <div className={`flex items-baseline gap-3 ${dir === "rtl" ? "flex-row-reverse" : ""}`}>
                   <span className="font-serif text-flame-700 text-2xl leading-none">
                     {String(i + 1).padStart(2, "0")}

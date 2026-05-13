@@ -149,7 +149,7 @@ export default function TodayDashboard() {
 
   if (!mounted) {
     return (
-      <div className="rounded-3xl border border-ink-200 bg-white p-8 glow-ring text-ink-500">
+      <div className="rounded-3xl border border-ink-200 bg-card p-8 glow-ring text-ink-500">
         Loading your rhythm…
       </div>
     );
@@ -192,7 +192,7 @@ export default function TodayDashboard() {
         </div>
       </section>
 
-      <section className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8 glow-ring">
+      <section className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8 glow-ring">
         <div className="text-xs uppercase tracking-widest text-flame-700">Today's next step</div>
         <p className="mt-2 font-serif text-2xl md:text-3xl text-ink-900 leading-snug">
           {nextStep.label}
@@ -206,7 +206,7 @@ export default function TodayDashboard() {
       </section>
 
       {dailyVerse && (
-        <section className="rounded-3xl border border-flame-300 bg-gradient-to-br from-flame-50 to-white p-6 md:p-8 glow-ring">
+        <section className="rounded-3xl border border-flame-300 bg-gradient-to-br from-flame-50 to-card p-6 md:p-8 glow-ring">
           <div className="text-xs uppercase tracking-widest text-flame-700">
             Today's verse · {transMeta.WEB.abbrev}
           </div>
@@ -227,7 +227,7 @@ export default function TodayDashboard() {
         </section>
       )}
 
-      <section className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8 glow-ring">
+      <section className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8 glow-ring">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <div>
             <div className="text-xs uppercase tracking-widest text-flame-700">
@@ -254,7 +254,7 @@ export default function TodayDashboard() {
       <PrayingForList />
 
       <div className="grid md:grid-cols-2 gap-5">
-        <section className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8" lang={locale} dir={dir}>
+        <section className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8" lang={locale} dir={dir}>
           <div className="text-xs uppercase tracking-widest text-flame-700">Today's Word</div>
           <h2 className="font-serif text-2xl text-ink-900 mt-1">
             {activePlanLocalName} · Day {nextReading.day}
@@ -284,7 +284,7 @@ export default function TodayDashboard() {
         </section>
 
         <section
-          className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8"
+          className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8"
           lang={locale}
           dir={dir}
         >
@@ -310,7 +310,7 @@ export default function TodayDashboard() {
 
       <Link
         href="/pray/nations"
-        className="block rounded-3xl overflow-hidden border border-ink-200 bg-white glow-ring hover:border-flame-500 transition-colors"
+        className="block rounded-3xl overflow-hidden border border-ink-200 bg-card glow-ring hover:border-flame-500 transition-colors"
         dir="ltr"
       >
         <div className="relative aspect-[16/7] bg-ink-800">

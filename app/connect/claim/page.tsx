@@ -47,7 +47,7 @@ export default function ClaimPage() {
 
 function Step({ n, t, b }: { n: string; t: string; b: string }) {
   return (
-    <div className="rounded-2xl bg-white border border-ink-200 p-5">
+    <div className="rounded-2xl bg-card border border-ink-200 p-5">
       <div className="font-serif text-flame-700 text-2xl leading-none">{n}</div>
       <div className="font-serif text-ink-900 mt-2">{t}</div>
       <p className="text-xs text-ink-600 mt-1.5 leading-relaxed">{b}</p>

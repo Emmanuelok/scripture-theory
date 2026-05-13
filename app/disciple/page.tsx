@@ -50,7 +50,7 @@ export default function DisciplePage() {
         {stages.map((s) => (
           <li
             key={s.stage}
-            className="grid grid-cols-[auto_1fr] gap-5 rounded-2xl bg-white border border-ink-200 p-5"
+            className="grid grid-cols-[auto_1fr] gap-5 rounded-2xl bg-card border border-ink-200 p-5"
           >
             <div className="font-serif text-flame-700 text-3xl w-14 text-center leading-none pt-1">
               {String(s.stage).padStart(2, "0")}
@@ -69,19 +69,19 @@ export default function DisciplePage() {
       <div className="mt-14 rounded-2xl border border-ink-200 bg-ink-50 p-6 md:p-8">
         <h2 className="font-serif text-2xl text-ink-900">How The Path is different</h2>
         <ul className="mt-4 grid md:grid-cols-2 gap-3 text-sm text-ink-700">
-          <li className="rounded-xl bg-white border border-ink-200 p-4">
+          <li className="rounded-xl bg-card border border-ink-200 p-4">
             <strong className="text-ink-900">Measurable.</strong> Every stage has an observable
             sign — not a quiz score.
           </li>
-          <li className="rounded-xl bg-white border border-ink-200 p-4">
+          <li className="rounded-xl bg-card border border-ink-200 p-4">
             <strong className="text-ink-900">Embodied.</strong> Stages 3, 7, 8, 11, 12 cannot be
             completed alone or online.
           </li>
-          <li className="rounded-xl bg-white border border-ink-200 p-4">
+          <li className="rounded-xl bg-card border border-ink-200 p-4">
             <strong className="text-ink-900">Local-church first.</strong> A real pastor confirms
             stage 3 and stage 7. We don't.
           </li>
-          <li className="rounded-xl bg-white border border-ink-200 p-4">
+          <li className="rounded-xl bg-card border border-ink-200 p-4">
             <strong className="text-ink-900">Inter-denominational.</strong> Each stage offers
             expressions from multiple traditions.
           </li>

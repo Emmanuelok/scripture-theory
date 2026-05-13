@@ -115,7 +115,7 @@ export default function MemoryTrainer({ initialVerseId }: { initialVerseId?: str
 
       <TrainerCard verse={verse} level={level} record={record} mounted={mounted} />
 
-      <div className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8">
+      <div className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <div className="text-xs uppercase tracking-widest text-flame-700">Practice level</div>
@@ -184,7 +184,7 @@ export default function MemoryTrainer({ initialVerseId }: { initialVerseId?: str
           placeholder="Search reference or text…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          className="w-full rounded-xl border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-flame-300"
+          className="w-full rounded-xl border border-ink-200 bg-card px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-flame-300"
         />
         <ul className="mt-4 grid sm:grid-cols-2 gap-2">
           {filtered.map((v) => {
@@ -197,7 +197,7 @@ export default function MemoryTrainer({ initialVerseId }: { initialVerseId?: str
                   className={`w-full text-left rounded-xl border px-3 py-2.5 transition-colors text-sm ${
                     isActive
                       ? "bg-ink-900 text-ink-50 border-ink-900"
-                      : "bg-white border-ink-200 hover:border-flame-500 text-ink-900"
+                      : "bg-card border-ink-200 hover:border-flame-500 text-ink-900"
                   }`}
                 >
                   <div className="flex items-baseline justify-between gap-2">
@@ -241,7 +241,7 @@ function TrainerCard({
   mounted: boolean;
 }) {
   return (
-    <div className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8 glow-ring">
+    <div className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8 glow-ring">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <div>
           <span className="text-xs uppercase tracking-widest text-flame-700">
@@ -400,7 +400,7 @@ function FilterPill({
       className={`rounded-full px-3 py-1 text-xs border transition-colors ${
         active
           ? "bg-ink-900 text-ink-50 border-ink-900"
-          : "bg-white text-ink-700 border-ink-200 hover:border-ink-400"
+          : "bg-card text-ink-700 border-ink-200 hover:border-ink-400"
       }`}
     >
       {children}

@@ -1,9 +1,9 @@
 import Link from "next/link";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const links = [
   { href: "/today", label: "Today" },
   { href: "/bible", label: "Bible" },
-  { href: "/gospel", label: "Gospel" },
   { href: "/memory", label: "Memory" },
   { href: "/pray", label: "Pray" },
   { href: "/witness", label: "Witness" },
@@ -31,12 +31,12 @@ export default function Nav() {
             </li>
           ))}
         </ul>
-        <div className="hidden md:flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <Link
             href="/search"
             className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-ink-200 text-ink-600 hover:border-ink-900 hover:text-ink-900 transition-colors"
             aria-label="Search"
-            title="Search the platform"
+            title="Search"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -52,11 +52,12 @@ export default function Nav() {
               <path d="m20 20-3.5-3.5" />
             </svg>
           </Link>
+          <ThemeToggle />
           <Link
             href="/start"
-            className="inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-4 py-1.5 text-sm hover:bg-flame-700 transition-colors"
+            className="hidden md:inline-flex items-center rounded-full bg-flame-600 text-white px-4 py-1.5 text-sm hover:bg-flame-700 transition-colors"
           >
-            Start here
+            Start
           </Link>
         </div>
       </nav>

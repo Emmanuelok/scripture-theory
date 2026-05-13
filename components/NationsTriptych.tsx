@@ -31,7 +31,7 @@ export default function NationsTriptych() {
         />
       </div>
 
-      <div className="rounded-2xl border border-ink-200 bg-white p-5">
+      <div className="rounded-2xl border border-ink-200 bg-card p-5">
         <div className="text-xs uppercase tracking-widest text-flame-700">
           On the rotation this week
         </div>
@@ -73,7 +73,7 @@ function SidewardCard({
   return (
     <Link
       href={`/pray/nations/${iso.toLowerCase()}`}
-      className="block rounded-2xl border border-ink-200 bg-white p-5 hover:border-flame-500 transition-colors"
+      className="block rounded-2xl border border-ink-200 bg-card p-5 hover:border-flame-500 transition-colors"
     >
       <div
         className={`text-xs uppercase tracking-widest text-flame-700 ${

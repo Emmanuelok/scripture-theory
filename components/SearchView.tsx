@@ -51,7 +51,7 @@ export default function SearchView() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-3xl border border-ink-200 bg-white p-5 md:p-7 glow-ring">
+      <div className="rounded-3xl border border-ink-200 bg-card p-5 md:p-7 glow-ring">
         <label className="block">
           <span className="text-xs uppercase tracking-widest text-ink-400">
             Search across the platform
@@ -76,7 +76,7 @@ export default function SearchView() {
                 className={`rounded-full px-3 py-1 text-xs border transition-colors ${
                   on
                     ? `${KIND_COLOR[k]} border-transparent`
-                    : "bg-white text-ink-400 border-ink-200 hover:border-ink-400"
+                    : "bg-card text-ink-400 border-ink-200 hover:border-ink-400"
                 }`}
                 aria-pressed={on}
               >
@@ -96,7 +96,7 @@ export default function SearchView() {
               <button
                 key={s}
                 onClick={() => setQ(s)}
-                className="rounded-full bg-white border border-ink-200 px-3 py-1 text-sm text-ink-700 hover:border-flame-500"
+                className="rounded-full bg-card border border-ink-200 px-3 py-1 text-sm text-ink-700 hover:border-flame-500"
               >
                 {s}
               </button>
@@ -116,7 +116,7 @@ export default function SearchView() {
       )}
 
       {q && results.length === 0 && (
-        <div className="rounded-2xl border border-ink-200 bg-white p-8 text-center text-ink-600">
+        <div className="rounded-2xl border border-ink-200 bg-card p-8 text-center text-ink-600">
           No matches yet. The platform is small at pilot — try a Bible reference, a city, a
           tradition, or a topic like "hope" or "forgiveness".
         </div>
@@ -138,7 +138,7 @@ function Result({ r }: { r: SearchResult }) {
     <li>
       <Link
         href={r.href}
-        className="block rounded-2xl border border-ink-200 bg-white p-5 hover:border-flame-500 transition-colors"
+        className="block rounded-2xl border border-ink-200 bg-card p-5 hover:border-flame-500 transition-colors"
       >
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <span className={`inline-flex rounded-full px-2.5 py-0.5 text-[11px] ${KIND_COLOR[r.kind]}`}>

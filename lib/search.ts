@@ -5,7 +5,7 @@ import { churches, cities, traditionLabels } from "@/data/churches";
 import { gospelMovements } from "@/data/gospel";
 import { testimonies } from "@/data/testimonies";
 import { canon } from "@/data/bible/canon";
-import { loadedChaptersOf, getChapter } from "@/lib/bible";
+import { seedChaptersOf, getChapterSync } from "@/lib/bible";
 
 export type SearchKind =
   | "scripture"
@@ -165,8 +165,8 @@ function buildIndex(): Indexed[] {
 
   // Loaded Bible chapters (seed + any ingested)
   for (const book of canon) {
-    for (const ch of loadedChaptersOf(book.id)) {
-      const chapter = getChapter(book.id, ch);
+    for (const ch of seedChaptersOf(book.id)) {
+      const chapter = getChapterSync(book.id, ch);
       if (!chapter) continue;
       const fullText = chapter.verses.map((v) => `${v.v} ${v.t}`).join(" ");
       const preview = chapter.verses.slice(0, 2).map((v) => v.t).join(" ");

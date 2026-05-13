@@ -80,7 +80,7 @@ export default function NationOfTheDay({
   const anchorHref = showAnchorLink ? referenceHref(nation.verse.ref) : null;
 
   return (
-    <article className="rounded-3xl overflow-hidden border border-ink-200 bg-white glow-ring">
+    <article className="rounded-3xl overflow-hidden border border-ink-200 bg-card glow-ring">
       {/* Hero with flag */}
       <div className="relative bg-ink-900 text-ink-50">
         <div className="relative aspect-[16/9] md:aspect-[5/2] overflow-hidden bg-ink-800">

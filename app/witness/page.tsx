@@ -33,7 +33,7 @@ export default function WitnessPage() {
         {testimonies.map((t) => (
           <li
             key={t.name + t.place}
-            className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8 glow-ring"
+            className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8 glow-ring"
           >
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h2 className="font-serif text-2xl text-ink-900">
@@ -62,7 +62,7 @@ export default function WitnessPage() {
 
         <ol className="mt-8 grid md:grid-cols-2 gap-4">
           {sharePrompts.map((p, i) => (
-            <li key={p.title} className="rounded-2xl border border-ink-200 bg-white p-5">
+            <li key={p.title} className="rounded-2xl border border-ink-200 bg-card p-5">
               <div className="flex items-baseline gap-3">
                 <span className="font-serif text-flame-700 text-2xl leading-none">
                   {String(i + 1).padStart(2, "0")}

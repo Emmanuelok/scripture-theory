@@ -141,7 +141,7 @@ export default function TestimonyForm() {
         e.preventDefault();
         if (isReady) setSubmitted(true);
       }}
-      className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8 glow-ring space-y-6"
+      className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8 glow-ring space-y-6"
     >
       <Field label="First name" required>
         <input
@@ -255,7 +255,7 @@ export default function TestimonyForm() {
       </button>
     </form>
   ) : (
-    <div className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8 glow-ring">
+    <div className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8 glow-ring">
       <div className="text-xs uppercase tracking-widest text-flame-700">Final step</div>
       <h3 className="font-serif text-2xl text-ink-900 mt-1">Send your testimony</h3>
       <p className="text-sm text-ink-600 mt-2">

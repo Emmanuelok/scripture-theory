@@ -25,7 +25,7 @@ export default function VerseLens() {
 
   return (
     <div className="space-y-8">
-      <div className="rounded-2xl border border-ink-200 bg-white p-5 md:p-7 glow-ring">
+      <div className="rounded-2xl border border-ink-200 bg-card p-5 md:p-7 glow-ring">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs uppercase tracking-widest text-ink-400">Choose a passage</span>
           <span className="ml-auto text-xs text-ink-400">
@@ -49,7 +49,7 @@ export default function VerseLens() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-ink-200 bg-white p-6 md:p-8 glow-ring">
+      <div className="rounded-2xl border border-ink-200 bg-card p-6 md:p-8 glow-ring">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="font-serif text-2xl md:text-3xl text-ink-900">{passage.reference}</h2>
           <span className="text-xs uppercase tracking-widest text-ink-400">{passage.translation}</span>
@@ -57,7 +57,7 @@ export default function VerseLens() {
         <p className="prose-scripture mt-4 text-ink-800">{passage.text}</p>
       </div>
 
-      <div className="rounded-3xl border border-flame-200 bg-gradient-to-br from-flame-50 to-white p-6 md:p-8 glow-ring">
+      <div className="rounded-3xl border border-flame-200 bg-gradient-to-br from-flame-50 to-card p-6 md:p-8 glow-ring">
         <div className="text-xs uppercase tracking-widest text-flame-700">How this points to Jesus</div>
         <p className="mt-2 font-serif text-xl md:text-2xl text-ink-900 leading-snug">
           {passage.christCentered}
@@ -76,7 +76,7 @@ export default function VerseLens() {
         <InfoTile title="Original-language note" body={passage.literal} />
       </div>
 
-      <div className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8">
+      <div className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8">
         <button
           onClick={() => setShowHistory((v) => !v)}
           className="w-full flex items-center justify-between gap-3 text-left"
@@ -120,7 +120,7 @@ export default function VerseLens() {
                         className={`rounded-full px-3 py-1 text-xs border transition-colors ${
                           on
                             ? `${t.color} border-transparent`
-                            : "bg-white text-ink-400 border-ink-200 hover:border-ink-400"
+                            : "bg-card text-ink-400 border-ink-200 hover:border-ink-400"
                         }`}
                         aria-pressed={on}
                       >
@@ -140,7 +140,7 @@ export default function VerseLens() {
                   return (
                     <article
                       key={r.tradition}
-                      className="rounded-2xl border border-ink-200 bg-white p-6"
+                      className="rounded-2xl border border-ink-200 bg-card p-6"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs ${t.color}`}>

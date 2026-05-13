@@ -5,16 +5,21 @@ import { getChapter, isLoaded, availableTranslations } from "@/lib/bible";
 import BibleChapter from "@/components/BibleChapter";
 import type { ChapterText } from "@/data/bible/seed";
 import type { TranslationId } from "@/data/bible/translations";
-import { translations as transMeta, translationOrder } from "@/data/bible/translations";
+import { translationOrder } from "@/data/bible/translations";
 
-export function generateStaticParams() {
-  const out: { book: string; chapter: string }[] = [];
-  for (const b of canon) {
-    for (let c = 1; c <= b.chapters; c++) {
-      out.push({ book: b.id, chapter: String(c) });
-    }
-  }
-  return out;
+export const revalidate = 86400;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ book: string; chapter: string }>;
+}) {
+  const { book, chapter } = await params;
+  const meta = getBook(book);
+  return {
+    title: meta ? `${meta.name} ${chapter} — Scripture Theory` : "The Bible — Scripture Theory",
+    description: `Read ${meta?.name ?? "Scripture"} ${chapter} in multiple authentic public-domain translations.`,
+  };
 }
 
 export default async function ChapterPage({
@@ -29,9 +34,13 @@ export default async function ChapterPage({
   if (Number.isNaN(chapter) || chapter < 1 || chapter > book.chapters) notFound();
 
   const available = availableTranslations(book.id, chapter);
+
+  // Fetch the WEB chapter eagerly (the default view). Other translations are
+  // fetched on-demand by the client component when the user switches to them.
+  const initial = await getChapter(book.id, chapter, "WEB");
   const chaptersByTranslation = {} as Record<TranslationId, ChapterText | undefined>;
   for (const t of translationOrder) {
-    chaptersByTranslation[t] = getChapter(book.id, chapter, t);
+    chaptersByTranslation[t] = t === "WEB" ? initial : undefined;
   }
 
   const prev = computeNeighbor(book.id, chapter, -1);
@@ -49,13 +58,12 @@ export default async function ChapterPage({
         {book.name} {chapter}
       </h1>
       <p className="mt-2 text-sm text-ink-500">
-        {available.length > 0
-          ? `${available.length} authentic translation${available.length === 1 ? "" : "s"} available · all public domain`
-          : "Not yet ingested"}
+        {available.length} authentic translation{available.length === 1 ? "" : "s"} available · all
+        public domain
       </p>
 
       <div className="mt-8">
-        {available.length > 0 ? (
+        {initial ? (
           <BibleChapter
             chapters={chaptersByTranslation}
             bookId={book.id}
@@ -66,38 +74,25 @@ export default async function ChapterPage({
             next={next}
           />
         ) : (
-          <NotIngested book={book.name} chapter={chapter} />
+          <FetchFailure book={book.name} chapter={chapter} />
         )}
       </div>
     </section>
   );
 }
 
-function NotIngested({ book, chapter }: { book: string; chapter: number }) {
+function FetchFailure({ book, chapter }: { book: string; chapter: number }) {
   return (
-    <div className="rounded-3xl border border-ink-200 bg-white p-8 glow-ring">
-      <div className="text-xs uppercase tracking-widest text-flame-700">Not yet ingested</div>
-      <h2 className="font-serif text-2xl text-ink-900 mt-2">
-        {book} {chapter} is part of the canon — it just isn't loaded in this build yet.
+    <div className="rounded-3xl border border-amber-200 bg-amber-50 p-8 text-amber-900">
+      <div className="text-xs uppercase tracking-widest text-amber-700">
+        Couldn't reach the upstream just now
+      </div>
+      <h2 className="font-serif text-2xl mt-2">
+        {book} {chapter} should be here.
       </h2>
-      <p className="mt-3 text-ink-700 leading-relaxed">
-        Every Bible served here is an <em>authentic, published, public-domain translation</em> — no
-        machine translation. To fill in more of the canon and more translations, run the ingestion
-        script:
-      </p>
-      <pre className="mt-3 rounded-xl bg-ink-900 text-ink-50 p-4 text-sm overflow-x-auto">
-{`# from the project root
-npm run ingest-bible
-# or restrict to one translation:
-npm run ingest-bible -- --translations=kjv
-# or one book in many translations:
-npm run ingest-bible -- --books=psalms`}
-      </pre>
-      <p className="mt-3 text-sm text-ink-500 leading-relaxed">
-        It fetches authentic public-domain editions from
-        {" "}<code className="bg-ink-100 px-1.5 py-0.5 rounded">bible-api.com</code>{" "}
-        (WEB, KJV, ASV, BBE, YLT, Darby, Douay-Rheims, Almeida) and writes
-        {" "}<code className="bg-ink-100 px-1.5 py-0.5 rounded">data/bible/text.ts</code>.
+      <p className="mt-3 text-sm leading-relaxed">
+        The Bible is fetched live from <code className="bg-amber-100 px-1.5 py-0.5 rounded">bible-api.com</code>
+        {" "}(public-domain). The request failed this time. Try again in a moment, or refresh.
       </p>
     </div>
   );

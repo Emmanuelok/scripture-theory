@@ -61,7 +61,7 @@ export default function BiblePage() {
               <li
                 key={id}
                 className={`rounded-2xl border p-4 ${
-                  hasSeed ? "bg-white border-ink-200" : "bg-ink-50 border-ink-200"
+                  hasSeed ? "bg-card border-ink-200" : "bg-ink-50 border-ink-200"
                 }`}
               >
                 <div className="flex items-baseline justify-between gap-2">
@@ -125,7 +125,7 @@ function Testament({ name, books }: { name: string; books: typeof canon }) {
                 href={`/bible/${b.id}`}
                 className={`block rounded-xl border p-3 transition-colors ${
                   hasText
-                    ? "border-ink-200 bg-white hover:border-flame-500"
+                    ? "border-ink-200 bg-card hover:border-flame-500"
                     : "border-ink-200 bg-ink-50 text-ink-500 hover:border-ink-400"
                 }`}
               >
@@ -150,7 +150,7 @@ function Testament({ name, books }: { name: string; books: typeof canon }) {
 
 function Stat({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
-    <div className="rounded-2xl border border-ink-200 bg-white p-5">
+    <div className="rounded-2xl border border-ink-200 bg-card p-5">
       <div className="text-xs uppercase tracking-widest text-flame-700">{label}</div>
       <div className="font-serif text-ink-900 text-lg mt-1">{value}</div>
       <div className="text-xs text-ink-500 mt-0.5">{sub}</div>

@@ -87,7 +87,7 @@ export default function ReadingPlanView() {
               className={`rounded-full px-4 py-2 text-sm border transition-colors ${
                 p.id === activeId
                   ? "bg-ink-900 text-ink-50 border-ink-900"
-                  : "bg-white text-ink-700 border-ink-200 hover:border-ink-400"
+                  : "bg-card text-ink-700 border-ink-200 hover:border-ink-400"
               }`}
               lang={locale}
             >
@@ -98,7 +98,7 @@ export default function ReadingPlanView() {
       </div>
 
       <div
-        className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8 glow-ring"
+        className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8 glow-ring"
         dir={dir}
         lang={locale}
       >
@@ -171,7 +171,7 @@ export default function ReadingPlanView() {
                   className={`w-full text-left rounded-xl border px-3 py-2 transition-colors text-sm ${
                     isDone
                       ? "bg-emerald-50 border-emerald-200 text-emerald-900"
-                      : "bg-white border-ink-200 hover:border-ink-400 text-ink-800"
+                      : "bg-card border-ink-200 hover:border-ink-400 text-ink-800"
                   }`}
                   lang={locale}
                   dir={dir}

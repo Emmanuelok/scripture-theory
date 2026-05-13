@@ -57,13 +57,15 @@ export default function BibleChapter({
   prev: { book: string; chapter: number; bookName: string } | null;
   next: { book: string; chapter: number; bookName: string } | null;
 }) {
-  const [translationId, setTranslationId] = useState<TranslationId>(available[0]);
+  const [translationId, setTranslationId] = useState<TranslationId>(available[0] ?? "WEB");
   const [marks, setMarks] = useState<Marks>({ highlights: [], bookmarks: [], notes: {} });
   const [activeVerse, setActiveVerse] = useState<number | null>(null);
   const [noteDraft, setNoteDraft] = useState("");
   const [copied, setCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [compareIds, setCompareIds] = useState<TranslationId[]>([]);
+  const [fetched, setFetched] = useState<Partial<Record<TranslationId, ChapterText>>>({});
+  const [loadingTranslation, setLoadingTranslation] = useState<TranslationId | null>(null);
 
   useEffect(() => {
     setMarks(loadMarks());
@@ -73,6 +75,32 @@ export default function BibleChapter({
     }
     setMounted(true);
   }, [available]);
+
+  // Fetch the active translation if not provided + not yet fetched.
+  useEffect(() => {
+    if (!mounted) return;
+    if (chapters[translationId] || fetched[translationId]) return;
+    let cancelled = false;
+    setLoadingTranslation(translationId);
+    fetch(`/api/bible/${translationId}/${bookId}/${chapterNum}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled) return;
+        if (data && data.verses) {
+          setFetched((prev) => ({
+            ...prev,
+            [translationId]: { book: bookId, chapter: chapterNum, translation: translationId, verses: data.verses },
+          }));
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setLoadingTranslation((cur) => (cur === translationId ? null : cur));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [translationId, bookId, chapterNum, chapters, fetched, mounted]);
 
   function pickTranslation(t: TranslationId) {
     setTranslationId(t);
@@ -85,7 +113,25 @@ export default function BibleChapter({
     setCompareIds((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
   }
 
-  const chapter = chapters[translationId];
+  // When a comparison translation is selected, fetch it too.
+  useEffect(() => {
+    for (const id of compareIds) {
+      if (chapters[id] || fetched[id]) continue;
+      fetch(`/api/bible/${id}/${bookId}/${chapterNum}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data && data.verses) {
+            setFetched((prev) => ({
+              ...prev,
+              [id]: { book: bookId, chapter: chapterNum, translation: id, verses: data.verses },
+            }));
+          }
+        })
+        .catch(() => {});
+    }
+  }, [compareIds, chapters, fetched, bookId, chapterNum]);
+
+  const chapter = chapters[translationId] ?? fetched[translationId];
   const meta = translations[translationId];
 
   const lensMatch = useMemo(() => {
@@ -137,14 +183,12 @@ export default function BibleChapter({
     } catch {}
   }
 
-  if (!chapter) return null;
-
   return (
     <article className="space-y-6">
-      <div className="rounded-2xl border border-ink-200 bg-ink-50/60 p-4">
+      <div className="rounded-2xl border border-ink-200 bg-card-subtle p-4">
         <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
           <div className="text-xs uppercase tracking-widest text-ink-500">
-            Translation · {available.length} available for this chapter
+            Translation · {available.length} available
           </div>
           <div className="text-xs text-ink-500">
             {meta.publisher} · {meta.year} · {meta.license}
@@ -161,14 +205,12 @@ export default function BibleChapter({
                 className={`rounded-full px-3 py-1 text-xs border transition-colors ${
                   active
                     ? "bg-ink-900 text-ink-50 border-ink-900"
-                    : "bg-white text-ink-700 border-ink-200 hover:border-ink-400"
+                    : "bg-card text-ink-700 border-ink-200 hover:border-ink-400"
                 }`}
                 title={`${t.name} · ${t.languageNative}`}
               >
                 <span className="font-medium">{t.abbrev}</span>{" "}
-                <span className={active ? "text-ink-300" : "text-ink-500"}>
-                  · {t.languageNative}
-                </span>
+                <span className={active ? "opacity-70" : "text-ink-500"}>· {t.languageNative}</span>
               </button>
             );
           })}
@@ -176,49 +218,49 @@ export default function BibleChapter({
       </div>
 
       <div
-        className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8 glow-ring"
+        className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8 glow-ring"
         lang={meta.language.toLowerCase().slice(0, 2)}
       >
-        <div className="prose-scripture text-ink-900">
-          {chapter.verses.map((verse) => {
-            const key = verseKey(translationId, bookId, chapterNum, verse.v);
-            const isHi = mounted && marks.highlights.includes(key);
-            const isBk = mounted && marks.bookmarks.includes(key);
-            const hasNote = mounted && Boolean(marks.notes[key]);
-            return (
-              <span
-                key={verse.v}
-                id={`v${verse.v}`}
-                className={`group cursor-pointer scroll-mt-24 ${
-                  isHi ? "bg-flame-100/80 rounded px-1 -mx-1" : ""
-                }`}
-                onClick={() => {
-                  setActiveVerse(activeVerse === verse.v ? null : verse.v);
-                  setNoteDraft(marks.notes[key] ?? "");
-                }}
-              >
-                <sup className="text-[11px] text-flame-700 font-sans font-medium align-super mr-0.5 select-none">
-                  {verse.v}
-                </sup>
-                <span className="leading-relaxed">{verse.t}</span>
-                {isBk && (
-                  <span className="text-flame-600 ml-1 select-none" aria-label="bookmarked">
-                    ★
-                  </span>
-                )}
-                {hasNote && (
-                  <span className="text-emerald-600 ml-1 select-none" aria-label="has note">
-                    ✎
-                  </span>
-                )}{" "}
-              </span>
-            );
-          })}
-        </div>
+        {chapter ? (
+          <div className="prose-scripture text-ink-900">
+            {chapter.verses.map((verse) => {
+              const key = verseKey(translationId, bookId, chapterNum, verse.v);
+              const isHi = mounted && marks.highlights.includes(key);
+              const isBk = mounted && marks.bookmarks.includes(key);
+              const hasNote = mounted && Boolean(marks.notes[key]);
+              return (
+                <span
+                  key={verse.v}
+                  id={`v${verse.v}`}
+                  className={`group cursor-pointer scroll-mt-24 ${
+                    isHi ? "bg-flame-100/80 rounded px-1 -mx-1" : ""
+                  }`}
+                  onClick={() => {
+                    setActiveVerse(activeVerse === verse.v ? null : verse.v);
+                    setNoteDraft(marks.notes[key] ?? "");
+                  }}
+                >
+                  <sup className="text-[11px] text-flame-700 font-sans font-medium align-super mr-0.5 select-none">
+                    {verse.v}
+                  </sup>
+                  <span className="leading-relaxed">{verse.t}</span>
+                  {isBk && (
+                    <span className="text-flame-600 ml-1 select-none" aria-label="bookmarked">★</span>
+                  )}
+                  {hasNote && (
+                    <span className="text-emerald-600 ml-1 select-none" aria-label="has note">✎</span>
+                  )}{" "}
+                </span>
+              );
+            })}
+          </div>
+        ) : (
+          <ChapterSkeleton />
+        )}
       </div>
 
       {available.length > 1 && (
-        <details className="rounded-3xl border border-ink-200 bg-white p-6">
+        <details className="rounded-3xl border border-ink-200 bg-card p-6">
           <summary className="cursor-pointer text-sm text-ink-700 hover:text-flame-700">
             Compare side-by-side ({available.length - 1} other{" "}
             {available.length - 1 === 1 ? "translation" : "translations"} available)
@@ -237,7 +279,7 @@ export default function BibleChapter({
                       className={`rounded-full px-3 py-1 text-xs border transition-colors ${
                         on
                           ? "bg-ink-900 text-ink-50 border-ink-900"
-                          : "bg-white text-ink-700 border-ink-200 hover:border-ink-400"
+                          : "bg-card text-ink-700 border-ink-200 hover:border-ink-400"
                       }`}
                     >
                       {t.abbrev} · {t.languageNative}
@@ -248,9 +290,8 @@ export default function BibleChapter({
             {compareIds.length > 0 && (
               <div className="space-y-4">
                 {compareIds.map((id) => {
-                  const cText = chapters[id];
+                  const cText = chapters[id] ?? fetched[id];
                   const m = translations[id];
-                  if (!cText) return null;
                   return (
                     <div
                       key={id}
@@ -260,14 +301,18 @@ export default function BibleChapter({
                       <div className="text-xs uppercase tracking-widest text-flame-700 mb-2">
                         {m.name} · {m.year}
                       </div>
-                      <div className="prose-scripture text-ink-800 text-sm">
-                        {cText.verses.map((v) => (
-                          <span key={v.v}>
-                            <sup className="text-[10px] text-flame-700 mr-0.5">{v.v}</sup>
-                            <span>{v.t}</span>{" "}
-                          </span>
-                        ))}
-                      </div>
+                      {cText ? (
+                        <div className="prose-scripture text-ink-800 text-sm">
+                          {cText.verses.map((v) => (
+                            <span key={v.v}>
+                              <sup className="text-[10px] text-flame-700 mr-0.5">{v.v}</sup>
+                              <span>{v.t}</span>{" "}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-xs text-ink-500 italic">Loading…</div>
+                      )}
                     </div>
                   );
                 })}
@@ -277,7 +322,7 @@ export default function BibleChapter({
         </details>
       )}
 
-      {mounted && activeVerse !== null && (
+      {mounted && activeVerse !== null && chapter && (
         <div
           className="rounded-3xl border border-flame-300 bg-flame-50/50 p-5 md:p-6 sticky bottom-4"
           role="dialog"
@@ -341,7 +386,7 @@ export default function BibleChapter({
               onChange={(e) => setNoteDraft(e.target.value)}
               rows={3}
               placeholder="What is the Spirit saying to you here?"
-              className="mt-1.5 w-full rounded-xl border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-flame-300"
+              className="mt-1.5 w-full rounded-xl border border-ink-200 bg-card px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-flame-300"
             />
             <div className="mt-2 flex gap-2">
               <button
@@ -389,6 +434,24 @@ export default function BibleChapter({
           </Link>
         )}
       </div>
+
+      {loadingTranslation && (
+        <div className="fixed bottom-5 right-5 rounded-full bg-ink-900 text-ink-50 px-4 py-2 text-xs shadow-lg">
+          Loading {translations[loadingTranslation].abbrev}…
+        </div>
+      )}
     </article>
+  );
+}
+
+function ChapterSkeleton() {
+  return (
+    <div className="space-y-3 animate-pulse">
+      <div className="h-4 bg-ink-100 rounded w-full" />
+      <div className="h-4 bg-ink-100 rounded w-11/12" />
+      <div className="h-4 bg-ink-100 rounded w-10/12" />
+      <div className="h-4 bg-ink-100 rounded w-full" />
+      <div className="h-4 bg-ink-100 rounded w-9/12" />
+    </div>
   );
 }

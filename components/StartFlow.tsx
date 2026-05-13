@@ -57,7 +57,7 @@ export default function StartFlow() {
                 <li key={s}>
                   <button
                     onClick={() => chooseStage(s)}
-                    className="w-full text-left rounded-2xl border border-ink-200 bg-white p-5 hover:border-flame-500 transition-colors"
+                    className="w-full text-left rounded-2xl border border-ink-200 bg-card p-5 hover:border-flame-500 transition-colors"
                   >
                     <div className="font-serif text-xl text-ink-900">{info.label}</div>
                     <div className="text-sm text-ink-600 mt-1">{info.tagline}</div>
@@ -97,7 +97,7 @@ export default function StartFlow() {
                     className={`w-full text-left rounded-2xl border p-4 transition-colors ${
                       active
                         ? "bg-ink-900 text-ink-50 border-ink-900"
-                        : "bg-white text-ink-900 border-ink-200 hover:border-flame-500"
+                        : "bg-card text-ink-900 border-ink-200 hover:border-flame-500"
                     }`}
                   >
                     <div className="font-serif text-lg" lang={code} dir={item.meta.dir}>
@@ -134,7 +134,7 @@ export default function StartFlow() {
               <li key={n.id}>
                 <button
                   onClick={() => chooseNeed(n)}
-                  className="w-full text-left rounded-2xl border border-ink-200 bg-white p-5 hover:border-flame-500 transition-colors"
+                  className="w-full text-left rounded-2xl border border-ink-200 bg-card p-5 hover:border-flame-500 transition-colors"
                 >
                   <div className="font-serif text-lg text-ink-900">{n.label}</div>
                 </button>
@@ -182,7 +182,7 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-3xl border border-ink-200 bg-white p-6 md:p-8 glow-ring">
+    <div className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8 glow-ring">
       <div className="text-xs uppercase tracking-widest text-flame-700">{eyebrow}</div>
       <h2 className="font-serif text-3xl md:text-4xl mt-2 text-ink-900 leading-tight">{title}</h2>
       <div className="mt-4">{children}</div>
