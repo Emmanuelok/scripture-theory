@@ -73,7 +73,7 @@ function uniqueDates(iso: string[] | undefined) {
 }
 
 export default function MeDashboard() {
-  const { profile, mounted } = useProfile();
+  const { profile, update, mounted } = useProfile();
   const [planProgress, setPlanProgress] = useState<PlanProgress>({});
   const [bibleMarks, setBibleMarks] = useState<BibleMarks>({});
 
@@ -100,7 +100,7 @@ export default function MeDashboard() {
   const locale = (profile.locale ?? "en") as LocaleCode;
   const dir = locales[locale].meta.dir;
   const sp = profile.secretPlace;
-  const alias = sp?.alias?.trim();
+  const displayName = profile.name?.trim() || sp?.alias?.trim();
   const stage = profile.stage;
   const stageMeta = stage ? stageInfo[stage] : undefined;
   const journeyDays = daysBetween(profile.startedAt ?? sp?.startedAt);
@@ -111,12 +111,13 @@ export default function MeDashboard() {
   return (
     <div className="space-y-6" dir={dir}>
       <HeroHeader
-        alias={alias}
+        name={displayName}
         stageLabel={stageMeta?.label}
         journeyDays={journeyDays}
         season={sp?.season}
         anchorVerse={sp?.anchorVerse}
         anchorRef={sp?.anchorRef}
+        onRename={(next) => update({ name: next.trim() || undefined })}
       />
 
       <StatGrid stats={stats} />
@@ -147,28 +148,84 @@ export default function MeDashboard() {
 /* ────────────────────────────────────────────────────────── */
 
 function HeroHeader({
-  alias,
+  name,
   stageLabel,
   journeyDays,
   season,
   anchorVerse,
   anchorRef,
+  onRename,
 }: {
-  alias?: string;
+  name?: string;
   stageLabel?: string;
   journeyDays: number;
   season?: string;
   anchorVerse?: string;
   anchorRef?: string;
+  onRename: (next: string) => void;
 }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(name ?? "");
+
+  useEffect(() => {
+    setDraft(name ?? "");
+  }, [name]);
+
+  function commit() {
+    onRename(draft);
+    setEditing(false);
+  }
+
   return (
     <section className="rounded-3xl bg-ink-900 text-ink-50 p-6 md:p-8 glow-ring">
       <div className="text-xs uppercase tracking-widest text-flame-300">
         My walk with Jesus · on this device only
       </div>
-      <h1 className="font-serif text-3xl md:text-4xl mt-2">
-        {alias ? `Hello, ${alias}.` : "Welcome back."}
-      </h1>
+      {editing ? (
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <input
+            type="text"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") commit();
+              if (e.key === "Escape") {
+                setDraft(name ?? "");
+                setEditing(false);
+              }
+            }}
+            maxLength={40}
+            autoFocus
+            placeholder="What may we call you?"
+            className="font-serif text-2xl md:text-3xl bg-ink-800 border border-ink-700 rounded-xl px-3 py-1.5 text-ink-50 focus:outline-none focus:border-flame-500"
+          />
+          <button
+            onClick={commit}
+            className="rounded-full bg-flame-600 text-ink-50 px-4 py-1.5 text-sm hover:bg-flame-700"
+          >
+            Save
+          </button>
+          <button
+            onClick={() => {
+              setDraft(name ?? "");
+              setEditing(false);
+            }}
+            className="text-sm text-ink-300 hover:text-ink-50"
+          >
+            Cancel
+          </button>
+        </div>
+      ) : (
+        <h1 className="font-serif text-3xl md:text-4xl mt-2 flex flex-wrap items-baseline gap-3">
+          <span>{name ? `Hello, ${name}.` : "Welcome back."}</span>
+          <button
+            onClick={() => setEditing(true)}
+            className="text-xs uppercase tracking-widest text-flame-300 hover:text-flame-200"
+          >
+            {name ? "Rename" : "Add your name"}
+          </button>
+        </h1>
+      )}
       <p className="mt-2 text-sm text-ink-300 max-w-2xl leading-relaxed">
         {stageLabel ? `${stageLabel}.` : "A quiet record of where He has walked with you."}{" "}
         {journeyDays > 0 && (

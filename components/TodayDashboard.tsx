@@ -164,7 +164,9 @@ export default function TodayDashboard() {
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <div>
             <div className="text-xs uppercase tracking-widest text-flame-300">
-              {greeting(now, locale)} {profile.stage && `· ${stageInfo[profile.stage].label}`}
+              {greeting(now, locale)}
+              {profile.name ? `, ${profile.name}` : ""}
+              {profile.stage && ` · ${stageInfo[profile.stage].label}`}
             </div>
             <h1 className="font-serif text-3xl md:text-4xl mt-1">
               {now.toLocaleDateString(locale === "en" ? undefined : locale, {

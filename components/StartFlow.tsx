@@ -17,23 +17,31 @@ export default function StartFlow() {
   const router = useRouter();
   const { profile, update, mounted } = useProfile();
   const [step, setStep] = useState(0);
+  const [nameDraft, setNameDraft] = useState("");
 
   useEffect(() => {
-    if (mounted && profile.stage) {
-      setStep((s) => Math.max(s, 1));
-    }
-  }, [mounted, profile.stage]);
+    if (!mounted) return;
+    if (profile.name) setNameDraft(profile.name);
+    if (profile.stage) setStep((s) => Math.max(s, 2));
+    else if (profile.name) setStep((s) => Math.max(s, 1));
+  }, [mounted, profile.name, profile.stage]);
 
   const stages = (Object.keys(stageInfo) as DiscipleStage[]).filter((s) => s !== "pastor");
 
+  function saveName(skip = false) {
+    const trimmed = nameDraft.trim();
+    if (!skip && trimmed.length > 0) update({ name: trimmed });
+    setStep(1);
+  }
+
   function chooseStage(s: DiscipleStage) {
     update({ stage: s, startedAt: profile.startedAt ?? new Date().toISOString() });
-    setStep(1);
+    setStep(2);
   }
 
   function chooseLocale(code: LocaleCode) {
     update({ locale: code });
-    setStep(2);
+    setStep(3);
   }
 
   function chooseNeed(n: { id: DailyNeed; route: string }) {
@@ -46,7 +54,50 @@ export default function StartFlow() {
       <Stepper step={step} />
 
       {step === 0 && (
-        <Card eyebrow="Question 1 of 3" title="Where are you with Jesus today?">
+        <Card eyebrow="Question 1 of 4" title="What may we call you?">
+          <p className="text-ink-700 leading-relaxed">
+            The Father knows His children by name. We'd love to call you yours — it lives only on
+            this device. You can skip this if you'd rather stay anonymous.
+          </p>
+          <div className="mt-6">
+            <label className="text-xs uppercase tracking-widest text-flame-700" htmlFor="name-input">
+              First name (or any name you like)
+            </label>
+            <input
+              id="name-input"
+              type="text"
+              value={nameDraft}
+              onChange={(e) => setNameDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") saveName();
+              }}
+              placeholder="e.g. Emma"
+              maxLength={40}
+              autoFocus
+              autoComplete="given-name"
+              spellCheck={false}
+              className="mt-2 w-full rounded-2xl border border-ink-200 bg-card px-4 py-3 text-lg text-ink-900 focus:outline-none focus:border-flame-500"
+            />
+          </div>
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+            <button
+              onClick={() => saveName(true)}
+              className="text-sm text-ink-500 hover:text-ink-900"
+            >
+              Skip — keep me anonymous
+            </button>
+            <button
+              onClick={() => saveName()}
+              className="inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-5 py-2 text-sm hover:bg-flame-700"
+            >
+              Continue →
+            </button>
+          </div>
+        </Card>
+      )}
+
+      {step === 1 && (
+        <Card eyebrow="Question 2 of 4" title="Where are you with Jesus today?">
           <p className="text-ink-700 leading-relaxed">
             No wrong answer. This is just so we can meet you where you are.
           </p>
@@ -80,8 +131,8 @@ export default function StartFlow() {
         </Card>
       )}
 
-      {step === 1 && (
-        <Card eyebrow="Question 2 of 3" title="What language do you read God's Word in?">
+      {step === 2 && (
+        <Card eyebrow="Question 3 of 4" title="What language do you read God's Word in?">
           <p className="text-ink-700 leading-relaxed">
             We'll set the Gospel, the Lord's Prayer, and your daily rhythm in this language. You can
             change it anytime.
@@ -112,11 +163,11 @@ export default function StartFlow() {
             })}
           </ul>
           <div className="mt-4 flex justify-between text-sm">
-            <button onClick={() => setStep(0)} className="text-ink-500 hover:text-ink-900">
+            <button onClick={() => setStep(1)} className="text-ink-500 hover:text-ink-900">
               ← Back
             </button>
             {profile.locale && (
-              <button onClick={() => setStep(2)} className="text-flame-700 hover:underline">
+              <button onClick={() => setStep(3)} className="text-flame-700 hover:underline">
                 Continue →
               </button>
             )}
@@ -124,8 +175,8 @@ export default function StartFlow() {
         </Card>
       )}
 
-      {step === 2 && (
-        <Card eyebrow="Question 3 of 3" title="What do you need most today?">
+      {step === 3 && (
+        <Card eyebrow="Question 4 of 4" title="What do you need most today?">
           <p className="text-ink-700 leading-relaxed">
             We'll send you to the right starting point right now — and remember the rest for later.
           </p>
@@ -142,7 +193,7 @@ export default function StartFlow() {
             ))}
           </ul>
           <div className="mt-4 flex justify-between text-sm">
-            <button onClick={() => setStep(1)} className="text-ink-500 hover:text-ink-900">
+            <button onClick={() => setStep(2)} className="text-ink-500 hover:text-ink-900">
               ← Back
             </button>
           </div>
@@ -161,7 +212,7 @@ export default function StartFlow() {
 function Stepper({ step }: { step: number }) {
   return (
     <ol className="flex gap-2">
-      {[0, 1, 2].map((i) => (
+      {[0, 1, 2, 3].map((i) => (
         <li
           key={i}
           aria-current={i === step ? "step" : undefined}

@@ -293,6 +293,7 @@ export type CallingNote = {
 };
 
 export type Profile = {
+  name?: string;
   stage?: DiscipleStage;
   locale?: LocaleCode;
   need?: DailyNeed;
