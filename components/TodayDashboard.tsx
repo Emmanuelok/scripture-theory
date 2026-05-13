@@ -17,6 +17,7 @@ import NationFlag from "@/components/NationFlag";
 import { thisWeeksVerse } from "@/data/memory";
 import PrayingForList from "@/components/PrayingForList";
 import EncourageMe from "@/components/EncourageMe";
+import DailyDevotional from "@/components/DailyDevotional";
 
 const PLAN_PROGRESS_KEY = "scripture-theory-progress";
 
@@ -252,6 +253,8 @@ export default function TodayDashboard() {
           Practice now →
         </Link>
       </section>
+
+      <DailyDevotional />
 
       <EncourageMe />
 

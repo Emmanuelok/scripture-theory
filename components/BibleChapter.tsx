@@ -7,6 +7,7 @@ import { passages as lensPassages } from "@/data/lens";
 import { translations, translationOrder, type TranslationId } from "@/data/bible/translations";
 import { crossRefsFor } from "@/data/bible/cross-refs";
 import { referenceHref } from "@/lib/reference";
+import { studyLinksFor } from "@/lib/study-tools";
 import AudioBibleControls from "@/components/AudioBibleControls";
 
 type Marks = {
@@ -573,6 +574,34 @@ export default function BibleChapter({
                         </span>
                       );
                     })}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Study tools — external trusted resources */}
+            {(() => {
+              const links = studyLinksFor(bookId, chapterNum, activeVerse);
+              if (links.length === 0) return null;
+              return (
+                <div className="mt-4 pt-3 border-t border-flame-200">
+                  <div className="text-[10px] uppercase tracking-widest text-flame-700 mb-1.5">
+                    Study tools · opens in a new tab
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {links.map((l) => (
+                      <a
+                        key={l.label}
+                        href={l.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={`${l.description} · ${l.source}`}
+                        className="rounded-full bg-card border border-ink-200 px-2.5 py-0.5 text-[11px] text-ink-700 hover:border-flame-500 inline-flex items-center gap-1"
+                      >
+                        {l.label}
+                        <span className="text-ink-400">↗</span>
+                      </a>
+                    ))}
                   </div>
                 </div>
               );

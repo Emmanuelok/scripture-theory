@@ -10,6 +10,12 @@ export default function Footer() {
             JESUS at the center. The ONE Gospel as our message. The Word as our food. The Body as
             our home. A non-denominational, Christ-centered platform for the world.
           </p>
+          <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-500">
+            <li><Link href="/about" className="hover:text-ink-900">About</Link></li>
+            <li><Link href="/beliefs" className="hover:text-ink-900">What we believe</Link></li>
+            <li><Link href="/privacy" className="hover:text-ink-900">Privacy</Link></li>
+            <li><Link href="/new-believer" className="hover:text-ink-900">Just said yes?</Link></li>
+          </ul>
         </div>
         <div>
           <div className="text-ink-700 font-medium">Day one</div>

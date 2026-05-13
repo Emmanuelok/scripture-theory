@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#2a1a10"/>
+      <stop offset="100%" stop-color="#120a06"/>
+    </radialGradient>
+    <linearGradient id="flame" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#fdba74"/>
+      <stop offset="55%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#b8420c"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <g transform="translate(256 256)">
+    <path d="M 0 -150 C 60 -90, 90 -30, 0 80 C -90 -30, -60 -90, 0 -150 Z"
+          fill="url(#flame)"/>
+    <path d="M 0 -90 C 35 -55, 55 -15, 0 50 C -55 -15, -35 -55, 0 -90 Z"
+          fill="#fff7ed" opacity="0.85"/>
+  </g>
+  <text x="256" y="445" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="64" font-weight="600" fill="#fdba74">ST</text>
+</svg>
