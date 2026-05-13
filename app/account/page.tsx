@@ -1,4 +1,5 @@
 import AccountPanel from "@/components/AccountPanel";
+import PersonalSubNav from "@/components/PersonalSubNav";
 
 export const metadata = {
   title: "Account — Scripture Theory",
@@ -19,6 +20,7 @@ export default function AccountPage() {
         Place stays on your device unless you explicitly opt it in.
       </p>
       <div className="mt-10">
+        <PersonalSubNav />
         <AccountPanel />
       </div>
     </section>

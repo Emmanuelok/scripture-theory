@@ -1,4 +1,5 @@
 import SecretPlace from "@/components/SecretPlace";
+import PersonalSubNav from "@/components/PersonalSubNav";
 
 export const metadata = {
   title: "My Secret Place — Scripture Theory",
@@ -8,7 +9,8 @@ export const metadata = {
 
 export default function SecretPlacePage() {
   return (
-    <section className="mx-auto max-w-4xl px-5 pt-10 pb-24">
+    <section className="mx-auto max-w-4xl px-5 pt-12 pb-24">
+      <PersonalSubNav />
       <SecretPlace />
     </section>
   );
