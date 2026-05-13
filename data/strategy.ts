@@ -1,14 +1,16 @@
 export const mission = {
   oneLine:
-    "Help every person on earth encounter JESUS, hear the ONE Gospel, walk with Him in His Word, and belong to His one global Body — in their own language, on any device.",
+    "Help every person on earth — student, professional, parent, pastor, seeker — encounter JESUS, hear the ONE Gospel, walk with Him in His Word, and belong to His one global Body, in their own language, on any device.",
   shorter:
     "JESUS at the center. The Gospel as our message. The Word as our food. The Body as our home.",
-  long: `Scripture Theory is not another Bible app and not an AI gimmick. It is a JESUS-centered,
-non-denominational platform built to lift up Christ Himself, to put the ONE Gospel of the New
-Testament back in the middle, and to gather believers around the only thing that has ever
-united the Church: the person and work of the Lord Jesus.
-We use technology quietly — only where it helps people hear Him, read Him, follow Him, and
-find a real, local body of His people.`,
+  long: `Scripture Theory exists to be the home that every believer — and every honest seeker —
+keeps coming back to for deeper intimacy with Jesus. It is JESUS-centered and non-denominational.
+We lift up Christ Himself, put the ONE Gospel of the New Testament at the center, and gather the
+worldwide Church around the only thing that has ever united us: the person and work of the Lord
+Jesus.
+We use technology quietly — only where it helps a layperson, a professional, a student, a parent,
+a pastor, or a seeker hear Him, read Him, follow Him, pray for the nations, and find a real local
+body of His people.`,
 };
 
 export const audiences = [
@@ -21,8 +23,20 @@ export const audiences = [
     body: "People who just said yes to Jesus and need someone to show them how to walk with Him from day one.",
   },
   {
-    title: "Lifelong disciples",
-    body: "Those who want to grow deeper in Christ — the Word, prayer, witness, holiness, mission.",
+    title: "Laypeople",
+    body: "The Christian in the pew on Sunday and at the kitchen table on Monday. The whole platform is built for them — not for specialists.",
+  },
+  {
+    title: "Students",
+    body: "High schoolers and university students looking for honest answers, real friends, and a Lord worth following.",
+  },
+  {
+    title: "Professionals",
+    body: "Doctors, engineers, founders, lawyers, teachers. We hand them three minutes of Scripture, prayer, and intercession in the morning — and a path back to Jesus through the day.",
+  },
+  {
+    title: "Parents",
+    body: "Fathers and mothers raising the next generation. Daily rhythms simple enough for the family table.",
   },
   {
     title: "Pastors & shepherds",

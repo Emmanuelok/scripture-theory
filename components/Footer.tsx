@@ -15,17 +15,21 @@ export default function Footer() {
           <div className="text-ink-700 font-medium">Day one</div>
           <ul className="mt-2 space-y-1">
             <li><Link href="/gospel" className="hover:text-ink-900">The Gospel</Link></li>
-            <li><Link href="/read" className="hover:text-ink-900">Read the Word</Link></li>
+            <li><Link href="/bible" className="hover:text-ink-900">The Bible</Link></li>
+            <li><Link href="/read" className="hover:text-ink-900">Reading plans</Link></li>
             <li><Link href="/pray" className="hover:text-ink-900">Pray</Link></li>
+            <li><Link href="/pray/nations" className="hover:text-ink-900">Praying for the nations</Link></li>
             <li><Link href="/witness" className="hover:text-ink-900">Witness</Link></li>
           </ul>
         </div>
         <div>
           <div className="text-ink-700 font-medium">Grow & go</div>
           <ul className="mt-2 space-y-1">
+            <li><Link href="/today" className="hover:text-ink-900">Today</Link></li>
             <li><Link href="/disciple" className="hover:text-ink-900">The Path</Link></li>
             <li><Link href="/connect" className="hover:text-ink-900">One Body (local church)</Link></li>
             <li><Link href="/lens" className="hover:text-ink-900">Jesus in the Word</Link></li>
+            <li><Link href="/search" className="hover:text-ink-900">Search</Link></li>
             <li><Link href="/roadmap" className="hover:text-ink-900">Roadmap</Link></li>
           </ul>
         </div>

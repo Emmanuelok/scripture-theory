@@ -19,15 +19,15 @@ export type HomeHero = {
 
 export const homeHero: Record<LocaleCode, HomeHero> = {
   en: {
-    badge: "JESUS · One Gospel · One Body · For the world",
-    h1Lead: "It has always been about",
+    badge: "For every believer · Student · Professional · Parent · Pastor · Seeker",
+    h1Lead: "Deeper intimacy with",
     h1Name: "JESUS",
     h1Trail: ".",
-    subtitle: "JESUS at the center. The Gospel as our message. The Word as our food. The Body as our home.",
-    body: "Scripture Theory is not another Bible app and not an AI gimmick. It is a JESUS-centered, non-denominational platform built to lift up Christ Himself, to put the ONE Gospel of the New Testament back in the middle, and to gather believers around the only thing that has ever united the Church: the person and work of the Lord Jesus.",
+    subtitle: "JESUS at the center. The Word in your hands. Prayer for the nations on your lips. A real local body for your home.",
+    body: "Scripture Theory is the home every believer comes back to. The whole Bible in eleven trusted public-domain translations. The Lord's Prayer walked line-by-line. A nation of the world to lift up by name every day. A discipleship path that ends in a real local church. A platform built for the layperson, the student, the professional, the parent, the pastor, and the seeker — not for specialists, not for noise.",
     ctaGospel: "Read the Gospel →",
-    ctaWord: "Open the Word",
-    ctaPray: "Learn to pray",
+    ctaWord: "Open the Bible",
+    ctaPray: "Pray for the nations",
     ctaStart: "Personalize for me",
     sidebarLabel: "The ONE Gospel, in one breath",
     sidebarQuote: "Christ died for our sins. He was buried. He rose on the third day. He was seen. He is alive. He is Lord.",

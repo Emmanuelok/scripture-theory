@@ -86,13 +86,13 @@ export default function HomeHero() {
               {t.ctaGospel}
             </Link>
             <Link
-              href="/read"
+              href="/bible"
               className="inline-flex items-center rounded-full border border-ink-300 px-5 py-2.5 text-sm text-ink-800 hover:border-ink-900 transition-colors"
             >
               {t.ctaWord}
             </Link>
             <Link
-              href="/pray"
+              href="/pray/nations"
               className="inline-flex items-center rounded-full border border-ink-300 px-5 py-2.5 text-sm text-ink-800 hover:border-ink-900 transition-colors"
             >
               {t.ctaPray}

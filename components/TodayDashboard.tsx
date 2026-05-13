@@ -12,6 +12,7 @@ import { seed as bibleSeed } from "@/data/bible/seed";
 import { translations as transMeta } from "@/data/bible/translations";
 import { canon as bibleCanon } from "@/data/bible/canon";
 import { referenceHref } from "@/lib/reference";
+import { todaysNation, regions as nationRegions } from "@/data/nations";
 import PrayingForList from "@/components/PrayingForList";
 
 const PLAN_PROGRESS_KEY = "scripture-theory-progress";
@@ -77,8 +78,10 @@ export default function TodayDashboard() {
     return lines[dayOfYear(now) % lines.length];
   }, [locale, now]);
 
-  // Today's region of the world
+  // Today's region of the world (broad rotation)
   const region = worldPrayer[todaysRegionIndex()];
+  // Today's nation in the rotation (specific country)
+  const nation = todaysNation(now);
 
   // Today's verse — rotated daily from the WEB seed (authentic public-domain text).
   const dailyVerse = useMemo(() => {
@@ -277,20 +280,37 @@ export default function TodayDashboard() {
         </section>
       </div>
 
-      <section className="rounded-3xl border border-flame-200 bg-flame-50/60 p-6 md:p-8" dir="ltr">
+      <section className="rounded-3xl border border-flame-300 bg-gradient-to-br from-flame-50 to-white p-6 md:p-8 glow-ring" dir="ltr">
         <div className="text-xs uppercase tracking-widest text-flame-700">
-          Pray for the world today
+          Pray for the nations today
         </div>
-        <h2 className="font-serif text-2xl text-ink-900 mt-1">{region.region}</h2>
-        <p className="text-ink-500 italic mt-0.5 text-sm">{region.focus}</p>
+        <div className="mt-1 flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="font-serif text-2xl text-ink-900">{nation.name}</h2>
+          <span className="text-xs text-ink-500">{nationRegions[nation.region]}</span>
+        </div>
+        <p className="mt-2 text-ink-700 leading-relaxed text-sm">{nation.context}</p>
         <ul className="mt-4 space-y-2">
-          {region.pray.map((p) => (
-            <li key={p} className="flex gap-3 text-ink-800 text-sm leading-relaxed">
+          {nation.prayer.slice(0, 3).map((p, i) => (
+            <li key={i} className="flex gap-3 text-ink-800 text-sm leading-relaxed">
               <span className="mt-2 h-1.5 w-1.5 rounded-full bg-flame-500 shrink-0" />
               <span>{p}</span>
             </li>
           ))}
         </ul>
+        <div className="mt-5 flex flex-wrap gap-2">
+          <Link
+            href="/pray/nations"
+            className="inline-flex items-center rounded-full bg-ink-900 text-ink-50 px-4 py-1.5 text-sm hover:bg-flame-700"
+          >
+            All prayer points for {nation.name} →
+          </Link>
+          <Link
+            href="/pray"
+            className="inline-flex items-center rounded-full border border-ink-300 px-4 py-1.5 text-sm text-ink-800 hover:border-ink-900"
+          >
+            See today's region: {region.region}
+          </Link>
+        </div>
       </section>
 
       <section className="rounded-2xl border border-ink-200 bg-ink-50 p-5 text-sm text-ink-600">
