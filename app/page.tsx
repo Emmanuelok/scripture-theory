@@ -1,6 +1,7 @@
 import Link from "next/link";
 import HomeHero from "@/components/HomeHero";
 import LiveTiles from "@/components/LiveTiles";
+import ExploreGrid from "@/components/ExploreGrid";
 
 export default function HomePage() {
   return (
@@ -28,23 +29,7 @@ export default function HomePage() {
         </Link>
       </section>
 
-      {/* What's inside — twelve tiles, no walls of text */}
-      <section className="mx-auto max-w-6xl px-5 pb-20">
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
-          <Tile href="/today" eyebrow="Personal" title="Today" sub="Your verse, your nation, your people, your rhythm" />
-          <Tile href="/bible" eyebrow="11 translations" title="The Bible" sub="WEB · KJV · ASV · RVR · LSG · CUV · Vulgate · and more" />
-          <Tile href="/practices" eyebrow="23 ancient practices" title="Practices" sub="Hours · Examen · Fasting · Lament · Forgiveness · Family altar · Healing · Calling" />
-          <Tile href="/secret-place" eyebrow="Matthew 6:6" title="The Secret Place" sub="Private journal, prayers, gratitudes — only on this device" />
-          <Tile href="/hours" eyebrow="Psalm 119:164" title="The Daily Office" sub="Morning · Midday · Evening · Night prayer" />
-          <Tile href="/catechism" eyebrow="1563 · 52 weeks" title="Heidelberg Catechism" sub="Your only comfort in life and in death." />
-          <Tile href="/pray/nations" eyebrow="110-day rotation" title="Praying for the Nations" sub="One country, one flag, every day" />
-          <Tile href="/persecuted" eyebrow="Hebrews 13:3" title="The Persecuted Church" sub="Twelve nations, one each month, by name" />
-          <Tile href="/gifts" eyebrow="1 Corinthians 12" title="Spiritual Gifts" sub="Discern how the Spirit has gifted you to serve" />
-          <Tile href="/disciple" eyebrow="12 stages" title="The Path" sub="From first encounter to reproducing disciple" />
-          <Tile href="/connect" eyebrow="Local body" title="Find a Church" sub="Real congregations near you, every tradition" />
-          <Tile href="/resources" eyebrow="Study & creeds" title="Resources" sub="Topical index · creeds · disciplines · glossary · catechism" />
-        </div>
-      </section>
+      <ExploreGrid />
 
       {/* Single, quiet closing */}
       <section className="mx-auto max-w-3xl px-5 pb-24 text-center">
@@ -54,31 +39,5 @@ export default function HomePage() {
         <p className="mt-2 text-sm text-ink-500">John 12:32 — Jesus</p>
       </section>
     </>
-  );
-}
-
-function Tile({
-  href,
-  eyebrow,
-  title,
-  sub,
-}: {
-  href: string;
-  eyebrow: string;
-  title: string;
-  sub: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="group rounded-2xl border border-ink-200 bg-card p-5 hover:border-flame-500 hover:shadow-md transition-all"
-    >
-      <div className="text-[10px] uppercase tracking-widest text-flame-700">{eyebrow}</div>
-      <div className="font-serif text-xl text-ink-900 mt-1 group-hover:text-flame-700 transition-colors">
-        {title}
-      </div>
-      <div className="text-xs text-ink-500 mt-1.5 leading-snug">{sub}</div>
-      <div className="mt-3 text-xs text-ink-400 group-hover:text-flame-700 transition-colors">→</div>
-    </Link>
   );
 }
