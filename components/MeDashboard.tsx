@@ -90,6 +90,11 @@ export default function MeDashboard() {
     } catch {}
   }, [mounted]);
 
+  const stats = useMemo(
+    () => buildStats(profile, planProgress, bibleMarks),
+    [profile, planProgress, bibleMarks]
+  );
+
   if (!mounted) {
     return (
       <div className="rounded-3xl border border-ink-200 bg-card-subtle p-10 text-center text-ink-500">
@@ -106,8 +111,6 @@ export default function MeDashboard() {
   const stageMeta = stage ? stageInfo[stage] : undefined;
   const journeyDays = daysBetween(profile.startedAt ?? sp?.startedAt);
   const adopted = profile.adoptedNationIso ? findNation(profile.adoptedNationIso) : undefined;
-
-  const stats = useMemo(() => buildStats(profile, planProgress, bibleMarks), [profile, planProgress, bibleMarks]);
 
   return (
     <div className="space-y-6" dir={dir}>
