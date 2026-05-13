@@ -3,15 +3,17 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { firstThirtyDays, type FirstDay } from "@/data/new-believer";
+import { slotKey, SLOT_CHANGE_EVENT } from "@/lib/slots";
 
-const PROGRESS_KEY = "scripture-theory-firstdays";
+const PROGRESS_BASE = "scripture-theory-firstdays";
+const PROGRESS_KEY = () => slotKey(PROGRESS_BASE);
 
 type Saved = { completed: number[]; startedOn: string | null };
 
 function load(): Saved {
   if (typeof window === "undefined") return { completed: [], startedOn: null };
   try {
-    const raw = window.localStorage.getItem(PROGRESS_KEY);
+    const raw = window.localStorage.getItem(PROGRESS_KEY());
     if (!raw) return { completed: [], startedOn: null };
     const p = JSON.parse(raw);
     return {
@@ -25,7 +27,7 @@ function load(): Saved {
 
 function save(s: Saved) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(PROGRESS_KEY, JSON.stringify(s));
+  window.localStorage.setItem(PROGRESS_KEY(), JSON.stringify(s));
 }
 
 const movementColor: Record<FirstDay["movement"], string> = {
@@ -43,6 +45,10 @@ export default function NewBelieverPath() {
   useEffect(() => {
     setState(load());
     setMounted(true);
+    if (typeof window === "undefined") return;
+    const onSlot = () => setState(load());
+    window.addEventListener(SLOT_CHANGE_EVENT, onSlot);
+    return () => window.removeEventListener(SLOT_CHANGE_EVENT, onSlot);
   }, []);
 
   function toggle(day: number) {

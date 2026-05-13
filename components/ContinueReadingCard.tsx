@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { slotKey, SLOT_CHANGE_EVENT } from "@/lib/slots";
 
 type LastRead = {
   bookId: string;
@@ -31,10 +32,18 @@ export default function ContinueReadingCard() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    try {
-      const raw = window.localStorage.getItem("scripture-theory-last-read");
-      if (raw) setLast(JSON.parse(raw));
-    } catch {}
+    function refresh() {
+      try {
+        const raw = window.localStorage.getItem(slotKey("scripture-theory-last-read"));
+        setLast(raw ? JSON.parse(raw) : null);
+      } catch {
+        setLast(null);
+      }
+    }
+    refresh();
+    const onSlot = () => refresh();
+    window.addEventListener(SLOT_CHANGE_EVENT, onSlot);
+    return () => window.removeEventListener(SLOT_CHANGE_EVENT, onSlot);
   }, []);
 
   if (!last) return null;

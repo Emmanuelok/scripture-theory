@@ -9,6 +9,7 @@ import { crossRefsFor } from "@/data/bible/cross-refs";
 import { referenceHref } from "@/lib/reference";
 import { studyLinksFor } from "@/lib/study-tools";
 import VerseCardModal from "@/components/VerseCardModal";
+import { slotKey } from "@/lib/slots";
 
 type Marks = {
   highlights: string[];
@@ -21,7 +22,10 @@ type ReaderPrefs = {
   spacing: "compact" | "comfortable";
 };
 
-const MARKS_STORAGE = "scripture-theory-bible-marks";
+const MARKS_STORAGE_BASE = "scripture-theory-bible-marks";
+function MARKS_STORAGE() {
+  return slotKey(MARKS_STORAGE_BASE);
+}
 const TRANSLATION_PREF = "scripture-theory-translation";
 const READER_PREFS = "scripture-theory-reader";
 
@@ -35,7 +39,7 @@ const FONT_SCALES = [
 function loadMarks(): Marks {
   if (typeof window === "undefined") return { highlights: [], bookmarks: [], notes: {} };
   try {
-    const raw = window.localStorage.getItem(MARKS_STORAGE);
+    const raw = window.localStorage.getItem(MARKS_STORAGE());
     if (!raw) return { highlights: [], bookmarks: [], notes: {} };
     const parsed = JSON.parse(raw);
     return {
@@ -50,7 +54,7 @@ function loadMarks(): Marks {
 
 function saveMarks(m: Marks) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(MARKS_STORAGE, JSON.stringify(m));
+  window.localStorage.setItem(MARKS_STORAGE(), JSON.stringify(m));
 }
 
 function loadPrefs(): ReaderPrefs {
@@ -124,7 +128,7 @@ export default function BibleChapter({
     if (typeof window === "undefined") return;
     try {
       window.localStorage.setItem(
-        "scripture-theory-last-read",
+        slotKey("scripture-theory-last-read"),
         JSON.stringify({
           bookId,
           bookName,

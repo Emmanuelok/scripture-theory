@@ -19,8 +19,9 @@ import PrayingForList from "@/components/PrayingForList";
 import EncourageMe from "@/components/EncourageMe";
 import DailyDevotional from "@/components/DailyDevotional";
 import ForYouToday from "@/components/ForYouToday";
+import { slotKey, SLOT_CHANGE_EVENT } from "@/lib/slots";
 
-const PLAN_PROGRESS_KEY = "scripture-theory-progress";
+const PLAN_PROGRESS_BASE = "scripture-theory-progress";
 
 type Progress = Record<string, number[]>;
 
@@ -48,10 +49,18 @@ export default function TodayDashboard() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    try {
-      const raw = window.localStorage.getItem(PLAN_PROGRESS_KEY);
-      setProgress(raw ? JSON.parse(raw) : {});
-    } catch {}
+    function refresh() {
+      try {
+        const raw = window.localStorage.getItem(slotKey(PLAN_PROGRESS_BASE));
+        setProgress(raw ? JSON.parse(raw) : {});
+      } catch {
+        setProgress({});
+      }
+    }
+    refresh();
+    const onSlot = () => refresh();
+    window.addEventListener(SLOT_CHANGE_EVENT, onSlot);
+    return () => window.removeEventListener(SLOT_CHANGE_EVENT, onSlot);
   }, []);
 
   const locale = (profile.locale ?? "en") as LocaleCode;

@@ -10,25 +10,27 @@ import { findNation } from "@/data/nations";
 import { flagEmoji } from "@/lib/flags";
 import { useAuth } from "@/lib/auth";
 import { STAGES as PATH_STAGES } from "@/data/path";
+import { slotKey, SLOT_CHANGE_EVENT } from "@/lib/slots";
+import ProfileSwitcher from "@/components/ProfileSwitcher";
 
-const PROFILE_KEY = "scripture-theory-profile";
-const PLAN_PROGRESS_KEY = "scripture-theory-progress";
-const BIBLE_MARKS_KEY = "scripture-theory-bible-marks";
-const FIRSTDAYS_KEY = "scripture-theory-firstdays";
-const LOCALE_KEY = "scripture-theory-locale";
-const THEME_KEY = "scripture-theory-theme";
-const TRANSLATION_KEY = "scripture-theory-translation";
-const READER_KEY = "scripture-theory-reader";
+// Per-slot bases (each slot has its own row in localStorage)
+const PER_SLOT_BASES = [
+  "scripture-theory-profile",
+  "scripture-theory-progress",
+  "scripture-theory-bible-marks",
+  "scripture-theory-firstdays",
+  "scripture-theory-last-read",
+];
 
-const ALL_KEYS = [
-  PROFILE_KEY,
-  PLAN_PROGRESS_KEY,
-  BIBLE_MARKS_KEY,
-  FIRSTDAYS_KEY,
-  LOCALE_KEY,
-  THEME_KEY,
-  TRANSLATION_KEY,
-  READER_KEY,
+// Global keys (one copy per device)
+const GLOBAL_KEYS = [
+  "scripture-theory-locale",
+  "scripture-theory-theme",
+  "scripture-theory-translation",
+  "scripture-theory-reader",
+  "scripture-theory-a11y",
+  "scripture-theory-slots",
+  "scripture-theory-active-slot",
 ];
 
 type PlanProgress = Record<string, number[]>;
@@ -81,14 +83,24 @@ export default function MeDashboard() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    try {
-      const p = window.localStorage.getItem(PLAN_PROGRESS_KEY);
-      setPlanProgress(p ? JSON.parse(p) : {});
-    } catch {}
-    try {
-      const m = window.localStorage.getItem(BIBLE_MARKS_KEY);
-      setBibleMarks(m ? JSON.parse(m) : {});
-    } catch {}
+    function refresh() {
+      try {
+        const p = window.localStorage.getItem(slotKey("scripture-theory-progress"));
+        setPlanProgress(p ? JSON.parse(p) : {});
+      } catch {
+        setPlanProgress({});
+      }
+      try {
+        const m = window.localStorage.getItem(slotKey("scripture-theory-bible-marks"));
+        setBibleMarks(m ? JSON.parse(m) : {});
+      } catch {
+        setBibleMarks({});
+      }
+    }
+    refresh();
+    const onSlot = () => refresh();
+    window.addEventListener(SLOT_CHANGE_EVENT, onSlot);
+    return () => window.removeEventListener(SLOT_CHANGE_EVENT, onSlot);
   }, [mounted]);
 
   const stats = useMemo(
@@ -187,8 +199,11 @@ function HeroHeader({
 
   return (
     <section className="rounded-3xl bg-ink-900 text-ink-50 p-6 md:p-8 glow-ring">
-      <div className="text-xs uppercase tracking-widest text-flame-300">
-        My walk with Jesus · on this device only
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <div className="text-xs uppercase tracking-widest text-flame-300">
+          My walk with Jesus · on this device only
+        </div>
+        <ProfileSwitcher variant="hero" />
       </div>
       {editing ? (
         <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -1008,11 +1023,7 @@ function BackupCard() {
         "Erase EVERYTHING on this device — Secret Place, reading progress, prayers, journal? This cannot be undone."
       )
     ) {
-      ALL_KEYS.forEach((k) => {
-        try {
-          window.localStorage.removeItem(k);
-        } catch {}
-      });
+      eraseAllData();
       setStatus("All data cleared. Refresh the page.");
     }
   }
@@ -1151,12 +1162,24 @@ function MiniBlock({ label, value }: { label: string; value: string }) {
 /* ────────────────────────────────────────────────────────── */
 /* Backup helpers — WebCrypto AES-GCM with PBKDF2 key derivation */
 
+/** True if the given storage key belongs to Scripture Theory and is safe to back up. */
+function isOurKey(key: string): boolean {
+  if (GLOBAL_KEYS.includes(key)) return true;
+  for (const base of PER_SLOT_BASES) {
+    if (key === base || key.startsWith(`${base}:`)) return true;
+  }
+  return false;
+}
+
 function collectAllData(): Record<string, string> {
   const out: Record<string, string> = {};
   if (typeof window === "undefined") return out;
-  for (const key of ALL_KEYS) {
-    const v = window.localStorage.getItem(key);
-    if (v != null) out[key] = v;
+  // Enumerate every key, include only ours (covers every slot)
+  for (let i = 0; i < window.localStorage.length; i++) {
+    const k = window.localStorage.key(i);
+    if (!k || !isOurKey(k)) continue;
+    const v = window.localStorage.getItem(k);
+    if (v != null) out[k] = v;
   }
   return out;
 }
@@ -1164,9 +1187,21 @@ function collectAllData(): Record<string, string> {
 function restoreAllData(payload: Record<string, string>) {
   if (typeof window === "undefined") return;
   for (const [key, value] of Object.entries(payload)) {
-    if (ALL_KEYS.includes(key) && typeof value === "string") {
+    if (isOurKey(key) && typeof value === "string") {
       window.localStorage.setItem(key, value);
     }
+  }
+}
+
+function eraseAllData() {
+  if (typeof window === "undefined") return;
+  const toRemove: string[] = [];
+  for (let i = 0; i < window.localStorage.length; i++) {
+    const k = window.localStorage.key(i);
+    if (k && isOurKey(k)) toRemove.push(k);
+  }
+  for (const k of toRemove) {
+    try { window.localStorage.removeItem(k); } catch {}
   }
 }
 
