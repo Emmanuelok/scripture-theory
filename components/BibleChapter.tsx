@@ -5,6 +5,9 @@ import { useEffect, useMemo, useState } from "react";
 import type { ChapterText } from "@/data/bible/seed";
 import { passages as lensPassages } from "@/data/lens";
 import { translations, translationOrder, type TranslationId } from "@/data/bible/translations";
+import { crossRefsFor } from "@/data/bible/cross-refs";
+import { referenceHref } from "@/lib/reference";
+import AudioBibleControls from "@/components/AudioBibleControls";
 
 type Marks = {
   highlights: string[];
@@ -310,6 +313,11 @@ export default function BibleChapter({
         </Link>
       </div>
 
+      {/* Audio Bible (text-to-speech) */}
+      {chapter && (
+        <AudioBibleControls chapter={chapter} language={meta.language} />
+      )}
+
       {/* Tap-a-verse hint (one-time) */}
       {mounted && !hintDismissed && (
         <div className="rounded-2xl border border-flame-200 bg-flame-50/60 p-4 text-sm text-flame-900 flex items-start justify-between gap-3">
@@ -518,8 +526,17 @@ export default function BibleChapter({
                 }}
                 className="rounded-full border border-ink-300 bg-card px-3.5 py-1.5 text-xs text-ink-800 hover:border-ink-900"
               >
-                Share
+                Share text
               </button>
+              <a
+                href={`/api/verse-card/${bookId}/${chapterNum}/${activeVerse}?translation=${translationId}`}
+                target="_blank"
+                rel="noopener"
+                className="rounded-full border border-flame-300 bg-card text-flame-700 px-3.5 py-1.5 text-xs hover:bg-flame-50"
+                title="Open a 1080x1080 verse card you can save and share"
+              >
+                Share as image
+              </a>
               {lensMatch && (
                 <Link
                   href="/lens"
@@ -529,6 +546,40 @@ export default function BibleChapter({
                 </Link>
               )}
             </div>
+
+            {/* Cross-references */}
+            {(() => {
+              const refs = crossRefsFor(bookId, chapterNum, activeVerse);
+              if (refs.length === 0) return null;
+              return (
+                <div className="mt-4 pt-3 border-t border-flame-200">
+                  <div className="text-[10px] uppercase tracking-widest text-flame-700 mb-1.5">
+                    Cross-references
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {refs.map((r) => {
+                      const href = referenceHref(r);
+                      return href ? (
+                        <Link
+                          key={r}
+                          href={href}
+                          className="rounded-full bg-card border border-ink-200 px-2.5 py-0.5 text-[11px] text-ink-700 hover:border-flame-500"
+                        >
+                          {r}
+                        </Link>
+                      ) : (
+                        <span
+                          key={r}
+                          className="rounded-full bg-card border border-ink-200 px-2.5 py-0.5 text-[11px] text-ink-600"
+                        >
+                          {r}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
 
             <div className="mt-4">
               <label className="text-xs uppercase tracking-widest text-ink-500">Your note</label>

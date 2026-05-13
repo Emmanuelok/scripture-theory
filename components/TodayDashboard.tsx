@@ -16,6 +16,7 @@ import { flagEmoji } from "@/lib/flags";
 import NationFlag from "@/components/NationFlag";
 import { thisWeeksVerse } from "@/data/memory";
 import PrayingForList from "@/components/PrayingForList";
+import EncourageMe from "@/components/EncourageMe";
 
 const PLAN_PROGRESS_KEY = "scripture-theory-progress";
 
@@ -251,6 +252,8 @@ export default function TodayDashboard() {
           Practice now →
         </Link>
       </section>
+
+      <EncourageMe />
 
       <PrayingForList />
 

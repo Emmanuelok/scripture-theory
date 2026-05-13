@@ -173,6 +173,74 @@ const nt90: ReadingDay[] = [
   { day: 90, reference: "Revelation 12–22", title: "Behold, I am making all things new", meditation: "Come, Lord Jesus. Amen." },
 ];
 
+// ─── New, shorter plans ─────────────────────────────────────────
+
+const proverbs31: ReadingDay[] = Array.from({ length: 31 }, (_, i) => {
+  const day = i + 1;
+  return {
+    day,
+    reference: `Proverbs ${day}`,
+    title: `Proverbs ${day}`,
+    meditation:
+      "Pick one verse today. Read it aloud, ask the Spirit how it touches your week, and obey it before nightfall.",
+  };
+});
+
+const sermonOnMount7: ReadingDay[] = [
+  { day: 1, reference: "Matthew 5:1–12", title: "The Beatitudes", meditation: "Sit with the eight blessings. Notice who Jesus calls blessed — and who He doesn't." },
+  { day: 2, reference: "Matthew 5:13–20", title: "Salt, light, and the Law", meditation: "He hasn't come to abolish the Law but to fulfill it. Christian righteousness goes deeper than the rule." },
+  { day: 3, reference: "Matthew 5:21–48", title: "The deeper law", meditation: "Anger, lust, oaths, retaliation, enemies. Jesus moves the line from behavior to the heart." },
+  { day: 4, reference: "Matthew 6:1–18", title: "Done in secret", meditation: "Giving, praying, fasting — for an audience of One. Memorize the Lord's Prayer this week (vv. 9–13)." },
+  { day: 5, reference: "Matthew 6:19–34", title: "Treasure, eye, master", meditation: "Don't be anxious. Seek first the Kingdom. Your Father knows what you need." },
+  { day: 6, reference: "Matthew 7:1–12", title: "Judge, ask, the golden rule", meditation: "Begin by examining yourself. Ask, seek, knock. Do to others as you wish to be done to." },
+  { day: 7, reference: "Matthew 7:13–29", title: "Two ways, two builders", meditation: "Narrow gate. Wise builder. Don't only hear — do." },
+];
+
+const romans16: ReadingDay[] = Array.from({ length: 16 }, (_, i) => {
+  const day = i + 1;
+  const titles = [
+    "I am not ashamed of the Gospel",
+    "Judgment falls on all",
+    "All have sinned and fall short",
+    "Justified by faith — like Abraham",
+    "Peace with God through our Lord",
+    "Dead to sin, alive to God",
+    "Wretched man that I am — yet Christ",
+    "More than conquerors",
+    "What shall we say about Israel?",
+    "Confess with your mouth and believe",
+    "Has God rejected His people?",
+    "Be transformed by the renewing of your mind",
+    "Submit to the governing authorities; love is the law",
+    "Welcome one another as Christ welcomed you",
+    "Strong and weak together",
+    "Greet the saints",
+  ];
+  return {
+    day,
+    reference: `Romans ${day}`,
+    title: titles[i],
+    meditation:
+      "Romans is the Gospel set out in full. Read this chapter slowly enough to feel the argument and obey the call.",
+  };
+});
+
+const james5: ReadingDay[] = [
+  { day: 1, reference: "James 1", title: "Trials, wisdom, doers of the Word", meditation: "Count it all joy. Ask for wisdom. Be a doer, not just a hearer." },
+  { day: 2, reference: "James 2", title: "No partiality. Faith without works is dead", meditation: "Real faith bends toward the poor and shows itself in action." },
+  { day: 3, reference: "James 3", title: "The tongue. Two kinds of wisdom", meditation: "A small fire can burn the whole forest. Wisdom from above is peaceable." },
+  { day: 4, reference: "James 4", title: "Friendship with the world. Submit to God", meditation: "Draw near to God and He will draw near to you. Humility, not bragging." },
+  { day: 5, reference: "James 5", title: "Patience. Prayer. The sick. The wandering", meditation: "The prayer of a righteous person has great power. Confess. Pray. Restore." },
+];
+
+const firstJohn5: ReadingDay[] = [
+  { day: 1, reference: "1 John 1", title: "Walking in the light", meditation: "If we confess our sins, He is faithful and righteous to forgive. Walk in the light He is in." },
+  { day: 2, reference: "1 John 2", title: "Christ our advocate. Loving the brothers.", meditation: "He is the propitiation for our sins, and not for ours only but for the whole world." },
+  { day: 3, reference: "1 John 3", title: "Children of God", meditation: "See what kind of love the Father has given us, that we should be called children of God." },
+  { day: 4, reference: "1 John 4", title: "God is love. Test the spirits.", meditation: "Beloved, let us love one another, for love is from God." },
+  { day: 5, reference: "1 John 5", title: "Faith that overcomes", meditation: "Everyone who is born of God overcomes the world. And this is the victory: our faith." },
+];
+
 export const readingPlans: ReadingPlan[] = [
   {
     id: "john",
@@ -184,6 +252,33 @@ export const readingPlans: ReadingPlan[] = [
     days: john30,
   },
   {
+    id: "sermon-on-mount",
+    name: "Sermon on the Mount in 7 Days",
+    tagline: "The greatest sermon ever preached — slowly.",
+    description:
+      "Walk through Matthew 5–7 in a single week. The character of the King, given by the King.",
+    totalDays: 7,
+    days: sermonOnMount7,
+  },
+  {
+    id: "james",
+    name: "James in 5 Days",
+    tagline: "Faith that actually shows.",
+    description:
+      "Five short chapters from the brother of Jesus. Trials, wisdom, the tongue, prayer.",
+    totalDays: 5,
+    days: james5,
+  },
+  {
+    id: "1john",
+    name: "1 John in 5 Days",
+    tagline: "God is love. Walk in the light.",
+    description:
+      "Five chapters of crystalline assurance for anyone who has ever wondered if they are really in Christ.",
+    totalDays: 5,
+    days: firstJohn5,
+  },
+  {
     id: "psalms",
     name: "Psalms in 30 Days",
     tagline: "The prayer book Jesus prayed.",
@@ -191,6 +286,24 @@ export const readingPlans: ReadingPlan[] = [
       "30 Psalms hand-picked to teach you how to talk with God in joy, sorrow, repentance, longing, and praise.",
     totalDays: 30,
     days: psalms30,
+  },
+  {
+    id: "proverbs",
+    name: "Proverbs in 31 Days",
+    tagline: "A chapter a day for the days of the month.",
+    description:
+      "Read one chapter of Proverbs each day — many Christians use today's date to pick today's chapter. Wisdom for ordinary life.",
+    totalDays: 31,
+    days: proverbs31,
+  },
+  {
+    id: "romans",
+    name: "Romans in 16 Days",
+    tagline: "The Gospel, in full.",
+    description:
+      "Sixteen chapters that have shaped Augustine, Luther, Wesley, and countless others. Read for the argument and for your soul.",
+    totalDays: 16,
+    days: romans16,
   },
   {
     id: "nt90",
