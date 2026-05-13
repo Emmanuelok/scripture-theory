@@ -4,7 +4,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 const links = [
   { href: "/today", label: "Today" },
   { href: "/bible", label: "Bible" },
-  { href: "/memory", label: "Memory" },
+  { href: "/practices", label: "Practices" },
   { href: "/pray", label: "Pray" },
   { href: "/secret-place", label: "Secret Place" },
   { href: "/disciple/journey", label: "Journey" },

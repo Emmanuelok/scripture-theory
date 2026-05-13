@@ -47,6 +47,18 @@ const TOOLS = [
     title: "Jesus in the Word",
     sub: "How Orthodox, Catholic, Reformed, Wesleyan, Pentecostal, and Anabaptist believers have read the same passage — together pointing to Christ.",
   },
+  {
+    href: "/practices",
+    eyebrow: "12 ancient practices",
+    title: "Practices hub",
+    sub: "Fasting, examen, lament, forgiveness, listening prayer, family altar, the Lord's Supper at home, the rule of life, and the prisoners we are to remember.",
+  },
+  {
+    href: "/hymns",
+    eyebrow: "21 public-domain hymns",
+    title: "The hymns",
+    sub: "Wesley, Watts, Luther, Spafford, Newton — the songs the Church has sung for centuries, in full text.",
+  },
 ];
 
 export default function ResourcesHub() {

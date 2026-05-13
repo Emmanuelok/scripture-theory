@@ -127,6 +127,73 @@ export type SecretPlaceState = {
   gratitudes?: Gratitude[];
 };
 
+// ─── Fasting ───────────────────────────────────────────────────
+export type FastType = "full" | "partial" | "daniel" | "media" | "sundown" | "one-meal" | "custom";
+
+export type Fast = {
+  id: string;
+  type: FastType;
+  label?: string;
+  focus: string; // what you're seeking the Lord about
+  startedAt: string;
+  endsAt?: string; // planned end
+  endedAt?: string; // actual end
+  broken?: boolean;
+  notes?: string;
+};
+
+// ─── Daily Examen ──────────────────────────────────────────────
+export type ExamenEntry = {
+  id: string;
+  date: string; // ISO
+  gratitude: string;   // where God was good
+  encounter: string;   // where you sensed Him
+  conviction: string;  // what needs repentance
+  longing: string;     // tomorrow's prayer
+};
+
+// ─── Forgiveness walk ──────────────────────────────────────────
+export type ForgivenessRecord = {
+  id: string;
+  who: string;     // person (can be initials)
+  wound: string;   // what they did
+  feelings?: string;
+  releasedAt?: string;
+  notes?: string;
+  createdAt: string;
+};
+
+// ─── Rule of Life ──────────────────────────────────────────────
+export type RuleDiscipline =
+  | "scripture" | "prayer" | "silence" | "sabbath" | "fasting"
+  | "worship" | "community" | "generosity" | "service" | "confession" | "witness";
+
+export type RuleOfLife = {
+  daily: RuleDiscipline[];
+  weekly: RuleDiscipline[];
+  monthly: RuleDiscipline[];
+  startedAt?: string;
+  /** ISO date strings of completion, keyed per discipline */
+  log?: Record<string, string[]>;
+};
+
+// ─── Listening Prayer (hearing God) ────────────────────────────
+export type ListeningEntry = {
+  id: string;
+  date: string;
+  question?: string;    // what you brought
+  scriptureRef?: string;
+  heard: string;        // what you sensed
+  tested?: string;      // testing against Scripture
+};
+
+// ─── Family Altar ──────────────────────────────────────────────
+export type FamilyAltarLog = {
+  date: string; // YYYY-MM-DD
+  ageGroup: string;
+  dayId: string;
+};
+
 export type Profile = {
   stage?: DiscipleStage;
   locale?: LocaleCode;
@@ -138,6 +205,12 @@ export type Profile = {
   adoptedNationIso?: string;
   disciples?: DiscipleRecord[];
   secretPlace?: SecretPlaceState;
+  fasts?: Fast[];
+  examens?: ExamenEntry[];
+  forgiveness?: ForgivenessRecord[];
+  rule?: RuleOfLife;
+  listening?: ListeningEntry[];
+  familyAltar?: FamilyAltarLog[];
 };
 
 const STORAGE = "scripture-theory-profile";
