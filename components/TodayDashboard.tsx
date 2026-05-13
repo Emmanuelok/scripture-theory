@@ -18,6 +18,7 @@ import { thisWeeksVerse } from "@/data/memory";
 import PrayingForList from "@/components/PrayingForList";
 import EncourageMe from "@/components/EncourageMe";
 import DailyDevotional from "@/components/DailyDevotional";
+import ForYouToday from "@/components/ForYouToday";
 
 const PLAN_PROGRESS_KEY = "scripture-theory-progress";
 
@@ -196,6 +197,8 @@ export default function TodayDashboard() {
           />
         </div>
       </section>
+
+      <ForYouToday />
 
       <section className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8 glow-ring">
         <div className="text-xs uppercase tracking-widest text-flame-700">Today's next step</div>
