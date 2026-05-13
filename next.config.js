@@ -3,8 +3,9 @@ const nextConfig = {
   reactStrictMode: true,
   images: {
     remotePatterns: [
-      // flagcdn.com — free, public-domain country flag SVGs (no API key).
       { protocol: "https", hostname: "flagcdn.com" },
+      { protocol: "https", hostname: "cdn.jsdelivr.net" },
+      { protocol: "https", hostname: "upload.wikimedia.org" },
     ],
   },
 };

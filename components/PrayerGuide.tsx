@@ -6,7 +6,8 @@ import { worldPrayer, todaysRegionIndex } from "@/data/prayers";
 import { prayerLocales } from "@/data/prayers-i18n";
 import { locales, localeOrder, type LocaleCode } from "@/data/gospel-i18n";
 import { todaysNation, regions as nationRegions, rotationDay } from "@/data/nations";
-import { flagEmoji, flagSvgUrl } from "@/lib/flags";
+import { flagEmoji } from "@/lib/flags";
+import NationFlag from "@/components/NationFlag";
 
 type Mode = "lords" | "acts" | "world" | "nations";
 
@@ -77,6 +78,13 @@ export default function PrayerGuide() {
         <ModeButton current={mode} value="nations" onClick={setMode}>
           Pray for the nations
         </ModeButton>
+        <Link
+          href="/pray/live"
+          className="rounded-full px-4 py-2 text-sm border bg-flame-600 text-white border-flame-600 hover:bg-flame-700 inline-flex items-center gap-2"
+        >
+          <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+          Pray now for the world
+        </Link>
         <ModeButton current={mode} value="world" onClick={setMode}>
           {t.modes.world}
         </ModeButton>
@@ -203,12 +211,12 @@ function NationsTeaser() {
   return (
     <div className="space-y-5" dir="ltr">
       <div className="rounded-3xl overflow-hidden border border-ink-200 bg-card glow-ring">
-        <div className="relative aspect-[16/7] bg-ink-800">
-          <img
-            src={flagSvgUrl(today.iso, 640)}
+        <div className="relative aspect-[16/7] bg-ink-800 overflow-hidden">
+          <NationFlag
+            iso={today.iso}
             alt={`Flag of ${today.name}`}
-            className="absolute inset-0 h-full w-full object-cover"
-            loading="lazy"
+            width={640}
+            className="absolute inset-0 h-full w-full"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-ink-900/30 via-ink-900/10 to-ink-900/80" />
           <div className="absolute top-4 left-5">

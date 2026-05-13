@@ -5,7 +5,8 @@ import { useState } from "react";
 import type { Nation } from "@/data/nations";
 import { regions } from "@/data/nations";
 import { nativeNameFor } from "@/data/nations-native";
-import { flagEmoji, flagSvgUrl } from "@/lib/flags";
+import { flagEmoji } from "@/lib/flags";
+import NationFlag from "@/components/NationFlag";
 import { referenceHref } from "@/lib/reference";
 import { useProfile, type NationPrayed } from "@/lib/profile";
 
@@ -84,12 +85,11 @@ export default function NationOfTheDay({
       {/* Hero with flag */}
       <div className="relative bg-ink-900 text-ink-50">
         <div className="relative aspect-[16/9] md:aspect-[5/2] overflow-hidden bg-ink-800">
-          {/* Crisp SVG flag from flagcdn.com — public-domain CDN, no key */}
-          <img
-            src={flagSvgUrl(nation.iso, 1280)}
+          <NationFlag
+            iso={nation.iso}
             alt={`Flag of ${nation.name}`}
-            className="absolute inset-0 h-full w-full object-cover"
-            loading="eager"
+            width={1280}
+            className="absolute inset-0 h-full w-full"
           />
           {/* Soft top gradient so text on top is legible */}
           <div className="absolute inset-0 bg-gradient-to-b from-ink-900/40 via-ink-900/10 to-ink-900/80" />

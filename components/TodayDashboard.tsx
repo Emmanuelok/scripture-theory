@@ -12,7 +12,8 @@ import { translations as transMeta } from "@/data/bible/translations";
 import { canon as bibleCanon } from "@/data/bible/canon";
 import { referenceHref } from "@/lib/reference";
 import { todaysNation, regions as nationRegions, rotationDay, findNation } from "@/data/nations";
-import { flagEmoji, flagSvgUrl } from "@/lib/flags";
+import { flagEmoji } from "@/lib/flags";
+import NationFlag from "@/components/NationFlag";
 import { thisWeeksVerse } from "@/data/memory";
 import PrayingForList from "@/components/PrayingForList";
 
@@ -313,12 +314,12 @@ export default function TodayDashboard() {
         className="block rounded-3xl overflow-hidden border border-ink-200 bg-card glow-ring hover:border-flame-500 transition-colors"
         dir="ltr"
       >
-        <div className="relative aspect-[16/7] bg-ink-800">
-          <img
-            src={flagSvgUrl(nation.iso, 640)}
+        <div className="relative aspect-[16/7] bg-ink-800 overflow-hidden">
+          <NationFlag
+            iso={nation.iso}
             alt={`Flag of ${nation.name}`}
-            className="absolute inset-0 h-full w-full object-cover"
-            loading="lazy"
+            width={640}
+            className="absolute inset-0 h-full w-full"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-ink-900/30 via-ink-900/10 to-ink-900/80" />
           <div className="absolute top-3 left-4">

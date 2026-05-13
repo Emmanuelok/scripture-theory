@@ -3,7 +3,8 @@ import { todaysNation, regions, rotationDay } from "@/data/nations";
 import { thisWeeksVerse } from "@/data/memory";
 import { seed as bibleSeed } from "@/data/bible/seed";
 import { canon } from "@/data/bible/canon";
-import { flagEmoji, flagSvgUrl } from "@/lib/flags";
+import { flagEmoji } from "@/lib/flags";
+import NationFlag from "@/components/NationFlag";
 
 function dayOfYear(d = new Date()) {
   const start = Date.UTC(d.getUTCFullYear(), 0, 0);
@@ -33,12 +34,12 @@ export default function LiveTiles() {
           href="/pray/nations"
           className="group rounded-3xl overflow-hidden border border-ink-200 bg-card glow-ring hover:border-flame-500 transition-colors"
         >
-          <div className="relative aspect-[5/3] bg-ink-200">
-            <img
-              src={flagSvgUrl(nation.iso, 640)}
+          <div className="relative aspect-[5/3] bg-ink-200 overflow-hidden">
+            <NationFlag
+              iso={nation.iso}
               alt={`Flag of ${nation.name}`}
-              className="absolute inset-0 h-full w-full object-cover transition-transform group-hover:scale-105"
-              loading="eager"
+              width={640}
+              className="absolute inset-0 h-full w-full transition-transform group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-ink-900/85 via-ink-900/30 to-transparent" />
             <div className="absolute top-3 left-4">
