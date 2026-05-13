@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { todaysNation, regions, rotationDay } from "@/data/nations";
+import { todaysNation, regions, rotationCycleDay } from "@/data/nations";
 import { thisWeeksVerse } from "@/data/memory";
 import { seed as bibleSeed } from "@/data/bible/seed";
 import { canon } from "@/data/bible/canon";
@@ -23,7 +23,7 @@ export default function LiveTiles() {
   const dailyBookName = canon.find((b) => b.id === dailyVerse.book)?.name ?? dailyVerse.book;
 
   const nation = todaysNation(now);
-  const rDay = rotationDay(now);
+  const rDay = rotationCycleDay(now);
   const memory = thisWeeksVerse(now);
 
   return (

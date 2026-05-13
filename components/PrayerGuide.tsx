@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { worldPrayer, todaysRegionIndex } from "@/data/prayers";
 import { prayerLocales } from "@/data/prayers-i18n";
 import { locales, localeOrder, type LocaleCode } from "@/data/gospel-i18n";
-import { todaysNation, regions as nationRegions, rotationDay } from "@/data/nations";
+import { todaysNation, regions as nationRegions, rotationCycleDay } from "@/data/nations";
 import { flagEmoji } from "@/lib/flags";
 import NationFlag from "@/components/NationFlag";
 
@@ -207,7 +207,7 @@ function ActsView({ t, dir }: { t: ReturnType<typeof useT>; dir: "ltr" | "rtl" }
 
 function NationsTeaser() {
   const today = todaysNation();
-  const day = rotationDay();
+  const day = rotationCycleDay();
   return (
     <div className="space-y-5" dir="ltr">
       <div className="rounded-3xl overflow-hidden border border-ink-200 bg-card glow-ring">

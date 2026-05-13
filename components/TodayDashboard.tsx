@@ -11,7 +11,7 @@ import { seed as bibleSeed } from "@/data/bible/seed";
 import { translations as transMeta } from "@/data/bible/translations";
 import { canon as bibleCanon } from "@/data/bible/canon";
 import { referenceHref } from "@/lib/reference";
-import { todaysNation, regions as nationRegions, rotationDay, findNation } from "@/data/nations";
+import { todaysNation, regions as nationRegions, rotationCycleDay, findNation } from "@/data/nations";
 import { flagEmoji } from "@/lib/flags";
 import NationFlag from "@/components/NationFlag";
 import { thisWeeksVerse } from "@/data/memory";
@@ -84,7 +84,7 @@ export default function TodayDashboard() {
 
   // Today's nation in the rotation (specific country)
   const nation = todaysNation(now);
-  const nationDay = rotationDay(now);
+  const nationDay = rotationCycleDay(now);
   const adopted = profile.adoptedNationIso ? findNation(profile.adoptedNationIso) : undefined;
   // This week's memory verse
   const memoryVerse = thisWeeksVerse(now);

@@ -1,4 +1,4 @@
-import { nations, rotationDay, todaysNation } from "@/data/nations";
+import { nations, rotationCycleDay, todaysNation } from "@/data/nations";
 import NationOfTheDay from "@/components/NationOfTheDay";
 import NationsRhythm from "@/components/NationsRhythm";
 import NationsTriptych from "@/components/NationsTriptych";
@@ -11,7 +11,7 @@ export const metadata = {
 
 export default function NationsPage() {
   const nation = todaysNation();
-  const day = rotationDay();
+  const day = rotationCycleDay();
 
   return (
     <section className="mx-auto max-w-3xl px-5 pt-10 pb-20">
