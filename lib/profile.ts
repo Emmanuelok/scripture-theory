@@ -339,6 +339,8 @@ export function loadProfile(): Profile {
   }
 }
 
+export const PROFILE_CHANGE_EVENT = "scripture-theory:profile-change";
+
 export function saveProfile(profile: Profile) {
   if (typeof window === "undefined") return;
   try {
@@ -346,6 +348,9 @@ export function saveProfile(profile: Profile) {
     if (profile.locale) {
       window.localStorage.setItem(LOCALE_STORAGE, profile.locale);
     }
+    window.dispatchEvent(
+      new CustomEvent<Profile>(PROFILE_CHANGE_EVENT, { detail: profile })
+    );
   } catch {}
 }
 
@@ -356,6 +361,13 @@ export function useProfile() {
   useEffect(() => {
     setProfile(loadProfile());
     setMounted(true);
+    if (typeof window === "undefined") return;
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<Profile>).detail;
+      if (detail) setProfile(detail);
+    };
+    window.addEventListener(PROFILE_CHANGE_EVENT, handler);
+    return () => window.removeEventListener(PROFILE_CHANGE_EVENT, handler);
   }, []);
 
   function update(patch: Partial<Profile>) {
@@ -369,6 +381,7 @@ export function useProfile() {
     if (typeof window !== "undefined") {
       try {
         window.localStorage.removeItem(STORAGE);
+        window.dispatchEvent(new CustomEvent<Profile>(PROFILE_CHANGE_EVENT, { detail: {} }));
       } catch {}
     }
   }
