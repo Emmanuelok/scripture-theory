@@ -1,79 +1,155 @@
 import Link from "next/link";
-import { canon, oldTestament, newTestament } from "@/data/bible/canon";
-import { loadedSummary } from "@/lib/bible";
-import { translationOrder } from "@/data/bible/translations";
+import { oldTestament, newTestament } from "@/data/bible/canon";
+import { translationOrder, translations } from "@/data/bible/translations";
 import ContinueReadingCard from "@/components/ContinueReadingCard";
+import BookGrid from "@/components/BookGrid";
+import { Tile, Bento, PageHero } from "@/components/ui/Tile";
+import { Glyph } from "@/components/ui/Glyph";
 
 export const metadata = {
   title: "The Bible — Scripture Theory",
   description:
-    "Read the Bible in 11 authentic, public-domain translations. Highlight verses, take notes, save bookmarks. Compare translations side-by-side.",
+    "Read the Bible in 14 authentic, public-domain translations. Highlight verses, take notes, save bookmarks. Compare translations side-by-side. Listen, share, and study deeply.",
 };
 
+const QUICK_START = [
+  { href: "/bible/john/3", title: "John 3", sub: "For God so loved the world." },
+  { href: "/bible/romans/8", title: "Romans 8", sub: "No condemnation. No separation." },
+  { href: "/bible/psalms/23", title: "Psalm 23", sub: "The Lord is my shepherd." },
+  { href: "/bible/matthew/5", title: "Matthew 5", sub: "The Sermon on the Mount." },
+  { href: "/bible/genesis/1", title: "Genesis 1", sub: "In the beginning, God." },
+  { href: "/bible/revelation/22", title: "Revelation 22", sub: "Behold, I am coming soon." },
+];
+
 export default function BiblePage() {
-  const summary = loadedSummary();
+  const totalChapters = [...oldTestament, ...newTestament].reduce((n, b) => n + b.chapters, 0);
 
   return (
-    <section className="mx-auto max-w-5xl px-5 pt-12 pb-20">
-      <div className="text-center mb-12">
-        <span className="text-xs uppercase tracking-widest text-flame-700">The Bible</span>
-        <h1 className="font-serif text-4xl md:text-6xl mt-2 text-ink-900 leading-tight">
-          The Word of God,<br />in your hands.
-        </h1>
-        <p className="mt-5 text-ink-700 max-w-xl mx-auto leading-relaxed">
-          Open any chapter in any of {translationOrder.length} authentic public-domain
-          translations. Highlight, bookmark, take notes — your study lives quietly on your device.
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm">
-          <Link
-            href="/bible/john/3"
-            className="inline-flex items-center rounded-full bg-ink-900 text-ink-50 px-5 py-2.5 hover:bg-flame-700 transition-colors"
-          >
-            Read John 3 →
-          </Link>
-          <Link
-            href="/bible/my"
-            className="inline-flex items-center rounded-full border border-ink-300 px-5 py-2.5 text-ink-800 hover:border-ink-900 transition-colors"
-          >
-            My highlights & notes
-          </Link>
-          <Link
-            href="/bible/translations"
-            className="inline-flex items-center rounded-full border border-ink-300 px-5 py-2.5 text-ink-800 hover:border-ink-900 transition-colors"
-          >
-            About the {summary.translationsCatalog} translations
-          </Link>
-        </div>
+    <section className="mx-auto max-w-6xl px-5 pt-12 pb-24">
+      <PageHero
+        eyebrow="The Bible"
+        title="The Word of God,"
+        titleAccent="in your hands."
+        intro={`Open any chapter in any of ${translationOrder.length} authentic public-domain translations. Highlight, bookmark, take notes, listen to a real human voice, share beautiful verse cards — your study lives quietly on your device.`}
+      />
+
+      <div className="mt-10">
+        <ContinueReadingCard />
       </div>
 
-      <ContinueReadingCard />
+      {/* Stat strip */}
+      <div className="grid grid-cols-3 gap-3 md:gap-4 mb-10">
+        <Stat label="Translations" value={String(translationOrder.length)} sub="public domain" />
+        <Stat label="Books" value="66" sub="OT + NT" />
+        <Stat
+          label="Chapters"
+          value={totalChapters.toLocaleString()}
+          sub="every one openable"
+        />
+      </div>
 
-      <Testament name="Old Testament" books={oldTestament} />
-      <Testament name="New Testament" books={newTestament} />
+      {/* Quick-start passages */}
+      <div className="mb-10">
+        <div className="flex flex-wrap items-baseline justify-between gap-3 mb-4">
+          <h2 className="font-serif text-2xl text-ink-900">Start here</h2>
+          <Link href="/bible/my" className="text-xs text-flame-700 hover:underline">
+            My highlights & notes →
+          </Link>
+        </div>
+        <Bento>
+          <Tile
+            href="/bible/john/3"
+            size="hero"
+            tone="dark"
+            eyebrow="The verse everyone knows"
+            title="John 3"
+            tag="Nicodemus by night"
+            sub="The conversation that gave the church its most loved sentence. Read it tonight, slowly, aloud."
+            glyph={<Glyph id="lamp" size={120} />}
+          >
+            <blockquote className="mt-4 border-l-2 border-flame-500/70 pl-3 text-flame-100/90 italic text-sm leading-relaxed">
+              "For God so loved the world that He gave His only Son…"
+              <span className="block not-italic text-[11px] text-flame-300 mt-1.5 tracking-wide">
+                — John 3:16 (WEB)
+              </span>
+            </blockquote>
+          </Tile>
+
+          {QUICK_START.slice(1, 7).map((q) => (
+            <Tile
+              key={q.href}
+              href={q.href}
+              eyebrow="Open now"
+              title={q.title}
+              sub={q.sub}
+              glyph={<Glyph id="open-book" size={48} />}
+            />
+          ))}
+        </Bento>
+      </div>
+
+      {/* Search/find a book */}
+      <div className="mb-8">
+        <BookGrid />
+      </div>
+
+      {/* Translations catalog promo */}
+      <div className="mt-12">
+        <Tile
+          href="/bible/translations"
+          size="wide"
+          tone="dark"
+          eyebrow={`${translationOrder.length} translations · all public domain`}
+          title={
+            <>
+              Every translation we serve —{" "}
+              <span className="text-flame-300">authentic, never machine-translated.</span>
+            </>
+          }
+          sub="WEB · KJV · ASV · RVR · LSG · CUV · Vulgate · ELB · LUT · ALB · BBE and more. The story of each translation, the language family, the era it was made."
+          glyph={<Glyph id="library" size={64} />}
+        >
+          <div className="mt-4 flex flex-wrap gap-1.5">
+            {translationOrder.map((t) => (
+              <span
+                key={t}
+                className="inline-flex items-center rounded-full bg-ink-800/60 border border-ink-700/60 px-2.5 py-0.5 text-[10px] uppercase tracking-widest text-flame-300"
+                title={translations[t]?.name}
+              >
+                {translations[t]?.abbrev ?? t}
+              </span>
+            ))}
+          </div>
+        </Tile>
+      </div>
+
+      {/* Closing scripture */}
+      <div className="mt-16 rounded-3xl bg-ink-900 text-ink-50 p-8 md:p-10 text-center relative overflow-hidden">
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-90"
+          style={{
+            background:
+              "radial-gradient(60% 50% at 50% 0%, rgba(249,115,22,0.22), transparent 60%), radial-gradient(60% 50% at 50% 100%, rgba(184,66,12,0.18), transparent 60%)",
+          }}
+        />
+        <div className="relative">
+          <p className="font-serif text-2xl md:text-3xl leading-snug">
+            "All Scripture is breathed out by God."
+          </p>
+          <p className="mt-2 text-ink-300">2 Timothy 3:16</p>
+        </div>
+      </div>
     </section>
   );
 }
 
-function Testament({ name, books }: { name: string; books: typeof canon }) {
+function Stat({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
-    <div className="mt-12">
-      <div className="text-xs uppercase tracking-widest text-flame-700">{name}</div>
-      <h2 className="font-serif text-2xl text-ink-900 mt-1">{books.length} books</h2>
-      <ul className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
-        {books.map((b) => (
-          <li key={b.id}>
-            <Link
-              href={`/bible/${b.id}`}
-              className="block rounded-xl border border-ink-200 bg-card p-3 hover:border-flame-500 hover:shadow-sm transition-all"
-            >
-              <div className="font-serif text-ink-900">{b.name}</div>
-              <div className="text-[10px] uppercase tracking-widest text-ink-400 mt-0.5">
-                {b.chapters} ch
-              </div>
-            </Link>
-          </li>
-        ))}
-      </ul>
+    <div className="rounded-2xl border border-ink-200 bg-card p-4 md:p-5 text-center">
+      <div className="text-[10px] uppercase tracking-widest text-flame-700">{label}</div>
+      <div className="font-serif text-3xl md:text-4xl text-ink-900 mt-1">{value}</div>
+      <div className="text-xs text-ink-500 mt-0.5">{sub}</div>
     </div>
   );
 }
