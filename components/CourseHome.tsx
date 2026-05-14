@@ -105,12 +105,66 @@ export default function CourseHome() {
       {/* What's in the course */}
       <div className="grid sm:grid-cols-3 gap-3 md:gap-4">
         <Stat label="Weeks" value="12" sub="anchor scripture · reading · lesson" />
-        <Stat label="Quizzes" value={`${COURSE_WEEKS.length * 5}`} sub="5 questions each week" />
+        <Stat label="Quizzes" value={`${COURSE_WEEKS.length * 8}`} sub="8 questions per week" />
         <Stat
           label="Final exam"
           value={`${EXAM_QUESTION_COUNT}`}
           sub={`pass at ${EXAM_PASS_PERCENT}% for the certificate`}
         />
+      </div>
+
+      {/* Course sub-pages */}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <Link
+          href="/course/begin"
+          className="rounded-2xl border border-flame-300 bg-flame-50/40 p-4 hover:border-flame-500 hover:bg-flame-50/60 transition-colors"
+        >
+          <div className="text-[10px] uppercase tracking-widest text-flame-700">Start here</div>
+          <div className="font-serif text-ink-900 mt-1">Begin</div>
+          <div className="text-xs text-ink-600 mt-0.5">A letter + a commitment</div>
+        </Link>
+        <Link
+          href="/course/memory"
+          className="rounded-2xl border border-ink-200 bg-card p-4 hover:border-flame-500 transition-colors"
+        >
+          <div className="text-[10px] uppercase tracking-widest text-flame-700">12 verses</div>
+          <div className="font-serif text-ink-900 mt-1">Memory verses</div>
+          <div className="text-xs text-ink-600 mt-0.5">All twelve, one per week</div>
+        </Link>
+        <Link
+          href="/course/lead"
+          className="rounded-2xl border border-ink-200 bg-card p-4 hover:border-flame-500 transition-colors"
+        >
+          <div className="text-[10px] uppercase tracking-widest text-flame-700">Pastors / leaders</div>
+          <div className="font-serif text-ink-900 mt-1">Lead a cohort</div>
+          <div className="text-xs text-ink-600 mt-0.5">5–8 believers, twelve weeks</div>
+        </Link>
+        {course.passed ? (
+          <Link
+            href="/course/sent"
+            className="rounded-2xl border border-emerald-300 bg-emerald-50/40 p-4 hover:border-emerald-500 transition-colors"
+          >
+            <div className="text-[10px] uppercase tracking-widest text-emerald-700">Sent</div>
+            <div className="font-serif text-ink-900 mt-1">What's next</div>
+            <div className="text-xs text-ink-600 mt-0.5">Concrete next steps after the cert</div>
+          </Link>
+        ) : (
+          <Link
+            href="/course/exam"
+            className={[
+              "rounded-2xl border p-4 transition-colors",
+              allDone
+                ? "border-flame-500 bg-flame-50/60 hover:bg-flame-50"
+                : "border-ink-200 bg-card-subtle opacity-75",
+            ].join(" ")}
+          >
+            <div className="text-[10px] uppercase tracking-widest text-flame-700">Final</div>
+            <div className="font-serif text-ink-900 mt-1">The exam</div>
+            <div className="text-xs text-ink-600 mt-0.5">
+              {allDone ? "Ready when you are" : "Unlocks after all 12 weeks"}
+            </div>
+          </Link>
+        )}
       </div>
 
       {/* Twelve weeks */}

@@ -65,6 +65,17 @@ export type Crosswalk = {
   refs: string; // e.g. "LD 1 · Q&A 1" or "Q. 21"
 };
 
+/** A book the believer can read alongside this week, with a public-domain link if available. */
+export type Reading = {
+  title: string;
+  author: string;
+  when?: string; // year or era
+  /** Short reason why this book pairs with this week. */
+  why?: string;
+  /** Public-domain source link (CCEL, archive.org, Project Gutenberg) when available. */
+  url?: string;
+};
+
 export type CourseWeek = {
   week: number;
   title: string;
@@ -84,6 +95,8 @@ export type CourseWeek = {
   discussion: string[];
   /** Notes for a small-group leader or family-night facilitator. */
   facilitatorNotes?: string[];
+  /** Books to read alongside this week (mostly public-domain classics). */
+  recommendedReading?: Reading[];
   practice: string;
   journalPrompt: string;
   quiz: Quiz[];
@@ -217,6 +230,22 @@ export const COURSE_WEEKS: CourseWeek[] = [
       "C. S. Lewis said Jesus is either a liar, a lunatic, or Lord. Why does he say there is no fourth option?",
       "If a friend told you, 'I respect Jesus as a great teacher, but I don't believe He's God' — what would you say, gently?",
       "Share: when did you first realize Jesus was more than a moral example?",
+    ],
+    recommendedReading: [
+      {
+        title: "On the Incarnation",
+        author: "Athanasius",
+        when: "c. 318",
+        why: "The Church's clearest classic on why God became man. Short, profound, life-shaping.",
+        url: "https://www.ccel.org/ccel/athanasius/incarnation.html",
+      },
+      {
+        title: "Cur Deus Homo (Why God Became Man)",
+        author: "Anselm of Canterbury",
+        when: "1098",
+        why: "Why exactly the Savior had to be both fully God and fully man.",
+        url: "https://www.ccel.org/ccel/anselm/basic_works.iv.html",
+      },
     ],
     practice:
       "Read John 1 aloud once this week, slowly. Underline every line that describes who Jesus is.",
@@ -420,6 +449,22 @@ export const COURSE_WEEKS: CourseWeek[] = [
       "Share a moment when the cross stopped being an idea and became personal to you.",
       "Who in your life right now needs to hear, gently, that Jesus has paid in full for them?",
     ],
+    recommendedReading: [
+      {
+        title: "Commentary on Galatians",
+        author: "Martin Luther",
+        when: "1535",
+        why: "Luther on the great exchange — your sin to Him, His righteousness to you. Pastoral and unmissable.",
+        url: "https://www.ccel.org/ccel/luther/galatians.html",
+      },
+      {
+        title: "The Death of Death in the Death of Christ",
+        author: "John Owen",
+        when: "1647",
+        why: "Sober, careful, weighty. Owen on what the cross actually accomplished.",
+        url: "https://www.ccel.org/ccel/owen/deathofdeath.html",
+      },
+    ],
     practice:
       "Memorize 1 Corinthians 15:3-4. Say it back, out loud, by the end of the week.",
     journalPrompt:
@@ -608,6 +653,22 @@ export const COURSE_WEEKS: CourseWeek[] = [
       "Why did the early Church spend centuries fighting over how to say this?",
       "Have you ever been embarrassed to explain the Trinity? Try it together, simply.",
       "Discuss: is it lawful to address each Person of the Trinity in prayer? What does the New Testament show?",
+    ],
+    recommendedReading: [
+      {
+        title: "On the Trinity",
+        author: "Augustine of Hippo",
+        when: "c. 400–428",
+        why: "The Western Church's deepest meditation on the Triune God — slow, patient, ultimately worshipful.",
+        url: "https://www.ccel.org/ccel/schaff/npnf103.html",
+      },
+      {
+        title: "On the Holy Spirit",
+        author: "Basil the Great",
+        when: "375",
+        why: "Why the Spirit is fully God, with the same glory and worship.",
+        url: "https://www.ccel.org/ccel/schaff/npnf208.toc.html",
+      },
     ],
     practice:
       "Pray to each Person this week: one day address the Father directly, one day Jesus, one day the Spirit. Same God; three lawful ways to speak to Him.",
@@ -812,6 +873,22 @@ export const COURSE_WEEKS: CourseWeek[] = [
       "What's the difference between reading the Bible for advice and reading it for Christ?",
       "What would a year of daily reading look like in your life? What gets in the way?",
     ],
+    recommendedReading: [
+      {
+        title: "Institutes of the Christian Religion, Book I",
+        author: "John Calvin",
+        when: "1559 (final edition)",
+        why: "Calvin's foundational chapters on Scripture's authority and self-attestation.",
+        url: "https://www.ccel.org/ccel/calvin/institutes.html",
+      },
+      {
+        title: "The Pilgrim's Progress",
+        author: "John Bunyan",
+        when: "1678",
+        why: "The Christian life as a Bible-shaped journey. Best-loved Christian allegory ever written.",
+        url: "https://www.ccel.org/ccel/bunyan/pilgrim.html",
+      },
+    ],
     practice:
       "Read one chapter a day this week, same time, same place. Begin John, Mark, or Psalms. Pray Psalm 119:18 before each reading.",
     journalPrompt:
@@ -1008,6 +1085,22 @@ export const COURSE_WEEKS: CourseWeek[] = [
       "Read the Lord's Prayer slowly together. Which line lands hardest?",
       "How do you keep praying when it feels like nothing is happening?",
       "What would it look like for your small group to actually pray for one another by name this week?",
+    ],
+    recommendedReading: [
+      {
+        title: "The Practice of the Presence of God",
+        author: "Brother Lawrence",
+        when: "1692 (compiled)",
+        why: "A monastery dishwasher's short book on speaking to God all day. One of the most practical guides to prayer ever written.",
+        url: "https://www.ccel.org/ccel/lawrence/practice.html",
+      },
+      {
+        title: "The Way of Perfection",
+        author: "Teresa of Ávila",
+        when: "1566",
+        why: "Teresa's careful, warm school of contemplative prayer — written for her own sisters and useful for any believer.",
+        url: "https://www.ccel.org/ccel/teresa/way.html",
+      },
     ],
     practice:
       "Pray the Lord's Prayer slowly each morning this week. One phrase at a time. Pause to mean it.",
@@ -1216,6 +1309,21 @@ export const COURSE_WEEKS: CourseWeek[] = [
       "Share, if you can, a time you received the depth of God's forgiveness.",
       "Forgiveness is not trust restored. What is the difference, and why does it matter?",
       "Pray for one another, by name, the wounds you are still trying to release.",
+    ],
+    recommendedReading: [
+      {
+        title: "Confessions",
+        author: "Augustine of Hippo",
+        when: "397–400",
+        why: "The first and greatest spiritual autobiography. Augustine on repentance and the slow return home.",
+        url: "https://www.ccel.org/ccel/augustine/confess.html",
+      },
+      {
+        title: "Total Forgiveness",
+        author: "R. T. Kendall",
+        when: "2002",
+        why: "A working pastor's careful, biblical walk through what forgiving actually means (and does not mean). Modern; not public domain, but worth purchasing.",
+      },
     ],
     practice:
       "Confess one specific sin to the Father this week, by name. Then walk a forgiveness step toward one specific person. Use /forgive on the platform if it helps.",
@@ -1462,6 +1570,22 @@ export const COURSE_WEEKS: CourseWeek[] = [
       "Where do you feel grieved or quenched in your walk? What might the Spirit be saying?",
       "Share: name one fruit the Spirit has clearly grown in someone in your group.",
     ],
+    recommendedReading: [
+      {
+        title: "A Plain Account of Christian Perfection",
+        author: "John Wesley",
+        when: "1777",
+        why: "Wesley on the Spirit's deeper work — entire sanctification — for the believer who longs for more.",
+        url: "https://www.ccel.org/ccel/wesley/perfection.html",
+      },
+      {
+        title: "Institutes, Book III (chapters 1–3)",
+        author: "John Calvin",
+        when: "1559",
+        why: "Calvin on the Spirit's secret work in uniting the believer to Christ.",
+        url: "https://www.ccel.org/ccel/calvin/institutes.html",
+      },
+    ],
     practice:
       "Each morning this week, before you do anything, ask the Father: 'Fill me with Your Spirit today.' Then watch.",
     journalPrompt:
@@ -1658,6 +1782,22 @@ export const COURSE_WEEKS: CourseWeek[] = [
       "Share a 'bad church' story honestly. How has Christ ministered to you in it?",
       "What would change if every member of your church believed they were genuinely needed?",
       "Pray together for the universal Church — for unity, faithfulness, and protection.",
+    ],
+    recommendedReading: [
+      {
+        title: "On the Unity of the Church",
+        author: "Cyprian of Carthage",
+        when: "251",
+        why: "An early bishop's grave, beautiful argument for one Church — written under persecution.",
+        url: "https://www.ccel.org/ccel/schaff/anf05.iv.iv.html",
+      },
+      {
+        title: "Lectures to My Students",
+        author: "Charles Spurgeon",
+        when: "1875",
+        why: "Spurgeon coaching young pastors. Useful even for non-pastors who love a faithful local church.",
+        url: "https://www.ccel.org/ccel/spurgeon/lectures.html",
+      },
     ],
     practice:
       "If you do not have a church home, visit one this Sunday. Use /connect to find one. If you have one, tell a leader you are walking through Foundations and ask how you can serve.",
@@ -1915,6 +2055,22 @@ export const COURSE_WEEKS: CourseWeek[] = [
       "What might it mean for unity in your group to honor the family disagreements here?",
       "Pray for the Church around the world taking communion in places of persecution this Sunday.",
     ],
+    recommendedReading: [
+      {
+        title: "Catechetical Lectures",
+        author: "Cyril of Jerusalem",
+        when: "c. 350",
+        why: "The 4th-century bishop's lectures to those preparing for baptism. The earliest pastoral guide to the sacraments still in use.",
+        url: "https://www.ccel.org/ccel/schaff/npnf207.toc.html",
+      },
+      {
+        title: "Institutes, Book IV (chapters 14–18)",
+        author: "John Calvin",
+        when: "1559",
+        why: "Calvin's careful treatment of the sacraments in the Reformed tradition.",
+        url: "https://www.ccel.org/ccel/calvin/institutes.html",
+      },
+    ],
     practice:
       "If you have never been baptized, message a local pastor this week and ask. If you have, take communion at your church this Sunday with full attention — examine yourself, then receive Him.",
     journalPrompt:
@@ -2123,6 +2279,21 @@ export const COURSE_WEEKS: CourseWeek[] = [
       "Pray for one another by name — for boldness in one specific conversation this week.",
       "What's the difference between sharing the gospel and 'winning an argument'?",
     ],
+    recommendedReading: [
+      {
+        title: "The Soul-Winner",
+        author: "Charles Spurgeon",
+        when: "1895",
+        why: "Spurgeon's clearest teaching on how ordinary believers reach souls. Practical, warm, urgent.",
+        url: "https://www.ccel.org/ccel/spurgeon/soulwinner.html",
+      },
+      {
+        title: "Out of the Salt Shaker and into the World",
+        author: "Rebecca Manley Pippert",
+        when: "1979",
+        why: "A modern classic on witness as friendship. Not public domain, but widely available.",
+      },
+    ],
     practice:
       "Tell one person this week, in plain words: 'Here is something Jesus has done in my life.' Don't argue. Don't perform. Tell.",
     journalPrompt:
@@ -2305,6 +2476,22 @@ export const COURSE_WEEKS: CourseWeek[] = [
       "Discuss: how does the Christian hope differ from 'a better place' or 'spirits in heaven'?",
       "How do you minister to a fellow believer in crisis, without minimizing pain or false-promising God?",
       "Pray for one another's specific burdens by name.",
+    ],
+    recommendedReading: [
+      {
+        title: "Revelations of Divine Love",
+        author: "Julian of Norwich",
+        when: "1395",
+        why: "An anchoress's visions in a plague-haunted town — 'all shall be well, and all manner of thing shall be well.' Held by the Body for six centuries in pain.",
+        url: "https://www.ccel.org/ccel/julian/revelations.html",
+      },
+      {
+        title: "Pensées",
+        author: "Blaise Pascal",
+        when: "1670",
+        why: "A scientist's fragmentary notes on suffering, hope, and the wager of faith. Honest about pain, certain of God.",
+        url: "https://www.ccel.org/ccel/pascal/pensees.html",
+      },
     ],
     practice:
       "Read Revelation 21:1-7 every day this week, slowly, out loud. Memorize verse 4 if you can.",
@@ -2519,6 +2706,22 @@ export const COURSE_WEEKS: CourseWeek[] = [
       "Discuss: how will you protect against drift in the year ahead?",
       "Who in your life could you walk the course with next?",
       "Pray for one another by name for the long obedience ahead.",
+    ],
+    recommendedReading: [
+      {
+        title: "The Imitation of Christ",
+        author: "Thomas à Kempis",
+        when: "c. 1418",
+        why: "Six centuries the second-most-read Christian book after the Bible. Short chapters. A whole life of obedience in 200 pages.",
+        url: "https://www.ccel.org/ccel/kempis/imitation.html",
+      },
+      {
+        title: "The Pilgrim's Progress (full)",
+        author: "John Bunyan",
+        when: "1678",
+        why: "If you've only read excerpts, read the whole journey now. It is the long obedience in story form.",
+        url: "https://www.ccel.org/ccel/bunyan/pilgrim.html",
+      },
     ],
     practice:
       "Open The Path on /disciple. Mark the stages that are honestly true of you. Pick the next stage. Walk it.",

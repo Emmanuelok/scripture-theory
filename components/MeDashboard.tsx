@@ -367,11 +367,18 @@ function CourseCard({ profile }: { profile: Profile }) {
   const next = COURSE_WEEKS.find((w) => !done.has(w.week));
   const allWeeksDone = completeCount === total;
 
-  // Empty state — hide unless they've at least opened week 1 or completed something
+  // Empty state — hide unless they've at least opened the course in some way
   if (completeCount === 0 && !course) return null;
 
+  // Days completed across all weeks
+  const totalDaysComplete = Object.values(course?.daysComplete ?? {}).reduce(
+    (acc: number, arr) => acc + ((arr as number[] | undefined)?.length ?? 0),
+    0
+  );
+  const totalPossibleDays = total * 7;
+
   const targetHref = course?.passed
-    ? "/course/certificate"
+    ? "/course/sent"
     : allWeeksDone
     ? "/course/exam"
     : next
@@ -379,7 +386,7 @@ function CourseCard({ profile }: { profile: Profile }) {
     : "/course";
 
   const label = course?.passed
-    ? "Certificate earned · open"
+    ? "Open Sent · what's next"
     : allWeeksDone
     ? "Take the final exam"
     : next
@@ -387,13 +394,14 @@ function CourseCard({ profile }: { profile: Profile }) {
     : "Open course";
 
   return (
-    <Link
-      href={targetHref}
-      className="group relative block overflow-hidden rounded-3xl border border-ink-200 bg-card p-6 md:p-7 hover:-translate-y-0.5 hover:border-flame-500/60 hover:shadow-[0_18px_50px_-20px_rgba(249,115,22,0.28)] transition-all"
-    >
+    <section className="relative overflow-hidden rounded-3xl border border-ink-200 bg-card p-6 md:p-7">
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-flame-50/40 to-transparent"
+        className="pointer-events-none absolute inset-0 opacity-60"
+        style={{
+          background:
+            "radial-gradient(40% 60% at 100% 0%, rgba(249,115,22,0.06), transparent 60%)",
+        }}
       />
       <div className="relative">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
@@ -401,7 +409,7 @@ function CourseCard({ profile }: { profile: Profile }) {
             <div className="text-[10px] uppercase tracking-widest text-flame-700">
               Foundations of the Faith
             </div>
-            <h2 className="font-serif text-2xl text-ink-900 mt-1 group-hover:text-flame-700 transition-colors">
+            <h2 className="font-serif text-2xl text-ink-900 mt-1">
               {course?.passed
                 ? "Course complete · certificate earned"
                 : allWeeksDone
@@ -414,7 +422,12 @@ function CourseCard({ profile }: { profile: Profile }) {
               <p className="text-sm text-ink-600 mt-1 leading-relaxed">{next.tagline}</p>
             )}
           </div>
-          <span className="text-xs text-flame-700 shrink-0">{label} →</span>
+          <Link
+            href={targetHref}
+            className="text-xs rounded-full bg-flame-600 text-ink-50 px-4 py-1.5 hover:bg-flame-500"
+          >
+            {label} →
+          </Link>
         </div>
 
         {/* Twelve-week strip */}
@@ -422,18 +435,22 @@ function CourseCard({ profile }: { profile: Profile }) {
           {COURSE_WEEKS.map((w) => {
             const isDone = done.has(w.week);
             const isCurrent = next?.week === w.week;
+            const dayCount = course?.daysComplete?.[w.week]?.length ?? 0;
             return (
               <li key={w.week}>
-                <div
+                <Link
+                  href={`/course/week/${w.week}`}
+                  title={`Week ${w.week} · ${w.title}${isDone ? " · complete" : ""}${dayCount > 0 ? ` · ${dayCount}/7 days` : ""}`}
                   className={[
-                    "h-2 rounded-full",
+                    "block h-2 rounded-full transition-all hover:scale-y-150",
                     isDone
                       ? "bg-gradient-to-r from-emerald-500 to-emerald-300"
                       : isCurrent
                       ? "bg-flame-300"
+                      : dayCount > 0
+                      ? "bg-flame-200"
                       : "bg-ink-200",
                   ].join(" ")}
-                  title={`Week ${w.week} · ${w.title}${isDone ? " (complete)" : ""}`}
                 />
               </li>
             );
@@ -441,12 +458,39 @@ function CourseCard({ profile }: { profile: Profile }) {
         </ol>
         <div className="mt-2 text-xs text-ink-500">
           {completeCount} of {total} weeks · {pct}%
+          {totalDaysComplete > 0 && (
+            <span> · {totalDaysComplete} of {totalPossibleDays} days</span>
+          )}
           {course?.examScore != null && (
             <span> · Exam best: {course.examScore}/24</span>
           )}
         </div>
+
+        {/* Quick links */}
+        <div className="mt-4 flex flex-wrap gap-1.5">
+          <Link
+            href="/course/memory"
+            className="text-[11px] rounded-full bg-card-subtle border border-ink-200 px-2.5 py-0.5 text-ink-700 hover:border-flame-500"
+          >
+            12 memory verses
+          </Link>
+          {course?.passed && (
+            <Link
+              href="/course/certificate"
+              className="text-[11px] rounded-full bg-emerald-50 border border-emerald-300 px-2.5 py-0.5 text-emerald-700 hover:border-emerald-500"
+            >
+              Certificate
+            </Link>
+          )}
+          <Link
+            href="/course/lead"
+            className="text-[11px] rounded-full bg-card-subtle border border-ink-200 px-2.5 py-0.5 text-ink-700 hover:border-flame-500"
+          >
+            Lead a cohort
+          </Link>
+        </div>
       </div>
-    </Link>
+    </section>
   );
 }
 

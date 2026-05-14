@@ -378,6 +378,47 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
             </ol>
           </section>
 
+          {/* Recommended reading */}
+          {week.recommendedReading && week.recommendedReading.length > 0 && (
+            <section className="mt-10">
+              <div className="flex flex-wrap items-baseline justify-between gap-3 mb-3">
+                <h2 className="font-serif text-2xl text-ink-900">If you want to go deeper</h2>
+                <p className="text-sm text-ink-500 italic">
+                  Books that have walked believers for centuries.
+                </p>
+              </div>
+              <ul className="grid sm:grid-cols-2 gap-3">
+                {week.recommendedReading.map((r) => (
+                  <li
+                    key={`${r.title}-${r.author}`}
+                    className="rounded-2xl border border-ink-200 bg-card p-5"
+                  >
+                    <div className="flex items-baseline justify-between gap-2">
+                      <h3 className="font-serif text-ink-900 leading-snug">{r.title}</h3>
+                      {r.when && (
+                        <span className="text-[10px] text-ink-500 shrink-0">{r.when}</span>
+                      )}
+                    </div>
+                    <div className="text-xs text-flame-700 mt-0.5">{r.author}</div>
+                    {r.why && (
+                      <p className="mt-2 text-sm text-ink-700 leading-relaxed italic">{r.why}</p>
+                    )}
+                    {r.url && (
+                      <a
+                        href={r.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-3 inline-flex items-center text-xs text-flame-700 hover:underline"
+                      >
+                        Read free at CCEL ↗
+                      </a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
           {/* Facilitator notes — only for group leaders, shown collapsed by default */}
           {week.facilitatorNotes && week.facilitatorNotes.length > 0 && (
             <details className="mt-6 group rounded-3xl border border-flame-200 bg-flame-50/30 overflow-hidden">
