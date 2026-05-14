@@ -24,13 +24,46 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
   );
   const [submittedScore, setSubmittedScore] = useState<number>(previousBest);
 
+  // Per-day completion (persisted in profile)
+  const daysDone = useMemo(
+    () => new Set(course.daysComplete?.[week.week] ?? []),
+    [course.daysComplete, week.week]
+  );
+
   useEffect(() => {
     if (!mounted) return;
     setPhase(previouslyDone ? "results" : "read");
-    setAnswers(Array(week.quiz.length).fill(null));
+    // Restore any saved draft for this week
+    const draft = course.quizDrafts?.[week.week];
+    if (draft && draft.length === week.quiz.length) {
+      setAnswers([...draft]);
+    } else {
+      setAnswers(Array(week.quiz.length).fill(null));
+    }
     setSubmittedScore(previousBest);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [week.week, mounted]);
+
+  // Save quiz draft whenever the answers array changes while taking the quiz
+  useEffect(() => {
+    if (!mounted) return;
+    if (phase !== "quiz") return;
+    // Only persist if any answer is set, to avoid empty noise
+    const hasAny = answers.some((a) => a !== null);
+    if (!hasAny) return;
+    const nextDrafts = { ...(course.quizDrafts ?? {}), [week.week]: [...answers] };
+    update({ course: { ...course, quizDrafts: nextDrafts } });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [answers, phase]);
+
+  function toggleDay(day: number) {
+    const set = new Set(course.daysComplete?.[week.week] ?? []);
+    if (set.has(day)) set.delete(day);
+    else set.add(day);
+    const sorted = Array.from(set).sort((a, b) => a - b);
+    const next = { ...(course.daysComplete ?? {}), [week.week]: sorted };
+    update({ course: { ...course, daysComplete: next } });
+  }
 
   const score = useMemo(
     () => answers.reduce((acc: number, a, i) => acc + (a === week.quiz[i].correctIndex ? 1 : 0), 0),
@@ -47,6 +80,11 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
 
     const nextCourse = { ...course };
     nextCourse.quizScores = { ...(course.quizScores ?? {}), [week.week]: best };
+    // Clear the draft now that the quiz has been submitted
+    const draftsClean = { ...(course.quizDrafts ?? {}) };
+    delete draftsClean[week.week];
+    nextCourse.quizDrafts = draftsClean;
+
     if (isPass) {
       const setComplete = new Set(course.weeksComplete ?? []);
       setComplete.add(week.week);
@@ -118,10 +156,10 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
                 <h2 className="font-serif text-xl text-ink-900 mt-1">{week.memoryVerse.ref}</h2>
               </div>
               <Link
-                href="/memory"
+                href={`/memory?ref=${encodeURIComponent(week.memoryVerse.ref)}&text=${encodeURIComponent(week.memoryVerse.text)}`}
                 className="text-xs text-flame-700 hover:underline"
               >
-                Open the memory trainer →
+                Practice in the memory trainer →
               </Link>
             </div>
             <blockquote className="mt-3 prose-scripture text-ink-800 italic leading-relaxed">
@@ -132,17 +170,30 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
           {/* Daily structure */}
           <section className="mt-10">
             <div className="flex flex-wrap items-baseline justify-between gap-3 mb-4">
-              <h2 className="font-serif text-2xl text-ink-900">Seven days, seven steps</h2>
-              <p className="text-sm text-ink-500 italic">Read · meditate · pray · apply · journal · review · rest</p>
+              <div>
+                <h2 className="font-serif text-2xl text-ink-900">Seven days, seven steps</h2>
+                <p className="text-sm text-ink-500 italic">
+                  Read · meditate · pray · apply · journal · review · rest
+                </p>
+              </div>
+              <span className="text-xs text-flame-700 font-medium">
+                {daysDone.size} of 7 days
+              </span>
             </div>
             <ol className="space-y-3">
               {week.days.map((d, i) => {
                 const href = referenceHref(d.passage);
                 const glyph = DAY_GLYPHS[i % DAY_GLYPHS.length];
+                const done = daysDone.has(d.day);
                 return (
                   <li
                     key={d.day}
-                    className="relative overflow-hidden rounded-3xl border border-ink-200 bg-card p-5"
+                    className={[
+                      "relative overflow-hidden rounded-3xl border p-5 transition-colors",
+                      done
+                        ? "border-emerald-500/40 bg-emerald-50/30"
+                        : "border-ink-200 bg-card",
+                    ].join(" ")}
                   >
                     <span
                       aria-hidden
@@ -152,9 +203,19 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
                     </span>
                     <div className="relative">
                       <div className="flex flex-wrap items-baseline gap-3">
-                        <span className="font-serif text-2xl text-flame-700 leading-none">
-                          {String(d.day).padStart(2, "0")}
-                        </span>
+                        <button
+                          onClick={() => toggleDay(d.day)}
+                          aria-pressed={done}
+                          title={done ? "Mark not done" : "Mark this day done"}
+                          className={[
+                            "shrink-0 h-9 w-9 rounded-xl border flex items-center justify-center font-serif text-base transition-colors",
+                            done
+                              ? "border-emerald-500 bg-emerald-100 text-emerald-700"
+                              : "border-ink-300 bg-card-subtle text-ink-500 hover:border-flame-500",
+                          ].join(" ")}
+                        >
+                          {done ? "✓" : String(d.day).padStart(2, "0")}
+                        </button>
                         <div>
                           <div className="text-[10px] uppercase tracking-widest text-flame-700">
                             Day {d.day} · {d.label}
@@ -218,7 +279,20 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
                     {w.who} · {w.when}
                   </div>
                   {w.source && (
-                    <div className="text-[10px] text-ink-500 italic mt-0.5">{w.source}</div>
+                    <div className="text-[10px] text-ink-500 italic mt-0.5">
+                      {w.sourceUrl ? (
+                        <a
+                          href={w.sourceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-flame-700 hover:underline"
+                        >
+                          {w.source} ↗
+                        </a>
+                      ) : (
+                        w.source
+                      )}
+                    </div>
                   )}
                   <blockquote className="mt-3 italic text-ink-800 text-sm leading-relaxed border-l-2 border-flame-500/70 pl-3">
                     "{w.quote}"
@@ -227,6 +301,58 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
               ))}
             </ul>
           </section>
+
+          {/* Multi-tradition voices (only on contested weeks) */}
+          {week.traditions && week.traditions.length > 0 && (
+            <section className="mt-10">
+              <div className="flex flex-wrap items-baseline justify-between gap-3 mb-3">
+                <h2 className="font-serif text-2xl text-ink-900">
+                  How the Body has spoken
+                </h2>
+                <p className="text-sm text-ink-500 italic max-w-xs">
+                  Where Christians have legitimately differed for centuries — held side by side, honored, not arbitrated.
+                </p>
+              </div>
+              <ul className="grid sm:grid-cols-2 gap-3">
+                {week.traditions.map((t) => (
+                  <li
+                    key={t.tradition}
+                    className="rounded-2xl border border-ink-200 bg-card p-5"
+                  >
+                    <div className="text-[10px] uppercase tracking-widest text-flame-700">
+                      {t.tradition}
+                    </div>
+                    <p className="mt-2 text-sm text-ink-800 leading-relaxed">{t.voice}</p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {/* Crosswalk to historic catechisms */}
+          {week.crosswalk && week.crosswalk.length > 0 && (
+            <section className="mt-10 rounded-3xl border border-ink-200 bg-card-subtle p-6">
+              <div className="text-[10px] uppercase tracking-widest text-flame-700">
+                Historic crosswalk
+              </div>
+              <h3 className="font-serif text-xl text-ink-900 mt-1 mb-3">
+                This theme in the Church's catechisms.
+              </h3>
+              <ul className="grid sm:grid-cols-2 gap-2 text-sm">
+                {week.crosswalk.map((c, i) => (
+                  <li
+                    key={i}
+                    className="rounded-xl bg-card border border-ink-200 px-3 py-2"
+                  >
+                    <span className="text-[10px] uppercase tracking-widest text-flame-700">
+                      {c.catechism}
+                    </span>
+                    <div className="text-ink-800 mt-0.5">{c.refs}</div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           {/* Reflection */}
           <section className="mt-10 rounded-3xl border border-ink-200 bg-card p-6">
@@ -252,6 +378,35 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
             </ol>
           </section>
 
+          {/* Facilitator notes — only for group leaders, shown collapsed by default */}
+          {week.facilitatorNotes && week.facilitatorNotes.length > 0 && (
+            <details className="mt-6 group rounded-3xl border border-flame-200 bg-flame-50/30 overflow-hidden">
+              <summary className="cursor-pointer list-none flex items-center justify-between p-5 hover:bg-flame-50/60 transition-colors">
+                <div>
+                  <div className="text-[10px] uppercase tracking-widest text-flame-700">
+                    For the group leader
+                  </div>
+                  <h3 className="font-serif text-lg text-ink-900 mt-0.5">
+                    Facilitator notes
+                  </h3>
+                </div>
+                <span className="text-flame-700 text-xl transition-transform group-open:rotate-45">
+                  +
+                </span>
+              </summary>
+              <div className="px-5 pb-5">
+                <ul className="space-y-2 text-sm text-ink-700 leading-relaxed">
+                  {week.facilitatorNotes.map((n, i) => (
+                    <li key={i} className="flex gap-3">
+                      <span className="text-flame-700 shrink-0">·</span>
+                      <span>{n}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </details>
+          )}
+
           {/* Practice */}
           <section className="mt-6 rounded-3xl border border-flame-300 bg-flame-50/60 p-6">
             <div className="text-[10px] uppercase tracking-widest text-flame-700">
@@ -266,16 +421,16 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
               <Glyph id="door" size={32} className="text-flame-700 shrink-0 mt-1" />
               <div className="min-w-0 flex-1">
                 <div className="text-[10px] uppercase tracking-widest text-flame-700">
-                  Journal prompt
+                  Journal prompt · Week {week.week}
                 </div>
                 <p className="mt-1 font-serif text-ink-900 leading-snug">
                   {week.journalPrompt}
                 </p>
                 <Link
-                  href="/secret-place"
+                  href={`/secret-place?prompt=${encodeURIComponent(week.journalPrompt)}&title=${encodeURIComponent(`Foundations · Week ${week.week}: ${week.title}`)}`}
                   className="mt-3 inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-4 py-1.5 text-sm hover:bg-flame-500"
                 >
-                  Open my Secret Place →
+                  Open my Secret Place with this prompt →
                 </Link>
               </div>
             </div>

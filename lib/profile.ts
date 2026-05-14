@@ -357,10 +357,14 @@ export type Profile = {
 export type CourseProgress = {
   /** Weeks completed (1..12). A week is complete when its quiz is passed. */
   weeksComplete?: number[];
-  /** Best score per week (raw correct / 5). */
+  /** Best score per week (raw correct out of the week's quiz length). */
   quizScores?: Partial<Record<number, number>>;
   /** ISO date a week was first marked complete. */
   weekCompletedAt?: Partial<Record<number, string>>;
+  /** Per-day completion within a week: week -> [day numbers]. */
+  daysComplete?: Partial<Record<number, number[]>>;
+  /** Saved in-progress quiz answers per week, so a refresh doesn't wipe them. */
+  quizDrafts?: Partial<Record<number, (number | null)[]>>;
   /** Final-exam best score (correct out of 24). */
   examScore?: number;
   /** Whether the believer has passed the final exam. */

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useProfile, type JournalEntry, type JournalKind, type SecretPrayer, type Gratitude, type Season } from "@/lib/profile";
 import { PROMPTS, SEASONS, todaysPrompt } from "@/data/secret-prompts";
 
@@ -48,6 +48,26 @@ export default function SecretPlace() {
   const { profile, update, mounted } = useProfile();
   const sp = profile.secretPlace ?? {};
 
+  // Pre-fill from URL params — e.g. when arriving from a course week's
+  // "Journal this prompt" link.
+  const [seed, setSeed] = useState<{ title?: string; body?: string } | null>(null);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    const promptParam = url.searchParams.get("prompt");
+    const titleParam = url.searchParams.get("title");
+    if (promptParam || titleParam) {
+      setSeed({
+        title: titleParam ?? undefined,
+        body: promptParam ? `${promptParam}\n\n` : undefined,
+      });
+      // Clean the URL so a refresh doesn't keep re-seeding
+      url.searchParams.delete("prompt");
+      url.searchParams.delete("title");
+      window.history.replaceState({}, "", url.pathname + (url.search ? `?${url.searchParams.toString()}` : ""));
+    }
+  }, []);
+
   if (!mounted) {
     return (
       <div className="rounded-3xl border border-ink-200 bg-card-subtle p-10 text-center text-ink-500">
@@ -66,6 +86,8 @@ export default function SecretPlace() {
       <DailyPromptCard season={sp.season} />
       <JournalSection
         entries={sp.entries ?? []}
+        seedTitle={seed?.title}
+        seedBody={seed?.body}
         onSave={(e) => update({ secretPlace: { ...sp, entries: [e, ...(sp.entries ?? [])] } })}
         onDelete={(id) => update({ secretPlace: { ...sp, entries: (sp.entries ?? []).filter((x) => x.id !== id) } })}
       />
@@ -296,18 +318,32 @@ function DailyPromptCard({ season }: { season?: Season }) {
 /* ─── Journal ─── */
 function JournalSection({
   entries,
+  seedTitle,
+  seedBody,
   onSave,
   onDelete,
 }: {
   entries: JournalEntry[];
+  seedTitle?: string;
+  seedBody?: string;
   onSave: (e: JournalEntry) => void;
   onDelete: (id: string) => void;
 }) {
   const [kind, setKind] = useState<JournalKind>("reflection");
-  const [body, setBody] = useState("");
-  const [title, setTitle] = useState("");
+  const [body, setBody] = useState(seedBody ?? "");
+  const [title, setTitle] = useState(seedTitle ?? "");
   const [scriptureRef, setScriptureRef] = useState("");
   const [filter, setFilter] = useState<JournalKind | "all">("all");
+
+  // Re-seed if the param changes after first render
+  useEffect(() => {
+    if (seedTitle != null) setTitle(seedTitle);
+    if (seedBody != null) setBody(seedBody);
+    if ((seedTitle || seedBody) && typeof window !== "undefined") {
+      window.scrollTo({ top: 200, behavior: "smooth" });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seedTitle, seedBody]);
 
   function submit() {
     if (!body.trim()) return;

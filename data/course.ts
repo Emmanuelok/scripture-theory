@@ -40,7 +40,29 @@ export type Witness = {
   who: string;
   when: string; // "354–430" etc.
   source?: string; // e.g. "Confessions, Book X"
+  sourceUrl?: string; // public-domain source link (CCEL, archive.org, etc.)
   quote: string;
+};
+
+/** A voice from a specific Christian tradition on a contested topic. */
+export type TraditionVoice = {
+  tradition:
+    | "Orthodox"
+    | "Catholic"
+    | "Anglican"
+    | "Lutheran"
+    | "Reformed"
+    | "Wesleyan / Methodist"
+    | "Anabaptist / Baptist"
+    | "Pentecostal / Charismatic"
+    | "Eastern non-Chalcedonian";
+  voice: string;
+};
+
+/** Crosswalk to a historic catechism for this week's theme. */
+export type Crosswalk = {
+  catechism: string; // "Heidelberg", "Westminster Shorter", "Baltimore", "Orthodox", "Apostles' Creed"
+  refs: string; // e.g. "LD 1 · Q&A 1" or "Q. 21"
 };
 
 export type CourseWeek = {
@@ -49,11 +71,19 @@ export type CourseWeek = {
   tagline: string;
   scripture: { ref: string; text: string };
   memoryVerse: { ref: string; text: string };
+  /** Estimated reading time for the full week (lessons + days + witnesses) in minutes. */
+  readingMinutes?: number;
   days: DailyStep[]; // 7 entries
   lesson: string[]; // long-form paragraphs
   witnesses: Witness[];
+  /** Optional — only on weeks where Christians have legitimately differed. */
+  traditions?: TraditionVoice[];
+  /** Crosswalk to historic catechisms (Heidelberg, Westminster, Baltimore, etc.). */
+  crosswalk?: Crosswalk[];
   reflection: string[];
   discussion: string[];
+  /** Notes for a small-group leader or family-night facilitator. */
+  facilitatorNotes?: string[];
   practice: string;
   journalPrompt: string;
   quiz: Quiz[];
@@ -163,6 +193,18 @@ export const COURSE_WEEKS: CourseWeek[] = [
         quote:
           "We believe in one Lord Jesus Christ, the only-begotten Son of God, begotten of the Father before all worlds; God of God, Light of Light, very God of very God; begotten, not made, being of one substance with the Father, by whom all things were made.",
       },
+    ],
+    readingMinutes: 35,
+    crosswalk: [
+      { catechism: "Heidelberg", refs: "Q&A 29–35 · why Jesus is the Christ, fully God and man" },
+      { catechism: "Westminster Shorter", refs: "Q. 21–22 · the Redeemer of God's elect" },
+      { catechism: "Nicene Creed", refs: "Article on the Son" },
+      { catechism: "Chalcedonian Definition", refs: "AD 451 · the two natures" },
+    ],
+    facilitatorNotes: [
+      "Aim for the heart, not the head. New believers often carry unspoken doubts about Christ's divinity — don't shame, sit with them.",
+      "If anyone is shaky on Jesus' deity, return to John 1, John 20:28 (Thomas), and Hebrews 1. Don't argue; show.",
+      "Close in prayer that names Jesus as Lord. Let the confession itself be the close.",
     ],
     reflection: [
       "Before this week, what did you think of when you heard the name Jesus?",
@@ -360,6 +402,12 @@ export const COURSE_WEEKS: CourseWeek[] = [
           "This is that mystery which is rich in divine grace to sinners: wherein by a wonderful exchange our sins are no longer ours but Christ's, and the righteousness of Christ not Christ's but ours. He has emptied Himself of His righteousness that He might clothe us with it, and filled Himself with our evils that He might deliver us from them.",
       },
     ],
+    readingMinutes: 40,
+    crosswalk: [
+      { catechism: "Heidelberg", refs: "Q&A 37–44 · Christ's suffering, death, burial, descent, resurrection" },
+      { catechism: "Westminster Shorter", refs: "Q. 25–28 · Christ's offices and humiliation" },
+      { catechism: "Apostles' Creed", refs: "'Suffered… was crucified, died, was buried… rose again'" },
+    ],
     reflection: [
       "Why is it good news that Jesus died, when death is usually bad news?",
       "If the resurrection didn't happen, what would change about Christianity?",
@@ -541,6 +589,13 @@ export const COURSE_WEEKS: CourseWeek[] = [
         quote:
           "Behold then, when I, who am asking after this, love anything, there are three: I, and that which I love, and love itself. For neither is there love except it loves something… therefore there are no fewer than three: the lover, and that which is loved, and love.",
       },
+    ],
+    readingMinutes: 35,
+    crosswalk: [
+      { catechism: "Heidelberg", refs: "Q&A 24–25 · the Holy Trinity" },
+      { catechism: "Westminster Shorter", refs: "Q. 5–6 · one God, three persons" },
+      { catechism: "Nicene Creed", refs: "Whole — the Triune confession" },
+      { catechism: "Athanasian Creed", refs: "Whole — the Trinity defined" },
     ],
     reflection: [
       "Which Person of the Trinity have you thought of least, and why?",
@@ -739,6 +794,12 @@ export const COURSE_WEEKS: CourseWeek[] = [
           "All Scripture should be read in the spirit in which it was written. We must rather seek for what is profitable in Scripture, than for what ministers to subtlety in discourse.",
       },
     ],
+    readingMinutes: 35,
+    crosswalk: [
+      { catechism: "Westminster Shorter", refs: "Q. 2–3 · the rule God has given to direct us" },
+      { catechism: "Westminster Confession", refs: "Ch. 1 · Of the Holy Scripture" },
+      { catechism: "Baltimore", refs: "Lesson 11 · The Holy Scriptures" },
+    ],
     reflection: [
       "If the Bible is really God-breathed, what should that change about how you read it?",
       "Which Bible book are you most curious about — and what would it take to begin it this season?",
@@ -924,6 +985,17 @@ export const COURSE_WEEKS: CourseWeek[] = [
         quote:
           "Prayer is nothing else than being on terms of friendship with God — frequently conversing in secret with Him who, we know, loves us.",
       },
+    ],
+    readingMinutes: 35,
+    crosswalk: [
+      { catechism: "Heidelberg", refs: "LD 45–52 · the Lord's Prayer in detail" },
+      { catechism: "Westminster Shorter", refs: "Q. 98–107 · prayer and the Lord's Prayer" },
+      { catechism: "Baltimore", refs: "Lessons 27–28 · on prayer" },
+    ],
+    facilitatorNotes: [
+      "Many new believers feel ashamed they 'don't know how to pray.' Normalize this. Even the disciples asked Jesus to teach them.",
+      "Pray together aloud — circle prayer, popcorn prayer, or pairs. Modeling matters more than instruction.",
+      "Don't give pat answers to 'why didn't my prayer get answered.' Sit in the question. The Psalms are honest.",
     ],
     reflection: [
       "What stops you from praying as much as you'd like?",
@@ -1127,6 +1199,12 @@ export const COURSE_WEEKS: CourseWeek[] = [
           "We owe more love to one who has been forgiven much than to one who has been forgiven little. For greater is the love that follows greater forgiveness.",
       },
     ],
+    readingMinutes: 35,
+    crosswalk: [
+      { catechism: "Heidelberg", refs: "LD 33 · true repentance · LD 51 · 'Forgive us our debts'" },
+      { catechism: "Westminster Shorter", refs: "Q. 87 · repentance unto life" },
+      { catechism: "Baltimore", refs: "Lessons 19–20 · the Sacrament of Penance · contrition, confession, satisfaction" },
+    ],
     reflection: [
       "Is there a specific sin you have not yet confessed to the Father, by name?",
       "Is there a specific person you have not yet forgiven?",
@@ -1329,6 +1407,49 @@ export const COURSE_WEEKS: CourseWeek[] = [
           "The testimony of the Spirit is an inward impression on the soul, whereby the Spirit of God directly witnesses to my spirit, that I am a child of God; that Jesus Christ hath loved me, and given Himself for me; that all my sins are blotted out, and I, even I, am reconciled to God.",
       },
     ],
+    readingMinutes: 40,
+    crosswalk: [
+      { catechism: "Heidelberg", refs: "Q&A 53 · the Holy Spirit · Q&A 76 · partakers of Christ by the Spirit" },
+      { catechism: "Westminster Shorter", refs: "Q. 31 · effectual calling by the Spirit · Q. 33–36 · the benefits" },
+      { catechism: "Apostles' Creed", refs: "'I believe in the Holy Spirit'" },
+    ],
+    traditions: [
+      {
+        tradition: "Orthodox",
+        voice:
+          "The Spirit is the Giver of Life, who proceeds from the Father, received in the mysteries (baptism, chrismation, the Eucharist). Theosis — being made like God by grace — is the Spirit's slow, glorious work.",
+      },
+      {
+        tradition: "Catholic",
+        voice:
+          "The Spirit is given in baptism and sealed in confirmation. Charisms (1 Cor 12) are real gifts for building up the Body. The dramatic gifts have not ceased; they are widely received in the renewal movements of the global Church.",
+      },
+      {
+        tradition: "Lutheran",
+        voice:
+          "The Spirit works through the Word preached and the sacraments to create and sustain faith. The believer continually returns to baptism as the ground of new life.",
+      },
+      {
+        tradition: "Reformed",
+        voice:
+          "The Spirit regenerates, indwells, and sanctifies. Many Reformed have held cessationism — that the dramatic sign-gifts authenticated the apostolic age — though continuationist Reformed voices have grown in recent decades. All affirm the Spirit's ordinary work in Word and sacrament.",
+      },
+      {
+        tradition: "Wesleyan / Methodist",
+        voice:
+          "After conversion, the believer can experience entire sanctification — a 'second blessing' of perfecting love by the Spirit. The Spirit's work is both crisis and lifelong process.",
+      },
+      {
+        tradition: "Pentecostal / Charismatic",
+        voice:
+          "The 'baptism in the Holy Spirit' is a distinct experience subsequent to conversion, often (in classical Pentecostalism) evidenced by speaking in tongues. All New Testament gifts continue — tongues, prophecy, healing, miracles.",
+      },
+      {
+        tradition: "Anabaptist / Baptist",
+        voice:
+          "The Spirit indwells every believer at conversion. Subsequent fillings come through obedience, surrender, and the local church gathered to discern Christ's mind together.",
+      },
+    ],
     reflection: [
       "Which fruit of the Spirit is the Spirit slowly growing in you?",
       "Have you ever asked the Father to fill you afresh with His Spirit? Do it today.",
@@ -1519,6 +1640,12 @@ export const COURSE_WEEKS: CourseWeek[] = [
         quote:
           "I know there are some who say, 'Well, I've given myself to the Lord, but I don't intend to give myself to any church.' Now why not? Because you think yourself to be so much better than the Lord's people that you cannot fellowship with them? Better stand back, then. The truth is, you ought to be glad to find a church.",
       },
+    ],
+    readingMinutes: 35,
+    crosswalk: [
+      { catechism: "Heidelberg", refs: "LD 21 · the holy catholic church · Q&A 54–55" },
+      { catechism: "Westminster Shorter", refs: "Q. 88–90 · the means of grace" },
+      { catechism: "Apostles' Creed", refs: "'the holy catholic Church · the communion of saints'" },
     ],
     reflection: [
       "What's kept you out of (or at the edge of) a local church?",
@@ -1720,6 +1847,60 @@ export const COURSE_WEEKS: CourseWeek[] = [
         source: "Institutes, IV.17",
         quote:
           "I exhort my readers to rise much higher than I am able to lead them. For when this mystery is in question, I always am much more conscious of how feeble my understanding is than of having attained anything in it.",
+      },
+    ],
+    readingMinutes: 45,
+    crosswalk: [
+      { catechism: "Heidelberg", refs: "LD 25–30 · sacraments, baptism, the Lord's Supper" },
+      { catechism: "Westminster Shorter", refs: "Q. 91–97 · the sacraments, baptism, the Lord's Supper" },
+      { catechism: "Baltimore", refs: "Lessons 13–24 · the seven sacraments (baptism + Eucharist treated in detail)" },
+      { catechism: "Orthodox Catechism", refs: "Part II · the mysteries — baptism, chrismation, Eucharist" },
+    ],
+    facilitatorNotes: [
+      "Cross-tradition members may experience this week as tender — childhood traditions are deep. Honor differences without flattening them.",
+      "Don't take communion in the group unless your tradition allows; honor that. If you do, prepare hearts thoroughly.",
+      "If anyone has never been baptized, this is a high-stakes pastoral moment. Walk with them to their local pastor — don't try to be the pastor.",
+    ],
+    traditions: [
+      {
+        tradition: "Orthodox",
+        voice:
+          "Baptism by triple immersion forgives sin and unites the candidate to Christ's death and resurrection; chrismation (anointing with holy oil) seals the gift of the Spirit. The Eucharist is a true mystery — the bread and cup truly become the Body and Blood of Christ. Infants are baptized and chrismated; small children commune from the chalice.",
+      },
+      {
+        tradition: "Catholic",
+        voice:
+          "Baptism removes original sin and confers sanctifying grace, the first of seven sacraments. The Eucharist is transubstantiated — the substance of the elements truly becomes Christ's Body and Blood while the appearances remain. Infants of believing parents are baptized.",
+      },
+      {
+        tradition: "Lutheran",
+        voice:
+          "Baptism is regenerative: God works through water and Word to save. The Eucharist is the true Body and Blood 'in, with, and under' the bread and wine (sacramental union). Infants of believing parents are baptized.",
+      },
+      {
+        tradition: "Anglican",
+        voice:
+          "Baptism is regenerative in some sense (the prayer-book language) but received by faith. The Eucharist holds a wide range — from memorialist to high sacramental presence — across the Communion. Infants of believing parents are baptized.",
+      },
+      {
+        tradition: "Reformed",
+        voice:
+          "Baptism is the sign and seal of the covenant of grace, replacing circumcision in the New Covenant; infants of believing parents are baptized. The Lord's Supper is true spiritual feeding on the body and blood of Christ by the Spirit (Calvin's spiritual presence).",
+      },
+      {
+        tradition: "Wesleyan / Methodist",
+        voice:
+          "Baptism initiates into the covenant community; infants of believing parents are baptized. The Eucharist is a real means of grace where Christ is truly present, though Methodism has not bound itself to a single metaphysics.",
+      },
+      {
+        tradition: "Anabaptist / Baptist",
+        voice:
+          "Baptism is for those who can profess faith for themselves — believer's baptism by immersion. The Lord's Supper is most often understood as a memorial proclamation of Christ's death, with the congregation gathered to remember and proclaim.",
+      },
+      {
+        tradition: "Pentecostal / Charismatic",
+        voice:
+          "Most Pentecostal traditions hold believer's baptism by immersion. The Lord's Supper is typically memorial, with strong expectation of the Spirit's presence in the gathered church.",
       },
     ],
     reflection: [
@@ -1925,6 +2106,11 @@ export const COURSE_WEEKS: CourseWeek[] = [
           "Every Christian here is either a missionary or an impostor. Recollect that. You either try to spread abroad the kingdom of Christ, or else you do not love Him at all. It cannot be that there is a high appreciation of Jesus and a totally silent tongue about Him.",
       },
     ],
+    readingMinutes: 30,
+    crosswalk: [
+      { catechism: "Westminster Shorter", refs: "Q. 35 · sanctification (the new life flowing out)" },
+      { catechism: "Heidelberg", refs: "Q&A 86 · why we should still do good works" },
+    ],
     reflection: [
       "Who in your life right now does not yet know Jesus?",
       "What stops you from telling them?",
@@ -2101,6 +2287,12 @@ export const COURSE_WEEKS: CourseWeek[] = [
         quote:
           "I have learned to kiss the wave that throws me against the Rock of Ages.",
       },
+    ],
+    readingMinutes: 40,
+    crosswalk: [
+      { catechism: "Heidelberg", refs: "Q&A 1 · my only comfort in life and in death" },
+      { catechism: "Westminster Shorter", refs: "Q. 37–38 · death and the resurrection of the body" },
+      { catechism: "Apostles' Creed", refs: "'the resurrection of the body and the life everlasting'" },
     ],
     reflection: [
       "What loss are you carrying right now that you have not yet brought to Him?",
@@ -2305,6 +2497,16 @@ export const COURSE_WEEKS: CourseWeek[] = [
         quote:
           "Then said Mr. Valiant-for-Truth, 'I am going to my Father's, and though with great difficulty I have got hither, yet now I do not repent me of all the trouble I have been at to arrive where I am. My sword I give to him that shall succeed me in my pilgrimage, and my courage and skill to him that can get them.'",
       },
+    ],
+    readingMinutes: 35,
+    crosswalk: [
+      { catechism: "Westminster Larger", refs: "Q. 79 · the perseverance of the saints" },
+      { catechism: "Heidelberg", refs: "Q&A 32 · why are we called Christian? · Q&A 86 · the new obedience" },
+    ],
+    facilitatorNotes: [
+      "Celebrate. Twelve weeks is a real walk. Don't rush the conclusion.",
+      "Have each person name the one discipline they'll carry forward by name; hold each other to it in love.",
+      "Pray a sending blessing over each person — by name — citing Philippians 1:6 over them.",
     ],
     reflection: [
       "Twelve weeks in — what has changed in you?",

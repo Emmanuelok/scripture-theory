@@ -29,13 +29,51 @@ const ALL_THEMES = Array.from(new Set(memoryVerses.map((v) => v.theme))) as Them
 
 export default function MemoryTrainer({ initialVerseId }: { initialVerseId?: string }) {
   const { profile, update, mounted } = useProfile();
+
+  // When arriving from the course (or a verse permalink), a custom verse
+  // can be passed via ?ref=...&text=... — we treat it as a one-off
+  // "extra" verse alongside the catalog and switch to it immediately.
+  const [customVerse, setCustomVerse] = useState<MemoryVerse | null>(null);
   const [activeId, setActiveId] = useState<string>(initialVerseId ?? memoryVerses[0].id);
   const [themeFilter, setThemeFilter] = useState<Theme | "all">("all");
   const [q, setQ] = useState("");
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    const ref = url.searchParams.get("ref");
+    const text = url.searchParams.get("text");
+    if (ref && text) {
+      const slug = `custom-${ref.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+      const v: MemoryVerse = {
+        id: slug,
+        ref,
+        text,
+        translation: "WEB",
+        theme: "discipleship",
+        why: "Memory verse from Foundations of the Faith. Walk it home this week.",
+      };
+      setCustomVerse(v);
+      setActiveId(slug);
+      // Clean the URL so refresh doesn't keep re-seeding
+      url.searchParams.delete("ref");
+      url.searchParams.delete("text");
+      window.history.replaceState(
+        {},
+        "",
+        url.pathname + (url.search ? `?${url.searchParams.toString()}` : "")
+      );
+    }
+  }, []);
+
+  const allVerses = useMemo(
+    () => (customVerse ? [customVerse, ...memoryVerses] : memoryVerses),
+    [customVerse]
+  );
+
   const verse = useMemo(
-    () => memoryVerses.find((v) => v.id === activeId) ?? memoryVerses[0],
-    [activeId]
+    () => allVerses.find((v) => v.id === activeId) ?? allVerses[0],
+    [activeId, allVerses]
   );
 
   const records = profile.memory ?? [];
