@@ -7,6 +7,7 @@ import { COURSE_WEEKS, WEEKLY_QUIZ_PASS, type CourseWeek } from "@/data/course";
 import { referenceHref } from "@/lib/reference";
 import { PageHero, Tile } from "@/components/ui/Tile";
 import { Glyph } from "@/components/ui/Glyph";
+import LessonAudio from "@/components/LessonAudio";
 
 type Phase = "read" | "quiz" | "results";
 
@@ -119,10 +120,32 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
       </Link>
 
       <PageHero
-        eyebrow={`Week ${week.week} of 12 · Foundations of the Faith`}
+        eyebrow={`Week ${week.week} of 12 · Foundations of the Faith${week.readingMinutes ? ` · ≈ ${week.readingMinutes} min full read` : ""}`}
         title={week.title}
         intro={week.tagline}
       />
+
+      <div className="mt-4 flex flex-wrap gap-2 no-print">
+        <button
+          onClick={() => typeof window !== "undefined" && window.print()}
+          className="text-xs rounded-full border border-ink-300 px-3 py-1 text-ink-700 hover:border-ink-900"
+          title="Print or save as PDF"
+        >
+          ↓ Print this week
+        </button>
+        <Link
+          href="/course/workbook"
+          className="text-xs rounded-full border border-ink-300 px-3 py-1 text-ink-700 hover:border-ink-900"
+        >
+          Full workbook
+        </Link>
+        <Link
+          href="/course/history"
+          className="text-xs rounded-full border border-ink-300 px-3 py-1 text-ink-700 hover:border-ink-900"
+        >
+          My history
+        </Link>
+      </div>
 
       {phase !== "quiz" && (
         <>
@@ -145,6 +168,23 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
               </blockquote>
             </div>
           </article>
+
+          {/* Listen — device voice for the week's content */}
+          <div className="mt-6">
+            <LessonAudio
+              title={`Week ${week.week} · ${week.title}`}
+              segments={[
+                { label: "Anchor scripture", text: `${week.scripture.ref}. ${week.scripture.text}` },
+                { label: "Memory verse", text: `${week.memoryVerse.ref}. ${week.memoryVerse.text}` },
+                ...week.lesson.map((p, i) => ({
+                  label: `Lesson, paragraph ${i + 1}`,
+                  text: p,
+                })),
+                { label: "Practice this week", text: week.practice },
+                { label: "Journal prompt", text: week.journalPrompt },
+              ]}
+            />
+          </div>
 
           {/* Memory verse */}
           <section className="mt-8 rounded-3xl border border-flame-300 bg-flame-50/50 p-6">

@@ -114,14 +114,14 @@ export default function CourseHome() {
       </div>
 
       {/* Course sub-pages */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
         <Link
           href="/course/begin"
           className="rounded-2xl border border-flame-300 bg-flame-50/40 p-4 hover:border-flame-500 hover:bg-flame-50/60 transition-colors"
         >
           <div className="text-[10px] uppercase tracking-widest text-flame-700">Start here</div>
           <div className="font-serif text-ink-900 mt-1">Begin</div>
-          <div className="text-xs text-ink-600 mt-0.5">A letter + a commitment</div>
+          <div className="text-xs text-ink-600 mt-0.5">Letter · diagnostic · commitment</div>
         </Link>
         <Link
           href="/course/memory"
@@ -130,6 +130,22 @@ export default function CourseHome() {
           <div className="text-[10px] uppercase tracking-widest text-flame-700">12 verses</div>
           <div className="font-serif text-ink-900 mt-1">Memory verses</div>
           <div className="text-xs text-ink-600 mt-0.5">All twelve, one per week</div>
+        </Link>
+        <Link
+          href="/course/history"
+          className="rounded-2xl border border-ink-200 bg-card p-4 hover:border-flame-500 transition-colors"
+        >
+          <div className="text-[10px] uppercase tracking-widest text-flame-700">Your walk</div>
+          <div className="font-serif text-ink-900 mt-1">My history</div>
+          <div className="text-xs text-ink-600 mt-0.5">Dates, scores, day-by-day</div>
+        </Link>
+        <Link
+          href="/course/workbook"
+          className="rounded-2xl border border-ink-200 bg-card p-4 hover:border-flame-500 transition-colors"
+        >
+          <div className="text-[10px] uppercase tracking-widest text-flame-700">Printable</div>
+          <div className="font-serif text-ink-900 mt-1">Full workbook</div>
+          <div className="text-xs text-ink-600 mt-0.5">All 12 weeks · print or PDF</div>
         </Link>
         <Link
           href="/course/lead"
@@ -225,9 +241,16 @@ export default function CourseHome() {
                     </span>
                   </div>
                   <p className="mt-1 text-ink-700 italic text-sm md:text-base">{w.tagline}</p>
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-widest text-ink-500">
+                    {w.readingMinutes && <span>≈ {w.readingMinutes} min full read</span>}
+                    {w.readingMinutes && <span aria-hidden>·</span>}
+                    <span>7 daily steps</span>
+                    <span aria-hidden>·</span>
+                    <span>{w.quiz.length}-question quiz</span>
+                  </div>
                   {isDone && (
                     <p className="mt-1 text-xs text-emerald-700">
-                      Quiz score: {score ?? "—"}/5
+                      Quiz score: {score ?? "—"}/{w.quiz.length}
                     </p>
                   )}
                 </div>

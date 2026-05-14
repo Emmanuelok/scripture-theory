@@ -1,12 +1,59 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useProfile } from "@/lib/profile";
 import { COURSE_WEEKS } from "@/data/course";
 import { Glyph } from "@/components/ui/Glyph";
 
 type Pace = "intensive" | "standard" | "generous";
+
+/** A short pre-course diagnostic. Never gatekeeping — only pastoral pacing. */
+type DxQ = { id: string; question: string };
+const DIAGNOSTIC: DxQ[] = [
+  { id: "yes-recently", question: "I trusted Christ within the last year." },
+  { id: "baptized", question: "I have been baptized." },
+  { id: "bible-daily", question: "I read the Bible most days." },
+  { id: "church", question: "I'm part of a faithful local church." },
+  { id: "share", question: "I have told at least one person about Jesus this year." },
+  { id: "season", question: "I am in a hard season right now (loss, illness, exhaustion)." },
+];
+
+/** Recommend a pace based on diagnostic answers. */
+function recommendPace(answers: Record<string, boolean>): {
+  pace: Pace;
+  why: string;
+} {
+  if (answers["season"]) {
+    return {
+      pace: "generous",
+      why:
+        "You named a hard season. The course is for you — but pace yourself. Generous (24 weeks) lets the Word work without rushing you.",
+    };
+  }
+  // If they're brand new (recent yes, no baptism, no daily Bible)
+  const veryNew =
+    answers["yes-recently"] && !answers["baptized"] && !answers["bible-daily"];
+  if (veryNew) {
+    return {
+      pace: "standard",
+      why:
+        "You're early in the walk. Standard (12 weeks) is exactly the right pace — slow enough to grow, fast enough to build a rhythm.",
+    };
+  }
+  // If they're already mature (Bible daily + church + share), they can go faster
+  if (answers["bible-daily"] && answers["church"] && answers["share"]) {
+    return {
+      pace: "intensive",
+      why:
+        "You already have a real rhythm. Intensive (6 weeks) will refresh the foundations and sharpen what you're already living.",
+    };
+  }
+  return {
+    pace: "standard",
+    why: "Standard (12 weeks) is the right place to start. You can shift later if you need to.",
+  };
+}
 
 const PACES: { id: Pace; label: string; sub: string; weeks: string }[] = [
   {
@@ -34,6 +81,28 @@ export default function CourseBegin() {
   const course = profile.course ?? {};
   const [pace, setPace] = useState<Pace>("standard");
   const [committed, setCommitted] = useState(Boolean(course.weekCompletedAt));
+
+  // Diagnostic state — null = unanswered
+  const [dxAnswers, setDxAnswers] = useState<Record<string, boolean | null>>(
+    Object.fromEntries(DIAGNOSTIC.map((q) => [q.id, null]))
+  );
+  const allAnswered = useMemo(
+    () => DIAGNOSTIC.every((q) => dxAnswers[q.id] !== null),
+    [dxAnswers]
+  );
+  const recommendation = useMemo(() => {
+    if (!allAnswered) return null;
+    const cleaned: Record<string, boolean> = {};
+    for (const [k, v] of Object.entries(dxAnswers)) cleaned[k] = !!v;
+    return recommendPace(cleaned);
+  }, [dxAnswers, allAnswered]);
+
+  function applyRecommendation() {
+    if (recommendation) setPace(recommendation.pace);
+    if (typeof window !== "undefined") {
+      document.getElementById("pace-section")?.scrollIntoView({ behavior: "smooth" });
+    }
+  }
 
   function commit() {
     // Initialize course progress (idempotent — only sets the first-touched date)
@@ -147,8 +216,74 @@ export default function CourseBegin() {
         </div>
       </article>
 
-      {/* Choose your pace */}
+      {/* Pre-course diagnostic */}
       <section className="rounded-3xl border border-ink-200 bg-card p-6 md:p-7">
+        <div className="text-[10px] uppercase tracking-widest text-flame-700">
+          Where are you right now?
+        </div>
+        <h2 className="font-serif text-2xl text-ink-900 mt-1">
+          A short, honest check.
+        </h2>
+        <p className="mt-1 text-sm text-ink-600 leading-relaxed">
+          Six yes/no questions — not gatekeeping, just pacing. We use them to suggest a rhythm.
+          Skip if you'd rather pick yourself.
+        </p>
+
+        <ul className="mt-5 space-y-2">
+          {DIAGNOSTIC.map((q) => (
+            <li
+              key={q.id}
+              className="rounded-2xl border border-ink-200 bg-card-subtle p-4"
+            >
+              <div className="flex flex-wrap items-baseline justify-between gap-3">
+                <span className="text-sm text-ink-800 flex-1 min-w-0">{q.question}</span>
+                <div className="flex items-center gap-1 rounded-full bg-card border border-ink-200 p-0.5">
+                  {([
+                    { v: true, label: "Yes" },
+                    { v: false, label: "No" },
+                  ] as const).map((o) => (
+                    <button
+                      key={o.label}
+                      onClick={() =>
+                        setDxAnswers((prev) => ({ ...prev, [q.id]: o.v }))
+                      }
+                      aria-pressed={dxAnswers[q.id] === o.v}
+                      className={[
+                        "text-xs px-3 py-1 rounded-full transition-colors",
+                        dxAnswers[q.id] === o.v
+                          ? "bg-ink-900 text-ink-50"
+                          : "text-ink-600 hover:text-ink-900",
+                      ].join(" ")}
+                    >
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        {recommendation && (
+          <div className="mt-5 rounded-2xl border border-flame-300 bg-flame-50/60 p-4">
+            <div className="text-[10px] uppercase tracking-widest text-flame-700">
+              Suggested pace · {PACES.find((p) => p.id === recommendation.pace)?.label}
+            </div>
+            <p className="mt-1 text-sm text-ink-700 leading-relaxed">
+              {recommendation.why}
+            </p>
+            <button
+              onClick={applyRecommendation}
+              className="mt-3 text-xs rounded-full bg-flame-600 text-ink-50 px-3 py-1 hover:bg-flame-500"
+            >
+              Use this pace →
+            </button>
+          </div>
+        )}
+      </section>
+
+      {/* Choose your pace */}
+      <section id="pace-section" className="rounded-3xl border border-ink-200 bg-card p-6 md:p-7">
         <div className="text-[10px] uppercase tracking-widest text-flame-700">
           Choose your pace
         </div>
