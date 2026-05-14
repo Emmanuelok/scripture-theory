@@ -3,10 +3,14 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useProfile } from "@/lib/profile";
-import { COURSE_WEEKS, type CourseWeek } from "@/data/course";
+import { COURSE_WEEKS, WEEKLY_QUIZ_PASS, type CourseWeek } from "@/data/course";
 import { referenceHref } from "@/lib/reference";
 import { PageHero, Tile } from "@/components/ui/Tile";
 import { Glyph } from "@/components/ui/Glyph";
+
+type Phase = "read" | "quiz" | "results";
+
+const DAY_GLYPHS = ["open-book", "examen", "hands", "rule", "door", "scroll", "sabbath"] as const;
 
 export default function CourseWeekView({ week }: { week: CourseWeek }) {
   const { profile, update, mounted } = useProfile();
@@ -14,10 +18,7 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
   const previouslyDone = (course.weeksComplete ?? []).includes(week.week);
   const previousBest = course.quizScores?.[week.week] ?? 0;
 
-  // Quiz state
-  const [phase, setPhase] = useState<"read" | "quiz" | "results">(
-    previouslyDone ? "results" : "read"
-  );
+  const [phase, setPhase] = useState<Phase>(previouslyDone ? "results" : "read");
   const [answers, setAnswers] = useState<(number | null)[]>(
     Array(week.quiz.length).fill(null)
   );
@@ -31,17 +32,18 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [week.week, mounted]);
 
-  const score = useMemo(() => {
-    return answers.reduce((acc: number, a, i) => acc + (a === week.quiz[i].correctIndex ? 1 : 0), 0);
-  }, [answers, week.quiz]);
+  const score = useMemo(
+    () => answers.reduce((acc: number, a, i) => acc + (a === week.quiz[i].correctIndex ? 1 : 0), 0),
+    [answers, week.quiz]
+  );
 
-  const passed = submittedScore >= 4;
+  const passed = submittedScore >= WEEKLY_QUIZ_PASS;
   const allAnswered = answers.every((a) => a !== null);
 
   function submitQuiz() {
     const correct = score;
     const best = Math.max(previousBest, correct);
-    const isPass = correct >= 4;
+    const isPass = correct >= WEEKLY_QUIZ_PASS;
 
     const nextCourse = { ...course };
     nextCourse.quizScores = { ...(course.quizScores ?? {}), [week.week]: best };
@@ -75,7 +77,7 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
         href="/course"
         className="text-xs uppercase tracking-widest text-flame-700 hover:underline"
       >
-        ← Course
+        ← Foundations
       </Link>
 
       <PageHero
@@ -106,74 +108,190 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
             </div>
           </article>
 
-          {/* Lesson */}
-          <div className="mt-10 prose-scripture text-ink-800 text-lg leading-relaxed">
-            {week.lesson.map((p, i) => (
-              <p key={i} className="mb-4">
-                {p}
-              </p>
-            ))}
-          </div>
-
-          {/* Reading this week */}
-          <section className="mt-10 rounded-3xl border border-ink-200 bg-card p-6">
-            <div className="text-[10px] uppercase tracking-widest text-flame-700">
-              Reading this week
+          {/* Memory verse */}
+          <section className="mt-8 rounded-3xl border border-flame-300 bg-flame-50/50 p-6">
+            <div className="flex flex-wrap items-baseline justify-between gap-3">
+              <div>
+                <div className="text-[10px] uppercase tracking-widest text-flame-700">
+                  Memory verse · hide it in your heart this week
+                </div>
+                <h2 className="font-serif text-xl text-ink-900 mt-1">{week.memoryVerse.ref}</h2>
+              </div>
+              <Link
+                href="/memory"
+                className="text-xs text-flame-700 hover:underline"
+              >
+                Open the memory trainer →
+              </Link>
             </div>
-            <ul className="mt-3 flex flex-wrap gap-2">
-              {week.reading.map((r) => {
-                const href = referenceHref(r);
-                return href ? (
-                  <Link
-                    key={r}
-                    href={href}
-                    className="rounded-full bg-card-subtle border border-ink-200 px-3 py-1 text-sm text-ink-800 hover:border-flame-500 hover:text-flame-700"
+            <blockquote className="mt-3 prose-scripture text-ink-800 italic leading-relaxed">
+              "{week.memoryVerse.text}"
+            </blockquote>
+          </section>
+
+          {/* Daily structure */}
+          <section className="mt-10">
+            <div className="flex flex-wrap items-baseline justify-between gap-3 mb-4">
+              <h2 className="font-serif text-2xl text-ink-900">Seven days, seven steps</h2>
+              <p className="text-sm text-ink-500 italic">Read · meditate · pray · apply · journal · review · rest</p>
+            </div>
+            <ol className="space-y-3">
+              {week.days.map((d, i) => {
+                const href = referenceHref(d.passage);
+                const glyph = DAY_GLYPHS[i % DAY_GLYPHS.length];
+                return (
+                  <li
+                    key={d.day}
+                    className="relative overflow-hidden rounded-3xl border border-ink-200 bg-card p-5"
                   >
-                    {r}
-                  </Link>
-                ) : (
-                  <span
-                    key={r}
-                    className="rounded-full bg-card-subtle border border-ink-200 px-3 py-1 text-sm text-ink-700"
-                  >
-                    {r}
-                  </span>
+                    <span
+                      aria-hidden
+                      className="absolute right-4 top-4 text-flame-700/15"
+                    >
+                      <Glyph id={glyph} size={36} />
+                    </span>
+                    <div className="relative">
+                      <div className="flex flex-wrap items-baseline gap-3">
+                        <span className="font-serif text-2xl text-flame-700 leading-none">
+                          {String(d.day).padStart(2, "0")}
+                        </span>
+                        <div>
+                          <div className="text-[10px] uppercase tracking-widest text-flame-700">
+                            Day {d.day} · {d.label}
+                          </div>
+                          <h3 className="font-serif text-lg text-ink-900">{d.title}</h3>
+                        </div>
+                      </div>
+                      <div className="mt-2 text-xs text-ink-500">
+                        Passage:{" "}
+                        {href ? (
+                          <Link
+                            href={href}
+                            className="text-flame-700 hover:underline"
+                          >
+                            {d.passage}
+                          </Link>
+                        ) : (
+                          <span>{d.passage}</span>
+                        )}
+                      </div>
+                      <p className="mt-2 text-sm text-ink-700 leading-relaxed">
+                        {d.meditation}
+                      </p>
+                    </div>
+                  </li>
                 );
               })}
+            </ol>
+          </section>
+
+          {/* Long-form lesson */}
+          <section className="mt-10">
+            <div className="flex flex-wrap items-baseline justify-between gap-3 mb-3">
+              <h2 className="font-serif text-2xl text-ink-900">The teaching</h2>
+              <p className="text-sm text-ink-500 italic">A long read. Take it slowly.</p>
+            </div>
+            <div className="prose-scripture text-ink-800 text-lg leading-relaxed">
+              {week.lesson.map((p, i) => (
+                <p key={i} className="mb-4">
+                  {p}
+                </p>
+              ))}
+            </div>
+          </section>
+
+          {/* Witnesses */}
+          <section className="mt-10">
+            <div className="flex flex-wrap items-baseline justify-between gap-3 mb-3">
+              <h2 className="font-serif text-2xl text-ink-900">Voices across the centuries</h2>
+              <p className="text-sm text-ink-500 italic">
+                The Church has been thinking this through for a long time.
+              </p>
+            </div>
+            <ul className="grid sm:grid-cols-2 gap-3">
+              {week.witnesses.map((w) => (
+                <li
+                  key={w.who}
+                  className="rounded-2xl border border-ink-200 bg-card-subtle p-5"
+                >
+                  <div className="text-[10px] uppercase tracking-widest text-flame-700">
+                    {w.who} · {w.when}
+                  </div>
+                  {w.source && (
+                    <div className="text-[10px] text-ink-500 italic mt-0.5">{w.source}</div>
+                  )}
+                  <blockquote className="mt-3 italic text-ink-800 text-sm leading-relaxed border-l-2 border-flame-500/70 pl-3">
+                    "{w.quote}"
+                  </blockquote>
+                </li>
+              ))}
             </ul>
           </section>
 
           {/* Reflection */}
-          <section className="mt-8 rounded-3xl border border-ink-200 bg-card p-6">
-            <div className="text-[10px] uppercase tracking-widest text-flame-700">
-              Reflect
-            </div>
-            <ol className="mt-3 list-decimal pl-5 space-y-2 text-ink-800 leading-relaxed">
+          <section className="mt-10 rounded-3xl border border-ink-200 bg-card p-6">
+            <div className="text-[10px] uppercase tracking-widest text-flame-700">Reflect alone</div>
+            <h3 className="font-serif text-xl text-ink-900 mt-1 mb-3">For you and the Spirit.</h3>
+            <ol className="list-decimal pl-5 space-y-2 text-ink-800 leading-relaxed">
               {week.reflection.map((r, i) => (
                 <li key={i}>{r}</li>
               ))}
             </ol>
           </section>
 
+          {/* Discussion */}
+          <section className="mt-6 rounded-3xl border border-ink-200 bg-card-subtle p-6">
+            <div className="text-[10px] uppercase tracking-widest text-flame-700">Discuss with others</div>
+            <h3 className="font-serif text-xl text-ink-900 mt-1 mb-3">
+              For a small group, a friend, or a family table.
+            </h3>
+            <ol className="list-decimal pl-5 space-y-2 text-ink-800 leading-relaxed">
+              {week.discussion.map((d, i) => (
+                <li key={i}>{d}</li>
+              ))}
+            </ol>
+          </section>
+
           {/* Practice */}
-          <section className="mt-8 rounded-3xl border border-flame-300 bg-flame-50/60 p-6">
+          <section className="mt-6 rounded-3xl border border-flame-300 bg-flame-50/60 p-6">
             <div className="text-[10px] uppercase tracking-widest text-flame-700">
               Practice this week
             </div>
             <p className="mt-2 font-serif text-lg text-ink-900 italic">{week.practice}</p>
           </section>
 
+          {/* Journal prompt */}
+          <section className="mt-6 rounded-3xl border border-ink-200 bg-card p-6">
+            <div className="flex items-start gap-3">
+              <Glyph id="door" size={32} className="text-flame-700 shrink-0 mt-1" />
+              <div className="min-w-0 flex-1">
+                <div className="text-[10px] uppercase tracking-widest text-flame-700">
+                  Journal prompt
+                </div>
+                <p className="mt-1 font-serif text-ink-900 leading-snug">
+                  {week.journalPrompt}
+                </p>
+                <Link
+                  href="/secret-place"
+                  className="mt-3 inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-4 py-1.5 text-sm hover:bg-flame-500"
+                >
+                  Open my Secret Place →
+                </Link>
+              </div>
+            </div>
+          </section>
+
           {/* Results / Take quiz CTA */}
           {phase === "results" && previouslyDone ? (
-            <section className="mt-8 rounded-3xl border border-emerald-300 bg-emerald-50/60 p-6">
+            <section className="mt-10 rounded-3xl border border-emerald-300 bg-emerald-50/60 p-6">
               <div className="flex items-start gap-3">
-                <Glyph id="wreath" size={36} className="text-emerald-700" />
+                <Glyph id="wreath" size={36} className="text-emerald-700 shrink-0" />
                 <div>
                   <div className="text-[10px] uppercase tracking-widest text-emerald-700">
                     Week complete
                   </div>
                   <h3 className="font-serif text-xl text-ink-900 mt-0.5">
-                    Best quiz score: {submittedScore}/5
+                    Best quiz score: {submittedScore}/{week.quiz.length}
                   </h3>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <button
@@ -203,7 +321,7 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
                 Take the Week {week.week} quiz →
               </button>
               <p className="text-xs text-ink-500 italic self-center">
-                5 questions · pass at 4 of 5 to lock the week.
+                {week.quiz.length} questions · pass at {WEEKLY_QUIZ_PASS} of {week.quiz.length}.
               </p>
             </div>
           )}
@@ -217,9 +335,11 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
               Week {week.week} quiz
             </div>
             <h2 className="font-serif text-2xl text-ink-900 mt-1">
-              Five questions on what you read.
+              {week.quiz.length} questions on what you read.
             </h2>
-            <p className="mt-1 text-sm text-ink-600">Pick the best answer. Pass at 4 of 5.</p>
+            <p className="mt-1 text-sm text-ink-600">
+              Pick the best answer. Pass at {WEEKLY_QUIZ_PASS} of {week.quiz.length} to lock the week.
+            </p>
           </div>
 
           <ol className="space-y-4">
@@ -287,12 +407,14 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
           ].join(" ")}
         >
           <h3 className="font-serif text-2xl text-ink-900">
-            {passed ? `Week ${week.week} locked — ${submittedScore}/5` : `${submittedScore}/5 — almost there`}
+            {passed
+              ? `Week ${week.week} locked — ${submittedScore}/${week.quiz.length}`
+              : `${submittedScore}/${week.quiz.length} — almost there`}
           </h3>
           <p className="mt-1 text-sm text-ink-700">
             {passed
               ? "Good walk. Review the answers below, then take the next week."
-              : "You need 4 of 5 to mark the week complete. Read the lesson again, then retake."}
+              : `You need ${WEEKLY_QUIZ_PASS} of ${week.quiz.length} to mark the week complete. Read the lesson again, then retake.`}
           </p>
           <ul className="mt-5 space-y-3">
             {week.quiz.map((q, i) => {
@@ -353,7 +475,7 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
               href="/course"
               className="inline-flex items-center rounded-full border border-ink-300 px-4 py-2 text-sm text-ink-700 hover:border-ink-900"
             >
-              Back to course
+              Back to Foundations
             </Link>
           </div>
         </section>
