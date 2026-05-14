@@ -140,6 +140,8 @@ export default function MeDashboard() {
 
       <StatGrid stats={stats} />
 
+      <ResumeCard profile={profile} />
+
       <SignInBanner />
 
       <CourseCard profile={profile} />
@@ -352,6 +354,34 @@ function StatBody({ label, value, sub }: Stat) {
       <div className="font-serif text-2xl text-ink-900 mt-1">{value}</div>
       {sub && <div className="text-xs text-ink-500 mt-0.5">{sub}</div>}
     </>
+  );
+}
+
+/* ────────────────────────────────────────────────────────── */
+
+function ResumeCard({ profile }: { profile: Profile }) {
+  const a = profile.lastActivity;
+  if (!a) return null;
+  return (
+    <Link
+      href={a.href}
+      className="group relative overflow-hidden rounded-3xl border border-flame-300 bg-flame-50/60 p-5 md:p-6 flex items-center justify-between gap-4 hover:border-flame-500 hover:bg-flame-50 transition-colors"
+    >
+      <div className="min-w-0">
+        <div className="text-[10px] uppercase tracking-widest text-flame-700">
+          Resume · last opened {fmtRelative(a.at)}
+        </div>
+        <div className="font-serif text-lg md:text-xl text-ink-900 mt-0.5 truncate">
+          {a.label}
+        </div>
+        {a.sublabel && (
+          <div className="text-sm text-ink-700 truncate">{a.sublabel}</div>
+        )}
+      </div>
+      <div className="shrink-0 text-flame-700 font-serif text-xl group-hover:translate-x-1 transition-transform">
+        →
+      </div>
+    </Link>
   );
 }
 

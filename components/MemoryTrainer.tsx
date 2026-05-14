@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { memoryVerses, themeLabels, type MemoryVerse, type Theme } from "@/data/memory";
 import { useProfile, type MemoryLevel, type MemoryRecord } from "@/lib/profile";
+import { dueVerses } from "@/lib/memorySchedule";
+import { useRecordActivity } from "@/lib/lastActivity";
 
 const LEVEL_ORDER: MemoryLevel[] = ["reading", "first-letters", "blanks", "recited", "mastered"];
 
@@ -137,6 +139,20 @@ export default function MemoryTrainer({ initialVerseId }: { initialVerseId?: str
     return counts;
   }, [records]);
 
+  const due = useMemo(() => (mounted ? dueVerses(records) : []), [records, mounted]);
+
+  useRecordActivity(
+    mounted
+      ? {
+          type: "memory",
+          href: "/memory",
+          label: "Memory trainer",
+          sublabel: verse.ref,
+        }
+      : null,
+    [mounted, verse.id]
+  );
+
   return (
     <div className="space-y-6">
       {mounted && (
@@ -149,6 +165,61 @@ export default function MemoryTrainer({ initialVerseId }: { initialVerseId?: str
             Progress lives only on this device.
           </span>
         </div>
+      )}
+
+      {mounted && due.length > 0 && (
+        <section className="rounded-3xl border border-flame-300 bg-flame-50/60 p-5 md:p-6">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <div>
+              <div className="text-[10px] uppercase tracking-widest text-flame-700">
+                Due for review · spaced repetition
+              </div>
+              <h3 className="font-serif text-xl text-ink-900 mt-0.5">
+                {due.length === 1
+                  ? "One verse to keep warm"
+                  : `${due.length} verses to keep warm`}
+              </h3>
+            </div>
+            {due[0] && due[0].verse.id !== verse.id && (
+              <button
+                onClick={() => setActiveId(due[0].verse.id)}
+                className="rounded-full bg-flame-600 text-ink-50 px-3.5 py-1.5 text-xs hover:bg-flame-500"
+              >
+                Start the queue →
+              </button>
+            )}
+          </div>
+          <p className="mt-1 text-xs text-ink-600 italic">
+            Verses scheduled by your last practice. Click any to review.
+          </p>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {due.map((d) => {
+              const isActive = d.verse.id === activeId;
+              return (
+                <li key={d.verse.id}>
+                  <button
+                    onClick={() => setActiveId(d.verse.id)}
+                    className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+                      isActive
+                        ? "bg-ink-900 text-ink-50 border-ink-900"
+                        : "bg-card border-flame-300 text-ink-800 hover:border-flame-500"
+                    }`}
+                    title={
+                      d.overdue > 0
+                        ? `${d.overdue} day${d.overdue === 1 ? "" : "s"} overdue`
+                        : "Due today"
+                    }
+                  >
+                    {d.verse.ref}
+                    {d.overdue > 0 && (
+                      <span className="ml-1.5 text-flame-700">· +{d.overdue}d</span>
+                    )}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
       )}
 
       <TrainerCard verse={verse} level={level} record={record} mounted={mounted} />

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useProfile, type JournalEntry, type JournalKind, type SecretPrayer, type Gratitude, type Season } from "@/lib/profile";
 import { PROMPTS, SEASONS, todaysPrompt } from "@/data/secret-prompts";
+import { useRecordActivity } from "@/lib/lastActivity";
 
 const KIND_LABEL: Record<JournalKind, string> = {
   reflection: "Reflection",
@@ -47,6 +48,18 @@ function fmtDate(iso: string) {
 export default function SecretPlace() {
   const { profile, update, mounted } = useProfile();
   const sp = profile.secretPlace ?? {};
+
+  useRecordActivity(
+    mounted
+      ? {
+          type: "secret-place",
+          href: "/secret-place",
+          label: "Secret Place",
+          sublabel: "Journal · prayer · gratitude",
+        }
+      : null,
+    [mounted]
+  );
 
   // Pre-fill from URL params — e.g. when arriving from a course week's
   // "Journal this prompt" link.

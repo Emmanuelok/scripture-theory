@@ -351,6 +351,15 @@ export type Profile = {
   catechismProgress?: number[]; // Heidelberg Lord's Day completed (1..52)
   path?: PathProgress;
   course?: CourseProgress;
+  lastActivity?: LastActivity;
+};
+
+export type LastActivity = {
+  type: string;
+  href: string;
+  label: string;
+  sublabel?: string;
+  at: string; // ISO timestamp
 };
 
 // ─── Foundations of the Faith — course progress ───────────────

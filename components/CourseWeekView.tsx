@@ -9,6 +9,7 @@ import { PageHero, Tile } from "@/components/ui/Tile";
 import { Glyph } from "@/components/ui/Glyph";
 import LessonAudio from "@/components/LessonAudio";
 import CourseWeekTOC from "@/components/CourseWeekTOC";
+import { useRecordActivity } from "@/lib/lastActivity";
 
 type Phase = "read" | "quiz" | "results";
 
@@ -30,6 +31,19 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
   const daysDone = useMemo(
     () => new Set(course.daysComplete?.[week.week] ?? []),
     [course.daysComplete, week.week]
+  );
+
+  // Track this view as the last activity, so /me can offer resume
+  useRecordActivity(
+    mounted
+      ? {
+          type: "course-week",
+          href: `/course/week/${week.week}`,
+          label: `Foundations · Week ${week.week}`,
+          sublabel: week.title,
+        }
+      : null,
+    [mounted, week.week]
   );
 
   useEffect(() => {
@@ -66,6 +80,62 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
     const next = { ...(course.daysComplete ?? {}), [week.week]: sorted };
     update({ course: { ...course, daysComplete: next } });
   }
+
+  function markDayDone(day: number) {
+    const existing = course.daysComplete?.[week.week] ?? [];
+    if (existing.includes(day)) return;
+    const sorted = Array.from(new Set([...existing, day])).sort((a, b) => a - b);
+    const nextMap = { ...(course.daysComplete ?? {}), [week.week]: sorted };
+    update({ course: { ...course, daysComplete: nextMap } });
+  }
+
+  // Auto-mark-done: when a day's card stays in view ≥ 6s, count it as read.
+  // The believer can still uncheck manually. Skip days already done.
+  useEffect(() => {
+    if (!mounted) return;
+    if (phase === "quiz") return;
+    if (typeof window === "undefined") return;
+    const root = document.getElementById(`week-days-${week.week}`);
+    if (!root) return;
+
+    const dwellTimers = new Map<number, ReturnType<typeof setTimeout>>();
+    const DWELL_MS = 6000;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          const dayAttr = (e.target as HTMLElement).dataset.day;
+          if (!dayAttr) continue;
+          const day = Number(dayAttr);
+          if (e.isIntersecting && e.intersectionRatio >= 0.6) {
+            if (dwellTimers.has(day)) continue;
+            const t = setTimeout(() => {
+              markDayDone(day);
+              dwellTimers.delete(day);
+            }, DWELL_MS);
+            dwellTimers.set(day, t);
+          } else {
+            const t = dwellTimers.get(day);
+            if (t) {
+              clearTimeout(t);
+              dwellTimers.delete(day);
+            }
+          }
+        }
+      },
+      { threshold: [0, 0.6, 1] }
+    );
+
+    const nodes = root.querySelectorAll<HTMLElement>("[data-day]");
+    nodes.forEach((n) => observer.observe(n));
+
+    return () => {
+      observer.disconnect();
+      dwellTimers.forEach((t) => clearTimeout(t));
+      dwellTimers.clear();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted, phase, week.week, daysDone.size]);
 
   const score = useMemo(
     () => answers.reduce((acc: number, a, i) => acc + (a === week.quiz[i].correctIndex ? 1 : 0), 0),
@@ -223,7 +293,10 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
                 {daysDone.size} of 7 days
               </span>
             </div>
-            <ol className="space-y-3">
+            <p className="text-xs text-ink-500 italic mb-3">
+              Days you linger on are checked off automatically — uncheck any if you'd rather.
+            </p>
+            <ol id={`week-days-${week.week}`} className="space-y-3">
               {week.days.map((d, i) => {
                 const href = referenceHref(d.passage);
                 const glyph = DAY_GLYPHS[i % DAY_GLYPHS.length];
@@ -231,6 +304,7 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
                 return (
                   <li
                     key={d.day}
+                    data-day={d.day}
                     className={[
                       "relative overflow-hidden rounded-3xl border p-5 transition-colors",
                       done

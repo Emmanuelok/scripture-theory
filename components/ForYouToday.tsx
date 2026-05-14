@@ -7,6 +7,7 @@ import { STAGES as PATH_STAGES, findStage } from "@/data/path";
 import { Glyph, type GlyphId } from "@/components/ui/Glyph";
 import { feastOn, nextFeastWithin, seasonOn } from "@/lib/calendar";
 import { COURSE_WEEKS } from "@/data/course";
+import { dueVerses } from "@/lib/memorySchedule";
 
 /* ──────────────────────────────────────────────────────────────────
    ForYouToday — pastoral, contextual nudges based on profile + time.
@@ -341,21 +342,23 @@ function buildSignals(profile: Profile, now: Date): Signal[] {
     }
   }
 
-  // 11. Memory verse practice this week
-  const memoryThisWeek = (profile.memory ?? []).find((m) => {
-    if (!m.lastPracticedAt) return false;
-    return daysSince(m.lastPracticedAt) < 7;
-  });
-  if (!memoryThisWeek && (profile.memory?.length ?? 0) > 0) {
+  // 11. Memory verse spaced-repetition — surface verses currently due
+  const dueMem = dueVerses(profile.memory ?? [], now);
+  if (dueMem.length > 0) {
+    const worst = dueMem[0];
+    const overdueLabel =
+      worst.overdue > 0 ? `${worst.overdue}d overdue` : "due today";
     signals.push({
-      id: "memory",
-      priority: 40,
-      eyebrow: "Hide the Word",
-      title: "Practice a verse you've been learning",
-      sub: "Read · first letters · blanks · recite.",
+      id: "memory-due",
+      priority: dueMem.length >= 3 ? 58 : 42,
+      eyebrow: `Spaced repetition · ${dueMem.length} ${dueMem.length === 1 ? "verse" : "verses"} due`,
+      title: dueMem.length === 1
+        ? `Keep ${worst.verse.ref} warm`
+        : `${worst.verse.ref} and ${dueMem.length - 1} more`,
+      sub: `${overdueLabel}. Five minutes locks them back in.`,
       href: "/memory",
       glyph: "memory",
-      variant: "nudge",
+      variant: worst.overdue >= 7 ? "active" : "nudge",
     });
   }
 
