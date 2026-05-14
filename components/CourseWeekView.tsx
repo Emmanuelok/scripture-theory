@@ -8,6 +8,7 @@ import { referenceHref } from "@/lib/reference";
 import { PageHero, Tile } from "@/components/ui/Tile";
 import { Glyph } from "@/components/ui/Glyph";
 import LessonAudio from "@/components/LessonAudio";
+import CourseWeekTOC from "@/components/CourseWeekTOC";
 
 type Phase = "read" | "quiz" | "results";
 
@@ -147,6 +148,8 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
         </Link>
       </div>
 
+      {phase !== "quiz" && <CourseWeekTOC week={week} />}
+
       {phase !== "quiz" && (
         <>
           {/* Anchor scripture */}
@@ -187,7 +190,7 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
           </div>
 
           {/* Memory verse */}
-          <section className="mt-8 rounded-3xl border border-flame-300 bg-flame-50/50 p-6">
+          <section id="memory" className="mt-8 rounded-3xl border border-flame-300 bg-flame-50/50 p-6 scroll-mt-24">
             <div className="flex flex-wrap items-baseline justify-between gap-3">
               <div>
                 <div className="text-[10px] uppercase tracking-widest text-flame-700">
@@ -208,7 +211,7 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
           </section>
 
           {/* Daily structure */}
-          <section className="mt-10">
+          <section id="days" className="mt-10 scroll-mt-24">
             <div className="flex flex-wrap items-baseline justify-between gap-3 mb-4">
               <div>
                 <h2 className="font-serif text-2xl text-ink-900">Seven days, seven steps</h2>
@@ -287,7 +290,7 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
           </section>
 
           {/* Long-form lesson */}
-          <section className="mt-10">
+          <section id="lesson" className="mt-10 scroll-mt-24">
             <div className="flex flex-wrap items-baseline justify-between gap-3 mb-3">
               <h2 className="font-serif text-2xl text-ink-900">The teaching</h2>
               <p className="text-sm text-ink-500 italic">A long read. Take it slowly.</p>
@@ -302,7 +305,7 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
           </section>
 
           {/* Witnesses */}
-          <section className="mt-10">
+          <section id="witnesses" className="mt-10 scroll-mt-24">
             <div className="flex flex-wrap items-baseline justify-between gap-3 mb-3">
               <h2 className="font-serif text-2xl text-ink-900">Voices across the centuries</h2>
               <p className="text-sm text-ink-500 italic">
@@ -344,7 +347,7 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
 
           {/* Multi-tradition voices (only on contested weeks) */}
           {week.traditions && week.traditions.length > 0 && (
-            <section className="mt-10">
+            <section id="traditions" className="mt-10 scroll-mt-24">
               <div className="flex flex-wrap items-baseline justify-between gap-3 mb-3">
                 <h2 className="font-serif text-2xl text-ink-900">
                   How the Body has spoken
@@ -371,7 +374,7 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
 
           {/* Crosswalk to historic catechisms */}
           {week.crosswalk && week.crosswalk.length > 0 && (
-            <section className="mt-10 rounded-3xl border border-ink-200 bg-card-subtle p-6">
+            <section id="crosswalk" className="mt-10 rounded-3xl border border-ink-200 bg-card-subtle p-6 scroll-mt-24">
               <div className="text-[10px] uppercase tracking-widest text-flame-700">
                 Historic crosswalk
               </div>
@@ -395,7 +398,7 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
           )}
 
           {/* Reflection */}
-          <section className="mt-10 rounded-3xl border border-ink-200 bg-card p-6">
+          <section id="reflect" className="mt-10 rounded-3xl border border-ink-200 bg-card p-6 scroll-mt-24">
             <div className="text-[10px] uppercase tracking-widest text-flame-700">Reflect alone</div>
             <h3 className="font-serif text-xl text-ink-900 mt-1 mb-3">For you and the Spirit.</h3>
             <ol className="list-decimal pl-5 space-y-2 text-ink-800 leading-relaxed">
@@ -406,7 +409,7 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
           </section>
 
           {/* Discussion */}
-          <section className="mt-6 rounded-3xl border border-ink-200 bg-card-subtle p-6">
+          <section id="discuss" className="mt-6 rounded-3xl border border-ink-200 bg-card-subtle p-6 scroll-mt-24">
             <div className="text-[10px] uppercase tracking-widest text-flame-700">Discuss with others</div>
             <h3 className="font-serif text-xl text-ink-900 mt-1 mb-3">
               For a small group, a friend, or a family table.
@@ -420,7 +423,7 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
 
           {/* Recommended reading */}
           {week.recommendedReading && week.recommendedReading.length > 0 && (
-            <section className="mt-10">
+            <section id="reading" className="mt-10 scroll-mt-24">
               <div className="flex flex-wrap items-baseline justify-between gap-3 mb-3">
                 <h2 className="font-serif text-2xl text-ink-900">If you want to go deeper</h2>
                 <p className="text-sm text-ink-500 italic">
@@ -489,7 +492,7 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
           )}
 
           {/* Practice */}
-          <section className="mt-6 rounded-3xl border border-flame-300 bg-flame-50/60 p-6">
+          <section id="practice" className="mt-6 rounded-3xl border border-flame-300 bg-flame-50/60 p-6 scroll-mt-24">
             <div className="text-[10px] uppercase tracking-widest text-flame-700">
               Practice this week
             </div>
@@ -497,7 +500,7 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
           </section>
 
           {/* Journal prompt */}
-          <section className="mt-6 rounded-3xl border border-ink-200 bg-card p-6">
+          <section id="journal" className="mt-6 rounded-3xl border border-ink-200 bg-card p-6 scroll-mt-24">
             <div className="flex items-start gap-3">
               <Glyph id="door" size={32} className="text-flame-700 shrink-0 mt-1" />
               <div className="min-w-0 flex-1">
@@ -536,6 +539,12 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
                     >
                       Retake the quiz
                     </button>
+                    <Link
+                      href={`/course/week/${week.week}/share`}
+                      className="text-xs rounded-full border border-flame-500 px-3 py-1 text-flame-700 hover:bg-flame-50"
+                    >
+                      Share this week
+                    </Link>
                     {next && (
                       <Link
                         href={`/course/week/${next.week}`}
@@ -690,6 +699,14 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
               >
                 Retake the quiz
               </button>
+            )}
+            {passed && (
+              <Link
+                href={`/course/week/${week.week}/share`}
+                className="inline-flex items-center rounded-full border border-flame-500 text-flame-700 px-4 py-2 text-sm hover:bg-flame-50"
+              >
+                Share this week
+              </Link>
             )}
             {passed && next && (
               <Link

@@ -29,8 +29,48 @@ export default function CourseHome() {
   const pct = Math.round((completeCount / COURSE_WEEKS.length) * 100);
   const next = COURSE_WEEKS.find((w) => !done.has(w.week));
 
+  // Annual recall — gentle nudge to walk it again after ~1 year
+  let recallYears = 0;
+  if (course.passed && course.certifiedAt) {
+    const days = Math.floor((Date.now() - new Date(course.certifiedAt).getTime()) / 86_400_000);
+    if (days >= 330) recallYears = Math.max(1, Math.floor(days / 365));
+  }
+
   return (
     <div className="space-y-6">
+      {recallYears > 0 && (
+        <section className="relative overflow-hidden rounded-3xl border border-flame-300 bg-flame-50/60 p-5 md:p-6">
+          <div className="flex items-start gap-4">
+            <Glyph id="wreath" size={48} className="text-flame-700 shrink-0" />
+            <div className="min-w-0">
+              <div className="text-[10px] uppercase tracking-widest text-flame-700">
+                {recallYears === 1 ? "One year ago" : `${recallYears} years ago`} · time to refresh
+              </div>
+              <h2 className="font-serif text-xl md:text-2xl text-ink-900 mt-0.5">
+                You walked Foundations. Walk it again?
+              </h2>
+              <p className="mt-1 text-sm text-ink-700 leading-relaxed">
+                A second pass deepens what's already there. New eyes, same Christ. Re-take the weeks at your own pace — your certificate stays.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Link
+                  href="/course/week/1"
+                  className="inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-4 py-1.5 text-sm hover:bg-flame-500"
+                >
+                  Begin again at Week 1 →
+                </Link>
+                <Link
+                  href="/course/memory"
+                  className="inline-flex items-center rounded-full border border-flame-500 text-flame-700 px-4 py-1.5 text-sm hover:bg-flame-50"
+                >
+                  Refresh the twelve verses
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Progress header */}
       <section className="relative overflow-hidden rounded-3xl bg-ink-900 text-ink-50 p-6 md:p-8">
         <span

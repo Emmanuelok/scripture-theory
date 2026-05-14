@@ -122,6 +122,23 @@ function buildSignals(profile: Profile, now: Date): Signal[] {
         variant: "active",
       });
     }
+    // Annual recall — if they passed long ago, gently nudge a refresh
+    if (profile.course.passed && profile.course.certifiedAt) {
+      const daysSinceCert = daysSince(profile.course.certifiedAt);
+      if (daysSinceCert >= 330) {
+        const years = Math.max(1, Math.floor(daysSinceCert / 365));
+        signals.push({
+          id: "course-recall",
+          priority: 55,
+          eyebrow: `Foundations · ${years === 1 ? "one year ago" : `${years} years ago`}`,
+          title: "Time to walk it again?",
+          sub: "Twelve weeks reshaped you once. A second pass deepens what's already there.",
+          href: "/course/history",
+          glyph: "wreath",
+          variant: "nudge",
+        });
+      }
+    }
   } else if (profile.stage === "new") {
     // Surface the course as a nudge for new believers who haven't started
     signals.push({
