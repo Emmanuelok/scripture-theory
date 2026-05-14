@@ -10,6 +10,7 @@ import { findNation } from "@/data/nations";
 import { flagEmoji } from "@/lib/flags";
 import { useAuth } from "@/lib/auth";
 import { STAGES as PATH_STAGES } from "@/data/path";
+import { COURSE_WEEKS } from "@/data/course";
 import { slotKey, SLOT_CHANGE_EVENT } from "@/lib/slots";
 import ProfileSwitcher from "@/components/ProfileSwitcher";
 
@@ -139,7 +140,11 @@ export default function MeDashboard() {
 
       <StatGrid stats={stats} />
 
+      <ResumeCard profile={profile} />
+
       <SignInBanner />
+
+      <CourseCard profile={profile} />
 
       <PathCard profile={profile} />
 
@@ -300,6 +305,12 @@ function buildStats(profile: Profile, plans: PlanProgress, marks: BibleMarks): S
 
   return [
     { label: "The Path", value: `${pathDone}/${PATH_STAGES.length}`, sub: "stages walked", href: "/disciple" },
+    {
+      label: "Foundations",
+      value: `${profile.course?.weeksComplete?.length ?? 0}/${COURSE_WEEKS.length}`,
+      sub: profile.course?.passed ? "certified ✓" : "weeks complete",
+      href: "/course",
+    },
     { label: "Chapters read", value: totalChaptersRead, sub: "across plans", href: "/read" },
     { label: "Verses memorized", value: memoryCount, sub: `${mastered} mastered`, href: "/memory" },
     { label: "People I pray for", value: prayingForCount, sub: `${prayersCount} prayers offered`, href: "/pray" },
@@ -343,6 +354,173 @@ function StatBody({ label, value, sub }: Stat) {
       <div className="font-serif text-2xl text-ink-900 mt-1">{value}</div>
       {sub && <div className="text-xs text-ink-500 mt-0.5">{sub}</div>}
     </>
+  );
+}
+
+/* ────────────────────────────────────────────────────────── */
+
+function ResumeCard({ profile }: { profile: Profile }) {
+  const a = profile.lastActivity;
+  if (!a) return null;
+  return (
+    <Link
+      href={a.href}
+      className="group relative overflow-hidden rounded-3xl border border-flame-300 bg-flame-50/60 p-5 md:p-6 flex items-center justify-between gap-4 hover:border-flame-500 hover:bg-flame-50 transition-colors"
+    >
+      <div className="min-w-0">
+        <div className="text-[10px] uppercase tracking-widest text-flame-700">
+          Resume · last opened {fmtRelative(a.at)}
+        </div>
+        <div className="font-serif text-lg md:text-xl text-ink-900 mt-0.5 truncate">
+          {a.label}
+        </div>
+        {a.sublabel && (
+          <div className="text-sm text-ink-700 truncate">{a.sublabel}</div>
+        )}
+      </div>
+      <div className="shrink-0 text-flame-700 font-serif text-xl group-hover:translate-x-1 transition-transform">
+        →
+      </div>
+    </Link>
+  );
+}
+
+/* ────────────────────────────────────────────────────────── */
+
+function CourseCard({ profile }: { profile: Profile }) {
+  const course = profile.course;
+  const done = new Set(course?.weeksComplete ?? []);
+  const total = COURSE_WEEKS.length;
+  const completeCount = done.size;
+  const pct = Math.round((completeCount / total) * 100);
+
+  const next = COURSE_WEEKS.find((w) => !done.has(w.week));
+  const allWeeksDone = completeCount === total;
+
+  // Empty state — hide unless they've at least opened the course in some way
+  if (completeCount === 0 && !course) return null;
+
+  // Days completed across all weeks
+  const totalDaysComplete = Object.values(course?.daysComplete ?? {}).reduce(
+    (acc: number, arr) => acc + ((arr as number[] | undefined)?.length ?? 0),
+    0
+  );
+  const totalPossibleDays = total * 7;
+
+  const targetHref = course?.passed
+    ? "/course/sent"
+    : allWeeksDone
+    ? "/course/exam"
+    : next
+    ? `/course/week/${next.week}`
+    : "/course";
+
+  const label = course?.passed
+    ? "Open Sent · what's next"
+    : allWeeksDone
+    ? "Take the final exam"
+    : next
+    ? `Continue Week ${next.week}`
+    : "Open course";
+
+  return (
+    <section className="relative overflow-hidden rounded-3xl border border-ink-200 bg-card p-6 md:p-7">
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-60"
+        style={{
+          background:
+            "radial-gradient(40% 60% at 100% 0%, rgba(249,115,22,0.06), transparent 60%)",
+        }}
+      />
+      <div className="relative">
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <div>
+            <div className="text-[10px] uppercase tracking-widest text-flame-700">
+              Foundations of the Faith
+            </div>
+            <h2 className="font-serif text-2xl text-ink-900 mt-1">
+              {course?.passed
+                ? "Course complete · certificate earned"
+                : allWeeksDone
+                ? "All twelve weeks done — exam awaits"
+                : next
+                ? `Week ${next.week} · ${next.title}`
+                : "Begin"}
+            </h2>
+            {next && !allWeeksDone && (
+              <p className="text-sm text-ink-600 mt-1 leading-relaxed">{next.tagline}</p>
+            )}
+          </div>
+          <Link
+            href={targetHref}
+            className="text-xs rounded-full bg-flame-600 text-ink-50 px-4 py-1.5 hover:bg-flame-500"
+          >
+            {label} →
+          </Link>
+        </div>
+
+        {/* Twelve-week strip */}
+        <ol className="mt-5 grid grid-cols-12 gap-1.5">
+          {COURSE_WEEKS.map((w) => {
+            const isDone = done.has(w.week);
+            const isCurrent = next?.week === w.week;
+            const dayCount = course?.daysComplete?.[w.week]?.length ?? 0;
+            return (
+              <li key={w.week}>
+                <Link
+                  href={`/course/week/${w.week}`}
+                  title={`Week ${w.week} · ${w.title}${isDone ? " · complete" : ""}${dayCount > 0 ? ` · ${dayCount}/7 days` : ""}`}
+                  className={[
+                    "block h-2 rounded-full transition-all hover:scale-y-150",
+                    isDone
+                      ? "bg-gradient-to-r from-emerald-500 to-emerald-300"
+                      : isCurrent
+                      ? "bg-flame-300"
+                      : dayCount > 0
+                      ? "bg-flame-200"
+                      : "bg-ink-200",
+                  ].join(" ")}
+                />
+              </li>
+            );
+          })}
+        </ol>
+        <div className="mt-2 text-xs text-ink-500">
+          {completeCount} of {total} weeks · {pct}%
+          {totalDaysComplete > 0 && (
+            <span> · {totalDaysComplete} of {totalPossibleDays} days</span>
+          )}
+          {course?.examScore != null && (
+            <span> · Exam best: {course.examScore}/24</span>
+          )}
+        </div>
+
+        {/* Quick links */}
+        <div className="mt-4 flex flex-wrap gap-1.5">
+          <Link
+            href="/course/memory"
+            className="text-[11px] rounded-full bg-card-subtle border border-ink-200 px-2.5 py-0.5 text-ink-700 hover:border-flame-500"
+          >
+            12 memory verses
+          </Link>
+          {course?.passed && (
+            <Link
+              href="/course/certificate"
+              className="text-[11px] rounded-full bg-emerald-50 border border-emerald-300 px-2.5 py-0.5 text-emerald-700 hover:border-emerald-500"
+            >
+              Certificate
+            </Link>
+          )}
+          <Link
+            href="/course/lead"
+            className="text-[11px] rounded-full bg-card-subtle border border-ink-200 px-2.5 py-0.5 text-ink-700 hover:border-flame-500"
+          >
+            Lead a cohort
+          </Link>
+        </div>
+      </div>
+    </section>
   );
 }
 

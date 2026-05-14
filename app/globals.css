@@ -172,3 +172,117 @@ html[data-a11y-underline="on"] a {
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+/*
+ * PRINT STYLES
+ *
+ * When a believer hits Print or Save-as-PDF on the Daily Office,
+ * today's chapter, the gospel, a verse permalink, or any liturgy,
+ * give them clean black-on-white prose with no chrome and no
+ * decorative effects.
+ *
+ * Pages that should NOT print (interactive dashboards, settings,
+ * search) set `data-no-print` on themselves or get the .no-print
+ * class on noisy fragments.
+ */
+@media print {
+  /* Reset to printable colors regardless of theme */
+  :root,
+  [data-theme="dark"] {
+    --ink-50: 255 255 255;
+    --ink-100: 245 245 245;
+    --ink-200: 220 220 220;
+    --ink-300: 180 180 180;
+    --ink-400: 120 120 120;
+    --ink-500: 90 90 90;
+    --ink-600: 60 60 60;
+    --ink-700: 40 40 40;
+    --ink-800: 20 20 20;
+    --ink-900: 0 0 0;
+    --card: 255 255 255;
+    --card-subtle: 250 250 250;
+    --flame-50: 250 240 230;
+    --flame-100: 245 230 215;
+    --flame-300: 200 100 30;
+    --flame-500: 175 80 20;
+    --flame-600: 160 70 15;
+    --flame-700: 140 55 10;
+  }
+
+  html, body {
+    background: white !important;
+    color: black !important;
+    font-size: 11pt;
+  }
+
+  /* Hide the chrome */
+  header,
+  footer,
+  nav,
+  [aria-label="Account"],
+  [aria-label="Search"],
+  [role="dialog"],
+  .no-print {
+    display: none !important;
+  }
+
+  /* Strip decorative effects */
+  .glow-ring,
+  [class*="shadow"],
+  [class*="backdrop-blur"] {
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+
+  /* Background washes / gradients off — keeps ink readable */
+  [style*="radial-gradient"],
+  [class*="bg-gradient"] {
+    background: white !important;
+  }
+
+  /* Dark cards become bordered white blocks */
+  [class*="bg-ink-900"],
+  [class*="bg-ink-800"] {
+    background: white !important;
+    color: black !important;
+    border: 1px solid #ccc !important;
+  }
+
+  [class*="text-ink-50"],
+  [class*="text-ink-100"],
+  [class*="text-ink-200"],
+  [class*="text-ink-300"],
+  [class*="text-flame-300"] {
+    color: black !important;
+  }
+
+  /* Generous, readable typography */
+  h1, h2, h3 {
+    page-break-after: avoid;
+  }
+  blockquote, .prose-scripture {
+    page-break-inside: avoid;
+  }
+  a {
+    color: black !important;
+    text-decoration: underline;
+  }
+  /* Show URLs after links (RFC-friendly) — except for permalinks
+     inside cards where it's noisy */
+  a[href^="http"]:after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #555;
+  }
+
+  /* Roomy line height for the Word */
+  .prose-scripture p,
+  blockquote {
+    line-height: 1.6;
+  }
+
+  /* Page margins */
+  @page {
+    margin: 18mm 14mm 18mm 14mm;
+  }
+}

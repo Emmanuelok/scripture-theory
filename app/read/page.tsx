@@ -1,9 +1,10 @@
+import Link from "next/link";
 import ReadingPlanView from "@/components/ReadingPlan";
 
 export const metadata = {
   title: "Read the Word — Scripture Theory",
   description:
-    "Daily Scripture, simple plans, no noise. Begin with John in 30 days, the Psalms in 30 days, or the whole New Testament in 90 days.",
+    "Daily Scripture, simple plans, no noise. Begin with John in 30 days, the Psalms in 30 days, or the whole New Testament in 90 days — or build your own.",
 };
 
 export default function ReadPage() {
@@ -15,9 +16,18 @@ export default function ReadPage() {
       </h1>
       <p className="mt-4 text-ink-700 max-w-2xl leading-relaxed">
         We have not added a feed, a streak system, or a celebrity. We have just opened the
-        Scriptures, picked three short plans, and asked you to come back tomorrow. Jesus will meet
+        Scriptures, picked a few short plans, and asked you to come back tomorrow. Jesus will meet
         you in them.
       </p>
+
+      <div className="mt-6">
+        <Link
+          href="/read/build"
+          className="inline-flex items-center rounded-full border border-flame-300 bg-flame-50 text-flame-700 px-4 py-1.5 text-sm hover:bg-flame-100"
+        >
+          + Build your own plan
+        </Link>
+      </div>
 
       <div className="mt-10">
         <ReadingPlanView />

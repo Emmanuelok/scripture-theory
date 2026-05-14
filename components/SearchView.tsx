@@ -25,6 +25,7 @@ const KIND_COLOR: Record<SearchKind, string> = {
   hymn: "bg-yellow-100 text-yellow-900",
   discipline: "bg-orange-100 text-orange-900",
   path: "bg-flame-600 text-ink-50",
+  course: "bg-flame-700 text-ink-50",
 };
 
 const ALL_KINDS: SearchKind[] = [
@@ -38,6 +39,7 @@ const ALL_KINDS: SearchKind[] = [
   "hymn",
   "discipline",
   "path",
+  "course",
   "plan",
   "prayer",
   "gospel",

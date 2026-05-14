@@ -5,6 +5,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useProfile, type Profile } from "@/lib/profile";
 import { STAGES as PATH_STAGES, findStage } from "@/data/path";
 import { Glyph, type GlyphId } from "@/components/ui/Glyph";
+import { feastOn, nextFeastWithin, seasonOn } from "@/lib/calendar";
+import { COURSE_WEEKS } from "@/data/course";
+import { dueVerses } from "@/lib/memorySchedule";
 
 /* ──────────────────────────────────────────────────────────────────
    ForYouToday — pastoral, contextual nudges based on profile + time.
@@ -44,11 +47,112 @@ function todayIso(d: Date) {
   return d.toISOString().slice(0, 10);
 }
 
+const SEASON_GLYPH: Record<string, GlyphId> = {
+  advent: "lamp",
+  christmas: "lamp",
+  epiphany: "globe",
+  "ordinary-pre-lent": "tree",
+  lent: "door",
+  "holy-week": "cross",
+  easter: "flame",
+  "pentecost-season": "dove",
+  "ordinary-after-pentecost": "tree",
+};
+
 function buildSignals(profile: Profile, now: Date): Signal[] {
   const signals: Signal[] = [];
   const hour = now.getHours();
   const today = todayIso(now);
   const dow = now.getDay(); // 0=Sun
+
+  // 0. Liturgical day — feast today takes precedence over season
+  const feastToday = feastOn(now);
+  if (feastToday) {
+    signals.push({
+      id: "feast",
+      priority: 110,
+      eyebrow: `Feast · ${feastToday.name}`,
+      title: feastToday.tagline,
+      sub: feastToday.scripture.text.slice(0, 140) + (feastToday.scripture.text.length > 140 ? "…" : ""),
+      href: "/calendar",
+      glyph: "lamp",
+      variant: "active",
+    });
+  } else {
+    // Surface the season at a quieter priority + show "in N days" hint
+    // when a feast is near
+    const season = seasonOn(now).season;
+    const next = nextFeastWithin(now, 14);
+    signals.push({
+      id: "season",
+      priority: 30,
+      eyebrow: `Season · ${season.name}`,
+      title: next ? `${next.feast.name} in ${next.in} days` : season.tagline,
+      sub: next ? next.feast.tagline : season.pray[0],
+      href: "/calendar",
+      glyph: SEASON_GLYPH[season.id] ?? "flame",
+      variant: next && next.in <= 7 ? "active" : "encouragement",
+    });
+  }
+
+  // 0a. Foundations course — high priority if in progress or unstarted-as-new-believer
+  if (profile.course) {
+    const done = new Set(profile.course.weeksComplete ?? []);
+    const allDone = done.size === COURSE_WEEKS.length;
+    const next = COURSE_WEEKS.find((w) => !done.has(w.week));
+    if (allDone && !profile.course.passed) {
+      signals.push({
+        id: "course-exam",
+        priority: 95,
+        eyebrow: "Foundations · final exam waiting",
+        title: "All twelve weeks done — take the exam",
+        sub: "24 questions · pass at 80% for your certificate.",
+        href: "/course/exam",
+        glyph: "wreath",
+        variant: "active",
+      });
+    } else if (next && done.size > 0) {
+      signals.push({
+        id: "course-next",
+        priority: 85,
+        eyebrow: `Foundations · Week ${next.week} of ${COURSE_WEEKS.length}`,
+        title: next.title,
+        sub: next.tagline,
+        href: `/course/week/${next.week}`,
+        glyph: "open-book",
+        variant: "active",
+      });
+    }
+    // Annual recall — if they passed long ago, gently nudge a refresh
+    if (profile.course.passed && profile.course.certifiedAt) {
+      const daysSinceCert = daysSince(profile.course.certifiedAt);
+      if (daysSinceCert >= 330) {
+        const years = Math.max(1, Math.floor(daysSinceCert / 365));
+        signals.push({
+          id: "course-recall",
+          priority: 55,
+          eyebrow: `Foundations · ${years === 1 ? "one year ago" : `${years} years ago`}`,
+          title: "Time to walk it again?",
+          sub: "Twelve weeks reshaped you once. A second pass deepens what's already there.",
+          href: "/course/history",
+          glyph: "wreath",
+          variant: "nudge",
+        });
+      }
+    }
+  } else if (profile.stage === "new") {
+    // Surface the course as a nudge for new believers who haven't started
+    signals.push({
+      id: "course-start",
+      priority: 90,
+      eyebrow: "For new believers",
+      title: "Begin Foundations of the Faith",
+      sub: "Twelve weeks. A certificate at the end. Start Week 1 today.",
+      href: "/course",
+      glyph: "open-book",
+      variant: "nudge",
+    });
+  }
 
   // 1. Active fast — most urgent, surface always
   const activeFast = (profile.fasts ?? []).find((f) => !f.endedAt && !f.broken);
@@ -238,21 +342,23 @@ function buildSignals(profile: Profile, now: Date): Signal[] {
     }
   }
 
-  // 11. Memory verse practice this week
-  const memoryThisWeek = (profile.memory ?? []).find((m) => {
-    if (!m.lastPracticedAt) return false;
-    return daysSince(m.lastPracticedAt) < 7;
-  });
-  if (!memoryThisWeek && (profile.memory?.length ?? 0) > 0) {
+  // 11. Memory verse spaced-repetition — surface verses currently due
+  const dueMem = dueVerses(profile.memory ?? [], now);
+  if (dueMem.length > 0) {
+    const worst = dueMem[0];
+    const overdueLabel =
+      worst.overdue > 0 ? `${worst.overdue}d overdue` : "due today";
     signals.push({
-      id: "memory",
-      priority: 40,
-      eyebrow: "Hide the Word",
-      title: "Practice a verse you've been learning",
-      sub: "Read · first letters · blanks · recite.",
+      id: "memory-due",
+      priority: dueMem.length >= 3 ? 58 : 42,
+      eyebrow: `Spaced repetition · ${dueMem.length} ${dueMem.length === 1 ? "verse" : "verses"} due`,
+      title: dueMem.length === 1
+        ? `Keep ${worst.verse.ref} warm`
+        : `${worst.verse.ref} and ${dueMem.length - 1} more`,
+      sub: `${overdueLabel}. Five minutes locks them back in.`,
       href: "/memory",
       glyph: "memory",
-      variant: "nudge",
+      variant: worst.overdue >= 7 ? "active" : "nudge",
     });
   }
 

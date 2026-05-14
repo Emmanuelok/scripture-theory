@@ -15,6 +15,8 @@ export default function Footer() {
             <li><Link href="/beliefs" className="hover:text-ink-900">What we believe</Link></li>
             <li><Link href="/privacy" className="hover:text-ink-900">Privacy</Link></li>
             <li><Link href="/accessibility" className="hover:text-ink-900">Accessibility</Link></li>
+            <li><Link href="/help" className="hover:text-ink-900">Help</Link></li>
+            <li><Link href="/give" className="hover:text-ink-900">Support the work</Link></li>
             <li><Link href="/new-believer" className="hover:text-ink-900">Just said yes?</Link></li>
           </ul>
         </div>
@@ -24,6 +26,10 @@ export default function Footer() {
             <li><Link href="/gospel" className="hover:text-ink-900">The Gospel</Link></li>
             <li><Link href="/bible" className="hover:text-ink-900">The Bible</Link></li>
             <li><Link href="/read" className="hover:text-ink-900">Reading plans</Link></li>
+            <li><Link href="/read/build" className="hover:text-ink-900">Build a plan</Link></li>
+            <li><Link href="/devotional" className="hover:text-ink-900">Devotional library</Link></li>
+            <li><Link href="/course" className="hover:text-ink-900">Foundations of the Faith (12 wks)</Link></li>
+            <li><Link href="/course/lead" className="hover:text-ink-900">Lead a Foundations cohort</Link></li>
             <li><Link href="/memory" className="hover:text-ink-900">Scripture memory</Link></li>
             <li><Link href="/pray" className="hover:text-ink-900">Pray</Link></li>
             <li><Link href="/pray/nations" className="hover:text-ink-900">Praying for the nations</Link></li>
@@ -46,6 +52,7 @@ export default function Footer() {
             <li><Link href="/resources/creeds" className="hover:text-ink-900">Historic creeds</Link></li>
             <li><Link href="/resources/glossary" className="hover:text-ink-900">Theological glossary</Link></li>
             <li><Link href="/resources/disciplines" className="hover:text-ink-900">Spiritual disciplines</Link></li>
+            <li><Link href="/calendar" className="hover:text-ink-900">The Christian year</Link></li>
             <li><Link href="/connect" className="hover:text-ink-900">One Body (local church)</Link></li>
             <li><Link href="/lens" className="hover:text-ink-900">Jesus in the Word</Link></li>
             <li><Link href="/search" className="hover:text-ink-900">Search</Link></li>

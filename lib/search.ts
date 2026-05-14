@@ -13,6 +13,7 @@ import { heidelberg } from "@/data/catechism";
 import { apologetics, topicInfo as apolTopicInfo } from "@/data/apologetics";
 import { hymns } from "@/data/hymns";
 import { STAGES as PATH_STAGES } from "@/data/path";
+import { COURSE_WEEKS } from "@/data/course";
 
 export type SearchKind =
   | "scripture"
@@ -28,7 +29,8 @@ export type SearchKind =
   | "apologetic"
   | "hymn"
   | "discipline"
-  | "path";
+  | "path"
+  | "course";
 
 export type SearchResult = {
   kind: SearchKind;
@@ -54,6 +56,7 @@ const KIND_LABEL: Record<SearchKind, string> = {
   hymn: "Hymn",
   discipline: "Discipline",
   path: "The Path",
+  course: "Foundations course",
 };
 
 export function searchKindLabel(k: SearchKind) {
@@ -295,6 +298,68 @@ function buildIndex(): Indexed[] {
     });
   }
 
+  // Foundations of the Faith — 12-week course
+  for (const w of COURSE_WEEKS) {
+    // Week overview
+    items.push({
+      kind: "course",
+      title: `Week ${w.week} · ${w.title}`,
+      subtitle: `Foundations · ${w.scripture.ref}`,
+      snippet: w.tagline,
+      href: `/course/week/${w.week}`,
+      weight: 5,
+      hay: `foundations week ${w.week} ${w.title} ${w.tagline} ${w.scripture.ref} ${w.scripture.text} ${w.memoryVerse.ref} ${w.memoryVerse.text} ${w.practice} ${w.journalPrompt} ${w.lesson.join(" ")} ${w.reflection.join(" ")} ${w.discussion.join(" ")}`.toLowerCase(),
+    });
+    // Memory verse as its own entry
+    items.push({
+      kind: "course",
+      title: `Memory · ${w.memoryVerse.ref}`,
+      subtitle: `Foundations Week ${w.week} · ${w.title}`,
+      snippet: w.memoryVerse.text,
+      href: `/course/week/${w.week}#memory`,
+      weight: 4,
+      hay: `memory verse foundations week ${w.week} ${w.memoryVerse.ref} ${w.memoryVerse.text}`.toLowerCase(),
+    });
+    // Witnesses
+    for (const wit of w.witnesses) {
+      items.push({
+        kind: "course",
+        title: `${wit.who} on ${w.title}`,
+        subtitle: `Week ${w.week} · ${wit.when}`,
+        snippet: wit.quote,
+        href: `/course/week/${w.week}#witnesses`,
+        weight: 2,
+        hay: `${wit.who} ${wit.when} ${wit.quote} ${wit.source ?? ""} foundations week ${w.week} ${w.title}`.toLowerCase(),
+      });
+    }
+    // Tradition voices
+    if (w.traditions) {
+      for (const tr of w.traditions) {
+        items.push({
+          kind: "course",
+          title: `${tr.tradition} · ${w.title}`,
+          subtitle: `Week ${w.week} · traditions`,
+          snippet: tr.voice,
+          href: `/course/week/${w.week}#traditions`,
+          weight: 2,
+          hay: `${tr.tradition} ${tr.voice} foundations week ${w.week} ${w.title}`.toLowerCase(),
+        });
+      }
+    }
+    // Daily steps
+    for (const d of w.days) {
+      items.push({
+        kind: "course",
+        title: `Day ${d.day} · ${d.title}`,
+        subtitle: `Week ${w.week} · ${d.passage}`,
+        snippet: d.meditation,
+        href: `/course/week/${w.week}#days`,
+        weight: 1,
+        hay: `day ${d.day} ${d.label} ${d.title} ${d.passage} ${d.meditation} week ${w.week} ${w.title}`.toLowerCase(),
+      });
+    }
+  }
+
   // The Path stages
   for (const s of PATH_STAGES) {
     items.push({
@@ -368,6 +433,7 @@ export function quickStats(): Record<SearchKind, number> {
     hymn: 0,
     discipline: 0,
     path: 0,
+    course: 0,
   } as Record<SearchKind, number>;
   for (const item of index) counts[item.kind]++;
   return counts;

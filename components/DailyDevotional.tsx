@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { todaysDevotional } from "@/data/devotional";
+import { slugifyDevotional } from "@/lib/devotional-slug";
 
 export default function DailyDevotional() {
   const entry = useMemo(() => todaysDevotional(), []);
+  const permalink = `/devotional/${slugifyDevotional(entry.title)}`;
   const [open, setOpen] = useState(false);
 
   const verseHref =
@@ -66,6 +68,18 @@ export default function DailyDevotional() {
           className="rounded-full border border-ink-300 px-4 py-1.5 text-xs text-ink-800 hover:border-ink-900"
         >
           Journal this in my Secret Place
+        </Link>
+        <Link
+          href={permalink}
+          className="rounded-full border border-ink-300 px-4 py-1.5 text-xs text-ink-800 hover:border-ink-900"
+        >
+          Permalink ↗
+        </Link>
+        <Link
+          href="/devotional"
+          className="rounded-full border border-ink-300 px-4 py-1.5 text-xs text-ink-800 hover:border-ink-900 ml-auto"
+        >
+          Library →
         </Link>
       </div>
 

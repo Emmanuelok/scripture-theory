@@ -160,6 +160,67 @@ export default function MyBible() {
     URL.revokeObjectURL(url);
   }
 
+  function exportMarkdown() {
+    // Group by book → chapter for a clean print/share layout
+    const byBook = new Map<string, Map<number, Mark[]>>();
+    for (const m of all) {
+      if (!byBook.has(m.bookName)) byBook.set(m.bookName, new Map());
+      const chMap = byBook.get(m.bookName)!;
+      if (!chMap.has(m.chapter)) chMap.set(m.chapter, []);
+      chMap.get(m.chapter)!.push(m);
+    }
+
+    const lines: string[] = [];
+    lines.push("# My Bible Marks");
+    lines.push("");
+    lines.push(`> Exported from Scripture Theory · ${new Date().toLocaleString()}`);
+    lines.push(
+      `> ${marks.highlights.length} highlight${marks.highlights.length === 1 ? "" : "s"} · ${marks.bookmarks.length} bookmark${marks.bookmarks.length === 1 ? "" : "s"} · ${Object.keys(marks.notes).length} note${Object.keys(marks.notes).length === 1 ? "" : "s"}`
+    );
+    lines.push("");
+
+    for (const [bookName, chMap] of byBook) {
+      lines.push(`## ${bookName}`);
+      lines.push("");
+      const sortedChapters = Array.from(chMap.keys()).sort((a, b) => a - b);
+      for (const ch of sortedChapters) {
+        lines.push(`### Chapter ${ch}`);
+        lines.push("");
+        const sortedMarks = chMap.get(ch)!.slice().sort((a, b) => a.verse - b.verse);
+        for (const m of sortedMarks) {
+          const abbrev = translations[m.translation]?.abbrev ?? m.translation;
+          const ref = `${bookName} ${ch}:${m.verse} (${abbrev})`;
+          if (m.type === "note") {
+            lines.push(`- **✎ ${ref}**`);
+            if (m.note) {
+              for (const para of m.note.split("\n")) {
+                lines.push(`  > ${para}`);
+              }
+            }
+          } else if (m.type === "bookmark") {
+            lines.push(`- ★ ${ref}`);
+          } else {
+            lines.push(`- — ${ref}`);
+          }
+        }
+        lines.push("");
+      }
+    }
+
+    lines.push("");
+    lines.push("---");
+    lines.push("");
+    lines.push("*Your Bible marks live on your device. Scripture Theory · scripture-theory.vercel.app*");
+
+    const blob = new Blob([lines.join("\n")], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `scripture-theory-marks-${new Date().toISOString().slice(0, 10)}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   if (!mounted) {
     return (
       <div className="rounded-3xl border border-ink-200 bg-card p-8 text-ink-500">
@@ -219,11 +280,18 @@ export default function MyBible() {
             ✎ Notes ({counts.note})
           </FilterPill>
           <button
+            onClick={exportMarkdown}
+            className="rounded-full border border-ink-300 bg-card px-3 py-1 text-xs text-ink-700 hover:border-ink-900"
+            title="Export as Markdown — printable, importable, portable"
+          >
+            ↓ Markdown
+          </button>
+          <button
             onClick={exportText}
             className="rounded-full border border-ink-300 bg-card px-3 py-1 text-xs text-ink-700 hover:border-ink-900"
-            title="Export all marks as a text file"
+            title="Plain text export"
           >
-            Export
+            ↓ Text
           </button>
           <button
             onClick={clearAll}
