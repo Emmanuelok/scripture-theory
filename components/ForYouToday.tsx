@@ -225,6 +225,20 @@ function buildSignals(profile: Profile, now: Date): Signal[] {
     });
   }
 
+  // 3b. Sunday — invite the believer into the Sabbath letter
+  if (dow === 0) {
+    signals.push({
+      id: "sabbath-letter",
+      priority: 72,
+      eyebrow: "Sabbath · read your week",
+      title: "Open this week's Sabbath letter",
+      sub: "A pastoral retrospective of what you walked. Not a dashboard — a letter.",
+      href: "/sabbath/letter",
+      glyph: "dove",
+      variant: "active",
+    });
+  }
+
   // 4. Evening + no examen logged today
   const examenToday = (profile.examens ?? []).some((e) => e.date.startsWith(today));
   if (hour >= 19 && !examenToday) {
