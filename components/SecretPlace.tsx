@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useProfile, type JournalEntry, type JournalKind, type SecretPrayer, type Gratitude, type Season } from "@/lib/profile";
 import { PROMPTS, SEASONS, todaysPrompt } from "@/data/secret-prompts";
 import { useRecordActivity } from "@/lib/lastActivity";
+import { findThematicallySimilar, type ThemeMatch } from "@/lib/journalThemes";
 
 const KIND_LABEL: Record<JournalKind, string> = {
   reflection: "Reflection",
@@ -375,6 +376,21 @@ function JournalSection({
 
   const visible = filter === "all" ? entries : entries.filter((e) => e.kind === filter);
 
+  // Debounced theme-aware recall — surfaces past entries that share themes
+  // with what is being written now. Pure on-device.
+  const [matches, setMatches] = useState<ThemeMatch[]>([]);
+  useEffect(() => {
+    const draft = `${title} ${body}`.trim();
+    if (draft.length < 60 || entries.length === 0) {
+      setMatches([]);
+      return;
+    }
+    const t = setTimeout(() => {
+      setMatches(findThematicallySimilar({ body, title }, entries, 3));
+    }, 600);
+    return () => clearTimeout(t);
+  }, [body, title, entries]);
+
   return (
     <section className="max-w-2xl mx-auto">
       <div className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8 glow-ring">
@@ -434,6 +450,51 @@ function JournalSection({
           </button>
         </div>
       </div>
+
+      {matches.length > 0 && (
+        <div className="mt-4 rounded-3xl border border-flame-200 bg-flame-50/40 p-5">
+          <div className="text-[10px] uppercase tracking-widest text-flame-700">
+            You've been here before
+          </div>
+          <p className="mt-1 text-sm text-ink-700 italic">
+            Past entries that share themes with what you're writing now —
+            {matches[0].sharedTerms.length > 0 && (
+              <>
+                {" "}around{" "}
+                <span className="text-flame-700">
+                  {matches[0].sharedTerms.slice(0, 4).join(", ")}
+                </span>.
+              </>
+            )}
+          </p>
+          <ul className="mt-3 space-y-2">
+            {matches.map((m) => (
+              <li
+                key={m.entry.id}
+                className="rounded-2xl border border-ink-200 bg-card p-4"
+              >
+                <div className="flex items-baseline justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="text-[10px] uppercase tracking-widest text-flame-700">
+                      <span className="mr-1" aria-hidden>{KIND_EMOJI[m.entry.kind]}</span>
+                      {KIND_LABEL[m.entry.kind]}
+                    </div>
+                    {m.entry.title && (
+                      <h5 className="font-serif text-base text-ink-900 mt-0.5 truncate">
+                        {m.entry.title}
+                      </h5>
+                    )}
+                  </div>
+                  <div className="text-xs text-ink-500 shrink-0">{fmtDate(m.entry.date)}</div>
+                </div>
+                <p className="mt-1.5 text-sm text-ink-700 leading-relaxed line-clamp-3">
+                  {m.entry.body}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {entries.length > 0 && (
         <>

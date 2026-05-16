@@ -13,6 +13,7 @@ import { STAGES as PATH_STAGES } from "@/data/path";
 import { COURSE_WEEKS } from "@/data/course";
 import { slotKey, SLOT_CHANGE_EVENT } from "@/lib/slots";
 import ProfileSwitcher from "@/components/ProfileSwitcher";
+import { readMomentum, momentumPastoralLine } from "@/lib/momentum";
 
 // Per-slot bases (each slot has its own row in localStorage)
 const PER_SLOT_BASES = [
@@ -139,6 +140,8 @@ export default function MeDashboard() {
       />
 
       <StatGrid stats={stats} />
+
+      <MomentumStrip profile={profile} />
 
       <ResumeCard profile={profile} />
 
@@ -354,6 +357,68 @@ function StatBody({ label, value, sub }: Stat) {
       <div className="font-serif text-2xl text-ink-900 mt-1">{value}</div>
       {sub && <div className="text-xs text-ink-500 mt-0.5">{sub}</div>}
     </>
+  );
+}
+
+/* ────────────────────────────────────────────────────────── */
+
+function MomentumStrip({ profile }: { profile: Profile }) {
+  const m = useMemo(() => readMomentum(profile), [profile]);
+  if (m.daysActive === 0) return null;
+
+  // Build a 14-day strip (oldest → newest, today on the right)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const days: { key: string; active: boolean }[] = [];
+  for (let i = m.windowDays - 1; i >= 0; i--) {
+    const d = new Date(today.getTime() - i * 86_400_000);
+    const k = d.toISOString().slice(0, 10);
+    days.push({ key: k, active: m.activeDayKeys.includes(k) });
+  }
+
+  const trendLabel =
+    m.trend === "rising"
+      ? "warming"
+      : m.trend === "softening"
+      ? "softening"
+      : m.trend === "steady"
+      ? "steady"
+      : "new";
+
+  return (
+    <section className="rounded-3xl border border-ink-200 bg-card-subtle p-5 md:p-6">
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-[10px] uppercase tracking-widest text-flame-700">
+            Last 14 days · {trendLabel}
+          </div>
+          <h3 className="font-serif text-lg text-ink-900 mt-0.5">
+            Showed up {m.daysActive} of {m.windowDays} days
+            <span className="text-ink-500 font-sans text-xs font-normal ml-2">
+              · {m.last7} this week
+            </span>
+          </h3>
+          <p className="text-sm text-ink-600 italic mt-1 leading-relaxed">
+            {momentumPastoralLine(m)}
+          </p>
+        </div>
+      </div>
+      <div className="mt-4 grid grid-cols-14 gap-1.5" style={{ gridTemplateColumns: `repeat(${m.windowDays}, minmax(0, 1fr))` }}>
+        {days.map((d) => (
+          <div
+            key={d.key}
+            title={d.key}
+            className={[
+              "h-6 rounded-md transition-colors",
+              d.active
+                ? "bg-flame-500/80"
+                : "bg-ink-200/70",
+            ].join(" ")}
+            aria-label={d.active ? `${d.key} — active` : `${d.key} — quiet`}
+          />
+        ))}
+      </div>
+    </section>
   );
 }
 
