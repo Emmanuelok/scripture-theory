@@ -8,6 +8,7 @@ import { Glyph, type GlyphId } from "@/components/ui/Glyph";
 import { feastOn, nextFeastWithin, seasonOn } from "@/lib/calendar";
 import { COURSE_WEEKS } from "@/data/course";
 import { dueVerses } from "@/lib/memorySchedule";
+import { readPace, PACE_COPY } from "@/lib/coursePace";
 
 /* ──────────────────────────────────────────────────────────────────
    ForYouToday — pastoral, contextual nudges based on profile + time.
@@ -112,15 +113,31 @@ function buildSignals(profile: Profile, now: Date): Signal[] {
         variant: "active",
       });
     } else if (next && done.size > 0) {
+      // Pace-aware course signal — softens the nudge for a drifting believer,
+      // tightens it for a steady one, redirects an ahead-runner to the depths.
+      const pace = readPace(profile.course, now);
+      const copy = PACE_COPY[pace.cadence];
+      const priority =
+        pace.cadence === "re-entering" ? 88 :
+        pace.cadence === "drifting" ? 86 :
+        pace.cadence === "ahead" ? 82 : 85;
+      const variant: Variant =
+        pace.cadence === "re-entering" || pace.cadence === "drifting"
+          ? "nudge"
+          : "active";
       signals.push({
         id: "course-next",
-        priority: 85,
-        eyebrow: `Foundations · Week ${next.week} of ${COURSE_WEEKS.length}`,
-        title: next.title,
-        sub: next.tagline,
-        href: `/course/week/${next.week}`,
+        priority,
+        eyebrow: copy.eyebrow,
+        title: pace.cadence === "ahead"
+          ? `Week ${next.week} · go deeper`
+          : pace.cadence === "drifting" || pace.cadence === "re-entering"
+          ? `Open Week ${next.week} — gently`
+          : `${next.title}`,
+        sub: pace.cadence === "steady" ? next.tagline : copy.sub,
+        href: `/course/week/${next.week}${pace.cadence === "ahead" ? "#reading" : ""}`,
         glyph: "open-book",
-        variant: "active",
+        variant,
       });
     }
     // Annual recall — if they passed long ago, gently nudge a refresh
