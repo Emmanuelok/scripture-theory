@@ -15,6 +15,7 @@ import { todaysNation, regions as nationRegions, rotationCycleDay, findNation } 
 import { flagEmoji } from "@/lib/flags";
 import NationFlag from "@/components/NationFlag";
 import { thisWeeksVerse } from "@/data/memory";
+import { feastOn, seasonOn } from "@/lib/calendar";
 import PrayingForList from "@/components/PrayingForList";
 import EncourageMe from "@/components/EncourageMe";
 import DailyDevotional from "@/components/DailyDevotional";
@@ -99,6 +100,16 @@ export default function TodayDashboard() {
   // This week's memory verse
   const memoryVerse = thisWeeksVerse(now);
   const memoryRecord = profile.memory?.find((r) => r.verseId === memoryVerse.id);
+
+  // Today's liturgical day — a feast (if any) takes precedence over the season
+  const liturgical = useMemo(() => {
+    const feast = feastOn(now);
+    if (feast) {
+      return { label: "Today · feast", value: feast.name, sub: feast.tagline };
+    }
+    const { season } = seasonOn(now);
+    return { label: "Today · season", value: season.name, sub: season.tagline };
+  }, [now]);
 
   // Today's verse — rotated daily from the WEB seed (authentic public-domain text).
   const dailyVerse = useMemo(() => {
@@ -198,7 +209,7 @@ export default function TodayDashboard() {
             value={activePlanLocalName}
             sub={`${activeDone.length} of ${activePlan.totalDays} days read`}
           />
-          <Mini label="Language" value={locales[locale].meta.nativeName} sub={locales[locale].meta.languageName} />
+          <Mini label={liturgical.label} value={liturgical.value} sub={liturgical.sub} />
           <Mini
             label="Today's nation"
             value={`${flagEmoji(nation.iso)} ${nation.name}`}
