@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useProfile, type SabbathPlan } from "@/lib/profile";
 
@@ -72,6 +73,29 @@ export default function SabbathView() {
 
   return (
     <div className="space-y-8">
+      <Link
+        href="/sabbath/letter"
+        className="group relative overflow-hidden block rounded-3xl border border-flame-300 bg-flame-50/60 p-5 md:p-6 hover:border-flame-500 hover:bg-flame-50 transition-colors"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <div className="text-[10px] uppercase tracking-widest text-flame-700">
+              Read back · your week
+            </div>
+            <h3 className="font-serif text-xl md:text-2xl text-ink-900 mt-0.5">
+              Open this week's Sabbath letter →
+            </h3>
+            <p className="text-sm text-ink-700 italic mt-1 leading-relaxed">
+              A pastoral retrospective of what you walked through — built on this device from your
+              own journal, prayers, course, and examens. Not a dashboard, a letter.
+            </p>
+          </div>
+          <span className="text-flame-700 font-serif text-xl shrink-0 group-hover:translate-x-1 transition-transform">
+            →
+          </span>
+        </div>
+      </Link>
+
       <section className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8 glow-ring">
         <h2 className="font-serif text-2xl text-ink-900">The day, the start, the end</h2>
         <p className="mt-2 text-sm text-ink-600">

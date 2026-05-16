@@ -402,6 +402,12 @@ function MomentumStrip({ profile }: { profile: Profile }) {
             {momentumPastoralLine(m)}
           </p>
         </div>
+        <Link
+          href="/sabbath/letter"
+          className="text-xs text-flame-700 hover:underline shrink-0"
+        >
+          Read this week's letter →
+        </Link>
       </div>
       <div className="mt-4 grid grid-cols-14 gap-1.5" style={{ gridTemplateColumns: `repeat(${m.windowDays}, minmax(0, 1fr))` }}>
         {days.map((d) => (
