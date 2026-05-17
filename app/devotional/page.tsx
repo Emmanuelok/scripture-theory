@@ -3,6 +3,7 @@ import { devotional } from "@/data/devotional";
 import { slugifyDevotional, todaysDevotional } from "@/lib/devotional-slug";
 import { PageHero, Tile } from "@/components/ui/Tile";
 import { Glyph } from "@/components/ui/Glyph";
+import ScriptureRef from "@/components/ScriptureRef";
 
 export const metadata = {
   title: "Devotional library — Scripture Theory",
@@ -36,7 +37,7 @@ export default function DevotionalLibraryPage() {
         <blockquote className="mt-3 border-l-2 border-flame-500/70 pl-3 italic text-flame-100/90 leading-relaxed max-w-2xl">
           "{today.entry.verseText}"
           <span className="block not-italic text-[11px] text-flame-300 mt-1.5 tracking-wide">
-            — {today.entry.reference}
+            — <ScriptureRef reference={today.entry.reference} className="text-flame-200" />
           </span>
         </blockquote>
         <p className="mt-4 text-sm text-ink-300 leading-relaxed max-w-2xl line-clamp-3">

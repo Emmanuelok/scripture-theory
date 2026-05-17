@@ -5,6 +5,7 @@ import { findDevotional, slugifyDevotional } from "@/lib/devotional-slug";
 import { referenceHref } from "@/lib/reference";
 import { PageHero, Tile } from "@/components/ui/Tile";
 import { Glyph } from "@/components/ui/Glyph";
+import ScriptureRef from "@/components/ScriptureRef";
 
 type Params = Promise<{ slug: string }>;
 
@@ -69,7 +70,7 @@ export default async function DevotionalEntryPage({ params }: { params: Params }
         />
         <div className="relative">
           <div className="text-[10px] uppercase tracking-[0.22em] text-flame-300">
-            {entry.reference} · WEB
+            <ScriptureRef reference={entry.reference} className="text-flame-300" /> · WEB
           </div>
           <blockquote className="mt-3 font-serif text-2xl md:text-3xl leading-snug">
             "{entry.verseText}"

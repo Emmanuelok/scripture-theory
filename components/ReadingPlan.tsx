@@ -6,6 +6,7 @@ import { readingPlans } from "@/data/readings";
 import { localizedPlan, localizedDay } from "@/data/readings-i18n";
 import { locales, type LocaleCode } from "@/data/gospel-i18n";
 import { referenceHref } from "@/lib/reference";
+import ScriptureRef from "@/components/ScriptureRef";
 
 import { slotKey, SLOT_CHANGE_EVENT } from "@/lib/slots";
 
@@ -142,7 +143,7 @@ export default function ReadingPlanView() {
           <div className="text-xs uppercase tracking-widest text-flame-300">Today's reading</div>
           <div className="mt-1 flex flex-wrap items-baseline justify-between gap-3">
             <h3 className="font-serif text-2xl">
-              Day {nextDay.day} — {nextReference}
+              Day {nextDay.day} — <ScriptureRef reference={nextReference} underline={false} className="text-ink-50 hover:text-flame-300" />
             </h3>
             <span className="text-sm text-ink-300">{nextTitle}</span>
           </div>

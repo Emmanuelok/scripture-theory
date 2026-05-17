@@ -19,6 +19,7 @@ import { feastOn, seasonOn } from "@/lib/calendar";
 import PrayingForList from "@/components/PrayingForList";
 import EncourageMe from "@/components/EncourageMe";
 import DailyDevotional from "@/components/DailyDevotional";
+import ScriptureRef from "@/components/ScriptureRef";
 import ForYouToday from "@/components/ForYouToday";
 import { slotKey, SLOT_CHANGE_EVENT } from "@/lib/slots";
 
@@ -243,7 +244,7 @@ export default function TodayDashboard() {
           </blockquote>
           <div className="mt-3 flex flex-wrap items-baseline justify-between gap-3">
             <span className="text-sm text-ink-600 italic">
-              — {dailyVerse.bookName} {dailyVerse.chapter}:{dailyVerse.v} ({transMeta.WEB.abbrev})
+              — <ScriptureRef reference={`${dailyVerse.bookName} ${dailyVerse.chapter}:${dailyVerse.v}`} underline={false} className="text-ink-600 hover:text-flame-700 not-italic" /> ({transMeta.WEB.abbrev})
             </span>
             <Link
               href={`/verse/${dailyVerse.book}/${dailyVerse.chapter}/${dailyVerse.v}`}
@@ -261,7 +262,9 @@ export default function TodayDashboard() {
             <div className="text-xs uppercase tracking-widest text-flame-700">
               This week's memory verse
             </div>
-            <h2 className="font-serif text-2xl text-ink-900 mt-1">{memoryVerse.ref}</h2>
+            <h2 className="font-serif text-2xl text-ink-900 mt-1">
+              <ScriptureRef reference={memoryVerse.ref} underline={false} className="text-ink-900 hover:text-flame-700" />
+            </h2>
           </div>
           {memoryRecord && (
             <span className="text-xs uppercase tracking-widest text-flame-700">

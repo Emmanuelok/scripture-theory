@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { passages, traditions, type Passage, type TraditionId } from "@/data/lens";
+import ScriptureRef from "@/components/ScriptureRef";
 
 const allTraditionIds = Object.keys(traditions) as TraditionId[];
 
@@ -51,7 +52,9 @@ export default function VerseLens() {
 
       <div className="rounded-2xl border border-ink-200 bg-card p-6 md:p-8 glow-ring">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="font-serif text-2xl md:text-3xl text-ink-900">{passage.reference}</h2>
+          <h2 className="font-serif text-2xl md:text-3xl text-ink-900">
+            <ScriptureRef reference={passage.reference} underline={false} className="text-ink-900 hover:text-flame-700" />
+          </h2>
           <span className="text-xs uppercase tracking-widest text-ink-400">{passage.translation}</span>
         </div>
         <p className="prose-scripture mt-4 text-ink-800">{passage.text}</p>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { todaysDevotional } from "@/data/devotional";
 import { slugifyDevotional } from "@/lib/devotional-slug";
+import ScriptureRef from "@/components/ScriptureRef";
 
 export default function DailyDevotional() {
   const entry = useMemo(() => todaysDevotional(), []);
@@ -35,7 +36,7 @@ export default function DailyDevotional() {
       <blockquote className="mt-4 border-l-4 border-flame-300 pl-4 italic text-ink-800 leading-relaxed">
         "{entry.verseText}"
         <span className="block mt-1 not-italic text-sm text-ink-500">
-          — {entry.reference}
+          — <ScriptureRef reference={entry.reference} />
         </span>
       </blockquote>
 
