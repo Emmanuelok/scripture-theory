@@ -52,7 +52,7 @@ export default function EncourageMe() {
           <p className="prose-scripture text-ink-900 text-lg leading-relaxed">"{verse.text}"</p>
           <div className="mt-3 flex items-baseline justify-between flex-wrap gap-2">
             <Link
-              href={`/bible/${verse.book}/${verse.chapter}#v${verse.verse}`}
+              href={`/verse/${verse.book}/${verse.chapter}/${verse.verse}`}
               className="text-sm text-flame-700 hover:underline"
             >
               — {verse.bookName} {verse.chapter}:{verse.verse} ({verse.translation}) →

@@ -122,13 +122,16 @@ export type ParsedRef = {
   bookId: string;
   bookName: string;
   chapter: number;
+  /** First verse if the reference specifies one (e.g. "John 3:16" or "Rom 5:6–8"). */
+  verse?: number;
 };
 
 export function parseReference(input: string): ParsedRef | null {
   if (!input) return null;
   const s = input.trim();
-  // Match "<book> <chapter>[:verses][–...]" — supports number prefix like "1 John"
-  const m = s.match(/^([֐-׿؀-ۿऀ-ॿ一-鿿\p{L}1-3.\s]+?)\s*(\d+)(?::|\s|$|–|—|-)/u);
+  // Match "<book> <chapter>[:verse[–end]]" — supports number prefix like "1 John"
+  // m[1] book · m[2] chapter · m[3] (optional) first verse
+  const m = s.match(/^([֐-׿؀-ۿऀ-ॿ一-鿿\p{L}1-3.\s]+?)\s*(\d+)(?::(\d+))?/u);
   if (!m) return null;
   const rawBook = normalize(m[1].replace(/\.$/, "").replace(/^\s*\.\s*/, ""));
   const chapter = Number(m[2]);
@@ -146,11 +149,24 @@ export function parseReference(input: string): ParsedRef | null {
   if (!bookId) return null;
   const book = canon.find((b) => b.id === bookId);
   if (!book || chapter > book.chapters) return null;
-  return { bookId, bookName: book.name, chapter };
+
+  const verse = m[3] ? Number(m[3]) : undefined;
+  if (verse !== undefined && (!Number.isFinite(verse) || verse < 1)) {
+    return { bookId, bookName: book.name, chapter };
+  }
+  return { bookId, bookName: book.name, chapter, verse };
 }
 
+/**
+ * When the reference points at a specific verse, link to the focused
+ * single-verse view at /verse/[book]/[chapter]/[verse]. When it points
+ * at a whole chapter, link to the chapter reader.
+ */
 export function referenceHref(input: string): string | null {
   const parsed = parseReference(input);
   if (!parsed) return null;
+  if (parsed.verse !== undefined) {
+    return `/verse/${parsed.bookId}/${parsed.chapter}/${parsed.verse}`;
+  }
   return `/bible/${parsed.bookId}/${parsed.chapter}`;
 }

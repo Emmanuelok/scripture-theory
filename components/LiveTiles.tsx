@@ -65,7 +65,7 @@ export default function LiveTiles() {
 
         {/* Today's Verse */}
         <Link
-          href={`/bible/${dailyVerse.book}/${dailyVerse.chapter}#v${dailyVerse.v}`}
+          href={`/verse/${dailyVerse.book}/${dailyVerse.chapter}/${dailyVerse.v}`}
           className="rounded-3xl border border-ink-200 bg-card glow-ring p-6 hover:border-flame-500 transition-colors flex flex-col"
         >
           <span className="text-[10px] uppercase tracking-widest text-flame-700">

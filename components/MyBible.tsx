@@ -322,7 +322,7 @@ export default function MyBible() {
               <span className="shrink-0 w-5 flex items-center justify-center pt-0.5">{icon}</span>
               <div className="flex-1 min-w-0">
                 <Link
-                  href={`/bible/${m.bookId}/${m.chapter}#v${m.verse}`}
+                  href={`/verse/${m.bookId}/${m.chapter}/${m.verse}`}
                   className="font-medium text-ink-900 hover:text-flame-700"
                 >
                   {m.bookName} {m.chapter}:{m.verse}

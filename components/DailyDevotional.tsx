@@ -12,7 +12,9 @@ export default function DailyDevotional() {
 
   const verseHref =
     entry.bookId && entry.chapter
-      ? `/bible/${entry.bookId}/${entry.chapter}${entry.verse ? `#v${entry.verse}` : ""}`
+      ? entry.verse
+        ? `/verse/${entry.bookId}/${entry.chapter}/${entry.verse}`
+        : `/bible/${entry.bookId}/${entry.chapter}`
       : null;
 
   return (

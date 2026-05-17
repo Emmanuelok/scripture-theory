@@ -32,7 +32,9 @@ export default async function DevotionalEntryPage({ params }: { params: Params }
   const next = devotional[(index + 1) % devotional.length];
 
   const bibleHref = entry.bookId
-    ? `/bible/${entry.bookId}/${entry.chapter}${entry.verse ? `#v${entry.verse}` : ""}`
+    ? entry.verse
+      ? `/verse/${entry.bookId}/${entry.chapter}/${entry.verse}`
+      : `/bible/${entry.bookId}/${entry.chapter}`
     : referenceHref(entry.reference);
 
   const versePermalink =

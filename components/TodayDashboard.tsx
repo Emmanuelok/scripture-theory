@@ -246,7 +246,7 @@ export default function TodayDashboard() {
               — {dailyVerse.bookName} {dailyVerse.chapter}:{dailyVerse.v} ({transMeta.WEB.abbrev})
             </span>
             <Link
-              href={`/bible/${dailyVerse.book}/${dailyVerse.chapter}#v${dailyVerse.v}`}
+              href={`/verse/${dailyVerse.book}/${dailyVerse.chapter}/${dailyVerse.v}`}
               className="text-xs text-flame-700 hover:underline"
             >
               Open in the Bible →

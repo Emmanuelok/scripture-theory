@@ -180,7 +180,7 @@ export default function NewBelieverPath() {
                         </div>
                         <div className="flex flex-wrap gap-2 pt-1">
                           <Link
-                            href={`/bible/${d.bookId}/${d.chapter}${d.verse ? `#v${d.verse}` : ""}`}
+                            href={d.verse ? `/verse/${d.bookId}/${d.chapter}/${d.verse}` : `/bible/${d.bookId}/${d.chapter}`}
                             className="rounded-full border border-ink-300 px-3.5 py-1 text-xs text-ink-800 hover:border-ink-900"
                           >
                             Open {d.reference} →
