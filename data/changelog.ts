@@ -16,6 +16,17 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-05-20",
+    title: "Course 2 · closed the arc — exam, certificate, workbook",
+    body:
+      "The Story of God now finishes the way Foundations does. A 24-question final exam draws two questions from each week. Pass at 80% to earn a printable, name-your-own certificate. The complete twelve-week workbook is print-ready for offline reading or group facilitation.",
+    links: [
+      { label: "Final exam", href: "/track/story-of-god/exam" },
+      { label: "Certificate", href: "/track/story-of-god/certificate" },
+      { label: "Workbook", href: "/track/story-of-god/workbook" },
+    ],
+  },
+  {
     date: "2026-05-19",
     title: "The growth tract — Course 2: The Story of God",
     body:

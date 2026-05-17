@@ -76,11 +76,63 @@ export default function TrackCourseHome({ courseId }: { courseId: CourseId }) {
           >
             Open Week {next.week} · {next.title} →
           </Link>
+        ) : !progress?.passed ? (
+          <Link
+            href={`/track/${course.slug}/exam`}
+            className="inline-flex items-center rounded-full bg-sky-600 text-ink-50 px-5 py-2 text-sm hover:bg-sky-500"
+          >
+            🏅 Take the final exam →
+          </Link>
         ) : (
-          <span className="inline-flex items-center rounded-full bg-emerald-100 text-emerald-900 px-5 py-2 text-sm">
-            🏅 You've finished every week
-          </span>
+          <Link
+            href={`/track/${course.slug}/certificate`}
+            className="inline-flex items-center rounded-full bg-emerald-600 text-ink-50 px-5 py-2 text-sm hover:bg-emerald-500"
+          >
+            View your certificate →
+          </Link>
         )}
+      </div>
+
+      {/* Sub-pages: workbook, exam, certificate */}
+      <div className="mt-6 grid sm:grid-cols-3 gap-3">
+        <Link
+          href={`/track/${course.slug}/workbook`}
+          className="rounded-2xl border border-ink-200 bg-card p-4 hover:border-sky-500 transition-colors"
+        >
+          <div className="text-[10px] uppercase tracking-widest text-sky-700">Printable</div>
+          <div className="font-serif text-ink-900 mt-1">Full workbook</div>
+          <div className="text-xs text-ink-600 mt-0.5">All {course.weeks} weeks · print or PDF</div>
+        </Link>
+        <Link
+          href={`/track/${course.slug}/exam`}
+          className={[
+            "rounded-2xl border p-4 transition-colors",
+            done.size === course.weeks
+              ? "border-sky-500 bg-sky-50/60 hover:bg-sky-50"
+              : "border-ink-200 bg-card-subtle opacity-75",
+          ].join(" ")}
+        >
+          <div className="text-[10px] uppercase tracking-widest text-sky-700">Final</div>
+          <div className="font-serif text-ink-900 mt-1">The exam</div>
+          <div className="text-xs text-ink-600 mt-0.5">
+            {done.size === course.weeks ? "Ready when you are" : `Unlocks after all ${course.weeks} weeks`}
+          </div>
+        </Link>
+        <Link
+          href={`/track/${course.slug}/certificate`}
+          className={[
+            "rounded-2xl border p-4 transition-colors",
+            progress?.passed
+              ? "border-emerald-500 bg-emerald-50/40 hover:border-emerald-600"
+              : "border-ink-200 bg-card-subtle opacity-75",
+          ].join(" ")}
+        >
+          <div className="text-[10px] uppercase tracking-widest text-emerald-700">Certificate</div>
+          <div className="font-serif text-ink-900 mt-1">Of completion</div>
+          <div className="text-xs text-ink-600 mt-0.5">
+            {progress?.passed ? "Earned" : "Earned by passing the exam"}
+          </div>
+        </Link>
       </div>
 
       {/* Twelve weeks */}
