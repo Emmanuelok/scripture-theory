@@ -32,19 +32,29 @@ export default function ResourcesHub() {
 
       <div className="mt-12">
         <Bento>
-          {/* HERO — Topical index, the most-used resource */}
+          {/* HERO — Jesus throughout the Scriptures: the platform's reason for being */}
           <Tile
-            href="/resources/topical-index"
+            href="/jesus"
             size="hero"
             tone="dark"
-            eyebrow={`${TOPICS.length} topics · ${verses} verses`}
+            eyebrow="66 books · one Christ"
             title={
               <>
-                Topical Scripture <span className="text-flame-300">by life situation.</span>
+                Jesus throughout the Scriptures —{" "}
+                <span className="text-flame-300">Genesis to Revelation.</span>
               </>
             }
-            sub="When you're anxious, when you've sinned, when you're grieving, when you're rich, when you're tempted — what the Bible actually says, with verses to pray and memorize."
-            glyph={<Glyph id="open-book" size={120} />}
+            sub="Christ in every book of the Bible. The seed of the woman, the Passover Lamb, the bronze serpent, the Suffering Servant, the Son of Man, the Lamb who was slain. Sixty-six books. One Story. His Name is Jesus."
+            glyph={<Glyph id="cross" size={120} />}
+          />
+
+          {/* Topical index */}
+          <Tile
+            href="/resources/topical-index"
+            eyebrow={`${TOPICS.length} topics · ${verses} verses`}
+            title="Topical Scripture by life situation"
+            sub="When you're anxious, when you've sinned, when you're grieving — what the Bible actually says."
+            glyph={<Glyph id="open-book" size={48} />}
           >
             <div className="mt-2 flex flex-wrap gap-1.5">
               {sampleTopics.map((t) => (

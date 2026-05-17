@@ -54,6 +54,7 @@ export default function Footer() {
             <li><Link href="/resources/disciplines" className="hover:text-ink-900">Spiritual disciplines</Link></li>
             <li><Link href="/calendar" className="hover:text-ink-900">The Christian year</Link></li>
             <li><Link href="/connect" className="hover:text-ink-900">One Body (local church)</Link></li>
+            <li><Link href="/jesus" className="hover:text-ink-900">Jesus throughout the Scriptures</Link></li>
             <li><Link href="/lens" className="hover:text-ink-900">Jesus in the Word</Link></li>
             <li><Link href="/search" className="hover:text-ink-900">Search</Link></li>
             <li><Link href="/roadmap" className="hover:text-ink-900">Roadmap</Link></li>
