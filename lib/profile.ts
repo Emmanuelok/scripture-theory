@@ -351,6 +351,8 @@ export type Profile = {
   catechismProgress?: number[]; // Heidelberg Lord's Day completed (1..52)
   path?: PathProgress;
   course?: CourseProgress;
+  /** Additional courses keyed by id (e.g. "story-of-god"). Foundations remains under `course` for backward compat. */
+  courses?: Partial<Record<string, CourseProgress>>;
   lastActivity?: LastActivity;
 };
 

@@ -153,6 +153,31 @@ export default function CourseHome() {
         />
       </div>
 
+      {/* Next course nudge — once Foundations is passed */}
+      {course.passed && (
+        <Link
+          href="/track/story-of-god"
+          className="group block relative overflow-hidden rounded-3xl border border-sky-300 bg-sky-50/40 p-6 hover:border-sky-500 hover:bg-sky-50/60 transition-colors"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <div className="text-[10px] uppercase tracking-widest text-sky-700">
+                Next in the growth tract
+              </div>
+              <h3 className="font-serif text-xl md:text-2xl text-ink-900 mt-0.5">
+                Course 2 · The Story of God →
+              </h3>
+              <p className="mt-1 text-sm text-ink-700 leading-relaxed">
+                Twelve weeks through Scripture's one big story — Creation, Fall, Israel, Christ, the Church, the New Creation — built on the foundation you've laid.
+              </p>
+            </div>
+            <span className="text-sky-700 font-serif text-xl shrink-0 group-hover:translate-x-1 transition-transform">
+              →
+            </span>
+          </div>
+        </Link>
+      )}
+
       {/* Course sub-pages */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
         <Link
@@ -202,6 +227,14 @@ export default function CourseHome() {
           <div className="text-[10px] uppercase tracking-widest text-flame-700">Walk together</div>
           <div className="font-serif text-ink-900 mt-1">Cohorts</div>
           <div className="text-xs text-ink-600 mt-0.5">Create one · join one with a code</div>
+        </Link>
+        <Link
+          href="/track"
+          className="rounded-2xl border border-sky-300 bg-sky-50/30 p-4 hover:border-sky-500 hover:bg-sky-50/60 transition-colors"
+        >
+          <div className="text-[10px] uppercase tracking-widest text-sky-700">After Foundations</div>
+          <div className="font-serif text-ink-900 mt-1">The growth tract</div>
+          <div className="text-xs text-ink-600 mt-0.5">Course 2 onward · keeps building</div>
         </Link>
         {course.passed ? (
           <Link

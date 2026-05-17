@@ -16,6 +16,16 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-05-19",
+    title: "The growth tract — Course 2: The Story of God",
+    body:
+      "Foundations of the Faith was always meant as a doorway, not a destination. The new growth tract at /track keeps walking deeper after Foundations is complete. Course 2 — The Story of God — is now live: twelve weeks through Scripture's one big story (Creation, Fall, Israel, Christ, the Church, the New Creation). Each future course will build on the one before. The tract will keep growing.",
+    links: [
+      { label: "The growth tract", href: "/track" },
+      { label: "Course 2 · The Story of God", href: "/track/story-of-god" },
+    ],
+  },
+  {
     date: "2026-05-18",
     title: "Cohorts — walk Foundations together",
     body:
