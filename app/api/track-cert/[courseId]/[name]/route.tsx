@@ -12,6 +12,7 @@ const ACCENT_HEX: Record<string, { primary: string; soft: string }> = {
   blue: { primary: "#0369a1", soft: "#bae6fd" },
   emerald: { primary: "#047857", soft: "#a7f3d0" },
   violet: { primary: "#6d28d9", soft: "#ddd6fe" },
+  amber: { primary: "#b45309", soft: "#fcd34d" },
 };
 
 export async function GET(

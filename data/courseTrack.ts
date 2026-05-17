@@ -2,6 +2,7 @@ import { COURSE_WEEKS, COURSE_TITLE, COURSE_SUBTITLE, type CourseWeek } from "@/
 import { STORY_WEEKS, STORY_TITLE, STORY_SUBTITLE } from "@/data/storyOfGod";
 import { DISCIPLINES_WEEKS, DISCIPLINES_TITLE, DISCIPLINES_SUBTITLE } from "@/data/disciplines";
 import { SERMON_WEEKS, SERMON_TITLE, SERMON_SUBTITLE } from "@/data/sermon";
+import { MAKING_WEEKS, MAKING_TITLE, MAKING_SUBTITLE } from "@/data/makingDisciples";
 
 /* ──────────────────────────────────────────────────────────────────
    Growth Tract — the path of courses the platform offers, each
@@ -13,7 +14,7 @@ import { SERMON_WEEKS, SERMON_TITLE, SERMON_SUBTITLE } from "@/data/sermon";
    Course 3+: Planned. The tract is meant to keep growing.
 ────────────────────────────────────────────────────────────────── */
 
-export type CourseId = "foundations" | "story-of-god" | "disciplines" | "sermon";
+export type CourseId = "foundations" | "story-of-god" | "disciplines" | "sermon" | "making";
 
 export type TrackCourse = {
   id: CourseId;
@@ -32,7 +33,7 @@ export type TrackCourse = {
   /** Path to the course's primary entry page. */
   href: string;
   /** Lightweight aesthetic accent for the track view. */
-  accent: "flame" | "blue" | "emerald" | "violet";
+  accent: "flame" | "blue" | "emerald" | "violet" | "amber";
   /** Whether the course is currently shippable or in development. */
   status: "live" | "coming-soon";
 };
@@ -92,6 +93,20 @@ export const TRACK: TrackCourse[] = [
     data: SERMON_WEEKS,
     href: "/track/sermon",
     accent: "violet",
+    status: "live",
+  },
+  {
+    id: "making",
+    slug: "making",
+    title: MAKING_TITLE,
+    subtitle: MAKING_SUBTITLE,
+    tagline:
+      "Form yourself for forty-eight weeks, then form others. Twelve weeks on the Great Commission applied — your story, the gospel in plain words, praying for the lost, friendship before evangelism, listening, invitation, the first thirty days, into the Body, reproducing reproducers, the hard cases, and your part in the global mission. 2 Timothy 2:2 made concrete.",
+    prerequisites: ["foundations", "story-of-god", "disciplines", "sermon"],
+    weeks: MAKING_WEEKS.length,
+    data: MAKING_WEEKS,
+    href: "/track/making",
+    accent: "amber",
     status: "live",
   },
 ];
