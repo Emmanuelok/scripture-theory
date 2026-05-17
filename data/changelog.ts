@@ -16,6 +16,17 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-05-23",
+    title: "Cross-course polish · search, memory, /me progress",
+    body:
+      "Three quiet wins that make the existing 48 weeks more useful. Every week of every course in the growth tract — not just Foundations — is now indexed in global search. All 48 course memory verses are surfaced in the memory trainer, so the believer can keep them warm alongside the catalog. /me carries a new growth-tract progress card showing where you are across every course at a glance.",
+    links: [
+      { label: "Search", href: "/search" },
+      { label: "Memory trainer", href: "/memory" },
+      { label: "Your walk", href: "/me" },
+    ],
+  },
+  {
     date: "2026-05-22",
     title: "Course 4 · The Sermon on the Mount",
     body:
