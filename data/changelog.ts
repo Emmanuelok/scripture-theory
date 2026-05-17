@@ -16,6 +16,16 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-05-18",
+    title: "Cohorts — walk Foundations together",
+    body:
+      "Foundations was built to be walked by five to eight believers together. Create a cohort, share the six-letter code, and your group walks the twelve weeks side by side. Each week's progress publishes to the cohort grid; one shared prayer thread carries the group. Personal Secret Place, journal, and notes still live only on this device.",
+    links: [
+      { label: "Cohorts", href: "/cohort" },
+      { label: "Lead a cohort well", href: "/course/lead" },
+    ],
+  },
+  {
     date: "2026-05-17",
     title: "The Sabbath letter",
     body:

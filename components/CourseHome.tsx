@@ -195,6 +195,14 @@ export default function CourseHome() {
           <div className="font-serif text-ink-900 mt-1">Lead a cohort</div>
           <div className="text-xs text-ink-600 mt-0.5">5–8 believers, twelve weeks</div>
         </Link>
+        <Link
+          href="/cohort"
+          className="rounded-2xl border border-ink-200 bg-card p-4 hover:border-flame-500 transition-colors"
+        >
+          <div className="text-[10px] uppercase tracking-widest text-flame-700">Walk together</div>
+          <div className="font-serif text-ink-900 mt-1">Cohorts</div>
+          <div className="text-xs text-ink-600 mt-0.5">Create one · join one with a code</div>
+        </Link>
         {course.passed ? (
           <Link
             href="/course/sent"

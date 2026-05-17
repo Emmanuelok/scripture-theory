@@ -10,6 +10,7 @@ import { Glyph } from "@/components/ui/Glyph";
 import LessonAudio from "@/components/LessonAudio";
 import CourseWeekTOC from "@/components/CourseWeekTOC";
 import { useRecordActivity } from "@/lib/lastActivity";
+import { getActiveCohortId, publishWeekComplete } from "@/lib/cohorts";
 
 type Phase = "read" | "quiz" | "results";
 
@@ -169,6 +170,15 @@ export default function CourseWeekView({ week }: { week: CourseWeek }) {
     update({ course: nextCourse });
     setSubmittedScore(best);
     setPhase("results");
+
+    // If a cohort is active, publish the week so the group sees it lit up.
+    if (isPass) {
+      const cohortId = getActiveCohortId();
+      if (cohortId) {
+        publishWeekComplete(cohortId, week.week).catch(() => {});
+      }
+    }
+
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
