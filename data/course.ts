@@ -2828,9 +2828,13 @@ export type ExamQuestion = Quiz & { week: number };
 
 /** Two questions per week, drawn from the weekly quizzes. Stable across sessions. */
 export function buildFinalExam(): ExamQuestion[] {
+  return buildFinalExamFor(COURSE_WEEKS);
+}
+
+/** Generalized exam builder — works for any course built on the CourseWeek shape. */
+export function buildFinalExamFor(weeks: CourseWeek[]): ExamQuestion[] {
   const out: ExamQuestion[] = [];
-  for (const w of COURSE_WEEKS) {
-    // First (central) + fifth (applied / character) — drawn from now-larger 8-question quizzes
+  for (const w of weeks) {
     const first = w.quiz[0];
     const second = w.quiz[4] ?? w.quiz[2] ?? w.quiz[1];
     for (const q of [first, second]) out.push({ ...q, week: w.week });
