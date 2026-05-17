@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { memoryVerses, themeLabels, type MemoryVerse, type Theme } from "@/data/memory";
+import { courseMemoryVerses } from "@/data/courseMemory";
 import { useProfile, type MemoryLevel, type MemoryRecord } from "@/lib/profile";
 import { dueVerses } from "@/lib/memorySchedule";
 import { useRecordActivity } from "@/lib/lastActivity";
@@ -69,7 +70,7 @@ export default function MemoryTrainer({ initialVerseId }: { initialVerseId?: str
   }, []);
 
   const allVerses = useMemo(
-    () => (customVerse ? [customVerse, ...memoryVerses] : memoryVerses),
+    () => (customVerse ? [customVerse, ...memoryVerses, ...courseMemoryVerses] : [...memoryVerses, ...courseMemoryVerses]),
     [customVerse]
   );
 
@@ -327,6 +328,55 @@ export default function MemoryTrainer({ initialVerseId }: { initialVerseId?: str
                     }`}
                   >
                     {themeLabels[v.theme]}
+                  </div>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
+      {/* Course memory verses — every memory verse from every course in the growth tract */}
+      <div className="rounded-3xl border border-flame-200 bg-flame-50/30 p-5 md:p-6">
+        <div className="flex flex-wrap items-baseline justify-between gap-3 mb-3">
+          <div>
+            <div className="text-xs uppercase tracking-widest text-flame-700">From the growth tract</div>
+            <h3 className="font-serif text-xl text-ink-900 mt-0.5">
+              Course memory verses · {courseMemoryVerses.length}
+            </h3>
+            <p className="text-xs text-ink-600 italic mt-0.5">
+              Every memory verse from every course. Keep them warm here, alongside the catalog above.
+            </p>
+          </div>
+        </div>
+        <ul className="grid sm:grid-cols-2 gap-2">
+          {courseMemoryVerses.map((v) => {
+            const r = records.find((x) => x.verseId === v.id);
+            const isActive = v.id === activeId;
+            return (
+              <li key={v.id}>
+                <button
+                  onClick={() => setActiveId(v.id)}
+                  className={`w-full text-left rounded-xl border px-3 py-2.5 transition-colors text-sm ${
+                    isActive
+                      ? "bg-ink-900 text-ink-50 border-ink-900"
+                      : "bg-card border-flame-200 hover:border-flame-500 text-ink-900"
+                  }`}
+                >
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="font-medium">{v.ref}</span>
+                    {r && (
+                      <span
+                        className={`text-[10px] uppercase tracking-widest ${
+                          isActive ? "text-flame-300" : "text-flame-700"
+                        }`}
+                      >
+                        {LEVEL_LABEL[r.level]}
+                      </span>
+                    )}
+                  </div>
+                  <div className={`text-[10px] mt-0.5 ${isActive ? "text-ink-300" : "text-ink-500"}`}>
+                    {v.courseTitle} · Week {v.week} · {v.weekTitle}
                   </div>
                 </button>
               </li>

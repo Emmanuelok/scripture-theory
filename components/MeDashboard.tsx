@@ -14,6 +14,7 @@ import { COURSE_WEEKS } from "@/data/course";
 import { slotKey, SLOT_CHANGE_EVENT } from "@/lib/slots";
 import ProfileSwitcher from "@/components/ProfileSwitcher";
 import { readMomentum, momentumPastoralLine } from "@/lib/momentum";
+import { TRACK } from "@/data/courseTrack";
 
 // Per-slot bases (each slot has its own row in localStorage)
 const PER_SLOT_BASES = [
@@ -144,6 +145,8 @@ export default function MeDashboard() {
       <MomentumStrip profile={profile} />
 
       <ResumeCard profile={profile} />
+
+      <TrackProgressCard profile={profile} />
 
       <SignInBanner />
 
@@ -424,6 +427,90 @@ function MomentumStrip({ profile }: { profile: Profile }) {
           />
         ))}
       </div>
+    </section>
+  );
+}
+
+/* ────────────────────────────────────────────────────────── */
+
+function TrackProgressCard({ profile }: { profile: Profile }) {
+  // Compute per-course progress across the entire growth tract.
+  // Foundations reads from profile.course; every other course reads
+  // from profile.courses[id].
+  const rows = TRACK.map((tc) => {
+    const cp =
+      tc.id === "foundations"
+        ? profile.course
+        : profile.courses?.[tc.id];
+    const done = (cp?.weeksComplete ?? []).length;
+    const passed = !!cp?.passed;
+    return { tc, done, total: tc.weeks, passed, started: done > 0 || passed };
+  });
+
+  const anyStarted = rows.some((r) => r.started);
+  if (!anyStarted) return null;
+
+  const totalDone = rows.reduce((s, r) => s + r.done, 0);
+  const totalWeeks = rows.reduce((s, r) => s + r.total, 0);
+  const totalPct = Math.round((totalDone / totalWeeks) * 100);
+
+  return (
+    <section className="rounded-3xl border border-ink-200 bg-card p-5 md:p-6">
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <div>
+          <div className="text-[10px] uppercase tracking-widest text-flame-700">
+            The growth tract
+          </div>
+          <h3 className="font-serif text-lg text-ink-900 mt-0.5">
+            {totalDone} of {totalWeeks} weeks · {totalPct}%
+          </h3>
+        </div>
+        <Link href="/track" className="text-xs text-flame-700 hover:underline shrink-0">
+          Open the tract →
+        </Link>
+      </div>
+
+      <ul className="mt-4 space-y-2.5">
+        {rows.map((r) => {
+          const pct = Math.round((r.done / r.total) * 100);
+          const tag = r.passed
+            ? "completed"
+            : r.done > 0
+            ? `${r.done}/${r.total}`
+            : "not started";
+          return (
+            <li key={r.tc.id}>
+              <Link
+                href={r.tc.href}
+                className="block rounded-xl border border-ink-200 bg-card-subtle p-3 hover:border-flame-500 transition-colors"
+              >
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="font-serif text-sm text-ink-900 truncate">
+                    {r.tc.title}
+                  </span>
+                  <span
+                    className={[
+                      "text-[10px] uppercase tracking-widest shrink-0",
+                      r.passed ? "text-emerald-700" : r.done > 0 ? "text-flame-700" : "text-ink-400",
+                    ].join(" ")}
+                  >
+                    {tag}
+                  </span>
+                </div>
+                <div className="mt-1.5 h-1 rounded-full bg-ink-200/70 overflow-hidden">
+                  <div
+                    className={[
+                      "h-full transition-all",
+                      r.passed ? "bg-emerald-500" : "bg-flame-500",
+                    ].join(" ")}
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
     </section>
   );
 }
