@@ -129,6 +129,15 @@ export default function ReadingPlanView() {
           </div>
         )}
 
+        {mounted && done.length >= plan.totalDays && (
+          <Link
+            href={`/read/cert/${plan.id}`}
+            className="mt-5 inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-4 py-2 text-sm hover:bg-flame-500"
+          >
+            🏅 Open your certificate →
+          </Link>
+        )}
+
         <div className="mt-7 rounded-2xl bg-ink-900 text-ink-50 p-5 md:p-6">
           <div className="text-xs uppercase tracking-widest text-flame-300">Today's reading</div>
           <div className="mt-1 flex flex-wrap items-baseline justify-between gap-3">

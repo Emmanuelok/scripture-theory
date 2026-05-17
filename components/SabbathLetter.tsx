@@ -43,12 +43,21 @@ export default function SabbathLetter() {
 
   return (
     <section className="mx-auto max-w-2xl px-5 pt-12 pb-24">
-      <Link
-        href="/sabbath"
-        className="text-xs uppercase tracking-widest text-flame-700 hover:underline"
-      >
-        ← Sabbath
-      </Link>
+      <div className="flex flex-wrap items-center justify-between gap-3 no-print">
+        <Link
+          href="/sabbath"
+          className="text-xs uppercase tracking-widest text-flame-700 hover:underline"
+        >
+          ← Sabbath
+        </Link>
+        <button
+          onClick={() => typeof window !== "undefined" && window.print()}
+          className="text-xs rounded-full border border-ink-300 px-3 py-1 text-ink-700 hover:border-ink-900"
+          title="Print or save as PDF"
+        >
+          ↓ Print / save as PDF
+        </button>
+      </div>
 
       {/* Header — a letter, not a dashboard */}
       <article className="mt-6 relative overflow-hidden rounded-3xl bg-ink-900 text-ink-50 p-8 md:p-10">
