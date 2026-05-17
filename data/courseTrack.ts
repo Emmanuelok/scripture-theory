@@ -3,6 +3,7 @@ import { STORY_WEEKS, STORY_TITLE, STORY_SUBTITLE } from "@/data/storyOfGod";
 import { DISCIPLINES_WEEKS, DISCIPLINES_TITLE, DISCIPLINES_SUBTITLE } from "@/data/disciplines";
 import { SERMON_WEEKS, SERMON_TITLE, SERMON_SUBTITLE } from "@/data/sermon";
 import { MAKING_WEEKS, MAKING_TITLE, MAKING_SUBTITLE } from "@/data/makingDisciples";
+import { KNOWING_WEEKS, KNOWING_TITLE, KNOWING_SUBTITLE } from "@/data/knowingGod";
 
 /* ──────────────────────────────────────────────────────────────────
    Growth Tract — the path of courses the platform offers, each
@@ -14,7 +15,7 @@ import { MAKING_WEEKS, MAKING_TITLE, MAKING_SUBTITLE } from "@/data/makingDiscip
    Course 3+: Planned. The tract is meant to keep growing.
 ────────────────────────────────────────────────────────────────── */
 
-export type CourseId = "foundations" | "story-of-god" | "disciplines" | "sermon" | "making";
+export type CourseId = "foundations" | "story-of-god" | "disciplines" | "sermon" | "making" | "knowing";
 
 export type TrackCourse = {
   id: CourseId;
@@ -33,7 +34,7 @@ export type TrackCourse = {
   /** Path to the course's primary entry page. */
   href: string;
   /** Lightweight aesthetic accent for the track view. */
-  accent: "flame" | "blue" | "emerald" | "violet" | "amber";
+  accent: "flame" | "blue" | "emerald" | "violet" | "amber" | "rose";
   /** Whether the course is currently shippable or in development. */
   status: "live" | "coming-soon";
 };
@@ -107,6 +108,20 @@ export const TRACK: TrackCourse[] = [
     data: MAKING_WEEKS,
     href: "/track/making",
     accent: "amber",
+    status: "live",
+  },
+  {
+    id: "knowing",
+    slug: "knowing",
+    title: KNOWING_TITLE,
+    subtitle: KNOWING_SUBTITLE,
+    tagline:
+      "After being formed inward and turned outward, return to the deepest question — who is the God you know? Twelve weeks slowly through His revealed character: holy, love, sovereign, wise, merciful, just, unchanging, faithful, present, knowing, good, glorious. The course you walk for a lifetime.",
+    prerequisites: ["foundations", "story-of-god", "disciplines", "sermon", "making"],
+    weeks: KNOWING_WEEKS.length,
+    data: KNOWING_WEEKS,
+    href: "/track/knowing",
+    accent: "rose",
     status: "live",
   },
 ];

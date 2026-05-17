@@ -16,6 +16,17 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-05-25",
+    title: "Course 6 · Knowing God + Vocation section",
+    body:
+      "Two additions. (1) Course 6 — Knowing God — twelve weeks slowly through God's revealed character (holy, love, sovereign, wise, merciful, just, unchanging, faithful, present, knowing, good, glorious). The course you walk for a lifetime. The growth tract is now 72 weeks deep. (2) A new Vocation section at /vocation, with pastoral guidance for believers weighing formal study — prospective, full-time enrolled, bivocational, and postgraduate. No directory; a framework for discernment, plus curated outbound links to ATS, ABHE, and other trustworthy bodies.",
+    links: [
+      { label: "Knowing God", href: "/track/knowing" },
+      { label: "Vocation", href: "/vocation" },
+      { label: "Should I go to seminary?", href: "/vocation/seminary" },
+    ],
+  },
+  {
     date: "2026-05-24",
     title: "Course 5 · Making Disciples — the tract turns outward",
     body:

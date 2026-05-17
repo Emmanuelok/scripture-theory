@@ -37,6 +37,12 @@ const ACCENT: Record<string, { border: string; bg: string; ring: string; tag: st
     ring: "shadow-[0_18px_50px_-20px_rgba(245,158,11,0.32)]",
     tag: "text-amber-700",
   },
+  rose: {
+    border: "border-rose-500",
+    bg: "bg-rose-50/60",
+    ring: "shadow-[0_18px_50px_-20px_rgba(244,63,94,0.32)]",
+    tag: "text-rose-700",
+  },
 };
 
 const COURSE_GLYPH: Record<string, GlyphId> = {
@@ -45,6 +51,7 @@ const COURSE_GLYPH: Record<string, GlyphId> = {
   disciplines: "hands",
   sermon: "lamp",
   making: "people",
+  knowing: "flame",
 };
 
 export default function TrackHub() {
@@ -57,6 +64,7 @@ export default function TrackHub() {
     if (profile.courses?.["disciplines"]?.passed) passed.push("disciplines");
     if (profile.courses?.["sermon"]?.passed) passed.push("sermon");
     if (profile.courses?.["making"]?.passed) passed.push("making");
+    if (profile.courses?.["knowing"]?.passed) passed.push("knowing");
     return passed;
   }, [profile]);
 
