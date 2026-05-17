@@ -197,7 +197,14 @@ export default function CourseLeadPage() {
       </div>
 
       {/* Resources */}
-      <div className="mt-14 grid md:grid-cols-2 gap-4">
+      <div className="mt-14 grid md:grid-cols-3 gap-4">
+        <Tile
+          href="/cohort"
+          eyebrow="Walk it together"
+          title="Start a cohort →"
+          sub="Create a six-letter code. Your group joins, walks, and a shared prayer thread carries them through twelve weeks."
+          glyph={<Glyph id="people" size={48} />}
+        />
         <Tile
           href="/course"
           eyebrow="The course itself"
@@ -208,8 +215,8 @@ export default function CourseLeadPage() {
         <Tile
           href="/course/memory"
           eyebrow="Twelve verses"
-          title="Memory verses across the course"
-          sub="The twelve verses the course plants in every walker. Practice them ahead of your group."
+          title="Memory verses"
+          sub="The twelve verses the course plants in every walker."
           glyph={<Glyph id="memory" size={48} />}
         />
       </div>

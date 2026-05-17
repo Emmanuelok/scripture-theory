@@ -9,6 +9,7 @@ import { feastOn, nextFeastWithin, seasonOn } from "@/lib/calendar";
 import { COURSE_WEEKS } from "@/data/course";
 import { dueVerses } from "@/lib/memorySchedule";
 import { readPace, PACE_COPY } from "@/lib/coursePace";
+import { CHANGELOG, latestChangelogDate } from "@/data/changelog";
 
 /* ──────────────────────────────────────────────────────────────────
    ForYouToday — pastoral, contextual nudges based on profile + time.
@@ -223,6 +224,32 @@ function buildSignals(profile: Profile, now: Date): Signal[] {
       glyph: "heal",
       variant: "active",
     });
+  }
+
+  // 3a. Changelog — surface a quiet "what's new" when the latest entry
+  // is newer than what this device has seen. Stored as a plain string in
+  // localStorage; if absent, treat as old enough to show.
+  let lastSeenChangelog: string | null = null;
+  if (typeof window !== "undefined") {
+    try {
+      lastSeenChangelog = window.localStorage.getItem("scripture-theory-changelog-seen");
+    } catch {}
+  }
+  const latest = latestChangelogDate();
+  if (latest && (!lastSeenChangelog || lastSeenChangelog < latest)) {
+    const top = CHANGELOG[0];
+    if (top) {
+      signals.push({
+        id: "whats-new",
+        priority: 50,
+        eyebrow: "New on Scripture Theory",
+        title: top.title,
+        sub: top.body.length > 140 ? `${top.body.slice(0, 137)}…` : top.body,
+        href: "/whats-new",
+        glyph: "flame",
+        variant: "encouragement",
+      });
+    }
   }
 
   // 3b. Sunday — invite the believer into the Sabbath letter
