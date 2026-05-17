@@ -16,6 +16,16 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-05-24",
+    title: "Course 5 · Making Disciples — the tract turns outward",
+    body:
+      "After 48 weeks forming the believer inwardly, Course 5 turns them outward. Twelve weeks on the Great Commission applied — your story, the gospel in plain words, praying for the lost, friendship before evangelism, listening, invitation, the first thirty days, into the Body, reproducing reproducers (2 Timothy 2:2), the hard cases (Monica praying for Augustine), and your part in the global mission. The growth tract is now 60 weeks deep. Prerequisites: Foundations, Story of God, Disciplines, Sermon on the Mount.",
+    links: [
+      { label: "Making Disciples", href: "/track/making" },
+      { label: "The growth tract", href: "/track" },
+    ],
+  },
+  {
     date: "2026-05-23",
     title: "Cross-course polish · search, memory, /me progress",
     body:
