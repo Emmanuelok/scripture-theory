@@ -1,6 +1,7 @@
 import { COURSE_WEEKS, COURSE_TITLE, COURSE_SUBTITLE, type CourseWeek } from "@/data/course";
 import { STORY_WEEKS, STORY_TITLE, STORY_SUBTITLE } from "@/data/storyOfGod";
 import { DISCIPLINES_WEEKS, DISCIPLINES_TITLE, DISCIPLINES_SUBTITLE } from "@/data/disciplines";
+import { SERMON_WEEKS, SERMON_TITLE, SERMON_SUBTITLE } from "@/data/sermon";
 
 /* ──────────────────────────────────────────────────────────────────
    Growth Tract — the path of courses the platform offers, each
@@ -12,7 +13,7 @@ import { DISCIPLINES_WEEKS, DISCIPLINES_TITLE, DISCIPLINES_SUBTITLE } from "@/da
    Course 3+: Planned. The tract is meant to keep growing.
 ────────────────────────────────────────────────────────────────── */
 
-export type CourseId = "foundations" | "story-of-god" | "disciplines";
+export type CourseId = "foundations" | "story-of-god" | "disciplines" | "sermon";
 
 export type TrackCourse = {
   id: CourseId;
@@ -77,6 +78,20 @@ export const TRACK: TrackCourse[] = [
     data: DISCIPLINES_WEEKS,
     href: "/track/disciplines",
     accent: "emerald",
+    status: "live",
+  },
+  {
+    id: "sermon",
+    slug: "sermon",
+    title: SERMON_TITLE,
+    subtitle: SERMON_SUBTITLE,
+    tagline:
+      "Slowly through Matthew 5–7 — Jesus's longest recorded sermon and the most demanding ethical teaching in human history. The Beatitudes, the antitheses, the Lord's Prayer, the warning about treasures and anxiety, love your enemies, the narrow gate, the two builders. The disciplines you have been walking are about to be cut deeper by the Teacher Himself.",
+    prerequisites: ["foundations", "story-of-god", "disciplines"],
+    weeks: SERMON_WEEKS.length,
+    data: SERMON_WEEKS,
+    href: "/track/sermon",
+    accent: "violet",
     status: "live",
   },
 ];

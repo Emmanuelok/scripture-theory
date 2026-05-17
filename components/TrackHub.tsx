@@ -37,6 +37,7 @@ const COURSE_GLYPH: Record<string, GlyphId> = {
   foundations: "cross",
   "story-of-god": "open-book",
   disciplines: "hands",
+  sermon: "lamp",
 };
 
 export default function TrackHub() {
@@ -47,6 +48,7 @@ export default function TrackHub() {
     if (profile.course?.passed) passed.push("foundations");
     if (profile.courses?.["story-of-god"]?.passed) passed.push("story-of-god");
     if (profile.courses?.["disciplines"]?.passed) passed.push("disciplines");
+    if (profile.courses?.["sermon"]?.passed) passed.push("sermon");
     return passed;
   }, [profile]);
 

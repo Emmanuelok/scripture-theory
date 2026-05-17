@@ -16,6 +16,16 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-05-22",
+    title: "Course 4 · The Sermon on the Mount",
+    body:
+      "Twelve weeks slowly through Matthew 5–7 — Jesus's longest recorded sermon. The Beatitudes, salt and light, the Law fulfilled, anger, lust, oaths, love of enemies, hidden almsgiving and prayer and fasting, treasures and anxiety, judging and asking, the narrow gate, the two builders. The growth tract is now 48 weeks deep. Prerequisites: Foundations, Story of God, Disciplines.",
+    links: [
+      { label: "The Sermon on the Mount", href: "/track/sermon" },
+      { label: "The growth tract", href: "/track" },
+    ],
+  },
+  {
     date: "2026-05-21",
     title: "Course 3 · Disciplines of the Faith",
     body:
