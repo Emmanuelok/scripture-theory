@@ -16,6 +16,16 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-05-21",
+    title: "Course 3 · Disciplines of the Faith",
+    body:
+      "The growth tract grows. Course 3 is now live — twelve weeks through the historic spiritual disciplines: prayer, study, fasting, solitude, simplicity, service, submission, confession, Sabbath, worship, guidance, celebration. Each week walks you into the practice tool already built into Scripture Theory (/secret-place, /fast, /examen, /sabbath, /hours), turning the course into a guided tour of the disciplines and the platform at once. Prerequisites: Foundations and The Story of God.",
+    links: [
+      { label: "Disciplines of the Faith", href: "/track/disciplines" },
+      { label: "The growth tract", href: "/track" },
+    ],
+  },
+  {
     date: "2026-05-20",
     title: "Course 2 · closed the arc — exam, certificate, workbook",
     body:

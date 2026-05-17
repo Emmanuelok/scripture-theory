@@ -1,5 +1,6 @@
 import { COURSE_WEEKS, COURSE_TITLE, COURSE_SUBTITLE, type CourseWeek } from "@/data/course";
 import { STORY_WEEKS, STORY_TITLE, STORY_SUBTITLE } from "@/data/storyOfGod";
+import { DISCIPLINES_WEEKS, DISCIPLINES_TITLE, DISCIPLINES_SUBTITLE } from "@/data/disciplines";
 
 /* ──────────────────────────────────────────────────────────────────
    Growth Tract — the path of courses the platform offers, each
@@ -11,7 +12,7 @@ import { STORY_WEEKS, STORY_TITLE, STORY_SUBTITLE } from "@/data/storyOfGod";
    Course 3+: Planned. The tract is meant to keep growing.
 ────────────────────────────────────────────────────────────────── */
 
-export type CourseId = "foundations" | "story-of-god";
+export type CourseId = "foundations" | "story-of-god" | "disciplines";
 
 export type TrackCourse = {
   id: CourseId;
@@ -62,6 +63,20 @@ export const TRACK: TrackCourse[] = [
     data: STORY_WEEKS,
     href: "/track/story-of-god",
     accent: "blue",
+    status: "live",
+  },
+  {
+    id: "disciplines",
+    slug: "disciplines",
+    title: DISCIPLINES_TITLE,
+    subtitle: DISCIPLINES_SUBTITLE,
+    tagline:
+      "Now that you know who God is and where the Story goes, learn how to live in this chapter. Twelve weeks through the historic disciplines — prayer, study, fasting, solitude, simplicity, service, submission, confession, Sabbath, worship, guidance, celebration. Each week walks you into the practice tool already built into Scripture Theory.",
+    prerequisites: ["foundations", "story-of-god"],
+    weeks: DISCIPLINES_WEEKS.length,
+    data: DISCIPLINES_WEEKS,
+    href: "/track/disciplines",
+    accent: "emerald",
     status: "live",
   },
 ];

@@ -36,6 +36,7 @@ const ACCENT: Record<string, { border: string; bg: string; ring: string; tag: st
 const COURSE_GLYPH: Record<string, GlyphId> = {
   foundations: "cross",
   "story-of-god": "open-book",
+  disciplines: "hands",
 };
 
 export default function TrackHub() {
@@ -44,7 +45,8 @@ export default function TrackHub() {
   const passedCourses: CourseId[] = useMemo(() => {
     const passed: CourseId[] = [];
     if (profile.course?.passed) passed.push("foundations");
-    // Future: read profile.courses for other passed courses
+    if (profile.courses?.["story-of-god"]?.passed) passed.push("story-of-god");
+    if (profile.courses?.["disciplines"]?.passed) passed.push("disciplines");
     return passed;
   }, [profile]);
 

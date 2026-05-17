@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { useProfile } from "@/lib/profile";
-import { findCourse, type CourseId } from "@/data/courseTrack";
+import { findCourse, nextCourseAfter, type CourseId } from "@/data/courseTrack";
 import { Glyph } from "@/components/ui/Glyph";
 
 export default function TrackCourseHome({ courseId }: { courseId: CourseId }) {
@@ -134,6 +134,33 @@ export default function TrackCourseHome({ courseId }: { courseId: CourseId }) {
           </div>
         </Link>
       </div>
+
+      {/* Next course nudge — once this course is passed */}
+      {progress?.passed && (() => {
+        const nxt = nextCourseAfter(courseId);
+        if (!nxt) return null;
+        return (
+          <Link
+            href={nxt.href}
+            className="mt-8 group block relative overflow-hidden rounded-3xl border border-emerald-300 bg-emerald-50/40 p-5 md:p-6 hover:border-emerald-500 hover:bg-emerald-50/60 transition-colors"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <div className="text-[10px] uppercase tracking-widest text-emerald-700">
+                  Next in the growth tract
+                </div>
+                <h3 className="font-serif text-xl text-ink-900 mt-0.5">
+                  {nxt.title} →
+                </h3>
+                <p className="mt-1 text-sm text-ink-700 leading-relaxed">{nxt.tagline}</p>
+              </div>
+              <span className="text-emerald-700 font-serif text-xl shrink-0 group-hover:translate-x-1 transition-transform">
+                →
+              </span>
+            </div>
+          </Link>
+        );
+      })()}
 
       {/* Twelve weeks */}
       <ol className="mt-10 relative space-y-3">
