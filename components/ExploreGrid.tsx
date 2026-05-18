@@ -217,19 +217,6 @@ export default function ExploreGrid() {
           </p>
         </Tile>
 
-        {/* CATECHISM — this week's Lord's Day */}
-        <Tile
-          href="/catechism"
-          eyebrow={`1563 · Lord's Day ${data.ld.ld}`}
-          title="Heidelberg"
-          tag="Confession"
-          glyph={<ScrollGlyph />}
-        >
-          <p className="mt-2 text-xs text-ink-400 leading-snug line-clamp-3">
-            {data.ld.qas[0]?.question}
-          </p>
-        </Tile>
-
         {/* SECRET PLACE */}
         <Tile
           href="/secret-place"

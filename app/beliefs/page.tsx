@@ -224,13 +224,6 @@ export default function BeliefsPage() {
           sub="Apostles, Nicene, Chalcedonian, and Athanasian — in full, with context."
           glyph={<Glyph id="wreath" size={48} />}
         />
-        <Tile
-          href="/catechism"
-          eyebrow="52 Lord's Days"
-          title="Walk the Heidelberg"
-          sub="The warmest Reformation catechism — one Lord's Day per week, 129 questions through misery, deliverance, and gratitude."
-          glyph={<Glyph id="catechism" size={48} />}
-        />
       </section>
 
       {/* Closing */}

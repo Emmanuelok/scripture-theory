@@ -9,7 +9,6 @@ import { GLOSSARY } from "@/data/resources/glossary";
 import { TOPICS } from "@/data/resources/topics";
 import { CREEDS } from "@/data/resources/creeds";
 import { DISCIPLINES } from "@/data/resources/disciplines";
-import { heidelberg } from "@/data/catechism";
 import { apologetics, topicInfo as apolTopicInfo } from "@/data/apologetics";
 import { hymns } from "@/data/hymns";
 import { STAGES as PATH_STAGES } from "@/data/path";
@@ -254,21 +253,6 @@ function buildIndex(): Indexed[] {
       weight: 3,
       hay: `${d.name} ${d.oneLine} ${d.why} ${d.start.join(" ")} ${d.scriptures.map((s) => `${s.ref} ${s.text}`).join(" ")}`.toLowerCase(),
     });
-  }
-
-  // Heidelberg Catechism — one entry per Q&A
-  for (const ld of heidelberg) {
-    for (const qa of ld.qas) {
-      items.push({
-        kind: "catechism",
-        title: `Q${qa.q}. ${qa.question}`,
-        subtitle: `Lord's Day ${ld.ld} · ${ld.theme}`,
-        snippet: qa.answer,
-        href: `/catechism`,
-        weight: 3,
-        hay: `lords day ${ld.ld} ${ld.theme} question ${qa.q} ${qa.question} ${qa.answer}`.toLowerCase(),
-      });
-    }
   }
 
   // Apologetics

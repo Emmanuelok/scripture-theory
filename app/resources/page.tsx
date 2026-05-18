@@ -3,7 +3,6 @@ import { CREEDS } from "@/data/resources/creeds";
 import { GLOSSARY } from "@/data/resources/glossary";
 import { DISCIPLINES } from "@/data/resources/disciplines";
 import { translationOrder } from "@/data/bible/translations";
-import { heidelberg } from "@/data/catechism";
 import { Tile, Bento, PageHero } from "@/components/ui/Tile";
 import { Glyph } from "@/components/ui/Glyph";
 
@@ -147,15 +146,6 @@ export default function ResourcesHub() {
             title="Practices hub"
             sub="Daily Office, fasting, examen, lament, forgiveness, listening prayer, family altar, the Lord's Supper at home, the rule of life — and more."
             glyph={<Glyph id="flame" size={48} />}
-          />
-
-          {/* HEIDELBERG */}
-          <Tile
-            href="/catechism"
-            eyebrow={`1563 · ${heidelberg.length} Lord's Days`}
-            title="Heidelberg Catechism"
-            sub="The warmest of the Reformation catechisms — 129 questions and answers in three movements: misery, deliverance, gratitude."
-            glyph={<Glyph id="catechism" size={48} />}
           />
 
           {/* APOLOGETICS */}

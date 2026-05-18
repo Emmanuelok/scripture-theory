@@ -306,7 +306,6 @@ function buildStats(profile: Profile, plans: PlanProgress, marks: BibleMarks): S
   const sermonsCount = profile.sermons?.length ?? 0;
   const highlightsCount = marks.highlights?.length ?? 0;
   const notesCount = Object.keys(marks.notes ?? {}).length;
-  const catechismProgress = profile.catechismProgress?.length ?? 0;
   const pathDone = profile.path?.completed?.length ?? 0;
 
   return [
@@ -327,7 +326,6 @@ function buildStats(profile: Profile, plans: PlanProgress, marks: BibleMarks): S
     { label: "Nations prayed for", value: nationsPrayed, sub: "distinct days", href: "/pray/nations" },
     { label: "Disciples walking", value: disciplesCount, sub: "people I'm with", href: "/disciple/journey" },
     { label: "Bible highlights", value: highlightsCount, sub: `${notesCount} notes`, href: "/bible" },
-    { label: "Catechism", value: `${catechismProgress}/52`, sub: "Lord's Days", href: "/catechism" },
   ];
 }
 
@@ -1090,8 +1088,6 @@ function PracticesCard({ profile }: { profile: Profile }) {
 function FormationCard({ profile }: { profile: Profile }) {
   const gifts = profile.gifts;
   const lastFruit = profile.fruit?.[profile.fruit.length - 1];
-  const catechism = profile.catechismProgress?.length ?? 0;
-
   return (
     <SectionCard eyebrow="Formation" title="Who He is making me">
       <div className="grid sm:grid-cols-3 gap-3">
@@ -1127,19 +1123,6 @@ function FormationCard({ profile }: { profile: Profile }) {
               Begin a fruit check →
             </Link>
           )}
-        </div>
-        <div className="rounded-2xl border border-ink-200 bg-card-subtle p-4">
-          <div className="text-[10px] uppercase tracking-widest text-flame-700">Catechism</div>
-          <div className="font-serif text-ink-900 mt-1">{catechism} / 52</div>
-          <div className="mt-2 h-1.5 rounded-full bg-ink-200 overflow-hidden">
-            <div
-              className="h-full bg-flame-600"
-              style={{ width: `${Math.min(100, (catechism / 52) * 100)}%` }}
-            />
-          </div>
-          <Link href="/catechism" className="text-xs text-flame-700 hover:underline mt-2 inline-block">
-            Continue →
-          </Link>
         </div>
       </div>
     </SectionCard>
