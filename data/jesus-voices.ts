@@ -720,6 +720,12 @@ export const voicesByBook: Record<string, VoiceCitation[]> = {
       work: "Commentary on John (twelve books)",
       note: "The leading patristic defense of Christ's full deity from John's Gospel.",
     },
+    {
+      author: "Andrew Murray",
+      era: "1828–1917",
+      work: "Abide in Christ (1882) and The True Vine",
+      note: "South African pastor whose meditations on John 15 became one of the most-read devotional treatments of union with Christ — beloved across Pentecostal, Holiness, evangelical, and Reformed believers alike.",
+    },
   ],
 
   // ─────────── Acts ───────────
@@ -741,6 +747,12 @@ export const voicesByBook: Record<string, VoiceCitation[]> = {
       era: "1509–1564",
       work: "Commentary on the Acts of the Apostles",
       note: "Treats Acts as Luke's second volume on what Jesus continued to do and teach after the ascension.",
+    },
+    {
+      author: "F. F. Bruce",
+      era: "1910–1990",
+      work: "The Book of the Acts (NICNT, rev. 1988)",
+      note: "A widely cited twentieth-century commentary from the Open Brethren tradition; reads Acts as the unfolding mission of the ascended Lord.",
     },
   ],
 
@@ -776,6 +788,12 @@ export const voicesByBook: Record<string, VoiceCitation[]> = {
       era: "1509–1564",
       work: "Commentary on Romans (1540)",
       note: "Calvin's first published biblical commentary; the doorway to all the rest.",
+    },
+    {
+      author: "John Wesley",
+      era: "1703–1791",
+      work: "Explanatory Notes upon the New Testament — Romans (1755)",
+      note: "The founder of Methodism's verse-by-verse Notes — emphasizing the universal scope of God's offered grace.",
     },
   ],
   "1corinthians": [
@@ -826,6 +844,18 @@ export const voicesByBook: Record<string, VoiceCitation[]> = {
       quote:
         "The Epistle to the Galatians is my epistle. To it I am as it were in wedlock. It is my Katie von Bora.",
     },
+    {
+      author: "John Wesley",
+      era: "1703–1791",
+      work: "Sermons — \"Salvation by Faith\" (Sermon 1, 1738) and Notes on Galatians",
+      note: "The Methodist revival's controlling text. Wesley preached his founding sermon on Ephesians but returned constantly to Galatians' gospel of free grace.",
+    },
+    {
+      author: "F. F. Bruce",
+      era: "1910–1990",
+      work: "Commentary on Galatians (NIGTC, 1982)",
+      note: "Widely cited twentieth-century scholarly commentary from the Open Brethren tradition.",
+    },
   ],
   ephesians: [
     {
@@ -845,6 +875,12 @@ export const voicesByBook: Record<string, VoiceCitation[]> = {
       era: "1899–1981",
       work: "Studies in Ephesians (eight volumes)",
       note: "Three hundred and seventy-two sermons preached at Westminster Chapel, London.",
+    },
+    {
+      author: "John R. W. Stott",
+      era: "1921–2011",
+      work: "God's New Society: The Message of Ephesians (BST, 1979)",
+      note: "Widely cited Anglican-evangelical commentary; reads Ephesians as a portrait of the one new humanity Christ is making.",
     },
   ],
   philippians: [
