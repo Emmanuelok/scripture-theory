@@ -4,127 +4,68 @@
       <stop offset="0%" stop-color="#1a0f08"/>
       <stop offset="100%" stop-color="#0a0604"/>
     </linearGradient>
-    <linearGradient id="flame" x1="50%" y1="0%" x2="50%" y2="100%">
-      <stop offset="0%" stop-color="#fde6c0"/>
-      <stop offset="35%" stop-color="#fdba74"/>
-      <stop offset="75%" stop-color="#f97316"/>
-      <stop offset="100%" stop-color="#b8420c"/>
-    </linearGradient>
-    <linearGradient id="mono" x1="50%" y1="0%" x2="50%" y2="100%">
-      <stop offset="0%" stop-color="#fff4e0"/>
-      <stop offset="100%" stop-color="#fdba74"/>
-    </linearGradient>
-    <radialGradient id="halo" cx="50%" cy="42%" r="55%">
-      <stop offset="0%" stop-color="#f97316" stop-opacity="0.25"/>
-      <stop offset="70%" stop-color="#f97316" stop-opacity="0"/>
+    <radialGradient id="halo" cx="50%" cy="42%" r="58%">
+      <stop offset="0%" stop-color="#d4a574" stop-opacity="0.16"/>
+      <stop offset="70%" stop-color="#d4a574" stop-opacity="0"/>
     </radialGradient>
+    <linearGradient id="goldgrad" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#d4a574"/>
+      <stop offset="100%" stop-color="#c89557"/>
+    </linearGradient>
   </defs>
 
-  <!-- Roundel -->
+  <!-- Roundel — warm ink with a soft golden halo -->
   <rect width="512" height="512" rx="112" fill="url(#bg)"/>
   <rect width="512" height="512" rx="112" fill="url(#halo)"/>
 
-  <!-- Thin inner ring — subtle, classical -->
-  <circle cx="256" cy="256" r="208" fill="none" stroke="#fdba74" stroke-opacity="0.18" stroke-width="2"/>
+  <!-- Compass medallion -->
+  <g transform="translate(256 256)">
+    <!-- Outer + inner ring -->
+    <circle r="184" fill="none" stroke="#c89557" stroke-width="3.5"/>
+    <circle r="168" fill="none" stroke="#6b4e2a" stroke-width="2"/>
 
-  <!--
-    Refined ST monogram.
-    The S is drawn as a custom serif glyph with thick/thin stress.
-    The T crossbar passes behind the S; its stem ends in a small tongue of flame.
-  -->
+    <!-- 24 ticks: major (cardinal) every 6, minor in between -->
+    <g stroke-linecap="round">
+      <!-- Major ticks (cardinal: N/E/S/W) -->
+      <line x1="0" y1="-168" x2="0" y2="-144" stroke="#d4a574" stroke-width="4"/>
+      <line x1="168" y1="0" x2="144" y2="0" stroke="#d4a574" stroke-width="4"/>
+      <line x1="0" y1="168" x2="0" y2="144" stroke="#d4a574" stroke-width="4"/>
+      <line x1="-168" y1="0" x2="-144" y2="0" stroke="#d4a574" stroke-width="4"/>
 
-  <!-- T crossbar — wide serif, sits high -->
-  <g fill="url(#mono)">
-    <path d="M 132 168
-             L 380 168
-             L 380 196
-             L 296 196
-             L 296 376
-             L 268 376
-             L 268 196
-             L 244 196
-             L 244 376
-             L 216 376
-             L 216 196
-             L 132 196 Z"
-          opacity="0"/>
-  </g>
+      <!-- Minor ticks -->
+      <line x1="43.5" y1="-162.3" x2="38.7" y2="-144.2" stroke="#6b4e2a" stroke-width="2"/>
+      <line x1="84" y1="-145.5" x2="74.6" y2="-129.3" stroke="#6b4e2a" stroke-width="2"/>
+      <line x1="118.8" y1="-118.8" x2="105.6" y2="-105.6" stroke="#6b4e2a" stroke-width="2"/>
+      <line x1="145.5" y1="-84" x2="129.3" y2="-74.6" stroke="#6b4e2a" stroke-width="2"/>
+      <line x1="162.3" y1="-43.5" x2="144.2" y2="-38.7" stroke="#6b4e2a" stroke-width="2"/>
 
-  <!-- T stem (centered, classic serif) -->
-  <g fill="url(#mono)">
-    <!-- Crossbar with bracketed serifs -->
-    <path d="M 128 156
-             Q 128 148 138 148
-             L 374 148
-             Q 384 148 384 156
-             L 384 188
-             Q 384 196 374 196
-             L 302 196
-             L 302 358
-             Q 302 366 312 372
-             L 332 384
-             Q 336 386 336 390
-             L 336 396
-             Q 336 400 332 400
-             L 180 400
-             Q 176 400 176 396
-             L 176 390
-             Q 176 386 180 384
-             L 200 372
-             Q 210 366 210 358
-             L 210 196
-             L 138 196
-             Q 128 196 128 188 Z"/>
-  </g>
+      <line x1="162.3" y1="43.5" x2="144.2" y2="38.7" stroke="#6b4e2a" stroke-width="2"/>
+      <line x1="145.5" y1="84" x2="129.3" y2="74.6" stroke="#6b4e2a" stroke-width="2"/>
+      <line x1="118.8" y1="118.8" x2="105.6" y2="105.6" stroke="#6b4e2a" stroke-width="2"/>
+      <line x1="84" y1="145.5" x2="74.6" y2="129.3" stroke="#6b4e2a" stroke-width="2"/>
+      <line x1="43.5" y1="162.3" x2="38.7" y2="144.2" stroke="#6b4e2a" stroke-width="2"/>
 
-  <!-- S — overlaid, custom serif with thick/thin contrast -->
-  <g fill="url(#mono)">
-    <path d="M 318 232
-             Q 318 220 308 214
-             Q 296 207 280 207
-             Q 250 207 230 222
-             Q 212 236 212 258
-             Q 212 278 228 290
-             Q 244 301 274 309
-             Q 296 314 304 320
-             Q 312 326 312 336
-             Q 312 348 300 354
-             Q 290 360 274 360
-             Q 254 360 240 350
-             Q 226 339 222 322
-             L 206 322
-             Q 210 348 230 364
-             Q 252 380 280 380
-             Q 312 380 332 365
-             Q 350 351 350 328
-             Q 350 308 334 296
-             Q 318 285 288 277
-             Q 264 271 254 264
-             Q 246 258 246 250
-             Q 246 240 256 234
-             Q 268 228 282 228
-             Q 298 228 310 236
-             Q 322 244 326 258
-             L 342 258
-             Q 338 240 318 232 Z"/>
-  </g>
+      <line x1="-43.5" y1="162.3" x2="-38.7" y2="144.2" stroke="#6b4e2a" stroke-width="2"/>
+      <line x1="-84" y1="145.5" x2="-74.6" y2="129.3" stroke="#6b4e2a" stroke-width="2"/>
+      <line x1="-118.8" y1="118.8" x2="-105.6" y2="105.6" stroke="#6b4e2a" stroke-width="2"/>
+      <line x1="-145.5" y1="84" x2="-129.3" y2="74.6" stroke="#6b4e2a" stroke-width="2"/>
+      <line x1="-162.3" y1="43.5" x2="-144.2" y2="38.7" stroke="#6b4e2a" stroke-width="2"/>
 
-  <!-- Tongue of flame, rising from the top of the T crossbar -->
-  <g transform="translate(256 80)">
-    <path d="M 0 -8
-             C -18 12, -22 32, -10 52
-             C -4 38, 2 32, 4 22
-             C 6 38, 16 46, 18 62
-             C 20 84, 8 96, -6 96
-             C -22 96, -34 84, -34 62
-             C -34 38, -18 18, 0 -8 Z"
-          fill="url(#flame)"/>
-    <path d="M -6 30
-             C -14 44, -14 60, -4 72
-             C 4 60, 6 50, 4 38
-             C 2 50, 12 60, 10 72
-             C 6 80, -2 80, -6 76
-             C -14 68, -14 50, -6 30 Z"
-          fill="#fff7ed" opacity="0.85"/>
+      <line x1="-162.3" y1="-43.5" x2="-144.2" y2="-38.7" stroke="#6b4e2a" stroke-width="2"/>
+      <line x1="-145.5" y1="-84" x2="-129.3" y2="-74.6" stroke="#6b4e2a" stroke-width="2"/>
+      <line x1="-118.8" y1="-118.8" x2="-105.6" y2="-105.6" stroke="#6b4e2a" stroke-width="2"/>
+      <line x1="-84" y1="-145.5" x2="-74.6" y2="-129.3" stroke="#6b4e2a" stroke-width="2"/>
+      <line x1="-43.5" y1="-162.3" x2="-38.7" y2="-144.2" stroke="#6b4e2a" stroke-width="2"/>
+    </g>
+
+    <!-- ST monogram at the center: vellum S, gold T -->
+    <text
+      y="50"
+      text-anchor="middle"
+      font-family="'Cormorant Garamond', 'EB Garamond', Georgia, serif"
+      font-size="190"
+      font-weight="500"
+      fill="#f3e7c8"
+    >S<tspan dx="-12" fill="url(#goldgrad)">T</tspan></text>
   </g>
 </svg>
