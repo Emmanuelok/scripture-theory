@@ -6,13 +6,13 @@ import {
 } from "@/data/jesus-in-scripture";
 import { voicesFor, type VoiceCitation } from "@/data/jesus-voices";
 import { jesusStudy, studyEpigraph } from "@/data/jesus-study";
-import { passages, traditions, type Passage } from "@/data/lens";
+import { passages, type Passage } from "@/data/lens";
 import ScriptureRef from "@/components/ScriptureRef";
 
 export const metadata = {
   title: "Jesus throughout the Scriptures — Scripture Theory",
   description:
-    "Christ in every book of the Bible, Genesis to Revelation — with the witnesses of the Fathers, Reformers, Puritans, and modern theologians who have read it this way. Plus six historic traditions on six key passages.",
+    "Christ in every book of the Bible, Genesis to Revelation — with the witnesses of the Fathers, Reformers, Puritans, and modern teachers of the whole Church. Plus six emphases the Church has heard in six key passages.",
 };
 
 // ─────────── Voice card ───────────
@@ -43,30 +43,26 @@ function VoiceCard({ v }: { v: VoiceCitation }) {
   );
 }
 
-// ─────────── Tradition reading card (compact) ───────────
-function TraditionReadingCard({
+// ─────────── Emphasis card (one facet of how Christ has been heard here) ───────────
+function EmphasisCard({
   reading,
 }: {
   reading: Passage["readings"][number];
 }) {
   return (
     <article className="rounded-2xl border border-ink-200 bg-card-subtle p-4">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <span
-          className={`text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full ${
-            traditions[reading.tradition].color
-          }`}
-        >
-          {reading.label}
-        </span>
+      <div className="text-[10px] uppercase tracking-widest text-flame-700">
+        Emphasis
       </div>
-      <p className="mt-2 text-xs italic text-flame-700">{reading.emphasis}</p>
-      <p className="mt-2 text-sm text-ink-800 leading-relaxed">
+      <p className="mt-1 font-serif text-base text-ink-900 leading-snug">
+        {reading.emphasis}
+      </p>
+      <p className="mt-3 text-sm text-ink-800 leading-relaxed">
         {reading.reading}
       </p>
       {reading.voices.length > 0 && (
-        <p className="mt-2 text-[11px] text-ink-500 italic">
-          {reading.voices.join(" · ")}
+        <p className="mt-3 text-[11px] text-ink-500 italic">
+          Voices in this hearing: {reading.voices.join(" · ")}
         </p>
       )}
     </article>
@@ -121,12 +117,12 @@ function TraditionPassage({ p }: { p: Passage }) {
 
       <div className="mt-6">
         <h4 className="font-serif text-lg text-ink-900 mb-3">
-          How the historic traditions hear this verse
+          Six emphases the Church has heard here
         </h4>
         <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {p.readings.map((r) => (
             <li key={r.tradition}>
-              <TraditionReadingCard reading={r} />
+              <EmphasisCard reading={r} />
             </li>
           ))}
         </ul>
@@ -135,13 +131,13 @@ function TraditionPassage({ p }: { p: Passage }) {
       <div className="mt-5 grid md:grid-cols-2 gap-3 text-sm">
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4">
           <div className="text-[10px] uppercase tracking-widest text-emerald-800 mb-1">
-            Where the traditions agree
+            The shared confession
           </div>
           <p className="text-ink-800 leading-relaxed">{p.agreement}</p>
         </div>
         <div className="rounded-2xl border border-amber-200 bg-amber-50/60 p-4">
           <div className="text-[10px] uppercase tracking-widest text-amber-800 mb-1">
-            Where they differ — held in love
+            Where hearings differ — held in love
           </div>
           <p className="text-ink-800 leading-relaxed">{p.disagreement}</p>
         </div>
@@ -274,7 +270,7 @@ export default function JesusPage() {
         </div>
         <ol className="grid sm:grid-cols-2 gap-x-6 gap-y-1.5 text-sm text-ink-700 list-decimal pl-5">
           <li><a href="#study" className="hover:text-flame-700 hover:underline">The study — 9 sections</a></li>
-          <li><a href="#tradition-lenses" className="hover:text-flame-700 hover:underline">Six historic traditions on key passages</a></li>
+          <li><a href="#emphases" className="hover:text-flame-700 hover:underline">Six emphases on six key passages</a></li>
           <li><a href="#canonical-sweep" className="hover:text-flame-700 hover:underline">Christ in every book of the Bible</a></li>
         </ol>
       </nav>
@@ -321,40 +317,28 @@ export default function JesusPage() {
         </div>
       </section>
 
-      {/* ═════════ Part 2: Six traditions ═════════ */}
-      <section id="tradition-lenses" className="mt-20 scroll-mt-24">
+      {/* ═════════ Part 2: Six emphases on six key passages ═════════ */}
+      <section id="emphases" className="mt-20 scroll-mt-24">
         <div className="border-b border-ink-200 pb-3 mb-8">
           <span className="text-[10px] uppercase tracking-widest text-flame-700">
             Part two
           </span>
           <h2 className="font-serif text-3xl md:text-4xl text-ink-900 mt-1">
-            Six historic traditions on six key passages
+            Six emphases on six key passages
           </h2>
           <p className="mt-2 text-sm text-ink-600 italic">
-            How Orthodox, Catholic, Reformed, Wesleyan, Pentecostal, and Anabaptist believers
-            have read the same texts — together pointing to Christ.
+            One Christ, many faithful hearings. Six facets the Church across the centuries has
+            heard in six of the most-loved passages in Scripture — each one converging on the
+            same Lord.
           </p>
         </div>
 
-        {/* Tradition legend */}
-        <div className="rounded-3xl border border-ink-200 bg-card-subtle p-5 mb-8">
-          <div className="text-[10px] uppercase tracking-widest text-flame-700 mb-2">
-            The six traditions
-          </div>
-          <ul className="flex flex-wrap gap-2 text-xs">
-            {(Object.keys(traditions) as Array<keyof typeof traditions>).map((id) => (
-              <li
-                key={id}
-                className={`rounded-full px-3 py-1 ${traditions[id].color}`}
-              >
-                {traditions[id].label}
-              </li>
-            ))}
-          </ul>
-          <p className="mt-3 text-xs text-ink-600 leading-relaxed">
-            We do not pit these against each other. We name what each tradition has uniquely
-            seen, and listen for the Christ they all confess.
-          </p>
+        <div className="rounded-3xl border border-ink-200 bg-card-subtle p-5 mb-8 text-sm text-ink-700 leading-relaxed">
+          We do not name parties or pit them against each other. We name what believers across
+          time have heard in each verse, and we let Christ be the center of every hearing. The
+          historical voices cited under each emphasis — Fathers, mothers, mystics, Reformers,
+          Puritans, Pietists, missionaries, modern teachers — testify together to the one Lord
+          they all confess.
         </div>
 
         <div className="space-y-8">

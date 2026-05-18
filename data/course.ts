@@ -44,18 +44,14 @@ export type Witness = {
   quote: string;
 };
 
-/** A voice from a specific Christian tradition on a contested topic. */
+/**
+ * A faithful voice on a contested topic. Historically these have been keyed
+ * to a denomination name; Scripture Theory's editorial preference is to label
+ * by emphasis or theme so the platform elevates Christ rather than a party.
+ * The field accepts either kind of label.
+ */
 export type TraditionVoice = {
-  tradition:
-    | "Orthodox"
-    | "Catholic"
-    | "Anglican"
-    | "Lutheran"
-    | "Reformed"
-    | "Wesleyan / Methodist"
-    | "Anabaptist / Baptist"
-    | "Pentecostal / Charismatic"
-    | "Eastern non-Chalcedonian";
+  tradition: string;
   voice: string;
 };
 

@@ -555,10 +555,10 @@ export default function BibleChapter({
               </button>
               {lensMatch && (
                 <Link
-                  href="/jesus#tradition-lenses"
+                  href="/jesus#emphases"
                   className="rounded-full border border-flame-300 bg-card text-flame-700 px-3.5 py-1.5 text-xs hover:bg-flame-50"
                 >
-                  Six traditions on this passage
+                  Six emphases on this passage
                 </Link>
               )}
             </div>

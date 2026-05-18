@@ -130,12 +130,12 @@ export default function ResourcesHub() {
             glyph={<Glyph id="library" size={48} />}
           />
 
-          {/* JESUS IN THE WORD — now merged into /jesus Part Two; tile retained as a deep-link */}
+          {/* Six emphases on six key passages — deep-link into /jesus Part Two */}
           <Tile
-            href="/jesus#tradition-lenses"
-            eyebrow="Six traditions"
-            title="How the Church reads Christ together"
-            sub="Orthodox, Catholic, Reformed, Wesleyan, Pentecostal, and Anabaptist readings of six key passages — now part of Jesus throughout the Scriptures."
+            href="/jesus#emphases"
+            eyebrow="Six emphases"
+            title="How the Church hears Christ together"
+            sub="Six facets the Church across the centuries has heard in six of Scripture's most-loved passages — every one of them converging on the one Lord."
             glyph={<Glyph id="eye" size={48} />}
           />
 

@@ -93,7 +93,7 @@ export const jesusStudy: StudySection[] = [
     heading: "7 · The modern flowering: biblical theology comes of age",
     body: [
       "The twentieth century saw a remarkable renewal of the Christ-centered reading under the heading of biblical theology — the disciplined attempt to trace the unfolding plot of Scripture from creation to new creation, with Christ as the climactic center.",
-      "Geerhardus Vos (1862–1949), professor at Princeton, gave the discipline its modern Reformed shape in his Biblical Theology (published posthumously, 1948). His student John Murray and his readers Edmund Clowney, Richard Gaffin, and many others kept his work alive in the American Reformed tradition.",
+      "Geerhardus Vos (1862–1949), professor at Princeton, gave biblical theology its modern academic shape in his Biblical Theology (published posthumously, 1948). His students kept the discipline alive in the United States and beyond.",
       "Dietrich Bonhoeffer (1906–1945), writing The Prayerbook of the Bible from the shadow of Nazi Germany, insisted that the Psalter is the prayer Jesus Christ prayed and continues to pray in His Church. \"If we want to read and to pray the prayers of the Bible,\" he wrote, \"we must not ask first what they have to do with us, but what they have to do with Jesus Christ.\"",
       "In the second half of the century the discipline became truly global. Graeme Goldsworthy in Australia (Gospel and Kingdom, 1981), Edmund Clowney in the United States (Preaching Christ in All of Scripture, 2003), Sidney Greidanus in the Netherlands and North America (Preaching Christ from the Old Testament, 1999), Christopher J. H. Wright in the United Kingdom (Knowing Jesus through the Old Testament, 1992) — all of them have given the Church practical, pastoral, accessible help for hearing Christ in every part of His Word.",
       "On the catechetical side, the Heidelberg Catechism's first question (1563) still frames the whole project: \"What is your only comfort in life and in death?\" — \"That I am not my own, but belong with body and soul, both in life and in death, to my faithful Saviour Jesus Christ.\" That is the answer the whole Bible has been writing toward since Genesis 3.",
@@ -117,7 +117,7 @@ export const jesusStudy: StudySection[] = [
     heading: "9 · How to use this page",
     body: [
       "What follows is a sweep through the Bible, book by book. Each entry names Christ in a single line, lists the key passages that anchor the connection (every passage is a tappable link that opens just the verse), gives a short reflection, and ends with the historical voices — Fathers, Reformers, Puritans, moderns — who have read the book that way.",
-      "Six of the most-read passages in the New Testament are also presented through six historic Christian traditions — Eastern Orthodox, Roman Catholic, Reformed, Wesleyan, Pentecostal, and Anabaptist — to show how the same Christ-centered reading has flowered across centuries and continents. The differences are real and worth honoring; the agreement on Christ is even realer.",
+      "Six of the most-read passages in the New Testament are also presented through six emphases — six facets the Church across the centuries has heard in the same verse. We do not name parties or pit them against each other. We name what believers across time have heard, and let Christ be the center of every hearing.",
       "Read slowly. Pray as you go. The aim of every page of this page is not information about Jesus, but Jesus Himself.",
     ],
   },

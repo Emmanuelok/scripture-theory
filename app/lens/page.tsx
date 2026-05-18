@@ -10,5 +10,5 @@ export default function LensPage() {
   // "Jesus in the Word" was merged into the canonical "Jesus throughout
   // the Scriptures" page. The six-tradition multi-voice readings now
   // live under Part Two of /jesus.
-  redirect("/jesus#tradition-lenses");
+  redirect("/jesus#emphases");
 }
