@@ -11,15 +11,42 @@ import { studyLinksFor } from "@/lib/study-tools";
 import VerseCardModal from "@/components/VerseCardModal";
 import { slotKey } from "@/lib/slots";
 
+export type HighlightColor =
+  | "amber"
+  | "yellow"
+  | "rose"
+  | "sky"
+  | "emerald"
+  | "violet";
+
+const HIGHLIGHT_COLORS: { id: HighlightColor; label: string; swatch: string; bg: string; bgDark: string }[] = [
+  { id: "amber",   label: "Amber",   swatch: "bg-amber-400",   bg: "bg-amber-100",   bgDark: "dark:bg-amber-300/20" },
+  { id: "yellow",  label: "Yellow",  swatch: "bg-yellow-300",  bg: "bg-yellow-100",  bgDark: "dark:bg-yellow-300/20" },
+  { id: "rose",    label: "Rose",    swatch: "bg-rose-400",    bg: "bg-rose-100",    bgDark: "dark:bg-rose-300/20" },
+  { id: "sky",     label: "Sky",     swatch: "bg-sky-400",     bg: "bg-sky-100",     bgDark: "dark:bg-sky-300/20" },
+  { id: "emerald", label: "Emerald", swatch: "bg-emerald-400", bg: "bg-emerald-100", bgDark: "dark:bg-emerald-300/20" },
+  { id: "violet",  label: "Violet",  swatch: "bg-violet-400",  bg: "bg-violet-100",  bgDark: "dark:bg-violet-300/20" },
+];
+
+function highlightBg(color: HighlightColor): string {
+  const c = HIGHLIGHT_COLORS.find((x) => x.id === color) ?? HIGHLIGHT_COLORS[0];
+  return `${c.bg} ${c.bgDark}`;
+}
+
 type Marks = {
-  highlights: string[];
+  /** Map of verseKey -> color. (Migrated from older string[] shape on load.) */
+  highlights: Record<string, HighlightColor>;
   bookmarks: string[];
   notes: Record<string, string>;
 };
 
+type VerseLayout = "flow" | "line";
+
 type ReaderPrefs = {
   fontScale: number; // 1 = base, 0.875 small, 1.125 comfortable, 1.25 large
   spacing: "compact" | "comfortable";
+  layout: VerseLayout; // flow = continuous paragraph · line = each verse on its own line
+  highlightColor: HighlightColor; // default color when tapping a swatch-less Highlight action
 };
 
 const MARKS_STORAGE_BASE = "scripture-theory-bible-marks";
@@ -37,18 +64,26 @@ const FONT_SCALES = [
 ];
 
 function loadMarks(): Marks {
-  if (typeof window === "undefined") return { highlights: [], bookmarks: [], notes: {} };
+  const empty: Marks = { highlights: {}, bookmarks: [], notes: {} };
+  if (typeof window === "undefined") return empty;
   try {
     const raw = window.localStorage.getItem(MARKS_STORAGE());
-    if (!raw) return { highlights: [], bookmarks: [], notes: {} };
+    if (!raw) return empty;
     const parsed = JSON.parse(raw);
+    // Migrate legacy string[] highlights to a Record keyed by verseKey
+    let highlights: Record<string, HighlightColor> = {};
+    if (Array.isArray(parsed.highlights)) {
+      for (const k of parsed.highlights) highlights[k] = "amber";
+    } else if (parsed.highlights && typeof parsed.highlights === "object") {
+      highlights = parsed.highlights as Record<string, HighlightColor>;
+    }
     return {
-      highlights: parsed.highlights ?? [],
-      bookmarks: parsed.bookmarks ?? [],
+      highlights,
+      bookmarks: Array.isArray(parsed.bookmarks) ? parsed.bookmarks : [],
       notes: parsed.notes ?? {},
     };
   } catch {
-    return { highlights: [], bookmarks: [], notes: {} };
+    return empty;
   }
 }
 
@@ -58,17 +93,28 @@ function saveMarks(m: Marks) {
 }
 
 function loadPrefs(): ReaderPrefs {
-  if (typeof window === "undefined") return { fontScale: 1, spacing: "comfortable" };
+  const defaults: ReaderPrefs = {
+    fontScale: 1,
+    spacing: "comfortable",
+    layout: "flow",
+    highlightColor: "amber",
+  };
+  if (typeof window === "undefined") return defaults;
   try {
     const raw = window.localStorage.getItem(READER_PREFS);
-    if (!raw) return { fontScale: 1, spacing: "comfortable" };
+    if (!raw) return defaults;
     const parsed = JSON.parse(raw);
     return {
-      fontScale: typeof parsed.fontScale === "number" ? parsed.fontScale : 1,
+      fontScale: typeof parsed.fontScale === "number" ? parsed.fontScale : defaults.fontScale,
       spacing: parsed.spacing === "compact" ? "compact" : "comfortable",
+      layout: parsed.layout === "line" ? "line" : "flow",
+      highlightColor:
+        HIGHLIGHT_COLORS.some((c) => c.id === parsed.highlightColor)
+          ? parsed.highlightColor
+          : "amber",
     };
   } catch {
-    return { fontScale: 1, spacing: "comfortable" };
+    return defaults;
   }
 }
 
@@ -99,9 +145,19 @@ export default function BibleChapter({
   next: { book: string; chapter: number; bookName: string } | null;
 }) {
   const [translationId, setTranslationId] = useState<TranslationId>(available[0] ?? "WEB");
-  const [marks, setMarks] = useState<Marks>({ highlights: [], bookmarks: [], notes: {} });
-  const [prefs, setPrefs] = useState<ReaderPrefs>({ fontScale: 1, spacing: "comfortable" });
-  const [activeVerse, setActiveVerse] = useState<number | null>(null);
+  const [marks, setMarks] = useState<Marks>({ highlights: {}, bookmarks: [], notes: {} });
+  const [prefs, setPrefs] = useState<ReaderPrefs>({
+    fontScale: 1,
+    spacing: "comfortable",
+    layout: "flow",
+    highlightColor: "amber",
+  });
+  // Multi-verse selection. Tapping a verse toggles its membership.
+  const [selection, setSelection] = useState<number[]>([]);
+  // The bottom toolbar can be collapsed to a small reopen-handle so the
+  // reader can keep working without it covering verses.
+  const [toolbarOpen, setToolbarOpen] = useState(true);
+  const [noteOpen, setNoteOpen] = useState(false);
   const [shareVerse, setShareVerse] = useState<number | null>(null);
   const [noteDraft, setNoteDraft] = useState("");
   const [copied, setCopied] = useState(false);
@@ -226,22 +282,47 @@ export default function BibleChapter({
     });
   }
 
-  function toggleHighlight(v: number) {
-    const key = verseKey(translationId, bookId, chapterNum, v);
-    update({
-      highlights: marks.highlights.includes(key)
-        ? marks.highlights.filter((k) => k !== key)
-        : [...marks.highlights, key],
-    });
+  function toggleSelection(v: number) {
+    setSelection((cur) => (cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v].sort((a, b) => a - b)));
+    setToolbarOpen(true);
+    setNoteOpen(false);
   }
 
-  function toggleBookmark(v: number) {
-    const key = verseKey(translationId, bookId, chapterNum, v);
-    update({
-      bookmarks: marks.bookmarks.includes(key)
-        ? marks.bookmarks.filter((k) => k !== key)
-        : [...marks.bookmarks, key],
-    });
+  function clearSelection() {
+    setSelection([]);
+    setNoteOpen(false);
+  }
+
+  /** Apply a color highlight to every verse currently in the selection. */
+  function applyHighlight(color: HighlightColor) {
+    if (selection.length === 0) return;
+    const next = { ...marks.highlights };
+    for (const v of selection) {
+      next[verseKey(translationId, bookId, chapterNum, v)] = color;
+    }
+    update({ highlights: next });
+    updatePrefs({ highlightColor: color });
+  }
+
+  /** Remove any highlight from the currently-selected verses. */
+  function clearHighlight() {
+    if (selection.length === 0) return;
+    const next = { ...marks.highlights };
+    for (const v of selection) {
+      delete next[verseKey(translationId, bookId, chapterNum, v)];
+    }
+    update({ highlights: next });
+  }
+
+  /** Bookmark every verse in the selection (or unbookmark if all already bookmarked). */
+  function toggleBookmarkSelection() {
+    if (selection.length === 0) return;
+    const keys = selection.map((v) => verseKey(translationId, bookId, chapterNum, v));
+    const allOn = keys.every((k) => marks.bookmarks.includes(k));
+    const bookmarks = allOn
+      ? marks.bookmarks.filter((k) => !keys.includes(k))
+      : Array.from(new Set([...marks.bookmarks, ...keys]));
+    update({ bookmarks });
   }
 
   function saveNote(v: number, text: string) {
@@ -252,17 +333,44 @@ export default function BibleChapter({
     update({ notes });
   }
 
-  async function copyVerse(v: number, t: string) {
+  /** Compose selected verses' text into one string for copy/share. */
+  function selectionText(): string {
+    if (!chapter || selection.length === 0) return "";
+    const lines = selection
+      .map((v) => chapter.verses.find((x) => x.v === v))
+      .filter((x): x is NonNullable<typeof x> => Boolean(x))
+      .map((x) => `${x.v} ${x.t}`)
+      .join(" ");
+    const ref =
+      selection.length === 1
+        ? `${bookName} ${chapterNum}:${selection[0]}`
+        : `${bookName} ${chapterNum}:${selection[0]}–${selection[selection.length - 1]}`;
+    return `"${lines.trim()}" — ${ref} (${meta.abbrev})`;
+  }
+
+  async function copySelection() {
+    const text = selectionText();
+    if (!text) return;
     try {
-      await navigator.clipboard.writeText(
-        `"${t}" — ${bookName} ${chapterNum}:${v} (${meta.abbrev})`
-      );
+      await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
     } catch {}
   }
 
-  const totalHighlights = marks.highlights.filter((k) => k.includes(`:${bookId}:${chapterNum}:`)).length;
+  async function shareSelection() {
+    const text = selectionText();
+    if (!text) return;
+    if (typeof navigator !== "undefined" && (navigator as Navigator).share) {
+      try {
+        await (navigator as Navigator).share({ text });
+        return;
+      } catch {}
+    }
+    await copySelection();
+  }
+
+  const totalHighlights = Object.keys(marks.highlights).filter((k) => k.includes(`:${bookId}:${chapterNum}:`)).length;
   const totalBookmarks = marks.bookmarks.filter((k) => k.includes(`:${bookId}:${chapterNum}:`)).length;
   const totalNotes = Object.keys(marks.notes).filter((k) => k.includes(`:${bookId}:${chapterNum}:`)).length;
   const hasMarks = totalHighlights + totalBookmarks + totalNotes > 0;
@@ -273,15 +381,15 @@ export default function BibleChapter({
   return (
     <article className="space-y-6">
       {/* Reader controls bar */}
-      <div className="rounded-2xl border border-ink-200 bg-card-subtle p-3 md:p-4 flex flex-wrap items-center gap-3">
+      <div className="rounded-2xl border border-ink-200 bg-card-subtle p-3 md:p-4 flex flex-wrap items-center gap-x-3 gap-y-2">
         {/* Translation dropdown */}
-        <label className="flex items-center gap-2">
-          <span className="text-[10px] uppercase tracking-widest text-ink-500">Translation</span>
-          <div className="relative">
+        <label className="flex items-center gap-2 min-w-0 w-full sm:w-auto">
+          <span className="text-[10px] uppercase tracking-widest text-ink-500 shrink-0">Translation</span>
+          <div className="relative flex-1 min-w-0">
             <select
               value={translationId}
               onChange={(e) => pickTranslation(e.target.value as TranslationId)}
-              className="appearance-none rounded-full border border-ink-300 bg-card pl-3 pr-8 py-1.5 text-sm text-ink-900 hover:border-ink-900 focus:outline-none focus:ring-2 focus:ring-flame-300 cursor-pointer"
+              className="w-full appearance-none rounded-full border border-ink-300 bg-card pl-3 pr-8 py-1.5 text-sm text-ink-900 hover:border-ink-900 focus:outline-none focus:ring-2 focus:ring-flame-300 cursor-pointer truncate"
             >
               {available.map((id) => {
                 const t = translations[id];
@@ -299,7 +407,7 @@ export default function BibleChapter({
         </label>
 
         {/* Font size controls */}
-        <div className="flex items-center gap-1 ml-auto">
+        <div className="flex items-center gap-1 sm:ml-auto">
           <span className="text-[10px] uppercase tracking-widest text-ink-500 mr-1">Size</span>
           {FONT_SCALES.map((s) => (
             <button
@@ -327,6 +435,15 @@ export default function BibleChapter({
           {prefs.spacing === "compact" ? "Comfortable" : "Compact"}
         </button>
 
+        {/* Verse layout toggle */}
+        <button
+          onClick={() => updatePrefs({ layout: prefs.layout === "flow" ? "line" : "flow" })}
+          className="rounded-full border border-ink-300 px-3 py-1 text-xs text-ink-700 hover:border-ink-900"
+          title="Continuous paragraph vs one verse per line"
+        >
+          {prefs.layout === "flow" ? "One verse per line" : "Continuous flow"}
+        </button>
+
         <Link
           href="/bible/my"
           className="rounded-full border border-ink-300 px-3 py-1 text-xs text-ink-700 hover:border-ink-900 inline-flex items-center gap-1.5"
@@ -340,7 +457,7 @@ export default function BibleChapter({
       {mounted && !hintDismissed && (
         <div className="rounded-2xl border border-flame-200 bg-flame-50/60 p-4 text-sm text-flame-900 flex items-start justify-between gap-3">
           <span>
-            <strong>Tip:</strong> tap any verse to highlight it, bookmark it, copy it, or save a personal note.
+            <strong>Tip:</strong> tap any verse to select it. Tap more verses to add to your selection. The action bar at the bottom lets you highlight (in any color), bookmark, note, copy, share, and more — without ever blocking the chapter.
           </span>
           <button
             onClick={dismissHint}
@@ -352,31 +469,34 @@ export default function BibleChapter({
       )}
 
       <div
-        className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8 glow-ring"
+        className="rounded-3xl border border-ink-200 bg-card p-4 md:p-6 lg:p-8 glow-ring overflow-hidden"
         lang={meta.language.toLowerCase().slice(0, 2)}
         style={{ fontSize: `${fontScale}rem` }}
       >
         {chapter ? (
-          <div className={`prose-scripture text-ink-900 ${lineLeading}`}>
+          <div
+            className={`prose-scripture text-ink-900 ${lineLeading} break-words ${
+              prefs.layout === "line" ? "space-y-2.5" : ""
+            }`}
+          >
             {chapter.verses.map((verse) => {
               const key = verseKey(translationId, bookId, chapterNum, verse.v);
-              const isHi = mounted && marks.highlights.includes(key);
+              const color = mounted ? marks.highlights[key] : undefined;
               const isBk = mounted && marks.bookmarks.includes(key);
               const hasNote = mounted && Boolean(marks.notes[key]);
-              const isActive = activeVerse === verse.v;
+              const isActive = mounted && selection.includes(verse.v);
+              const lineMode = prefs.layout === "line";
+              const Tag = lineMode ? "div" : "span";
               return (
-                <span
+                <Tag
                   key={verse.v}
                   id={`v${verse.v}`}
                   className={`group cursor-pointer scroll-mt-24 transition-colors ${
-                    isHi ? "bg-flame-100 dark:bg-flame-100/30 rounded px-1 -mx-1" : ""
+                    color ? `${highlightBg(color)} rounded px-1 -mx-1` : ""
                   } ${
-                    isActive ? "ring-2 ring-flame-300 ring-offset-2 ring-offset-card rounded" : ""
-                  }`}
-                  onClick={() => {
-                    setActiveVerse(activeVerse === verse.v ? null : verse.v);
-                    setNoteDraft(marks.notes[key] ?? "");
-                  }}
+                    isActive ? "ring-2 ring-flame-400 ring-offset-2 ring-offset-card rounded" : ""
+                  } ${lineMode ? "block" : ""}`}
+                  onClick={() => toggleSelection(verse.v)}
                 >
                   <sup className="text-[0.6em] text-flame-700 font-sans font-medium align-super mr-0.5 select-none">
                     {verse.v}
@@ -387,8 +507,8 @@ export default function BibleChapter({
                   )}
                   {hasNote && (
                     <span className="text-emerald-600 ml-1 select-none" aria-label="has note">✎</span>
-                  )}{" "}
-                </span>
+                  )}{!lineMode && " "}
+                </Tag>
               );
             })}
           </div>
@@ -476,187 +596,271 @@ export default function BibleChapter({
         </div>
       )}
 
-      {mounted && activeVerse !== null && chapter && (
-        <>
-          {/* Backdrop dims the chapter behind for legibility */}
+      {/* ───────── Bottom-docked, non-blocking action bar (replaces the modal) ───────── */}
+      {mounted && selection.length > 0 && chapter && (() => {
+        const firstV = selection[0];
+        const lastV = selection[selection.length - 1];
+        const ref =
+          selection.length === 1
+            ? `${bookName} ${chapterNum}:${firstV}`
+            : `${bookName} ${chapterNum}:${firstV}–${lastV} (${selection.length})`;
+        const single = selection.length === 1 ? firstV : null;
+        const singleKey =
+          single !== null ? verseKey(translationId, bookId, chapterNum, single) : null;
+        const allBookmarked = selection.every((v) =>
+          marks.bookmarks.includes(verseKey(translationId, bookId, chapterNum, v))
+        );
+        const anyHighlighted = selection.some((v) =>
+          Boolean(marks.highlights[verseKey(translationId, bookId, chapterNum, v)])
+        );
+        return (
           <div
-            className="fixed inset-0 z-40 bg-ink-50/70 backdrop-blur-sm"
-            onClick={() => setActiveVerse(null)}
-            aria-hidden
-          />
-          <div
-            className="fixed left-1/2 -translate-x-1/2 bottom-4 z-50 w-[calc(100%-2rem)] max-w-2xl rounded-3xl border border-flame-300 bg-card p-5 md:p-6 shadow-2xl"
-            role="dialog"
-            aria-modal="true"
+            className="fixed inset-x-0 bottom-0 z-40 pointer-events-none"
+            // Wrapper isn't blocking — only the inner card receives events.
           >
-            <div className="flex flex-wrap items-baseline justify-between gap-3">
-              <h3 className="font-serif text-xl text-ink-900">
-                {bookName} {chapterNum}:{activeVerse}{" "}
-                <span className="text-xs text-ink-500 font-sans">({meta.abbrev})</span>
-              </h3>
-              <button
-                onClick={() => setActiveVerse(null)}
-                className="text-xs text-ink-500 hover:text-ink-900"
-                aria-label="Close"
-              >
-                Close ✕
-              </button>
-            </div>
-            <p className="mt-2 prose-scripture text-ink-800">
-              {chapter.verses.find((v) => v.v === activeVerse)?.t}
-            </p>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              <button
-                onClick={() => toggleHighlight(activeVerse)}
-                className="rounded-full bg-ink-900 text-ink-50 px-3.5 py-1.5 text-xs hover:bg-flame-700"
-              >
-                {marks.highlights.includes(verseKey(translationId, bookId, chapterNum, activeVerse))
-                  ? "Remove highlight"
-                  : "Highlight"}
-              </button>
-              <button
-                onClick={() => toggleBookmark(activeVerse)}
-                className="rounded-full border border-ink-300 bg-card px-3.5 py-1.5 text-xs text-ink-800 hover:border-ink-900"
-              >
-                {marks.bookmarks.includes(verseKey(translationId, bookId, chapterNum, activeVerse))
-                  ? "Remove bookmark"
-                  : "★ Bookmark"}
-              </button>
-              <button
-                onClick={() => {
-                  const t = chapter.verses.find((v) => v.v === activeVerse)?.t ?? "";
-                  copyVerse(activeVerse, t);
-                }}
-                className="rounded-full border border-ink-300 bg-card px-3.5 py-1.5 text-xs text-ink-800 hover:border-ink-900"
-              >
-                {copied ? "Copied!" : "Copy verse"}
-              </button>
-              <button
-                onClick={async () => {
-                  const t = chapter.verses.find((v) => v.v === activeVerse)?.t ?? "";
-                  const text = `"${t}" — ${bookName} ${chapterNum}:${activeVerse} (${meta.abbrev})`;
-                  if (navigator.share) {
-                    try { await navigator.share({ title: `${bookName} ${chapterNum}:${activeVerse}`, text }); } catch {}
-                  } else {
-                    copyVerse(activeVerse, t);
-                  }
-                }}
-                className="rounded-full border border-ink-300 bg-card px-3.5 py-1.5 text-xs text-ink-800 hover:border-ink-900"
-              >
-                Share text
-              </button>
-              <button
-                onClick={() => setShareVerse(activeVerse)}
-                className="rounded-full border border-flame-300 bg-card text-flame-700 px-3.5 py-1.5 text-xs hover:bg-flame-50"
-                title="Make a beautiful verse card to share"
-              >
-                Share as image
-              </button>
-              {lensMatch && (
-                <Link
-                  href="/jesus#emphases"
-                  className="rounded-full border border-flame-300 bg-card text-flame-700 px-3.5 py-1.5 text-xs hover:bg-flame-50"
-                >
-                  Six emphases on this passage
-                </Link>
-              )}
-            </div>
-
-            {/* Cross-references */}
-            {(() => {
-              const refs = crossRefsFor(bookId, chapterNum, activeVerse);
-              if (refs.length === 0) return null;
-              return (
-                <div className="mt-4 pt-3 border-t border-flame-200">
-                  <div className="text-[10px] uppercase tracking-widest text-flame-700 mb-1.5">
-                    Cross-references
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {refs.map((r) => {
-                      const href = referenceHref(r);
-                      return href ? (
-                        <Link
-                          key={r}
-                          href={href}
-                          className="rounded-full bg-card border border-ink-200 px-2.5 py-0.5 text-[11px] text-ink-700 hover:border-flame-500"
-                        >
-                          {r}
-                        </Link>
-                      ) : (
-                        <span
-                          key={r}
-                          className="rounded-full bg-card border border-ink-200 px-2.5 py-0.5 text-[11px] text-ink-600"
-                        >
-                          {r}
-                        </span>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })()}
-
-            {/* Study tools — external trusted resources */}
-            {(() => {
-              const links = studyLinksFor(bookId, chapterNum, activeVerse);
-              if (links.length === 0) return null;
-              return (
-                <div className="mt-4 pt-3 border-t border-flame-200">
-                  <div className="text-[10px] uppercase tracking-widest text-flame-700 mb-1.5">
-                    Study tools · opens in a new tab
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {links.map((l) => (
-                      <a
-                        key={l.label}
-                        href={l.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title={`${l.description} · ${l.source}`}
-                        className="rounded-full bg-card border border-ink-200 px-2.5 py-0.5 text-[11px] text-ink-700 hover:border-flame-500 inline-flex items-center gap-1"
-                      >
-                        {l.label}
-                        <span className="text-ink-400">↗</span>
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              );
-            })()}
-
-            <div className="mt-4">
-              <label className="text-xs uppercase tracking-widest text-ink-500">Your note</label>
-              <textarea
-                value={noteDraft}
-                onChange={(e) => setNoteDraft(e.target.value)}
-                rows={3}
-                placeholder="What is the Spirit saying to you here?"
-                className="mt-1.5 w-full rounded-xl border border-ink-200 bg-card-subtle px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-flame-300"
-              />
-              <div className="mt-2 flex gap-2">
-                <button
-                  onClick={() => saveNote(activeVerse, noteDraft)}
-                  className="rounded-full bg-flame-600 text-white px-3.5 py-1.5 text-xs hover:bg-flame-700"
-                >
-                  Save note
-                </button>
-                {marks.notes[verseKey(translationId, bookId, chapterNum, activeVerse)] && (
+            <div className="mx-auto max-w-3xl px-3 pb-3 sm:pb-4 pointer-events-auto">
+              <div className="rounded-2xl border border-flame-300 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90 shadow-2xl">
+                {/* Top row — selection meta */}
+                <div className="flex items-center gap-2 px-3 pt-2.5 pb-1.5 border-b border-ink-100">
+                  <span className="text-[11px] uppercase tracking-widest text-flame-700 truncate">
+                    {ref} <span className="text-ink-400 normal-case tracking-normal">· {meta.abbrev}</span>
+                  </span>
                   <button
-                    onClick={() => {
-                      saveNote(activeVerse, "");
-                      setNoteDraft("");
-                    }}
-                    className="rounded-full border border-ink-300 bg-card px-3.5 py-1.5 text-xs text-ink-500 hover:border-ink-400"
+                    onClick={() => setToolbarOpen((v) => !v)}
+                    className="ml-auto text-[11px] text-ink-500 hover:text-ink-900"
+                    title={toolbarOpen ? "Collapse" : "Expand"}
                   >
-                    Delete note
+                    {toolbarOpen ? "▾" : "▴"}
                   </button>
+                  <button
+                    onClick={clearSelection}
+                    className="text-[11px] text-ink-500 hover:text-ink-900"
+                    aria-label="Clear selection"
+                  >
+                    Clear
+                  </button>
+                </div>
+
+                {toolbarOpen && (
+                  <div className="px-3 pt-2 pb-3 space-y-2.5 max-h-[55vh] overflow-y-auto overscroll-contain">
+                    {/* Highlight color swatches */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[10px] uppercase tracking-widest text-ink-500">
+                        Highlight
+                      </span>
+                      {HIGHLIGHT_COLORS.map((c) => (
+                        <button
+                          key={c.id}
+                          onClick={() => applyHighlight(c.id)}
+                          title={c.label}
+                          aria-label={`Highlight ${c.label}`}
+                          className={`h-7 w-7 rounded-full ${c.swatch} ring-2 ${
+                            prefs.highlightColor === c.id
+                              ? "ring-ink-900 ring-offset-1 ring-offset-card"
+                              : "ring-transparent"
+                          } hover:scale-110 transition-transform`}
+                        />
+                      ))}
+                      {anyHighlighted && (
+                        <button
+                          onClick={clearHighlight}
+                          className="text-[11px] text-ink-500 hover:text-ink-900 underline ml-1"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Action chips */}
+                    <div className="flex flex-wrap gap-1.5">
+                      <button
+                        onClick={toggleBookmarkSelection}
+                        className="rounded-full border border-ink-300 bg-card px-3 py-1 text-xs text-ink-800 hover:border-ink-900"
+                      >
+                        {allBookmarked ? "★ Bookmarked" : "★ Bookmark"}
+                      </button>
+                      {single !== null && (
+                        <button
+                          onClick={() => {
+                            setNoteOpen((v) => !v);
+                            setNoteDraft(
+                              singleKey ? marks.notes[singleKey] ?? "" : ""
+                            );
+                          }}
+                          className="rounded-full border border-ink-300 bg-card px-3 py-1 text-xs text-ink-800 hover:border-ink-900"
+                        >
+                          ✎ {singleKey && marks.notes[singleKey] ? "Edit note" : "Note"}
+                        </button>
+                      )}
+                      <button
+                        onClick={copySelection}
+                        className="rounded-full border border-ink-300 bg-card px-3 py-1 text-xs text-ink-800 hover:border-ink-900"
+                      >
+                        {copied ? "Copied!" : "Copy"}
+                      </button>
+                      <button
+                        onClick={shareSelection}
+                        className="rounded-full border border-ink-300 bg-card px-3 py-1 text-xs text-ink-800 hover:border-ink-900"
+                      >
+                        Share text
+                      </button>
+                      {single !== null && (
+                        <button
+                          onClick={() => setShareVerse(single)}
+                          className="rounded-full border border-flame-300 bg-card text-flame-700 px-3 py-1 text-xs hover:bg-flame-50"
+                          title="A 1080×1080 image to share"
+                        >
+                          Share as image
+                        </button>
+                      )}
+                      {single !== null && (
+                        <Link
+                          href={`/verse/${bookId}/${chapterNum}/${single}`}
+                          className="rounded-full border border-flame-300 bg-card text-flame-700 px-3 py-1 text-xs hover:bg-flame-50"
+                        >
+                          Permalink ↗
+                        </Link>
+                      )}
+                      {single !== null && (
+                        <Link
+                          href={`/memory?ref=${encodeURIComponent(
+                            `${bookName} ${chapterNum}:${single}`
+                          )}`}
+                          className="rounded-full border border-ink-300 bg-card px-3 py-1 text-xs text-ink-800 hover:border-ink-900"
+                          title="Add to Scripture memory"
+                        >
+                          Memorize
+                        </Link>
+                      )}
+                      <Link
+                        href={`/pray`}
+                        className="rounded-full border border-ink-300 bg-card px-3 py-1 text-xs text-ink-800 hover:border-ink-900"
+                        title="Open the prayer rhythms — pray this passage"
+                      >
+                        Pray this
+                      </Link>
+                      {lensMatch && (
+                        <Link
+                          href="/jesus#emphases"
+                          className="rounded-full border border-flame-300 bg-card text-flame-700 px-3 py-1 text-xs hover:bg-flame-50"
+                        >
+                          Christ in this passage
+                        </Link>
+                      )}
+                    </div>
+
+                    {/* Inline note editor (single-verse only) */}
+                    {single !== null && noteOpen && (
+                      <div className="rounded-xl border border-ink-200 bg-card-subtle p-3">
+                        <label className="text-[10px] uppercase tracking-widest text-ink-500">
+                          Your note on {bookName} {chapterNum}:{single}
+                        </label>
+                        <textarea
+                          value={noteDraft}
+                          onChange={(e) => setNoteDraft(e.target.value)}
+                          rows={3}
+                          placeholder="What is the Spirit saying to you here?"
+                          className="mt-1.5 w-full rounded-lg border border-ink-200 bg-card px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-flame-300"
+                        />
+                        <div className="mt-2 flex gap-2">
+                          <button
+                            onClick={() => {
+                              saveNote(single, noteDraft);
+                              setNoteOpen(false);
+                            }}
+                            className="rounded-full bg-flame-600 text-white px-3 py-1 text-xs hover:bg-flame-700"
+                          >
+                            Save note
+                          </button>
+                          {singleKey && marks.notes[singleKey] && (
+                            <button
+                              onClick={() => {
+                                saveNote(single, "");
+                                setNoteDraft("");
+                                setNoteOpen(false);
+                              }}
+                              className="rounded-full border border-ink-300 bg-card px-3 py-1 text-xs text-ink-500 hover:border-ink-400"
+                            >
+                              Delete
+                            </button>
+                          )}
+                          <button
+                            onClick={() => setNoteOpen(false)}
+                            className="rounded-full border border-ink-300 bg-card px-3 py-1 text-xs text-ink-500 hover:border-ink-400 ml-auto"
+                          >
+                            Hide
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Cross-references — single-verse only */}
+                    {single !== null && (() => {
+                      const refs = crossRefsFor(bookId, chapterNum, single);
+                      if (refs.length === 0) return null;
+                      return (
+                        <div className="pt-2 border-t border-ink-100">
+                          <div className="text-[10px] uppercase tracking-widest text-flame-700 mb-1">
+                            Cross-references
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {refs.map((r) => {
+                              const href = referenceHref(r);
+                              return href ? (
+                                <Link
+                                  key={r}
+                                  href={href}
+                                  className="rounded-full bg-card border border-ink-200 px-2.5 py-0.5 text-[11px] text-ink-700 hover:border-flame-500"
+                                >
+                                  {r}
+                                </Link>
+                              ) : (
+                                <span
+                                  key={r}
+                                  className="rounded-full bg-card border border-ink-200 px-2.5 py-0.5 text-[11px] text-ink-600"
+                                >
+                                  {r}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Study tools — single-verse only */}
+                    {single !== null && (() => {
+                      const links = studyLinksFor(bookId, chapterNum, single);
+                      if (links.length === 0) return null;
+                      return (
+                        <div className="pt-2 border-t border-ink-100">
+                          <div className="text-[10px] uppercase tracking-widest text-flame-700 mb-1">
+                            Study tools · opens in a new tab
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {links.map((l) => (
+                              <a
+                                key={l.label}
+                                href={l.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title={`${l.description} · ${l.source}`}
+                                className="rounded-full bg-card border border-ink-200 px-2.5 py-0.5 text-[11px] text-ink-700 hover:border-flame-500 inline-flex items-center gap-1"
+                              >
+                                {l.label} <span className="text-ink-400">↗</span>
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
                 )}
               </div>
             </div>
           </div>
-        </>
-      )}
+        );
+      })()}
 
       <div className="flex items-center justify-between">
         {prev ? (

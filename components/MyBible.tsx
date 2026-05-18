@@ -7,7 +7,8 @@ import { slotKey, SLOT_CHANGE_EVENT } from "@/lib/slots";
 import { translations, type TranslationId } from "@/data/bible/translations";
 
 type Marks = {
-  highlights: string[];
+  /** Keyed by verseKey -> color id (migrated from older string[] shape). */
+  highlights: Record<string, string>;
   bookmarks: string[];
   notes: Record<string, string>;
 };
@@ -43,18 +44,26 @@ function parseKey(key: string): {
 }
 
 function loadMarks(): Marks {
-  if (typeof window === "undefined") return { highlights: [], bookmarks: [], notes: {} };
+  const empty: Marks = { highlights: {}, bookmarks: [], notes: {} };
+  if (typeof window === "undefined") return empty;
   try {
     const raw = window.localStorage.getItem(MARKS_STORAGE());
-    if (!raw) return { highlights: [], bookmarks: [], notes: {} };
+    if (!raw) return empty;
     const parsed = JSON.parse(raw);
+    // Migrate legacy string[] highlights into a Record so MyBible stays in sync.
+    let highlights: Record<string, string> = {};
+    if (Array.isArray(parsed.highlights)) {
+      for (const k of parsed.highlights) highlights[k] = "amber";
+    } else if (parsed.highlights && typeof parsed.highlights === "object") {
+      highlights = parsed.highlights as Record<string, string>;
+    }
     return {
-      highlights: parsed.highlights ?? [],
-      bookmarks: parsed.bookmarks ?? [],
+      highlights,
+      bookmarks: Array.isArray(parsed.bookmarks) ? parsed.bookmarks : [],
       notes: parsed.notes ?? {},
     };
   } catch {
-    return { highlights: [], bookmarks: [], notes: {} };
+    return empty;
   }
 }
 
@@ -64,7 +73,7 @@ function saveMarks(m: Marks) {
 }
 
 export default function MyBible() {
-  const [marks, setMarks] = useState<Marks>({ highlights: [], bookmarks: [], notes: {} });
+  const [marks, setMarks] = useState<Marks>({ highlights: {}, bookmarks: [], notes: {} });
   const [filter, setFilter] = useState<"all" | "highlight" | "bookmark" | "note">("all");
   const [mounted, setMounted] = useState(false);
 
@@ -79,7 +88,7 @@ export default function MyBible() {
 
   const all: Mark[] = useMemo(() => {
     const out: Mark[] = [];
-    for (const key of marks.highlights) {
+    for (const key of Object.keys(marks.highlights)) {
       const p = parseKey(key);
       if (!p) continue;
       const book = getBook(p.bookId);
@@ -115,7 +124,9 @@ export default function MyBible() {
   const visible = filter === "all" ? all : all.filter((m) => m.type === filter);
 
   function removeHighlight(key: string) {
-    const next = { ...marks, highlights: marks.highlights.filter((k) => k !== key) };
+    const highlights = { ...marks.highlights };
+    delete highlights[key];
+    const next = { ...marks, highlights };
     setMarks(next);
     saveMarks(next);
   }
@@ -134,7 +145,7 @@ export default function MyBible() {
   function clearAll() {
     if (typeof window === "undefined") return;
     if (!window.confirm("Delete every highlight, bookmark, and note? This can't be undone.")) return;
-    const empty = { highlights: [], bookmarks: [], notes: {} };
+    const empty: Marks = { highlights: {}, bookmarks: [], notes: {} };
     setMarks(empty);
     saveMarks(empty);
   }
@@ -175,7 +186,7 @@ export default function MyBible() {
     lines.push("");
     lines.push(`> Exported from Scripture Theory · ${new Date().toLocaleString()}`);
     lines.push(
-      `> ${marks.highlights.length} highlight${marks.highlights.length === 1 ? "" : "s"} · ${marks.bookmarks.length} bookmark${marks.bookmarks.length === 1 ? "" : "s"} · ${Object.keys(marks.notes).length} note${Object.keys(marks.notes).length === 1 ? "" : "s"}`
+      `> ${Object.keys(marks.highlights).length} highlight${Object.keys(marks.highlights).length === 1 ? "" : "s"} · ${marks.bookmarks.length} bookmark${marks.bookmarks.length === 1 ? "" : "s"} · ${Object.keys(marks.notes).length} note${Object.keys(marks.notes).length === 1 ? "" : "s"}`
     );
     lines.push("");
 

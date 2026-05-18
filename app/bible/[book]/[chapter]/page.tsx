@@ -47,7 +47,7 @@ export default async function ChapterPage({
   const next = computeNeighbor(book.id, chapter, +1);
 
   return (
-    <section className="mx-auto max-w-3xl px-5 pt-12 pb-20">
+    <section className="mx-auto max-w-3xl px-3 sm:px-5 pt-8 sm:pt-12 pb-32 sm:pb-24">
       <Link
         href={`/bible/${book.id}`}
         className="text-xs uppercase tracking-widest text-flame-700 hover:underline"
