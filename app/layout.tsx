@@ -19,8 +19,8 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
   },
   icons: {
-    icon: "/icon.svg",
-    apple: "/icon.svg",
+    icon: "/icon.svg?v=3",
+    apple: "/icon.svg?v=3",
   },
   openGraph: {
     title: "Scripture Theory",

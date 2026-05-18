@@ -16,7 +16,7 @@ import {
 const WIDTH = 1000;
 const HEIGHT = 640;
 const MIN_ZOOM = 1;
-const MAX_ZOOM = 16;
+const MAX_ZOOM = 80;
 
 // At what zoom does each label-tier become eligible to render?
 // (Collision avoidance can still hide a label even when eligible.)

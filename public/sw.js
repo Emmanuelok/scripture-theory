@@ -11,7 +11,7 @@
 //   - Static assets: cache-first
 //   - Everything else (cross-origin, POST): pass through
 
-const VERSION = "v2";
+const VERSION = "v3";
 const CORE_CACHE = `st-core-${VERSION}`;
 const PAGE_CACHE = `st-pages-${VERSION}`;
 const BIBLE_CACHE = `st-bible-${VERSION}`;
