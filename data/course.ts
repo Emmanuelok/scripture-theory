@@ -1519,37 +1519,37 @@ export const COURSE_WEEKS: CourseWeek[] = [
     ],
     traditions: [
       {
-        tradition: "Orthodox",
+        tradition: "Theosis — slow transfiguration by the Spirit",
         voice:
-          "The Spirit is the Giver of Life, who proceeds from the Father, received in the mysteries (baptism, chrismation, the Eucharist). Theosis — being made like God by grace — is the Spirit's slow, glorious work.",
+          "The Spirit is the Giver of Life, who proceeds from the Father, received in baptism and the gathered means of grace. Theosis — being made like God by grace — is the Spirit's slow, glorious work.",
       },
       {
-        tradition: "Catholic",
+        tradition: "Sealed in initiation, charisms for the Body",
         voice:
-          "The Spirit is given in baptism and sealed in confirmation. Charisms (1 Cor 12) are real gifts for building up the Body. The dramatic gifts have not ceased; they are widely received in the renewal movements of the global Church.",
+          "The Spirit is given in baptism and sealed afterward. Charisms (1 Cor 12) are real gifts for building up the Body. The dramatic gifts have not ceased; they are widely received in the renewal movements of the global Church.",
       },
       {
-        tradition: "Lutheran",
+        tradition: "The Spirit through Word and Table",
         voice:
-          "The Spirit works through the Word preached and the sacraments to create and sustain faith. The believer continually returns to baptism as the ground of new life.",
+          "The Spirit works through the Word preached and the meal at the Table to create and sustain faith. The believer continually returns to baptism as the ground of new life.",
       },
       {
-        tradition: "Reformed",
+        tradition: "Regenerating, indwelling, sanctifying",
         voice:
-          "The Spirit regenerates, indwells, and sanctifies. Many Reformed have held cessationism — that the dramatic sign-gifts authenticated the apostolic age — though continuationist Reformed voices have grown in recent decades. All affirm the Spirit's ordinary work in Word and sacrament.",
+          "The Spirit regenerates, indwells, and sanctifies. Some have held that the dramatic sign-gifts authenticated the apostolic age; others affirm them as ongoing — both insist on the Spirit's ordinary work in Word and Table.",
       },
       {
-        tradition: "Wesleyan / Methodist",
+        tradition: "Second-work sanctifying love",
         voice:
-          "After conversion, the believer can experience entire sanctification — a 'second blessing' of perfecting love by the Spirit. The Spirit's work is both crisis and lifelong process.",
+          "After conversion, the believer can experience a deeper sanctification — a second work of perfecting love by the Spirit. The Spirit's work is both crisis and lifelong process.",
       },
       {
-        tradition: "Pentecostal / Charismatic",
+        tradition: "Baptism in the Spirit — gifts still given",
         voice:
-          "The 'baptism in the Holy Spirit' is a distinct experience subsequent to conversion, often (in classical Pentecostalism) evidenced by speaking in tongues. All New Testament gifts continue — tongues, prophecy, healing, miracles.",
+          "The 'baptism in the Holy Spirit' is a distinct experience subsequent to conversion, often evidenced by speaking in tongues. All New Testament gifts continue — tongues, prophecy, healing, miracles.",
       },
       {
-        tradition: "Anabaptist / Baptist",
+        tradition: "Indwelling at conversion, ongoing surrender",
         voice:
           "The Spirit indwells every believer at conversion. Subsequent fillings come through obedience, surrender, and the local church gathered to discern Christ's mind together.",
       },
@@ -1999,44 +1999,44 @@ export const COURSE_WEEKS: CourseWeek[] = [
     ],
     traditions: [
       {
-        tradition: "Orthodox",
+        tradition: "Triple immersion + anointing — sealed in the Spirit",
         voice:
-          "Baptism by triple immersion forgives sin and unites the candidate to Christ's death and resurrection; chrismation (anointing with holy oil) seals the gift of the Spirit. The Eucharist is a true mystery — the bread and cup truly become the Body and Blood of Christ. Infants are baptized and chrismated; small children commune from the chalice.",
+          "Baptism by triple immersion unites the candidate to Christ's death and resurrection; anointing with holy oil seals the gift of the Spirit. The Lord's Table is a true mystery — bread and cup truly become the Body and Blood of Christ. Infants are baptized and sealed; small children commune from the chalice.",
       },
       {
-        tradition: "Catholic",
+        tradition: "Infant baptism + Christ truly present",
         voice:
-          "Baptism removes original sin and confers sanctifying grace, the first of seven sacraments. The Eucharist is transubstantiated — the substance of the elements truly becomes Christ's Body and Blood while the appearances remain. Infants of believing parents are baptized.",
+          "Baptism is the first sacrament that confers grace; infants of believing parents are baptized. The Lord's Table is held to be Christ's true Body and Blood while the appearances of bread and wine remain.",
       },
       {
-        tradition: "Lutheran",
+        tradition: "Regenerative baptism + sacramental union",
         voice:
-          "Baptism is regenerative: God works through water and Word to save. The Eucharist is the true Body and Blood 'in, with, and under' the bread and wine (sacramental union). Infants of believing parents are baptized.",
+          "Baptism is regenerative: God works through water and Word to save. The Lord's Table is the true Body and Blood 'in, with, and under' the bread and wine. Infants of believing parents are baptized.",
       },
       {
-        tradition: "Anglican",
+        tradition: "Regenerative-yet-received-by-faith",
         voice:
-          "Baptism is regenerative in some sense (the prayer-book language) but received by faith. The Eucharist holds a wide range — from memorialist to high sacramental presence — across the Communion. Infants of believing parents are baptized.",
+          "Baptism is regenerative in some sense but received by faith. The Lord's Table holds a wide range — from memorial to high sacramental presence — across this stream. Infants of believing parents are baptized.",
       },
       {
-        tradition: "Reformed",
+        tradition: "Covenant sign + spiritual feeding",
         voice:
-          "Baptism is the sign and seal of the covenant of grace, replacing circumcision in the New Covenant; infants of believing parents are baptized. The Lord's Supper is true spiritual feeding on the body and blood of Christ by the Spirit (Calvin's spiritual presence).",
+          "Baptism is the sign and seal of the covenant of grace, replacing circumcision in the New Covenant; infants of believing parents are baptized. The Lord's Supper is true spiritual feeding on the body and blood of Christ by the Spirit.",
       },
       {
-        tradition: "Wesleyan / Methodist",
+        tradition: "Covenant initiation + real means of grace",
         voice:
-          "Baptism initiates into the covenant community; infants of believing parents are baptized. The Eucharist is a real means of grace where Christ is truly present, though Methodism has not bound itself to a single metaphysics.",
+          "Baptism initiates into the covenant community; infants of believing parents are baptized. The Lord's Supper is a real means of grace where Christ is truly present, without binding itself to a single metaphysics.",
       },
       {
-        tradition: "Anabaptist / Baptist",
+        tradition: "Believer's baptism + memorial proclamation",
         voice:
-          "Baptism is for those who can profess faith for themselves — believer's baptism by immersion. The Lord's Supper is most often understood as a memorial proclamation of Christ's death, with the congregation gathered to remember and proclaim.",
+          "Baptism is for those who can profess faith for themselves — believer's baptism by immersion. The Lord's Supper is most often a memorial proclamation of Christ's death, with the congregation gathered to remember and proclaim.",
       },
       {
-        tradition: "Pentecostal / Charismatic",
+        tradition: "Believer's baptism + the Spirit at the Table",
         voice:
-          "Most Pentecostal traditions hold believer's baptism by immersion. The Lord's Supper is typically memorial, with strong expectation of the Spirit's presence in the gathered church.",
+          "Believer's baptism by immersion. The Lord's Supper is typically memorial, with strong expectation of the Spirit's presence in the gathered church.",
       },
     ],
     reflection: [
