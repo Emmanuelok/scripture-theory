@@ -52,6 +52,12 @@ export default function Footer() {
             <li><Link href="/resources/creeds" className="hover:text-ink-900">Historic creeds</Link></li>
             <li><Link href="/resources/glossary" className="hover:text-ink-900">Theological glossary</Link></li>
             <li><Link href="/resources/disciplines" className="hover:text-ink-900">Spiritual disciplines</Link></li>
+            <li><Link href="/sermon-library" className="hover:text-ink-900">Sermon library (public-domain)</Link></li>
+            <li><Link href="/atlas" className="hover:text-ink-900">Bible atlas</Link></li>
+            <li><Link href="/timeline" className="hover:text-ink-900">Biblical timeline</Link></li>
+            <li><Link href="/kids" className="hover:text-ink-900">Bible stories for kids</Link></li>
+            <li><Link href="/family" className="hover:text-ink-900">The Family Altar</Link></li>
+            <li><Link href="/persecuted" className="hover:text-ink-900">The persecuted Church</Link></li>
             <li><Link href="/calendar" className="hover:text-ink-900">The Christian year</Link></li>
             <li><Link href="/connect" className="hover:text-ink-900">One Body (local church)</Link></li>
             <li><Link href="/jesus" className="hover:text-ink-900">Jesus throughout the Scriptures</Link></li>

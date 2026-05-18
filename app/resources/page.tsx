@@ -165,6 +165,60 @@ export default function ResourcesHub() {
             sub="Wesley, Watts, Luther, Spafford, Newton — the songs the Church has sung for centuries, in full text."
             glyph={<Glyph id="harp" size={48} />}
           />
+
+          {/* SERMON LIBRARY */}
+          <Tile
+            href="/sermon-library"
+            eyebrow="Public-domain sermons"
+            title="Sit at the feet of the great preachers"
+            sub="Chrysostom, Augustine, Luther, Calvin, Wesley, Whitefield, Edwards, Spurgeon, M'Cheyne, Moody — curated doorways into the freely-available archives."
+            glyph={<Glyph id="open-book" size={48} />}
+          />
+
+          {/* BIBLE ATLAS */}
+          <Tile
+            href="/atlas"
+            eyebrow="The geography of Scripture"
+            title="Bible atlas"
+            sub="From Eden to Patmos — every place named in the Bible's story, every one linked to the verse that names it."
+            glyph={<Glyph id="globe" size={48} />}
+          />
+
+          {/* TIMELINE */}
+          <Tile
+            href="/timeline"
+            eyebrow="From eternity to the day He comes"
+            title="Biblical timeline"
+            sub="Eleven eras, one Story. Creation, the patriarchs, the kings, the prophets, the cross, the Church, the return."
+            glyph={<Glyph id="rule" size={48} />}
+          />
+
+          {/* KIDS */}
+          <Tile
+            href="/kids"
+            eyebrow="Ages 3 to 10"
+            title="Bible stories for kids"
+            sub="Sixteen faithful read-aloud stories — creation, Noah, Moses, David, Daniel, Christmas, the Cross, Easter, Pentecost. Big idea, prayer, and a question for every story."
+            glyph={<Glyph id="people" size={48} />}
+          />
+
+          {/* FAMILY ALTAR */}
+          <Tile
+            href="/family"
+            eyebrow="Deuteronomy 6:7"
+            title="The Family Altar"
+            sub="Daily household worship in seven steps. Ten minutes. A different theme each day of the week — for littles, kids, youth, and adults together."
+            glyph={<Glyph id="door" size={48} />}
+          />
+
+          {/* PERSECUTED */}
+          <Tile
+            href="/persecuted"
+            eyebrow="Hebrews 13:3"
+            title="The persecuted Church"
+            sub="365 million believers under high or extreme persecution. A monthly rotation of nations to pray for by name — with scriptural prayer points."
+            glyph={<Glyph id="flame" size={48} />}
+          />
         </Bento>
       </div>
 

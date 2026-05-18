@@ -27,15 +27,22 @@ export default function VerseCardModal({
   onClose: () => void;
 }) {
   const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [aspect, setAspect] = useState<"square" | "story" | "landscape">("square");
   const [imgLoaded, setImgLoaded] = useState(false);
   const [status, setStatus] = useState<string>("");
   const [busy, setBusy] = useState(false);
   const imgRef = useRef<HTMLImageElement | null>(null);
 
   const url = useMemo(
-    () => `/api/verse-card/${bookId}/${chapter}/${verse}?translation=${translation}&theme=${theme}`,
-    [bookId, chapter, verse, translation, theme]
+    () =>
+      `/api/verse-card/${bookId}/${chapter}/${verse}?translation=${translation}&theme=${theme}&aspect=${aspect}`,
+    [bookId, chapter, verse, translation, theme, aspect]
   );
+
+  // Re-render the preview when aspect changes.
+  useEffect(() => {
+    setImgLoaded(false);
+  }, [aspect]);
 
   // Close on Escape
   useEffect(() => {
@@ -68,7 +75,7 @@ export default function VerseCardModal({
     const href = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = href;
-    a.download = `${bookId}-${chapter}-${verse}-${translation}-${theme}.png`;
+    a.download = `${bookId}-${chapter}-${verse}-${translation}-${theme}-${aspect}.png`;
     a.click();
     URL.revokeObjectURL(href);
     setStatus("Saved to your downloads.");
@@ -187,8 +194,41 @@ export default function VerseCardModal({
             </button>
           </div>
 
+          {/* Aspect / format */}
+          <div className="mt-3 flex items-center gap-1.5 rounded-full bg-card-subtle border border-ink-200 p-1 w-fit">
+            {(
+              [
+                { id: "square", label: "Square · 1:1", title: "Feed posts" },
+                { id: "story", label: "Story · 9:16", title: "Instagram / WhatsApp story" },
+                { id: "landscape", label: "Wide · 16:9", title: "Slides / X" },
+              ] as const
+            ).map((opt) => (
+              <button
+                key={opt.id}
+                onClick={() => setAspect(opt.id)}
+                aria-pressed={aspect === opt.id}
+                title={opt.title}
+                className={[
+                  "text-xs px-3 py-1 rounded-full whitespace-nowrap",
+                  aspect === opt.id ? "bg-ink-900 text-ink-50" : "text-ink-600",
+                ].join(" ")}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+
           {/* Preview */}
-          <div className="mt-4 relative rounded-2xl overflow-hidden border border-ink-200 bg-ink-50 aspect-square">
+          <div
+            className={[
+              "mt-4 relative rounded-2xl overflow-hidden border border-ink-200 bg-ink-50",
+              aspect === "square"
+                ? "aspect-square"
+                : aspect === "story"
+                ? "aspect-[9/16]"
+                : "aspect-video",
+            ].join(" ")}
+          >
             {!imgLoaded && (
               <div className="absolute inset-0 flex items-center justify-center text-ink-400 text-sm">
                 Rendering card…

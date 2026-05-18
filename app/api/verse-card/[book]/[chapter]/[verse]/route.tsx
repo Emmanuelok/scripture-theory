@@ -6,8 +6,15 @@ import { translations, type TranslationId } from "@/data/bible/translations";
 export const runtime = "nodejs";
 export const revalidate = 604800; // a week
 
-const WIDTH = 1080;
-const HEIGHT = 1080;
+// Supported aspect ratios. Square is the default (rich-card / feed posts);
+// "story" is 9:16 for Instagram / WhatsApp / Snapchat stories;
+// "landscape" is 16:9 for slides / X cards.
+const ASPECT_DIMS = {
+  square: { w: 1080, h: 1080 },
+  story: { w: 1080, h: 1920 },
+  landscape: { w: 1920, h: 1080 },
+} as const;
+type AspectId = keyof typeof ASPECT_DIMS;
 
 export async function GET(
   req: Request,
@@ -17,6 +24,10 @@ export async function GET(
   const url = new URL(req.url);
   const translation = (url.searchParams.get("translation") ?? "WEB") as TranslationId;
   const theme = url.searchParams.get("theme") === "dark" ? "dark" : "light";
+  const aspectParam = url.searchParams.get("aspect") as AspectId | null;
+  const aspect: AspectId = aspectParam && aspectParam in ASPECT_DIMS ? aspectParam : "square";
+  const WIDTH = ASPECT_DIMS[aspect].w;
+  const HEIGHT = ASPECT_DIMS[aspect].h;
 
   const book = getBook(bookId);
   if (!book) return new Response("Unknown book", { status: 404 });
