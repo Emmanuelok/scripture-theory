@@ -7,7 +7,7 @@ import { Glyph } from "@/components/ui/Glyph";
 export const metadata = {
   title: "Translations — Scripture Theory",
   description:
-    "The 14 authentic, published, public-domain Bible translations served on Scripture Theory. We never machine-translate Scripture.",
+    "Every Bible translation served on Scripture Theory — by language, by era, by the human translators who made it. We never machine-translate Scripture.",
 };
 
 export default function TranslationsPage() {
@@ -32,10 +32,10 @@ export default function TranslationsPage() {
 
       <div className="mt-3">
         <PageHero
-          eyebrow={`References · ${translationOrder.length} translations · ${langCount} languages`}
-          title="Authentic translations,"
-          titleAccent="never machine-translated."
-          intro={`${translationOrder.length} public-domain editions across ${langCount} languages (${englishCount} English plus the others). Every Bible served here is a real translation made by named human translators — never machine-translated, never AI-paraphrased.`}
+          eyebrow="The translations we serve"
+          title="Real translations,"
+          titleAccent="made by named humans."
+          intro={`${translationOrder.length} editions across ${langCount} languages (${englishCount} English plus the others). Every Bible served here is a published translation by named human translators. We never machine-translate Scripture.`}
         />
       </div>
 
@@ -51,9 +51,9 @@ export default function TranslationsPage() {
 
       {/* Stat strip */}
       <div className="mt-10 grid grid-cols-3 gap-3 md:gap-4">
-        <Stat value={String(translationOrder.length)} label="Translations" sub="all public domain" />
-        <Stat value={String(langCount)} label="Languages" sub="across the families" />
-        <Stat value={String(seeded.size)} label="Seeded offline" sub="more on-demand" />
+        <Stat value={String(translationOrder.length)} label="Translations" />
+        <Stat value={String(langCount)} label="Languages" />
+        <Stat value={String(seeded.size)} label="Seeded offline" />
       </div>
 
       {/* Grouped by language */}
@@ -150,12 +150,12 @@ export default function TranslationsPage() {
   );
 }
 
-function Stat({ value, label, sub }: { value: string; label: string; sub: string }) {
+function Stat({ value, label, sub }: { value: string; label: string; sub?: string }) {
   return (
     <div className="rounded-2xl border border-ink-200 bg-card p-4 md:p-5 text-center">
       <div className="text-[10px] uppercase tracking-widest text-flame-700">{label}</div>
       <div className="font-serif text-3xl md:text-4xl text-ink-900 mt-1">{value}</div>
-      <div className="text-xs text-ink-500 mt-0.5">{sub}</div>
+      {sub && <div className="text-xs text-ink-500 mt-0.5">{sub}</div>}
     </div>
   );
 }

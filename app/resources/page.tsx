@@ -124,9 +124,9 @@ export default function ResourcesHub() {
           {/* TRANSLATIONS */}
           <Tile
             href="/bible/translations"
-            eyebrow={`${translationOrder.length} Bible translations`}
+            eyebrow="Bible translations"
             title="Translations catalog"
-            sub="Every translation we serve — authentic, public-domain, never machine-translated."
+            sub="Every translation we serve, by language, era, and the named human translators who made it."
             glyph={<Glyph id="library" size={48} />}
           />
 
@@ -160,7 +160,7 @@ export default function ResourcesHub() {
           {/* HYMNS */}
           <Tile
             href="/hymns"
-            eyebrow="21 public-domain hymns"
+            eyebrow="Hymns"
             title="The hymns"
             sub="Wesley, Watts, Luther, Spafford, Newton — the songs the Church has sung for centuries, in full text."
             glyph={<Glyph id="harp" size={48} />}

@@ -52,8 +52,8 @@ export default async function BookPage({ params }: { params: Promise<{ book: str
           })}
         </ul>
         <p className="mt-4 text-xs text-ink-500">
-          Every chapter loads instantly from authentic public-domain editions. Chapters with a
-          flame border are bundled offline for zero-latency reading.
+          Chapters with a flame border are bundled with the app and open instantly even without a
+          connection.
         </p>
       </div>
     </section>

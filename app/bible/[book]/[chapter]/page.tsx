@@ -18,7 +18,7 @@ export async function generateMetadata({
   const meta = getBook(book);
   return {
     title: meta ? `${meta.name} ${chapter} — Scripture Theory` : "The Bible — Scripture Theory",
-    description: `Read ${meta?.name ?? "Scripture"} ${chapter} in multiple authentic public-domain translations.`,
+    description: `Read ${meta?.name ?? "Scripture"} ${chapter}.`,
   };
 }
 
@@ -57,10 +57,6 @@ export default async function ChapterPage({
       <h1 className="font-serif text-4xl md:text-5xl mt-3 text-ink-900 leading-tight">
         {book.name} {chapter}
       </h1>
-      <p className="mt-2 text-sm text-ink-500">
-        {available.length} authentic translation{available.length === 1 ? "" : "s"} available · all
-        public domain
-      </p>
 
       <div className="mt-8">
         {initial ? (

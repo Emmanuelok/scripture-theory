@@ -9,7 +9,7 @@ import { Glyph } from "@/components/ui/Glyph";
 export const metadata = {
   title: "The Bible — Scripture Theory",
   description:
-    "Read the Bible in 14 authentic, public-domain translations. Highlight verses, take notes, save bookmarks. Compare translations side-by-side. Listen, share, and study deeply.",
+    "Read the Bible. Highlight verses, take notes, save bookmarks. Compare translations side by side. Listen, share, and study.",
 };
 
 const QUICK_START = [
@@ -30,7 +30,7 @@ export default function BiblePage() {
         eyebrow="The Bible"
         title="The Word of God,"
         titleAccent="in your hands."
-        intro={`Open any chapter in any of ${translationOrder.length} authentic public-domain translations. Highlight, bookmark, take notes, listen to a real human voice, share beautiful verse cards — your study lives quietly on your device.`}
+        intro="Open any chapter. Highlight, bookmark, take notes, listen to a real human voice, share verses with a friend. Your study lives quietly on your device."
       />
 
       <div className="mt-10">
@@ -39,13 +39,9 @@ export default function BiblePage() {
 
       {/* Stat strip */}
       <div className="grid grid-cols-3 gap-3 md:gap-4 mb-10">
-        <Stat label="Translations" value={String(translationOrder.length)} sub="public domain" />
-        <Stat label="Books" value="66" sub="OT + NT" />
-        <Stat
-          label="Chapters"
-          value={totalChapters.toLocaleString()}
-          sub="every one openable"
-        />
+        <Stat label="Translations" value={String(translationOrder.length)} />
+        <Stat label="Books" value="66" />
+        <Stat label="Chapters" value={totalChapters.toLocaleString()} />
       </div>
 
       {/* Quick-start passages */}
@@ -99,14 +95,14 @@ export default function BiblePage() {
           href="/bible/translations"
           size="wide"
           tone="dark"
-          eyebrow={`${translationOrder.length} translations · all public domain`}
+          eyebrow="Translations"
           title={
             <>
               Every translation we serve —{" "}
-              <span className="text-flame-300">authentic, never machine-translated.</span>
+              <span className="text-flame-300">real translations, made by named humans.</span>
             </>
           }
-          sub="WEB · KJV · ASV · RVR · LSG · CUV · Vulgate · ELB · LUT · ALB · BBE and more. The story of each translation, the language family, the era it was made."
+          sub="WEB · KJV · ASV · RVR · LSG · CUV · Vulgate · ELB · LUT · ALB · BBE and more. The story of each one, the language family, the era it was made."
           glyph={<Glyph id="library" size={64} />}
         >
           <div className="mt-4 flex flex-wrap gap-1.5">
@@ -144,12 +140,12 @@ export default function BiblePage() {
   );
 }
 
-function Stat({ label, value, sub }: { label: string; value: string; sub: string }) {
+function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div className="rounded-2xl border border-ink-200 bg-card p-4 md:p-5 text-center">
       <div className="text-[10px] uppercase tracking-widest text-flame-700">{label}</div>
       <div className="font-serif text-3xl md:text-4xl text-ink-900 mt-1">{value}</div>
-      <div className="text-xs text-ink-500 mt-0.5">{sub}</div>
+      {sub && <div className="text-xs text-ink-500 mt-0.5">{sub}</div>}
     </div>
   );
 }
