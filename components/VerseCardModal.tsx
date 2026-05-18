@@ -35,8 +35,10 @@ export default function VerseCardModal({
 
   const url = useMemo(
     () =>
-      `/api/verse-card/${bookId}/${chapter}/${verse}?translation=${translation}&theme=${theme}&aspect=${aspect}`,
-    [bookId, chapter, verse, translation, theme, aspect]
+      `/api/verse-card/${bookId}/${chapter}/${verse}?translation=${translation}&theme=${theme}&aspect=${aspect}&t=${encodeURIComponent(
+        verseText,
+      )}`,
+    [bookId, chapter, verse, translation, theme, aspect, verseText]
   );
 
   // Re-render the preview when aspect changes.

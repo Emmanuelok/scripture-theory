@@ -26,6 +26,10 @@ export async function GET(
   const theme = url.searchParams.get("theme") === "dark" ? "dark" : "light";
   const aspectParam = url.searchParams.get("aspect") as AspectId | null;
   const aspect: AspectId = aspectParam && aspectParam in ASPECT_DIMS ? aspectParam : "square";
+  // Optional caller-supplied verse text — used when a page that already
+  // resolved the verse on the server wants the image to render instantly,
+  // without waiting on a second network round-trip to the upstream API.
+  const tParam = url.searchParams.get("t");
   const WIDTH = ASPECT_DIMS[aspect].w;
   const HEIGHT = ASPECT_DIMS[aspect].h;
 
@@ -37,10 +41,14 @@ export async function GET(
     return new Response("Invalid", { status: 400 });
   }
 
-  const chapterText = await getChapter(bookId, chapter, translation);
-  const verse = chapterText?.verses.find((v) => v.v === verseNum);
-  if (!verse) {
-    return new Response("Verse not found", { status: 404 });
+  let verseTextOut = (tParam ?? "").trim();
+  if (!verseTextOut) {
+    const chapterText = await getChapter(bookId, chapter, translation);
+    const verse = chapterText?.verses.find((v) => v.v === verseNum);
+    if (!verse) {
+      return new Response("Verse not found", { status: 404 });
+    }
+    verseTextOut = verse.t;
   }
 
   const meta = translations[translation];
@@ -53,7 +61,7 @@ export async function GET(
       : { bg: "#fafaf6", fg: "#13120f", muted: "#6b6754", accent: "#ea580c" };
 
   // Heuristic font sizing so very long verses still fit.
-  const len = verse.t.length;
+  const len = verseTextOut.length;
   const verseFontSize = len > 320 ? 36 : len > 220 ? 44 : len > 140 ? 54 : 64;
 
   return new ImageResponse(
@@ -155,7 +163,7 @@ export async function GET(
               color: palette.fg,
             }}
           >
-            {verse.t}
+            {verseTextOut}
           </div>
         </div>
 
@@ -187,7 +195,7 @@ export async function GET(
               color: palette.muted,
             }}
           >
-            {abbrev} · scripture-theory.org
+            {`${abbrev} · scripture-theory.org`}
           </div>
         </div>
       </div>

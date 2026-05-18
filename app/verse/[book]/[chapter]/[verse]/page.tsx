@@ -59,7 +59,12 @@ export default async function VersePermalinkPage({ params }: { params: Params })
   const meta = translations[translation];
   const ref = `${b!.name} ${ch}:${v}`;
   const crossRefs = crossRefsFor(book, ch, v);
-  const cardUrl = `/api/verse-card/${book}/${ch}/${v}?translation=${translation}&theme=light`;
+  // We already resolved the verse text on the server above; pass it through
+  // so the image route doesn't have to re-fetch from the upstream API and
+  // can render the card instantly.
+  const cardUrl = `/api/verse-card/${book}/${ch}/${v}?translation=${translation}&theme=light&t=${encodeURIComponent(
+    verseRow.t,
+  )}`;
 
   return (
     <section className="mx-auto max-w-3xl px-5 pt-12 pb-24">
