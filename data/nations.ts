@@ -2465,6 +2465,590 @@ export const nations: Nation[] = [
     ],
     verse: { ref: "Psalm 102:25–27", text: "Of old, you laid the foundation of the earth … They will perish, but you will endure … You are the same. Your years will have no end." },
   },
+
+  // ─── EXPANSION: INHABITED DEPENDENT TERRITORIES ────────────────
+  // The ISO 3166-1 list runs to 249 entries because it also names
+  // inhabited dependent territories — places that are not sovereign
+  // states but have real populations, real churches, and distinct
+  // prayer needs (Hong Kong's pressured pastors, Greenland's
+  // Lutheran Inuit, Puerto Rico after Maria, Réunion's Indian-Ocean
+  // Christianity, the Sahrawi people). Uninhabited codes
+  // (Antarctica, Bouvet Island, French Southern Territories) are
+  // intentionally excluded — there is no one there to pray for.
+
+  // ── East Asia (Special Administrative Regions) ──
+  {
+    iso: "HK", name: "Hong Kong",
+    region: "east-asia",
+    context: "Special Administrative Region of China. ~12% Christian, deeply influential through hospitals, schools, and missions. Since the 2020 National Security Law, pastors and churches navigate growing self-censorship and political pressure.",
+    prayer: [
+      "Courage and wisdom for pastors weighing what to preach and what to publish.",
+      "Justice and mercy for political prisoners, including Christian activists like Jimmy Lai.",
+      "The Hong Kong missionary movement — still one of Asia's largest senders.",
+      "Reconciliation and hope for families separated by emigration.",
+    ],
+    verse: { ref: "Acts 5:29", text: "We must obey God rather than men." },
+  },
+  {
+    iso: "MO", name: "Macau",
+    region: "east-asia",
+    context: "Former Portuguese colony, now a Chinese SAR. Catholic heritage, casinos dominate the economy, small but real Christian minority among migrant workers and locals.",
+    prayer: [
+      "Liberation for those bound by gambling addiction.",
+      "Just treatment of migrant workers in the service economy.",
+      "Continued openness for Macanese churches and the Catholic diocese.",
+      "Bridges of fellowship between local Cantonese-speaking believers and Filipino, Indonesian, and Mainland migrants.",
+    ],
+    verse: { ref: "1 Timothy 6:10", text: "The love of money is a root of all kinds of evil." },
+  },
+
+  // ── Caribbean dependencies & overseas departments ──
+  {
+    iso: "PR", name: "Puerto Rico",
+    region: "caribbean-central-america",
+    context: "US territory of 3+ million. Catholic majority with very strong Pentecostal and evangelical movements. Recovering from Hurricane Maria (2017), a long debt crisis, and ongoing emigration to the US mainland.",
+    prayer: [
+      "Continued rebuilding from Maria, Fiona, and the chronic power-grid crisis.",
+      "Just resolution of the debt crisis and the political-status question.",
+      "The Puerto Rican evangelical movement — one of Latin America's most missional.",
+      "Strong families and an end to the cycle of emigration.",
+    ],
+    verse: { ref: "Isaiah 61:3", text: "Beauty for ashes, the oil of joy for mourning, the garment of praise for the spirit of heaviness." },
+  },
+  {
+    iso: "AW", name: "Aruba",
+    region: "caribbean-central-america",
+    context: "Dutch Caribbean constituent country; Catholic majority, tourism-dependent, stable and prosperous.",
+    prayer: [
+      "Living faith beneath comfortable cultural Christianity.",
+      "Care for migrant workers and the small undocumented community.",
+      "Stewardship of the marine environment.",
+      "Multiplication of small evangelical fellowships.",
+    ],
+    verse: { ref: "Revelation 3:17", text: "You say, 'I am rich,' … and don't know that you are the wretched one, miserable, poor, blind, and naked." },
+  },
+  {
+    iso: "CW", name: "Curaçao",
+    region: "caribbean-central-america",
+    context: "Dutch Caribbean constituent country with the oldest Jewish community in the Americas (Mikvé Israel-Emanuel). Catholic majority with growing Protestant churches; oil refinery and financial-services economy.",
+    prayer: [
+      "Care for the historic Jewish community and Christian–Jewish friendship.",
+      "Just stewardship of refinery and offshore finance.",
+      "Welcome for Venezuelan refugees fleeing across the strait.",
+      "Multiplication of healthy Papiamento-speaking churches.",
+    ],
+    verse: { ref: "Psalm 122:6", text: "Pray for the peace of Jerusalem. Those who love you will prosper." },
+  },
+  {
+    iso: "SX", name: "Sint Maarten",
+    region: "caribbean-central-america",
+    context: "Dutch half of the small island shared with French Saint-Martin. Catholic and Protestant; rebuilding from devastating Hurricane Irma (2017).",
+    prayer: [
+      "Continued rebuilding from hurricane devastation.",
+      "Unity across the Dutch and French sides of the island.",
+      "Care for migrant workers in tourism.",
+      "Strong, biblical local churches.",
+    ],
+    verse: { ref: "Psalm 46:1–3", text: "God is our refuge and strength, a very present help in trouble." },
+  },
+  {
+    iso: "BQ", name: "Bonaire, Sint Eustatius and Saba",
+    region: "caribbean-central-america",
+    context: "Three Dutch Caribbean special municipalities. Mix of Catholic and Protestant; very small populations, strong church life, fragile economies.",
+    prayer: [
+      "Stewardship of the world-class coral reefs around Bonaire.",
+      "Faithful small congregations across all three islands.",
+      "Care for the indigenous and Afro-Caribbean populations.",
+      "Just relationships with the Netherlands.",
+    ],
+    verse: { ref: "Zechariah 4:10", text: "Who has despised the day of small things?" },
+  },
+  {
+    iso: "KY", name: "Cayman Islands",
+    region: "caribbean-central-america",
+    context: "British Overseas Territory; major offshore financial center; mixed Christian denominations; strong church-going culture.",
+    prayer: [
+      "Conscience and integrity in the offshore financial industry.",
+      "Care for the youth tempted by easy wealth.",
+      "Continued churchgoing matched by personal faith in Christ.",
+      "Resilience facing hurricane risk and rising seas.",
+    ],
+    verse: { ref: "Matthew 6:19–21", text: "Where your treasure is, there your heart will be also." },
+  },
+  {
+    iso: "TC", name: "Turks and Caicos",
+    region: "caribbean-central-america",
+    context: "British Overseas Territory; Baptist majority with strong Methodist and other Protestant churches; tourism and offshore finance economy.",
+    prayer: [
+      "Faithful preaching in the historic Baptist churches.",
+      "Care for Haitian and Dominican migrants.",
+      "Just stewardship of finance and tourism.",
+      "Stable governance and an end to corruption.",
+    ],
+    verse: { ref: "Proverbs 22:1", text: "A good name is more desirable than great riches, and loving favor is better than silver and gold." },
+  },
+  {
+    iso: "BM", name: "Bermuda",
+    region: "caribbean-central-america",
+    context: "British Overseas Territory in the North Atlantic; Anglican heritage with significant Methodist, Catholic, and other churches; major insurance and financial-services center.",
+    prayer: [
+      "Renewal of the historic Anglican Church.",
+      "Just integration of Portuguese, Caribbean, and other minority communities.",
+      "Healing of racial inequities rooted in the colonial past.",
+      "Conscience and integrity in the insurance and reinsurance industry.",
+    ],
+    verse: { ref: "Galatians 3:28", text: "There is neither Jew nor Greek … for you are all one in Christ Jesus." },
+  },
+  {
+    iso: "AI", name: "Anguilla",
+    region: "caribbean-central-america",
+    context: "British Overseas Territory; Anglican, Methodist, and Pentecostal heritage; small population, strong community church life.",
+    prayer: [
+      "Strong, biblical local churches across the island.",
+      "Care for the youth and the next generation of leaders.",
+      "Resilience facing hurricane risk.",
+      "Stable, just self-government.",
+    ],
+    verse: { ref: "1 Corinthians 3:11", text: "No one can lay any other foundation than that which has been laid, which is Jesus Christ." },
+  },
+  {
+    iso: "MS", name: "Montserrat",
+    region: "caribbean-central-america",
+    context: "British Overseas Territory still recovering from the 1995–97 volcanic eruption that destroyed the capital Plymouth and displaced two-thirds of the population. Anglican and other Christian heritage.",
+    prayer: [
+      "Healing for a community scattered by volcanic disaster.",
+      "Care for the diaspora in Britain and the Caribbean.",
+      "Rebuilding hope for those who returned to Montserrat.",
+      "Faithful churches in this small population.",
+    ],
+    verse: { ref: "Isaiah 58:12", text: "You will be called Repairer of the Breach, Restorer of Paths to Dwell In." },
+  },
+  {
+    iso: "VG", name: "British Virgin Islands",
+    region: "caribbean-central-america",
+    context: "British Overseas Territory; Methodist, Anglican, and Pentecostal heritage; tourism and offshore finance economy.",
+    prayer: [
+      "Conscience and integrity in offshore finance.",
+      "Renewal of the historic churches.",
+      "Care for migrant workers and the rural poor.",
+      "Resilience facing hurricane risk.",
+    ],
+    verse: { ref: "Amos 5:24", text: "Let justice roll on like rivers, and righteousness like a mighty stream." },
+  },
+  {
+    iso: "VI", name: "U.S. Virgin Islands",
+    region: "caribbean-central-america",
+    context: "US unincorporated territory; rich Protestant heritage including Moravian, Lutheran, Methodist, and Anglican, with the Caribbean's oldest Protestant church traditions; rebuilding from 2017 hurricanes.",
+    prayer: [
+      "Rebuilding from Hurricanes Irma and Maria.",
+      "Renewal of the historic Moravian and Lutheran churches.",
+      "Care for the rural poor and undocumented workers.",
+      "Just relationship with the United States and the path forward on status.",
+    ],
+    verse: { ref: "Zechariah 8:4–5", text: "Old men and old women shall dwell in the streets of Jerusalem … and the streets shall be full of boys and girls playing." },
+  },
+  {
+    iso: "GP", name: "Guadeloupe",
+    region: "caribbean-central-america",
+    context: "French overseas department in the Caribbean; Catholic majority with growing evangelical Christianity; high unemployment and ongoing protests over French rule and the legacy of chlordecone pesticide poisoning.",
+    prayer: [
+      "Health and justice for those poisoned by chlordecone.",
+      "Renewal of the Catholic Church and growth of evangelical churches.",
+      "Reconciliation between Guadeloupe and metropolitan France.",
+      "Care for the youth amid high unemployment.",
+    ],
+    verse: { ref: "Psalm 9:18", text: "The needy shall not always be forgotten, nor the hope of the poor perish forever." },
+  },
+  {
+    iso: "MQ", name: "Martinique",
+    region: "caribbean-central-america",
+    context: "French overseas department; Catholic majority; birthplace of Aimé Césaire and Frantz Fanon; similar chlordecone and political-status struggles to Guadeloupe.",
+    prayer: [
+      "Health and justice for those poisoned by chlordecone.",
+      "Renewal of the Catholic Church and growth of evangelical churches.",
+      "Just resolution of the political-status question.",
+      "Care for the elderly and the youth tempted by emigration.",
+    ],
+    verse: { ref: "Psalm 72:4", text: "He will judge the poor of the people. He will save the children of the needy." },
+  },
+  {
+    iso: "MF", name: "Saint Martin (French part)",
+    region: "caribbean-central-america",
+    context: "French overseas collectivity sharing the island with Dutch Sint Maarten. Catholic majority; rebuilding from Hurricane Irma; tourism-dependent.",
+    prayer: [
+      "Continued rebuilding from hurricane devastation.",
+      "Cross-border cooperation with the Dutch side of the island.",
+      "Care for migrant workers and the undocumented.",
+      "Strong, biblical local churches.",
+    ],
+    verse: { ref: "Nehemiah 2:18", text: "Let's rise up and build." },
+  },
+  {
+    iso: "BL", name: "Saint Barthélemy",
+    region: "caribbean-central-america",
+    context: "French Caribbean island; small population; Catholic heritage; one of the world's most concentrated wealth destinations.",
+    prayer: [
+      "Conscience and humility among the wealthy who vacation here.",
+      "Care for service workers who make tourism possible.",
+      "Stewardship of the natural beauty.",
+      "Faithful small churches across the island.",
+    ],
+    verse: { ref: "James 5:1–4", text: "Come now, you rich, weep and howl for your miseries that are coming on you." },
+  },
+
+  // ── Atlantic & European dependencies ──
+  {
+    iso: "GL", name: "Greenland",
+    region: "north-america",
+    context: "Autonomous Danish territory; 56,000 people, majority Indigenous Inuit; Lutheran Church of Greenland is the state church; pushing toward eventual independence as climate change exposes the island.",
+    prayer: [
+      "The Inuit people — protection of culture, language, and faith.",
+      "Renewal of the Lutheran Church into living, biblical preaching.",
+      "Healing of the trauma of colonial-era forced separations.",
+      "Wisdom amid climate change, melting ice, and resource pressure.",
+    ],
+    verse: { ref: "Psalm 147:16–17", text: "He gives snow like wool, and scatters frost like ashes. He hurls down his hail like pebbles." },
+  },
+  {
+    iso: "FO", name: "Faroe Islands",
+    region: "europe",
+    context: "Autonomous Danish territory in the North Atlantic. One of the most strongly Lutheran nations on earth, with significant Brethren and Pentecostal movements; fishing and aquaculture economy.",
+    prayer: [
+      "Faithful Lutheran and free-church preaching across the islands.",
+      "Wisdom amid debates on whale-hunting traditions.",
+      "Care for the youth tempted to leave for Denmark.",
+      "Continued spiritual depth in a deeply church-going culture.",
+    ],
+    verse: { ref: "Acts 1:8", text: "You will be my witnesses … to the uttermost parts of the earth." },
+  },
+  {
+    iso: "AX", name: "Åland Islands",
+    region: "europe",
+    context: "Autonomous Swedish-speaking region of Finland in the Baltic Sea. Lutheran heritage; deeply secularized; protected demilitarized status since 1856.",
+    prayer: [
+      "Renewal of inherited Lutheran culture into living faith.",
+      "Care for the elderly and the youth in shrinking villages.",
+      "Continued peaceful demilitarized status as a small witness.",
+      "Multiplication of small evangelical fellowships.",
+    ],
+    verse: { ref: "Isaiah 2:4", text: "They shall beat their swords into plowshares, and their spears into pruning hooks." },
+  },
+  {
+    iso: "SJ", name: "Svalbard and Jan Mayen",
+    region: "europe",
+    context: "Norwegian Arctic territories. Tiny scattered populations of researchers, miners, and the world's northernmost church (Svalbard Kirke in Longyearbyen).",
+    prayer: [
+      "The lone northernmost Lutheran congregation.",
+      "Stewardship of one of Earth's most fragile environments.",
+      "International scientific cooperation in a tense Arctic.",
+      "Spiritual hunger for the small, transient population.",
+    ],
+    verse: { ref: "Job 37:6", text: "He says to the snow, 'Fall on the earth,' likewise to the shower of rain." },
+  },
+  {
+    iso: "IM", name: "Isle of Man",
+    region: "europe",
+    context: "British Crown dependency in the Irish Sea; Anglican and Methodist heritage; offshore financial center; ancient Celtic Christian roots through Manx missionaries.",
+    prayer: [
+      "Conscience and integrity in offshore finance.",
+      "Renewal of Manx-language Christian heritage.",
+      "Care for the elderly in this aging population.",
+      "Strong, biblical churches across the parishes.",
+    ],
+    verse: { ref: "Proverbs 11:1", text: "A false balance is an abomination to Yahweh, but accurate weights are his delight." },
+  },
+  {
+    iso: "JE", name: "Jersey",
+    region: "europe",
+    context: "British Crown dependency in the Channel; Anglican and Methodist heritage; large offshore financial sector; deep ties to both Britain and France.",
+    prayer: [
+      "Conscience and integrity in offshore finance.",
+      "Care for migrant workers from Portugal and Poland.",
+      "Renewal of the Anglican and Methodist churches.",
+      "Healing of the recent care-home abuse legacy.",
+    ],
+    verse: { ref: "Luke 12:48", text: "To whomever much is given, of him will much be required." },
+  },
+  {
+    iso: "GG", name: "Guernsey",
+    region: "europe",
+    context: "British Crown dependency in the Channel; Anglican and Methodist heritage; offshore finance and tourism.",
+    prayer: [
+      "Conscience and integrity in offshore finance.",
+      "Care for the elderly in this aging community.",
+      "Renewal of inherited Christian culture into living faith.",
+      "Resilience for the small islands of Alderney, Sark, and Herm.",
+    ],
+    verse: { ref: "Psalm 139:9–10", text: "If I take the wings of the dawn, and settle in the uttermost parts of the sea, even there your hand will lead me." },
+  },
+  {
+    iso: "GI", name: "Gibraltar",
+    region: "europe",
+    context: "British Overseas Territory at the southern tip of Spain; Catholic and Anglican heritage; long-contested sovereignty with Spain; Brexit has complicated everything.",
+    prayer: [
+      "Just resolution of the sovereignty question.",
+      "Cooperation across the Gibraltar–Spain border.",
+      "Renewal of the historic Catholic and Anglican churches.",
+      "Care for the small Jewish and Muslim communities and inter-faith friendship.",
+    ],
+    verse: { ref: "Psalm 18:2", text: "Yahweh is my rock, my fortress, and my deliverer." },
+  },
+  {
+    iso: "FK", name: "Falkland Islands",
+    region: "south-america",
+    context: "British Overseas Territory in the South Atlantic; Anglican heritage; tiny population; long-contested sovereignty with Argentina (the 1982 war).",
+    prayer: [
+      "Just resolution of the sovereignty question.",
+      "Healing of the wounds of the 1982 war on both sides.",
+      "Faithful local Anglican and Catholic churches.",
+      "Stewardship of one of the world's great penguin and seabird sanctuaries.",
+    ],
+    verse: { ref: "Isaiah 9:6", text: "His name will be called … Prince of Peace." },
+  },
+  {
+    iso: "GF", name: "French Guiana",
+    region: "south-america",
+    context: "French overseas department on the South American mainland; Catholic majority with growing evangelical and Pentecostal churches; site of the Guiana Space Centre; rainforest covers 96% of the territory.",
+    prayer: [
+      "Care for the indigenous Wayãpi, Wayana, and other peoples.",
+      "Gospel access for the Maroon and Hmong communities.",
+      "Renewal of the Catholic Church and growth of evangelical works.",
+      "Just stewardship of the Amazon and the gold-mining frontier.",
+    ],
+    verse: { ref: "Psalm 24:1", text: "The earth is Yahweh's, with its fullness." },
+  },
+  {
+    iso: "PM", name: "Saint Pierre and Miquelon",
+    region: "north-america",
+    context: "Tiny French territorial collectivity off the coast of Newfoundland. Catholic majority; declining fishing economy; deep French Atlantic heritage.",
+    prayer: [
+      "Faithful Catholic parish life in a remote outpost.",
+      "Care for the elderly in a shrinking population.",
+      "Just transition from cod fishing to a sustainable economy.",
+      "Strong family life and welcome of visitors.",
+    ],
+    verse: { ref: "John 21:6", text: "Cast the net on the right side of the boat, and you will find some." },
+  },
+  {
+    iso: "SH", name: "Saint Helena, Ascension and Tristan da Cunha",
+    region: "africa",
+    context: "British Overseas Territory in the South Atlantic; three remote islands totaling fewer than 5,000 people; Anglican and Baptist heritage; Tristan is the most remote inhabited island on earth.",
+    prayer: [
+      "Faithful local churches across all three islands.",
+      "Care for the small Tristan community after the 2024 sinking of supply ships.",
+      "Stewardship of marine ecosystems including some of the world's largest fish reserves.",
+      "Continued strong family life and inter-island fellowship.",
+    ],
+    verse: { ref: "Isaiah 41:5", text: "The islands have seen, and fear. The ends of the earth tremble." },
+  },
+
+  // ── Africa (additional territories) ──
+  {
+    iso: "RE", name: "Réunion",
+    region: "africa",
+    context: "French overseas department in the Indian Ocean; Catholic majority with significant Hindu and Muslim minorities; volcanic island of about 870,000.",
+    prayer: [
+      "Continued inter-religious peace among Christians, Hindus, and Muslims.",
+      "Renewal of the Catholic Church and growth of evangelical churches.",
+      "Care for the rural poor and Comorian migrants.",
+      "Stewardship of the active volcano Piton de la Fournaise and protected forests.",
+    ],
+    verse: { ref: "Acts 17:26", text: "He made from one blood every nation of men to dwell on all the surface of the earth." },
+  },
+  {
+    iso: "YT", name: "Mayotte",
+    region: "africa",
+    context: "French overseas department in the Indian Ocean (Comoros archipelago); 95% Muslim — the only majority-Muslim French department. France's poorest department; immigration crisis from Comoros; recent devastating cyclone (2024).",
+    prayer: [
+      "Recovery from Cyclone Chido and the chronic housing crisis.",
+      "Just treatment of undocumented Comorian migrants.",
+      "Open hearts in the Muslim majority to Christ.",
+      "Small Christian gatherings — for shelter, courage, and growth.",
+    ],
+    verse: { ref: "Matthew 25:35", text: "I was a stranger, and you took me in." },
+  },
+  {
+    iso: "EH", name: "Western Sahara",
+    region: "north-africa-middle-east",
+    context: "A disputed territory most of which is occupied by Morocco. The Sahrawi people are predominantly Muslim; many live as refugees in Algerian camps; the UN-promised independence referendum has been blocked since 1991.",
+    prayer: [
+      "Just resolution of the disputed sovereignty and the right to self-determination.",
+      "Care for Sahrawi refugees in Tindouf camps and elsewhere.",
+      "Quiet gospel access among the Sahrawi people.",
+      "Wisdom for Morocco, Algeria, and the UN.",
+    ],
+    verse: { ref: "Isaiah 30:18", text: "Therefore Yahweh will wait, that he may be gracious to you. Therefore he will be exalted, that he may have mercy on you." },
+  },
+
+  // ── Oceania (additional territories) ──
+  {
+    iso: "PF", name: "French Polynesia",
+    region: "oceania",
+    context: "French overseas collectivity of 121 islands including Tahiti; Protestant majority (Maohi Protestant Church) and Catholic minority; nuclear-testing legacy at Moruroa.",
+    prayer: [
+      "Healing of the nuclear-testing legacy and care for affected families.",
+      "Renewal of the Maohi Protestant Church and Christian witness in Tahitian and French.",
+      "Just resolution of the political-status question.",
+      "Stewardship of pearl-farm ecosystems and pristine reefs.",
+    ],
+    verse: { ref: "Isaiah 42:10", text: "Sing to Yahweh a new song, and his praise from the end of the earth, you who go down to the sea." },
+  },
+  {
+    iso: "NC", name: "New Caledonia",
+    region: "oceania",
+    context: "French overseas collectivity with a long Kanak indigenous independence movement; Catholic majority; recent (2024) protests and violence over voting reform.",
+    prayer: [
+      "Just resolution of the Kanak independence question.",
+      "Reconciliation between Kanak, Caldoche, and other communities.",
+      "Healing of recent violence and rebuilding of trust.",
+      "Renewal of the historic Catholic and Protestant churches.",
+    ],
+    verse: { ref: "Psalm 85:10", text: "Mercy and truth meet together. Righteousness and peace have kissed each other." },
+  },
+  {
+    iso: "GU", name: "Guam",
+    region: "oceania",
+    context: "US territory in the western Pacific; majority Catholic Chamorro population; large US military presence; vulnerable to typhoons and regional tensions.",
+    prayer: [
+      "The Chamorro people — protection of culture, language, and indigenous land rights.",
+      "Care for US military families and the local population they live among.",
+      "Healing from the clergy-abuse scandal that wounded the Catholic Church here.",
+      "Wisdom amid US–China tensions over the Pacific.",
+    ],
+    verse: { ref: "Isaiah 11:11", text: "He will set his hand again the second time to recover the remnant of his people … from the islands of the sea." },
+  },
+  {
+    iso: "AS", name: "American Samoa",
+    region: "oceania",
+    context: "US territory in the South Pacific; deeply Christian (Protestant majority through London Missionary Society heritage; strong Catholic and Methodist communities); strong family and church-centered culture (fa'a Samoa).",
+    prayer: [
+      "Renewal of the historic Congregational churches.",
+      "Care for those serving in the US military — a disproportionate share comes from American Samoa.",
+      "Just resolution of the citizenship question — American Samoans are the only US territorial residents without birthright citizenship.",
+      "Resilience facing typhoons and rising seas.",
+    ],
+    verse: { ref: "Psalm 127:1", text: "Unless Yahweh builds the house, they who build it labor in vain." },
+  },
+  {
+    iso: "MP", name: "Northern Mariana Islands",
+    region: "oceania",
+    context: "US commonwealth in the western Pacific; majority Catholic Chamorro and Carolinian populations; tourism and garment economy; rebuilding from typhoons.",
+    prayer: [
+      "Recovery from repeated typhoon damage.",
+      "Care for migrant workers in tourism and agriculture.",
+      "Renewal of the Catholic Church and small Protestant works.",
+      "Just relationship with the United States.",
+    ],
+    verse: { ref: "Psalm 121:7", text: "Yahweh will keep you from all evil. He will keep your soul." },
+  },
+  {
+    iso: "CK", name: "Cook Islands",
+    region: "oceania",
+    context: "Self-governing in free association with New Zealand; the Cook Islands Christian Church (CICC) is the largest denomination; strong Christian culture, declining population due to emigration.",
+    prayer: [
+      "Renewal of the CICC and its mission to the diaspora.",
+      "Care for the Cook Islanders in New Zealand and Australia.",
+      "Stewardship of one of the world's largest marine protected areas.",
+      "Faithful family life and Sunday rest.",
+    ],
+    verse: { ref: "Genesis 1:10", text: "God called the dry land 'earth,' and the gathering together of the waters he called 'seas.' God saw that it was good." },
+  },
+  {
+    iso: "NU", name: "Niue",
+    region: "oceania",
+    context: "Self-governing in free association with New Zealand; one of the world's smallest fully self-governing populations (~1,700); strong Ekalesia Kerisiano Niue (Protestant) church.",
+    prayer: [
+      "Faithful preaching in the Ekalesia Kerisiano Niue.",
+      "Care for the much larger Niuean diaspora in New Zealand.",
+      "Stewardship of marine ecosystems.",
+      "The future of a nation in which more people live overseas than at home.",
+    ],
+    verse: { ref: "Luke 12:32", text: "Don't be afraid, little flock, for it is your Father's good pleasure to give you the Kingdom." },
+  },
+  {
+    iso: "TK", name: "Tokelau",
+    region: "oceania",
+    context: "New Zealand dependency of three atolls and ~1,500 people; predominantly Congregational and Catholic; among the most climate-vulnerable communities on earth; the world's first 100% solar-powered nation.",
+    prayer: [
+      "The literal survival of the atolls as the seas rise.",
+      "Faithful small congregations across the three atolls.",
+      "Care for the diaspora in New Zealand.",
+      "A model of climate stewardship continuing to inspire larger nations.",
+    ],
+    verse: { ref: "Isaiah 43:2", text: "When you pass through the waters, I will be with you." },
+  },
+  {
+    iso: "WF", name: "Wallis and Futuna",
+    region: "oceania",
+    context: "French overseas collectivity in the South Pacific; ~11,000 people; Catholic majority; three traditional kingdoms still recognized alongside French administration.",
+    prayer: [
+      "Faithful Catholic parish life across the islands.",
+      "Care for the diaspora in New Caledonia and metropolitan France.",
+      "Wisdom for the customary kings alongside French administration.",
+      "Stewardship of the marine environment.",
+    ],
+    verse: { ref: "Psalm 65:5", text: "By awesome deeds of righteousness, you answer us, God of our salvation, you who are the hope of all the ends of the earth." },
+  },
+  {
+    iso: "NF", name: "Norfolk Island",
+    region: "oceania",
+    context: "Australian external territory in the South Pacific; descendants of the Bounty mutineers and Tahitian settlers; Anglican and Methodist heritage; recent loss of self-government to Australia.",
+    prayer: [
+      "Faithful local Anglican and Methodist churches.",
+      "Care for the unique Pitcairn-descended community and Norf'k language.",
+      "Just resolution of self-government questions with Australia.",
+      "Stewardship of the surrounding waters and the Norfolk Island pine forests.",
+    ],
+    verse: { ref: "Psalm 16:6", text: "The lines have fallen to me in pleasant places. Yes, I have a good inheritance." },
+  },
+  {
+    iso: "CX", name: "Christmas Island",
+    region: "oceania",
+    context: "Australian external territory in the Indian Ocean; mostly Buddhist and Muslim due to historic phosphate-mining migration from Malaysia; long history as an Australian asylum-seeker detention center.",
+    prayer: [
+      "Care for asylum seekers detained on the island.",
+      "Small Christian fellowships in a religiously diverse community.",
+      "Stewardship of the famous red-crab migration and tropical forests.",
+      "Just resolution of Australia's offshore-detention policy.",
+    ],
+    verse: { ref: "Hebrews 13:3", text: "Remember the prisoners as if chained with them, and those who are mistreated, since you are also in the body." },
+  },
+  {
+    iso: "PN", name: "Pitcairn Islands",
+    region: "oceania",
+    context: "British Overseas Territory; ~50 people, descendants of the Bounty mutineers and Tahitian women; Seventh-day Adventist majority for over 130 years.",
+    prayer: [
+      "The continued survival of this remote community.",
+      "Healing from the sexual-abuse trials that wounded the community in the 2000s.",
+      "Faithful Adventist witness across the island.",
+      "Care for the lonely and the youth tempted to leave.",
+    ],
+    verse: { ref: "Matthew 18:20", text: "Where two or three are gathered together in my name, there I am in the middle of them." },
+  },
+  {
+    iso: "CC", name: "Cocos (Keeling) Islands",
+    region: "oceania",
+    context: "Australian external territory in the Indian Ocean; ~600 people; predominantly Sunni Muslim Cocos Malay community settled by Clunies-Ross family in the 1800s; one of the most isolated Muslim-majority communities on earth.",
+    prayer: [
+      "Quiet gospel access among the Cocos Malay people.",
+      "Just relationships with Australia after the colonial Clunies-Ross era.",
+      "Stewardship of the coral atolls and surrounding reefs.",
+      "Care for the children and youth in a tiny isolated population.",
+    ],
+    verse: { ref: "Acts 8:31", text: "How can I, unless someone explains it to me?" },
+  },
+  {
+    iso: "IO", name: "British Indian Ocean Territory",
+    region: "africa",
+    context: "Disputed British territory; the native Chagossian people were forcibly removed in 1968–73 to make way for the US military base on Diego Garcia. The displaced community lives in Mauritius, the Seychelles, and the UK; in 2024 the UK agreed in principle to return sovereignty to Mauritius.",
+    prayer: [
+      "Justice and the right of return for the Chagossian people.",
+      "Care for the scattered Chagossian community and their churches in Mauritius, the Seychelles, and Britain.",
+      "Healing of the wounds of forced displacement.",
+      "Wisdom for the UK, US, and Mauritius in the sovereignty transfer.",
+    ],
+    verse: { ref: "Psalm 137:1", text: "By the rivers of Babylon, there we sat down. Yes, we wept, when we remembered Zion." },
+  },
 ];
 
 // Day-of-rotation: a stable integer that maps each calendar day to one
