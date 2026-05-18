@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { geoMercator, geoPath, type GeoProjection } from "d3-geo";
 import { feature, mesh } from "topojson-client";
 import type { Feature, FeatureCollection, MultiLineString } from "geojson";
@@ -14,26 +14,40 @@ import {
 } from "@/data/atlas";
 
 const WIDTH = 1000;
-const HEIGHT = 620;
+const HEIGHT = 640;
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 6;
 
-type Marker = { region: AtlasRegion; place: AtlasPlace };
+type Marker = { region: AtlasRegion; place: AtlasPlace; orderInEra: number };
 
 /**
  * Interactive Bible-lands map.
  *
- * Renders the Mediterranean / Levant / Mesopotamia at a usable zoom, drops a
- * colored dot at every named place in the atlas, and lets the reader filter
- * by era. Tapping a dot scrolls to the matching entry in the text below.
+ * - Wheel / pinch to zoom, drag to pan, +/-/reset buttons for touch users.
+ * - Era filter chips; selecting an era draws the journey path connecting
+ *   that era's places in narrative order, with arrowheads.
+ * - Numbered markers (1, 2, 3 …) show the story sequence within an era.
+ * - Major places get permanent labels at default zoom; everything else
+ *   labels on hover/tap. At zoom > 2, all labels appear.
+ * - Bottom strip shows the active era's title, dates, and short narrative,
+ *   so the map tells the story even without scrolling to the text below.
  */
 export default function BibleLandsMap() {
   const [topo, setTopo] = useState<Topology | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activeEra, setActiveEra] = useState<EraId | "all">("all");
   const [hoverKey, setHoverKey] = useState<string | null>(null);
+  const [pinnedKey, setPinnedKey] = useState<string | null>(null);
 
-  // Pull country polygons once. The /api/world-topojson endpoint is the
-  // same one /pray/live uses — Natural Earth 110m, proxied so the browser
-  // doesn't reach across origins.
+  // Zoom + pan state. (zoom is a scalar; pan is in SVG units before scale.)
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const draggingRef = useRef<{ startX: number; startY: number; startPan: { x: number; y: number } } | null>(null);
+  const pinchRef = useRef<{ d0: number; zoom0: number } | null>(null);
+  const pointersRef = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const svgRef = useRef<SVGSVGElement | null>(null);
+
+  // Pull country polygons once.
   useEffect(() => {
     let cancelled = false;
     fetch("/api/world-topojson")
@@ -51,9 +65,7 @@ export default function BibleLandsMap() {
     };
   }, []);
 
-  // Projection fitted to the Bible lands bounding box. Mercator is fine
-  // for this latitude band; everything we care about sits north of the
-  // tropics and well south of the Arctic.
+  // Mercator projection fitted to the Bible-lands bounding box.
   const projection: GeoProjection = useMemo(() => {
     const bboxFeature: Feature = {
       type: "Feature",
@@ -71,54 +83,169 @@ export default function BibleLandsMap() {
         ],
       },
     };
-    return geoMercator().fitExtent(
-      [[24, 24], [WIDTH - 24, HEIGHT - 24]],
-      bboxFeature,
-    );
+    return geoMercator().fitExtent([[24, 24], [WIDTH - 24, HEIGHT - 24]], bboxFeature);
   }, []);
 
   const path = useMemo(() => geoPath(projection), [projection]);
 
   const countries: FeatureCollection | null = useMemo(() => {
     if (!topo) return null;
-    return feature(
-      topo,
-      topo.objects.countries as TopoGeometryObject,
-    ) as unknown as FeatureCollection;
+    return feature(topo, topo.objects.countries as TopoGeometryObject) as unknown as FeatureCollection;
   }, [topo]);
 
   const borders: MultiLineString | null = useMemo(() => {
     if (!topo) return null;
-    return mesh(
-      topo,
-      topo.objects.countries as TopoGeometryObject,
-      (a, b) => a !== b,
-    ) as unknown as MultiLineString;
+    return mesh(topo, topo.objects.countries as TopoGeometryObject, (a, b) => a !== b) as unknown as MultiLineString;
   }, [topo]);
 
-  // Flatten every era's places into one list, carrying the parent era so
-  // we can color and link correctly.
   const allMarkers: Marker[] = useMemo(
     () =>
       atlasRegions.flatMap((region) =>
-        region.places.map((place) => ({ region, place })),
+        region.places.map((place, i) => ({ region, place, orderInEra: i + 1 })),
       ),
     [],
   );
 
   const visibleMarkers =
-    activeEra === "all"
-      ? allMarkers
-      : allMarkers.filter((m) => m.region.id === activeEra);
+    activeEra === "all" ? allMarkers : allMarkers.filter((m) => m.region.id === activeEra);
+
+  const activeRegion = activeEra === "all" ? null : atlasRegions.find((r) => r.id === activeEra) ?? null;
+
+  // Journey polyline for the active era (its places in order).
+  const journey = useMemo(() => {
+    if (!activeRegion) return null;
+    const points: [number, number][] = [];
+    for (const place of activeRegion.places) {
+      const xy = projection([place.lon, place.lat]);
+      if (xy) points.push([xy[0], xy[1]]);
+    }
+    return points;
+  }, [activeRegion, projection]);
+
+  // ─────────── Zoom + pan handlers ───────────
+
+  function clampPan(p: { x: number; y: number }, z: number) {
+    // Allow some over-pan so the user doesn't feel clamped, but keep the map
+    // mostly in view. With scale z, contents span z*WIDTH × z*HEIGHT;
+    // allow pan range so the map can still be seen.
+    const slack = 200;
+    const maxX = slack;
+    const minX = WIDTH - z * WIDTH - slack;
+    const maxY = slack;
+    const minY = HEIGHT - z * HEIGHT - slack;
+    return {
+      x: Math.min(maxX, Math.max(minX, p.x)),
+      y: Math.min(maxY, Math.max(minY, p.y)),
+    };
+  }
+
+  function zoomAt(svgX: number, svgY: number, nextZoom: number) {
+    const z = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, nextZoom));
+    const k = z / zoom;
+    // Keep the anchor point fixed under the scale change.
+    const newPan = {
+      x: svgX - k * (svgX - pan.x),
+      y: svgY - k * (svgY - pan.y),
+    };
+    setZoom(z);
+    setPan(clampPan(newPan, z));
+  }
+
+  function getSvgPoint(clientX: number, clientY: number): { x: number; y: number } | null {
+    const svg = svgRef.current;
+    if (!svg) return null;
+    const rect = svg.getBoundingClientRect();
+    return {
+      x: ((clientX - rect.left) / rect.width) * WIDTH,
+      y: ((clientY - rect.top) / rect.height) * HEIGHT,
+    };
+  }
+
+  function onWheel(e: React.WheelEvent<SVGSVGElement>) {
+    e.preventDefault();
+    const p = getSvgPoint(e.clientX, e.clientY);
+    if (!p) return;
+    const factor = e.deltaY > 0 ? 0.85 : 1.18;
+    zoomAt(p.x, p.y, zoom * factor);
+  }
+
+  function onPointerDown(e: React.PointerEvent<SVGSVGElement>) {
+    (e.target as Element).setPointerCapture?.(e.pointerId);
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    // Two-finger pinch
+    if (pointersRef.current.size === 2) {
+      const [a, b] = Array.from(pointersRef.current.values());
+      const d = Math.hypot(a.x - b.x, a.y - b.y);
+      pinchRef.current = { d0: d, zoom0: zoom };
+      draggingRef.current = null;
+      return;
+    }
+    // Single-pointer drag
+    draggingRef.current = { startX: e.clientX, startY: e.clientY, startPan: pan };
+  }
+
+  function onPointerMove(e: React.PointerEvent<SVGSVGElement>) {
+    if (!pointersRef.current.has(e.pointerId)) return;
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    // Pinch zoom
+    if (pointersRef.current.size === 2 && pinchRef.current) {
+      const [a, b] = Array.from(pointersRef.current.values());
+      const d = Math.hypot(a.x - b.x, a.y - b.y);
+      const ratio = d / pinchRef.current.d0;
+      const mid = {
+        x: (a.x + b.x) / 2,
+        y: (a.y + b.y) / 2,
+      };
+      const p = getSvgPoint(mid.x, mid.y);
+      if (p) zoomAt(p.x, p.y, pinchRef.current.zoom0 * ratio);
+      return;
+    }
+
+    // Drag
+    const d = draggingRef.current;
+    if (!d) return;
+    const svg = svgRef.current;
+    if (!svg) return;
+    const rect = svg.getBoundingClientRect();
+    const dx = ((e.clientX - d.startX) / rect.width) * WIDTH;
+    const dy = ((e.clientY - d.startY) / rect.height) * HEIGHT;
+    setPan(clampPan({ x: d.startPan.x + dx, y: d.startPan.y + dy }, zoom));
+  }
+
+  function onPointerUp(e: React.PointerEvent<SVGSVGElement>) {
+    pointersRef.current.delete(e.pointerId);
+    if (pointersRef.current.size < 2) pinchRef.current = null;
+    if (pointersRef.current.size === 0) draggingRef.current = null;
+  }
+
+  function resetView() {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  }
 
   function scrollTo(id: string) {
     if (typeof document === "undefined") return;
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  // ─────────── Render ───────────
+
+  // Project markers into post-transform coordinates so we can compute labels.
+  const projectedMarkers = useMemo(() => {
+    return visibleMarkers
+      .map((m) => {
+        const xy = projection([m.place.lon, m.place.lat]);
+        if (!xy) return null;
+        return { ...m, x: xy[0], y: xy[1] };
+      })
+      .filter((m): m is Marker & { x: number; y: number } => m !== null);
+  }, [visibleMarkers, projection]);
+
   return (
     <div className="rounded-3xl border border-ink-200 bg-card p-3 md:p-4 overflow-hidden">
-      {/* Era filter — colored chips */}
+      {/* Era filter chips */}
       <div className="flex flex-wrap items-center gap-1.5 mb-3">
         <button
           onClick={() => setActiveEra("all")}
@@ -128,7 +255,7 @@ export default function BibleLandsMap() {
               : "border-ink-300 text-ink-700 hover:border-ink-900"
           }`}
         >
-          All eras · {allMarkers.length} places
+          All eras · {allMarkers.length}
         </button>
         {atlasRegions.map((r) => (
           <button
@@ -141,125 +268,271 @@ export default function BibleLandsMap() {
             }`}
             title={r.title}
           >
-            <span
-              aria-hidden
-              className="inline-block h-2 w-2 rounded-full"
-              style={{ backgroundColor: r.color }}
-            />
-            <span className="whitespace-nowrap">
-              {r.title.split("—")[0].trim().split("·")[0].trim()}
-            </span>
-            <span className="text-ink-400">· {r.places.length}</span>
+            <span aria-hidden className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: r.color }} />
+            <span className="whitespace-nowrap">{r.title.split("—")[0].trim().split("·")[0].trim()}</span>
+            <span className={activeEra === r.id ? "text-flame-300" : "text-ink-400"}>· {r.places.length}</span>
           </button>
         ))}
       </div>
 
-      {/* The SVG map */}
-      <div className="relative rounded-2xl overflow-hidden bg-ink-50/40 dark:bg-ink-100/10 border border-ink-100">
+      {/* Map + zoom controls */}
+      <div className="relative rounded-2xl overflow-hidden bg-ink-50/40 dark:bg-ink-100/10 border border-ink-100 touch-none select-none">
         <svg
+          ref={svgRef}
           viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
           xmlns="http://www.w3.org/2000/svg"
           className="w-full h-auto block"
+          style={{ cursor: draggingRef.current ? "grabbing" : "grab" }}
           role="img"
-          aria-label="Map of the Bible lands with named places"
+          aria-label="Interactive map of the Bible lands"
+          onWheel={onWheel}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+          onPointerLeave={onPointerUp}
         >
-          {/* Sea fill */}
+          <defs>
+            <marker
+              id="arrow"
+              viewBox="0 0 10 10"
+              refX="8"
+              refY="5"
+              markerWidth="6"
+              markerHeight="6"
+              orient="auto-start-reverse"
+            >
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+            </marker>
+          </defs>
+
+          {/* Sea fill (does not move with zoom) */}
           <rect x={0} y={0} width={WIDTH} height={HEIGHT} fill="#dbe7f1" />
-          {/* Country fills + borders */}
-          {countries && (
-            <g>
-              {countries.features.map((f, i) => {
-                const d = path(f as Feature);
-                if (!d) return null;
-                return (
-                  <path
-                    key={i}
-                    d={d}
-                    fill="#f1ecdf"
-                    stroke="#d6cdb4"
-                    strokeWidth={0.5}
-                  />
-                );
-              })}
-            </g>
-          )}
-          {borders && (
-            <path
-              d={path(borders) ?? undefined}
-              fill="none"
-              stroke="#9c9072"
-              strokeWidth={0.7}
-              strokeLinejoin="round"
-            />
-          )}
 
-          {/* Place markers */}
-          {visibleMarkers.map((m) => {
-            const xy = projection([m.place.lon, m.place.lat]);
-            if (!xy) return null;
-            const key = `${m.region.id}:${m.place.name}`;
-            const isHover = hoverKey === key;
-            return (
-              <g
-                key={key}
-                transform={`translate(${xy[0]} ${xy[1]})`}
-                onMouseEnter={() => setHoverKey(key)}
-                onMouseLeave={() => setHoverKey((h) => (h === key ? null : h))}
-                onClick={() => scrollTo(m.region.id)}
-                style={{ cursor: "pointer" }}
-              >
-                <circle
-                  r={isHover ? 9 : 6}
-                  fill={m.region.color}
-                  fillOpacity={0.4}
-                />
-                <circle
-                  r={isHover ? 4.5 : 3.5}
-                  fill={m.region.color}
-                  stroke="#0a0a0c"
-                  strokeWidth={isHover ? 1.2 : 0.8}
+          <g transform={`translate(${pan.x} ${pan.y}) scale(${zoom})`}>
+            {/* Country fills */}
+            {countries && (
+              <g>
+                {countries.features.map((f, i) => {
+                  const d = path(f as Feature);
+                  if (!d) return null;
+                  return (
+                    <path
+                      key={i}
+                      d={d}
+                      fill="#f1ecdf"
+                      stroke="#d6cdb4"
+                      strokeWidth={0.5 / zoom}
+                    />
+                  );
+                })}
+              </g>
+            )}
+            {borders && (
+              <path
+                d={path(borders) ?? undefined}
+                fill="none"
+                stroke="#9c9072"
+                strokeWidth={0.7 / zoom}
+                strokeLinejoin="round"
+              />
+            )}
+
+            {/* Journey path for the active era */}
+            {journey && journey.length > 1 && activeRegion && (
+              <g style={{ color: activeRegion.color }}>
+                <polyline
+                  points={journey.map((p) => p.join(",")).join(" ")}
+                  fill="none"
+                  stroke={activeRegion.color}
+                  strokeWidth={2.5 / zoom}
+                  strokeLinecap="round"
+                  strokeDasharray={`${6 / zoom} ${4 / zoom}`}
+                  opacity={0.75}
+                  markerEnd="url(#arrow)"
                 />
               </g>
-            );
-          })}
+            )}
 
-          {/* Hover label, rendered last so it's on top */}
-          {visibleMarkers.map((m) => {
-            const xy = projection([m.place.lon, m.place.lat]);
-            if (!xy) return null;
-            const key = `${m.region.id}:${m.place.name}`;
-            if (hoverKey !== key) return null;
-            const label = m.place.name + (m.place.approx ? " (~)" : "");
-            const textWidth = label.length * 7 + 14;
-            const above = xy[1] > 60;
-            return (
-              <g
-                key={`label-${key}`}
-                transform={`translate(${xy[0]} ${xy[1] + (above ? -18 : 18)})`}
-                pointerEvents="none"
-              >
-                <rect
-                  x={-textWidth / 2}
-                  y={above ? -16 : 0}
-                  width={textWidth}
-                  height={20}
-                  rx={6}
-                  fill="#0a0a0c"
-                  fillOpacity={0.92}
-                />
-                <text
-                  textAnchor="middle"
-                  y={above ? -2 : 14}
-                  fontSize={12}
-                  fontFamily="ui-sans-serif, system-ui, sans-serif"
-                  fill="#fafaf6"
+            {/* Markers */}
+            {projectedMarkers.map((m) => {
+              const key = `${m.region.id}:${m.place.name}`;
+              const isHover = hoverKey === key || pinnedKey === key;
+              const r = (isHover ? 9 : 6) / zoom;
+              const rOuter = (isHover ? 13 : 9) / zoom;
+              const showOrder = activeEra !== "all";
+              return (
+                <g
+                  key={key}
+                  transform={`translate(${m.x} ${m.y})`}
+                  onMouseEnter={() => setHoverKey(key)}
+                  onMouseLeave={() => setHoverKey((h) => (h === key ? null : h))}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPinnedKey((cur) => (cur === key ? null : key));
+                  }}
+                  style={{ cursor: "pointer" }}
                 >
-                  {label}
-                </text>
-              </g>
-            );
-          })}
+                  <circle r={rOuter} fill={m.region.color} fillOpacity={0.35} />
+                  <circle
+                    r={r}
+                    fill={m.region.color}
+                    stroke="#0a0a0c"
+                    strokeWidth={(isHover ? 1.4 : 0.9) / zoom}
+                  />
+                  {showOrder && (
+                    <text
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      fontSize={6.5 / zoom}
+                      fontWeight={700}
+                      fontFamily="ui-sans-serif, system-ui, sans-serif"
+                      fill="#ffffff"
+                      pointerEvents="none"
+                    >
+                      {m.orderInEra}
+                    </text>
+                  )}
+                </g>
+              );
+            })}
+
+            {/* Permanent labels for major places (always) + everything at zoom > 2 */}
+            {projectedMarkers.map((m) => {
+              const key = `${m.region.id}:${m.place.name}`;
+              const showAlways = m.place.major || zoom > 2;
+              const isFocused = hoverKey === key || pinnedKey === key;
+              if (!showAlways && !isFocused) return null;
+              const label = m.place.short ?? m.place.name;
+              const fontSize = (isFocused ? 13 : 11) / zoom;
+              const textW = label.length * (fontSize * 0.58);
+              const offset = 10 / zoom;
+              return (
+                <g
+                  key={`label-${key}`}
+                  transform={`translate(${m.x} ${m.y})`}
+                  pointerEvents="none"
+                >
+                  {isFocused ? (
+                    <>
+                      <rect
+                        x={-textW / 2 - 6 / zoom}
+                        y={-offset - fontSize - 6 / zoom}
+                        width={textW + 12 / zoom}
+                        height={fontSize + 8 / zoom}
+                        rx={6 / zoom}
+                        fill="#0a0a0c"
+                        fillOpacity={0.92}
+                      />
+                      <text
+                        textAnchor="middle"
+                        y={-offset - 2 / zoom}
+                        fontSize={fontSize}
+                        fontFamily="ui-sans-serif, system-ui, sans-serif"
+                        fontWeight={600}
+                        fill="#fafaf6"
+                      >
+                        {label}
+                      </text>
+                    </>
+                  ) : (
+                    <>
+                      <text
+                        textAnchor="middle"
+                        y={-offset}
+                        fontSize={fontSize}
+                        fontFamily="ui-sans-serif, system-ui, sans-serif"
+                        fontWeight={600}
+                        stroke="#fafaf6"
+                        strokeWidth={3 / zoom}
+                        strokeLinejoin="round"
+                        paintOrder="stroke"
+                        fill="#1a1a1a"
+                      >
+                        {label}
+                      </text>
+                    </>
+                  )}
+                </g>
+              );
+            })}
+          </g>
+
+          {/* "Compass" — fixed corner watermark */}
+          <g transform={`translate(${WIDTH - 56} 44)`} pointerEvents="none">
+            <circle cx={0} cy={0} r={24} fill="#fafaf6" fillOpacity={0.92} stroke="#9c9072" strokeWidth={1} />
+            <path d="M 0 -16 L 4 0 L 0 16 L -4 0 z" fill="#0a0a0c" />
+            <text textAnchor="middle" y={-26} fontSize={9} fontFamily="ui-sans-serif,system-ui" fill="#6b6754">
+              N
+            </text>
+          </g>
         </svg>
+
+        {/* Zoom controls — overlay */}
+        <div className="absolute right-3 bottom-3 flex flex-col gap-1.5 bg-card/95 backdrop-blur rounded-full border border-ink-200 p-1">
+          <button
+            onClick={() => zoomAt(WIDTH / 2, HEIGHT / 2, zoom * 1.25)}
+            className="h-7 w-7 rounded-full text-base text-ink-700 hover:bg-ink-100 inline-flex items-center justify-center"
+            aria-label="Zoom in"
+            title="Zoom in"
+          >
+            +
+          </button>
+          <button
+            onClick={() => zoomAt(WIDTH / 2, HEIGHT / 2, zoom * 0.8)}
+            className="h-7 w-7 rounded-full text-base text-ink-700 hover:bg-ink-100 inline-flex items-center justify-center"
+            aria-label="Zoom out"
+            title="Zoom out"
+          >
+            −
+          </button>
+          <button
+            onClick={resetView}
+            className="h-7 w-7 rounded-full text-[10px] text-ink-700 hover:bg-ink-100 inline-flex items-center justify-center"
+            aria-label="Reset view"
+            title="Reset view"
+          >
+            ⤢
+          </button>
+        </div>
+
+        {/* Pinned-place card — overlay top-left */}
+        {(() => {
+          const key = pinnedKey ?? hoverKey;
+          if (!key) return null;
+          const m = projectedMarkers.find((x) => `${x.region.id}:${x.place.name}` === key);
+          if (!m) return null;
+          return (
+            <div className="absolute left-3 top-3 max-w-[14rem] rounded-2xl border border-ink-200 bg-card/95 backdrop-blur shadow-lg p-3 text-sm">
+              <div className="text-[10px] uppercase tracking-widest" style={{ color: m.region.color }}>
+                {m.region.era}
+              </div>
+              <div className="font-serif text-ink-900 text-base mt-0.5 leading-tight">
+                {m.place.name}
+              </div>
+              <p className="mt-1 text-xs text-ink-700 leading-relaxed">{m.place.what}</p>
+              {m.place.ref && (
+                <p className="mt-1 text-[11px] text-flame-700">{m.place.ref}</p>
+              )}
+              <div className="mt-2 flex gap-2">
+                <button
+                  onClick={() => scrollTo(m.region.id)}
+                  className="text-[11px] text-ink-500 hover:text-ink-900 underline"
+                >
+                  Read the era →
+                </button>
+                {pinnedKey && (
+                  <button
+                    onClick={() => setPinnedKey(null)}
+                    className="text-[11px] text-ink-400 hover:text-ink-700 ml-auto"
+                  >
+                    Close
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })()}
 
         {error && (
           <div className="absolute inset-0 flex items-center justify-center text-sm text-ink-500 bg-ink-50/80">
@@ -273,11 +546,38 @@ export default function BibleLandsMap() {
         )}
       </div>
 
-      <p className="mt-3 text-[11px] text-ink-500 leading-relaxed">
-        Country outlines from Natural Earth (public domain). Site coordinates from public-domain
-        biblical geography. Tap a dot to jump to its entry below. <span className="italic">(~)</span>{" "}
-        marks an approximate or contested location (e.g. Eden, Mount Sinai).
-      </p>
+      {/* Active-era story strip below the map */}
+      {activeRegion ? (
+        <div
+          className="mt-3 rounded-2xl border p-4"
+          style={{ borderColor: activeRegion.color, background: `${activeRegion.color}10` }}
+        >
+          <div className="flex flex-wrap items-baseline gap-3">
+            <div className="text-[10px] uppercase tracking-widest" style={{ color: activeRegion.color }}>
+              {activeRegion.era}
+            </div>
+            <button
+              onClick={() => scrollTo(activeRegion.id)}
+              className="ml-auto text-[11px] text-ink-500 hover:text-ink-900 underline"
+            >
+              Read the full era →
+            </button>
+          </div>
+          <h3 className="font-serif text-lg md:text-xl text-ink-900 mt-1 leading-snug">
+            {activeRegion.title}
+          </h3>
+          <p className="mt-2 text-sm text-ink-700 leading-relaxed">{activeRegion.blurb}</p>
+          <div className="mt-2 text-[11px] text-ink-500">
+            Story order: {activeRegion.places.map((p, i) => `${i + 1}. ${p.short ?? p.name}`).join(" → ")}
+          </div>
+        </div>
+      ) : (
+        <p className="mt-3 text-[11px] text-ink-500 leading-relaxed">
+          Scroll to zoom · drag to pan · pinch on mobile · tap any dot for details · pick an era
+          above to draw its journey arrows. <span className="italic">(approx)</span> marks an
+          approximate or contested location (Eden, Mount Sinai, Sea of Reeds, Emmaus).
+        </p>
+      )}
     </div>
   );
 }
