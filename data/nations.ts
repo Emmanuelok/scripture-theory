@@ -11,6 +11,17 @@
 // This dataset is intentionally pastoral, not political. We pray for every
 // people and every government, including those whose policies we disagree
 // with (1 Timothy 2:1–4).
+//
+// EDITORIAL RULE — no naming of living political figures.
+// We pray for "the government," "national leadership," "those in authority,"
+// "the king," "prisoners of conscience" — not for any sitting president,
+// prime minister, prisoner-by-name, or party. Two reasons: (1) Scripture's
+// pattern in 1 Timothy 2:1–4 is to pray for the office, not the person;
+// (2) the platform serves believers reading from inside every jurisdiction
+// on earth, including ones where naming a political figure on the "wrong"
+// side could put the reader at risk. Specific situations (e.g. "clergy
+// expelled since 2018," "the 2024 sovereignty agreement") are fact and
+// stay. Names of living politicians do not.
 
 export type Region =
   | "africa"
@@ -108,7 +119,7 @@ export const nations: Nation[] = [
       "Protection and favor for the Coptic Orthodox community.",
       "Growth of evangelical fellowships, especially among university students.",
       "Boldness for believers from a Muslim background.",
-      "Wisdom for President al-Sisi and stability for the region.",
+      "Wisdom for those in national leadership and stability for the region.",
     ],
     verse: { ref: "Isaiah 19:25", text: "Blessed be Egypt my people, and Assyria the work of my hands." },
   },
@@ -155,7 +166,7 @@ export const nations: Nation[] = [
     prayer: [
       "Release of every believer unjustly imprisoned for their faith.",
       "Comfort for their families and for the underground church.",
-      "Repentance and freedom for President Isaias Afwerki's government.",
+      "Repentance and the opening of true religious freedom by those in authority.",
       "Steadfast faith for Eritrean believers in the diaspora.",
     ],
     verse: { ref: "Hebrews 13:3", text: "Remember those who are in prison, as though in prison with them." },
@@ -325,7 +336,7 @@ export const nations: Nation[] = [
     prayer: [
       "Dreams and encounters with Isa al-Masih among Saudis.",
       "Faithful witness from expatriate believers working in the Kingdom.",
-      "Wisdom for King Salman and Crown Prince Mohammed bin Salman.",
+      "Wisdom for the king and the royal court.",
       "Religious-freedom reforms.",
     ],
     verse: { ref: "Acts 9:3–4", text: "Suddenly a light from heaven shone around him... 'Saul, Saul, why are you persecuting me?'" },
@@ -720,7 +731,7 @@ export const nations: Nation[] = [
       "Faith for parents teaching their children Christ in private.",
       "Continued growth of the gospel among Han, Hui, Tibetan, and Uyghur peoples.",
       "Comfort and freedom for Uyghur Christians and the unreached Uyghur majority.",
-      "Wisdom for President Xi Jinping and the Communist Party.",
+      "Wisdom for those in national leadership (1 Timothy 2:1–2).",
     ],
     verse: { ref: "Daniel 2:21", text: "He changes times and seasons; he removes kings and sets up kings." },
   },
@@ -1676,9 +1687,9 @@ export const nations: Nation[] = [
   {
     iso: "GM", name: "The Gambia",
     region: "africa",
-    context: "West Africa's smallest mainland nation; 95% Muslim, small Christian minority. After Jammeh's autocratic decades, democratic reform is fragile.",
+    context: "West Africa's smallest mainland nation; 95% Muslim, small Christian minority. After more than two decades of autocratic rule that ended in 2017, democratic reform is fragile.",
     prayer: [
-      "Continued democratic reform under the Barrow government.",
+      "Continued democratic reform and the strengthening of civic institutions.",
       "Friendship between Muslims and Christians; gospel through neighborly love.",
       "Care for migrants returning from the perilous European route.",
       "Strengthening of small mission churches across the river country.",
@@ -1798,9 +1809,9 @@ export const nations: Nation[] = [
     region: "africa",
     context: "Africa's last absolute monarchy; predominantly Christian, struggling with HIV burden and limited political reform.",
     prayer: [
-      "King Mswati III — wisdom, conscience, and openness to reform.",
+      "Wisdom, conscience, and openness to reform among the king and traditional leaders.",
       "Continued progress against HIV/AIDS; orphans cared for.",
-      "Voice and dignity for ordinary Swazis demanding accountable government.",
+      "Voice and dignity for ordinary Swazis seeking accountable government.",
       "Healthy churches that disciple rather than entertain.",
     ],
     verse: { ref: "Proverbs 21:1", text: "The king's heart is in Yahweh's hand like the watercourses. He turns it wherever he desires." },
@@ -1808,7 +1819,7 @@ export const nations: Nation[] = [
   {
     iso: "TG", name: "Togo",
     region: "africa",
-    context: "Predominantly Christian (~50%) with significant Muslim and traditional populations. Long-ruling Gnassingbé family; limited political opening.",
+    context: "Predominantly Christian (~50%) with significant Muslim and traditional populations. Long-ruling political dynasty; limited political opening.",
     prayer: [
       "Genuine democratic space and freedom of the press.",
       "Discipling depth across rapidly growing evangelical churches.",
@@ -1932,12 +1943,12 @@ export const nations: Nation[] = [
   {
     iso: "BY", name: "Belarus",
     region: "europe",
-    context: "Authoritarian state under Lukashenko; mixed Orthodox and Catholic populations; severe political repression since 2020.",
+    context: "Authoritarian state; mixed Orthodox and Catholic populations; severe political repression since 2020.",
     prayer: [
-      "Justice and release for political prisoners.",
+      "Justice and release for prisoners of conscience.",
       "Courage for Belarusian believers — Orthodox, Catholic, Protestant — who have stood with the oppressed.",
-      "Wisdom for those in exile carrying gospel hope back to their nation.",
-      "An end to Belarus's role enabling the war on Ukraine.",
+      "Wisdom for those in exile carrying gospel hope back to their homeland.",
+      "Peace in the region and an end to the suffering caused by war.",
     ],
     verse: { ref: "Psalm 146:7", text: "Yahweh frees the prisoners." },
   },
@@ -2174,7 +2185,7 @@ export const nations: Nation[] = [
     region: "europe",
     context: "Smallest sovereign state; spiritual home of 1.3 billion Catholics; world center of Christian charitable, doctrinal, and diplomatic work.",
     prayer: [
-      "The Holy Father — wisdom, courage, and Christ-centered preaching.",
+      "The Pope and the Catholic episcopate — wisdom, courage, and Christ-centered preaching.",
       "Faithful reform in the Curia and the worldwide Catholic Church.",
       "Care for victims of clergy abuse and just accountability.",
       "Christian unity across Catholic, Orthodox, and Protestant communions (John 17:20–23).",
@@ -2306,12 +2317,12 @@ export const nations: Nation[] = [
   {
     iso: "NI", name: "Nicaragua",
     region: "caribbean-central-america",
-    context: "Catholic and evangelical majority; Ortega regime has cracked down on the church, expelling priests, nuns, and missionaries since 2018.",
+    context: "Catholic and evangelical majority; the government has restricted church life and expelled clergy and missionaries since 2018.",
     prayer: [
-      "Protection for Catholic and evangelical leaders facing persecution.",
-      "Restoration of religious freedom.",
-      "Comfort for families of political prisoners and those exiled.",
-      "A just and peaceful transition.",
+      "Protection for Catholic and evangelical leaders facing pressure.",
+      "Restoration of religious freedom and freedom of assembly.",
+      "Comfort for families of prisoners of conscience and those in exile.",
+      "A just and peaceful future for the nation.",
     ],
     verse: { ref: "Acts 5:29", text: "We must obey God rather than men." },
   },
@@ -2330,12 +2341,12 @@ export const nations: Nation[] = [
   {
     iso: "SV", name: "El Salvador",
     region: "caribbean-central-america",
-    context: "Catholic and growing evangelical majority; recovering from civil war and gang violence; controversial security crackdown under Bukele.",
+    context: "Catholic and growing evangelical majority; recovering from civil war and gang violence; sweeping recent security measures and mass detentions.",
     prayer: [
-      "Justice and due process in the mass detentions.",
+      "Justice and due process for those detained.",
       "Healing of families torn apart by gang violence and emigration.",
       "Strong, biblical evangelical churches.",
-      "Wisdom for the government as it shapes the next decade.",
+      "Wisdom and restraint for those in authority as the nation rebuilds.",
     ],
     verse: { ref: "Isaiah 1:17", text: "Learn to do well. Seek justice. Relieve the oppressed. Defend the fatherless. Plead for the widow." },
   },
@@ -2480,10 +2491,10 @@ export const nations: Nation[] = [
   {
     iso: "HK", name: "Hong Kong",
     region: "east-asia",
-    context: "Special Administrative Region of China. ~12% Christian, deeply influential through hospitals, schools, and missions. Since the 2020 National Security Law, pastors and churches navigate growing self-censorship and political pressure.",
+    context: "Special Administrative Region of China. Roughly 12% Christian, with deep influence through hospitals, schools, and missions. Pastors and churches navigate a tightening environment of self-censorship.",
     prayer: [
       "Courage and wisdom for pastors weighing what to preach and what to publish.",
-      "Justice and mercy for political prisoners, including Christian activists like Jimmy Lai.",
+      "Justice and mercy for Christian leaders and citizens held under national-security charges.",
       "The Hong Kong missionary movement — still one of Asia's largest senders.",
       "Reconciliation and hope for families separated by emigration.",
     ],
