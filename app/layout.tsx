@@ -46,8 +46,9 @@ export const viewport: Viewport = {
 };
 
 // Inline script that runs before paint to set the theme AND apply
-// the user's accessibility prefs — prevents flash of unthemed content.
-const themeBootScript = `(function(){try{var s=localStorage.getItem('scripture-theory-theme')||'system';var d=s==='dark'||(s==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.setAttribute('data-theme',d?'dark':'light');var a=localStorage.getItem('scripture-theory-a11y');if(a){var p=JSON.parse(a);var r=document.documentElement;if(p.textSize&&p.textSize!=='base')r.setAttribute('data-a11y-text',p.textSize);if(p.font&&p.font!=='default')r.setAttribute('data-a11y-font',p.font);if(p.contrast&&p.contrast!=='normal')r.setAttribute('data-a11y-contrast',p.contrast);if(p.motion&&p.motion!=='system')r.setAttribute('data-a11y-motion',p.motion);if(p.underline&&p.underline!=='off')r.setAttribute('data-a11y-underline',p.underline);}}catch(e){}})();`;
+// the user's accessibility prefs AND the locale's lang/dir — prevents
+// flash of unthemed/untranslated content.
+const themeBootScript = `(function(){try{var s=localStorage.getItem('scripture-theory-theme')||'system';var d=s==='dark'||(s==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);var r=document.documentElement;r.setAttribute('data-theme',d?'dark':'light');var loc=localStorage.getItem('scripture-theory-locale');if(loc){r.setAttribute('lang',loc);r.setAttribute('dir',loc==='ar'?'rtl':'ltr');}var a=localStorage.getItem('scripture-theory-a11y');if(a){var p=JSON.parse(a);if(p.textSize&&p.textSize!=='base')r.setAttribute('data-a11y-text',p.textSize);if(p.font&&p.font!=='default')r.setAttribute('data-a11y-font',p.font);if(p.contrast&&p.contrast!=='normal')r.setAttribute('data-a11y-contrast',p.contrast);if(p.motion&&p.motion!=='system')r.setAttribute('data-a11y-motion',p.motion);if(p.underline&&p.underline!=='off')r.setAttribute('data-a11y-underline',p.underline);}}catch(e){}})();`;
 
 export default function RootLayout({
   children,

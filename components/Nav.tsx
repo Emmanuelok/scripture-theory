@@ -2,15 +2,8 @@ import Link from "next/link";
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
 import AccountChip from "@/components/AccountChip";
-
-const links = [
-  { href: "/today", label: "Today" },
-  { href: "/bible", label: "Bible" },
-  { href: "/practices", label: "Practices" },
-  { href: "/pray", label: "Pray" },
-  { href: "/me", label: "Me" },
-  { href: "/resources", label: "Resources" },
-];
+import LocaleSwitcher from "@/components/LocaleSwitcher";
+import { NavLinks, NavStartButton, NavSearchLink } from "@/components/NavLinks";
 
 export default function Nav() {
   return (
@@ -22,44 +15,13 @@ export default function Nav() {
             Scripture Theory
           </span>
         </Link>
-        <ul className="hidden md:flex items-center gap-6 text-sm text-ink-600">
-          {links.map((l) => (
-            <li key={l.href}>
-              <Link href={l.href} className="hover:text-ink-900 transition-colors">
-                {l.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <NavLinks />
         <div className="flex items-center gap-2 shrink-0">
-          <Link
-            href="/search"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-ink-200 text-ink-600 hover:border-ink-900 hover:text-ink-900 transition-colors"
-            aria-label="Search"
-            title="Search"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-4 w-4"
-            >
-              <circle cx="11" cy="11" r="7" />
-              <path d="m20 20-3.5-3.5" />
-            </svg>
-          </Link>
+          <NavSearchLink />
+          <LocaleSwitcher />
           <ThemeToggle />
           <AccountChip />
-          <Link
-            href="/start"
-            className="hidden md:inline-flex items-center rounded-full bg-flame-600 text-white px-4 py-1.5 text-sm hover:bg-flame-700 transition-colors"
-          >
-            Start
-          </Link>
+          <NavStartButton />
         </div>
       </nav>
     </header>
