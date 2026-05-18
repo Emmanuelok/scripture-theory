@@ -16,7 +16,15 @@ import {
 const WIDTH = 1000;
 const HEIGHT = 640;
 const MIN_ZOOM = 1;
-const MAX_ZOOM = 6;
+const MAX_ZOOM = 16;
+
+// At what zoom does each label-tier become eligible to render?
+// (Collision avoidance can still hide a label even when eligible.)
+const TIER_ZOOM_THRESHOLD: Record<1 | 2 | 3, number> = {
+  1: 0,    // continental landmarks — always
+  2: 1.6,  // major regional — when zoomed once
+  3: 2.8,  // local detail — when zoomed deeper
+};
 
 type Marker = { region: AtlasRegion; place: AtlasPlace; orderInEra: number };
 
@@ -243,6 +251,66 @@ export default function BibleLandsMap() {
       .filter((m): m is Marker & { x: number; y: number } => m !== null);
   }, [visibleMarkers, projection]);
 
+  /**
+   * Tier-aware collision-checked set of labels that should render.
+   *
+   * Computed in screen-space (after pan/zoom) so two labels next to each
+   * other near a high-density area (Jerusalem, Galilee, the Aegean) don't
+   * stack on top of each other. The classical algorithm: sort by tier,
+   * greedily place highest-priority labels first, drop any later label
+   * that would overlap an already-placed one.
+   */
+  const visibleLabelKeys = useMemo(() => {
+    // On-screen pixel constants — labels inside the scaled <g> use
+    // fontSize / zoom so their on-screen size is constant.
+    const FONT_PX = 11;
+    const PADDING_PX = 4;
+    const OFFSET_PX = 10;
+
+    const items = projectedMarkers.map((m) => {
+      const tier = (m.place.tier ?? (m.place.major ? 2 : 3)) as 1 | 2 | 3;
+      const eligible = zoom >= TIER_ZOOM_THRESHOLD[tier];
+      const screenX = pan.x + m.x * zoom;
+      const screenY = pan.y + m.y * zoom;
+      const label = m.place.short ?? m.place.name;
+      const w = label.length * (FONT_PX * 0.58) + PADDING_PX * 2;
+      const h = FONT_PX + PADDING_PX * 2;
+      const box = {
+        x: screenX - w / 2,
+        y: screenY - OFFSET_PX - h,
+        w,
+        h,
+      };
+      const key = `${m.region.id}:${m.place.name}`;
+      return { key, tier, eligible, box };
+    });
+
+    // Highest priority first (tier 1 before tier 2 before tier 3).
+    items.sort((a, b) => a.tier - b.tier);
+
+    const placed: Array<{ x: number; y: number; w: number; h: number }> = [];
+    const visible = new Set<string>();
+
+    for (const { eligible, box, key } of items) {
+      if (!eligible) continue;
+      // Skip if the label box is fully outside the viewport (some slack).
+      if (box.x + box.w < -50 || box.x > WIDTH + 50) continue;
+      if (box.y + box.h < -50 || box.y > HEIGHT + 50) continue;
+      // Skip if it overlaps any already-placed label.
+      const overlaps = placed.some(
+        (p) =>
+          box.x < p.x + p.w &&
+          box.x + box.w > p.x &&
+          box.y < p.y + p.h &&
+          box.y + box.h > p.y,
+      );
+      if (overlaps) continue;
+      placed.push(box);
+      visible.add(key);
+    }
+    return visible;
+  }, [projectedMarkers, zoom, pan]);
+
   return (
     <div className="rounded-3xl border border-ink-200 bg-card p-3 md:p-4 overflow-hidden">
       {/* Era filter chips */}
@@ -397,12 +465,13 @@ export default function BibleLandsMap() {
               );
             })}
 
-            {/* Permanent labels for major places (always) + everything at zoom > 2 */}
+            {/* Labels — tier-thresholded + collision-checked.
+                Focused (hover/pinned) labels always show, even if they would
+                otherwise overlap. */}
             {projectedMarkers.map((m) => {
               const key = `${m.region.id}:${m.place.name}`;
-              const showAlways = m.place.major || zoom > 2;
               const isFocused = hoverKey === key || pinnedKey === key;
-              if (!showAlways && !isFocused) return null;
+              if (!visibleLabelKeys.has(key) && !isFocused) return null;
               const label = m.place.short ?? m.place.name;
               const fontSize = (isFocused ? 13 : 11) / zoom;
               const textW = label.length * (fontSize * 0.58);
@@ -471,7 +540,7 @@ export default function BibleLandsMap() {
         {/* Zoom controls — overlay */}
         <div className="absolute right-3 bottom-3 flex flex-col gap-1.5 bg-card/95 backdrop-blur rounded-full border border-ink-200 p-1">
           <button
-            onClick={() => zoomAt(WIDTH / 2, HEIGHT / 2, zoom * 1.25)}
+            onClick={() => zoomAt(WIDTH / 2, HEIGHT / 2, zoom * 1.5)}
             className="h-7 w-7 rounded-full text-base text-ink-700 hover:bg-ink-100 inline-flex items-center justify-center"
             aria-label="Zoom in"
             title="Zoom in"
@@ -479,7 +548,7 @@ export default function BibleLandsMap() {
             +
           </button>
           <button
-            onClick={() => zoomAt(WIDTH / 2, HEIGHT / 2, zoom * 0.8)}
+            onClick={() => zoomAt(WIDTH / 2, HEIGHT / 2, zoom / 1.5)}
             className="h-7 w-7 rounded-full text-base text-ink-700 hover:bg-ink-100 inline-flex items-center justify-center"
             aria-label="Zoom out"
             title="Zoom out"
