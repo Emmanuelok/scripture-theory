@@ -63,6 +63,7 @@ const FIGURES: Figure[] = [
 const GROUPS: Figure["group"][] = ["Story", "Doctrine", "Time", "Prayer & Practice", "Mission", "Walk"];
 
 export default function FiguresPage() {
+  const total = FIGURES.length;
   return (
     <section className="mx-auto max-w-6xl px-5 pt-12 pb-24">
       <Link href="/resources" className="text-xs uppercase tracking-widest text-flame-700 hover:underline">
@@ -74,18 +75,52 @@ export default function FiguresPage() {
       <p className="mt-5 text-ink-700 leading-relaxed max-w-2xl">
         Beautiful, interactive diagrams scattered across the site — gathered here in one
         place. Geometry doing theology: the Cross at the centre of history, fruit as one
-        plant with nine facets, the believer's calling narrowing from "made on purpose"
-        to "sent." Visit any figure to read it; the text below each is its companion.
+        plant with nine facets, the believer's calling narrowing from &ldquo;made on purpose&rdquo;
+        to &ldquo;sent.&rdquo; Visit any figure to read it; the text below each is its companion.
       </p>
 
-      <div className="mt-12 space-y-12">
+      {/* Count + jump nav so all six sections are obvious at a glance */}
+      <div className="mt-8 rounded-3xl border border-ink-200 bg-card-subtle p-5">
+        <div className="flex items-baseline justify-between flex-wrap gap-3">
+          <div className="font-serif text-ink-900">
+            <span className="text-3xl text-flame-700">{total}</span>
+            <span className="ml-2 text-sm text-ink-600">figures across {GROUPS.length} groups</span>
+          </div>
+          <Link
+            href="#story"
+            className="text-xs text-flame-700 hover:underline"
+          >
+            Start at the top ↓
+          </Link>
+        </div>
+        <ul className="mt-3 flex flex-wrap gap-2 text-sm">
+          {GROUPS.map((g) => {
+            const count = FIGURES.filter((f) => f.group === g).length;
+            const slug = g.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+            return (
+              <li key={g}>
+                <a
+                  href={`#${slug}`}
+                  className="inline-flex items-center gap-2 rounded-full border border-ink-300 bg-card px-3.5 py-1.5 text-ink-700 hover:border-flame-500 hover:text-flame-700"
+                >
+                  <span>{g}</span>
+                  <span className="text-[10px] uppercase tracking-widest text-flame-700">{count}</span>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
+      <div className="mt-12 space-y-16">
         {GROUPS.map((group) => {
           const items = FIGURES.filter((f) => f.group === group);
+          const slug = group.toLowerCase().replace(/[^a-z0-9]+/g, "-");
           return (
-            <section key={group}>
-              <div className="flex items-baseline gap-3 mb-4">
-                <h2 className="font-serif text-2xl text-ink-900">{group}</h2>
-                <span className="text-[10px] uppercase tracking-widest text-ink-500">
+            <section key={group} id={slug} className="scroll-mt-24">
+              <div className="flex items-baseline gap-3 mb-4 border-b border-ink-200 pb-2">
+                <h2 className="font-serif text-3xl text-ink-900">{group}</h2>
+                <span className="text-[10px] uppercase tracking-widest text-flame-700">
                   {items.length} {items.length === 1 ? "figure" : "figures"}
                 </span>
               </div>
@@ -94,7 +129,7 @@ export default function FiguresPage() {
                   <li key={f.title}>
                     <Link
                       href={f.href}
-                      className="group block rounded-2xl border border-ink-200 bg-card hover:border-flame-500/60 hover:-translate-y-0.5 hover:shadow-[0_18px_50px_-20px_rgba(249,115,22,0.28)] transition-all p-5"
+                      className="group block rounded-2xl border border-ink-200 bg-card hover:border-flame-500/60 hover:-translate-y-0.5 hover:shadow-[0_18px_50px_-20px_rgba(249,115,22,0.28)] transition-all p-5 h-full"
                     >
                       <div className="text-[10px] uppercase tracking-widest text-flame-700">
                         Figure
