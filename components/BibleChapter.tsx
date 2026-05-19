@@ -523,6 +523,13 @@ export default function BibleChapter({
             {totalNotes > 0 && <span>✎ {totalNotes} note{totalNotes > 1 && "s"}</span>}
           </div>
         )}
+
+        {/* Publisher attribution for licensed translations (e.g. ESV). */}
+        {meta?.attribution && chapter && (
+          <p className="mt-6 pt-3 border-t border-ink-100 text-[11px] text-ink-500 italic leading-relaxed">
+            {meta.attribution}
+          </p>
+        )}
       </div>
 
       {available.length > 1 && (

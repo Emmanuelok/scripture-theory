@@ -1,24 +1,27 @@
-// Registry of authentic, published, public-domain Bible translations.
-// Editorial standard:
+// Registry of Bible translations served by Scripture Theory.
 //
-//   - Every translation is real, named, and published by a recognized
-//     publisher or translation committee.
-//   - We do NOT include paraphrases (e.g., The Message, The Passion
-//     Translation, Living Bible) — they are not translations.
-//   - We do NOT include sectarian editions rejected by the mainstream
-//     Church (e.g., the New World Translation).
-//   - We do NOT include AI / machine-translated text of any kind. Scripture
-//     must be translated by named human translators.
+// Public-domain editions are the heart of the catalog (KJV, ASV, WEB, BBE,
+// YLT, Darby, DRA, RVR1909, Almeida, LSG, LUT1912, Synodal, CUV, Vulgate).
+// They are ours forever, free of usage caps and attribution boilerplate, and
+// they cover the major language families.
 //
-// What remains is the breadth of authentic public-domain Bibles in major
-// world languages — including widely-used mainstream editions (KJV, ASV,
-// WEB, Reina-Valera, Almeida, Louis Segond, Luther, Synodal, CUV, Vulgate,
-// Douay-Rheims) AND legitimate scholarly/historical editions (YLT, Darby,
-// BBE). We carry them so readers can compare and choose — we do not gate
-// the catalog beyond what the editorial standard above demands.
+// Where a modern translation is genuinely useful and the publisher offers a
+// fair public API, we wire it up under license — currently only the ESV
+// via Crossway's free API (requires an API key set in ESV_API_KEY; falls
+// back gracefully when not configured). Licensed translations are clearly
+// labelled and stored only in transit per the publisher's terms.
+//
+// Editorial standard for any translation we serve:
+//   - Real, named, published by a recognized publisher or translation
+//     committee.
+//   - Not a paraphrase (so no The Message, Passion, Living Bible).
+//   - Not a sectarian edition rejected by the mainstream Church (e.g., the
+//     New World Translation).
+//   - Never AI- or machine-translated. Scripture must come from named
+//     human translators.
 
 export type TranslationId =
-  // English
+  // English (public domain)
   | "WEB"     // World English Bible (eBible.org, public domain)
   | "KJV"     // King James Version (1769 Oxford)
   | "ASV"     // American Standard Version (1901)
@@ -26,6 +29,8 @@ export type TranslationId =
   | "YLT"     // Young's Literal Translation (1898)
   | "DARBY"   // Darby Bible (1890)
   | "DRA"     // Douay-Rheims (Challoner Revision, 1899) — Roman Catholic
+  // English (licensed via free API)
+  | "ESV"     // English Standard Version — via Crossway's free API
   // Spanish
   | "RVR1909" // Reina-Valera 1909
   // Portuguese
@@ -54,6 +59,10 @@ export type TranslationMeta = {
   ingestKey?: string;
   dir?: "ltr" | "rtl";
   note?: string;
+  /** True for licensed APIs that require an env-configured key. */
+  requiresKey?: boolean;
+  /** Required attribution string to display when this translation is active. */
+  attribution?: string;
 };
 
 export const translations: Record<TranslationId, TranslationMeta> = {
@@ -111,6 +120,17 @@ export const translations: Record<TranslationId, TranslationMeta> = {
     license: "Public domain",
     ingestKey: "drb",
   },
+  ESV: {
+    id: "ESV", name: "English Standard Version", abbrev: "ESV",
+    language: "English", languageNative: "English", year: 2001,
+    publisher: "Crossway",
+    license: "Licensed · served live via Crossway's free ESV API",
+    source: "api.esv.org",
+    requiresKey: true,
+    attribution:
+      "Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard Version®), copyright © 2001 by Crossway, a publishing ministry of Good News Publishers. Used by permission. All rights reserved.",
+    note: "Fetched live from Crossway's API. Requires ESV_API_KEY. Per Crossway's terms, not stored offline.",
+  },
   RVR1909: {
     id: "RVR1909", name: "Reina-Valera 1909", abbrev: "RVR1909",
     language: "Spanish", languageNative: "Español", year: 1909,
@@ -159,11 +179,11 @@ export const translations: Record<TranslationId, TranslationMeta> = {
 };
 
 export const translationOrder: TranslationId[] = [
-  "WEB", "KJV", "ASV", "BBE", "YLT", "DARBY", "DRA",
+  "WEB", "KJV", "ESV", "ASV", "BBE", "YLT", "DARBY", "DRA",
   "RVR1909", "ALMEIDA", "LSG", "LUT1912", "SYNODAL", "CUV", "VULGATE",
 ];
 
-export const englishTranslations: TranslationId[] = ["WEB", "KJV", "ASV", "BBE", "YLT", "DARBY", "DRA"];
+export const englishTranslations: TranslationId[] = ["WEB", "KJV", "ESV", "ASV", "BBE", "YLT", "DARBY", "DRA"];
 
 // Why this catalog is what it is (shown on /bible).
-export const EDITORIAL_NOTE = `Every Bible served here is an authentic, published, public-domain translation made by named human translators. We deliberately exclude paraphrases (The Message, The Passion Translation, Living Bible) because they are not translations; sectarian editions rejected by the mainstream Church (e.g., the New World Translation); and AI or machine-translated text of any kind. Within that line, we carry the full breadth of legitimate public-domain Bibles — widely-used mainstream editions and scholarly/historical ones alike — so that readers can compare them and choose for themselves. We are not in the business of gatekeeping which faithful Bible a believer is allowed to read.`;
+export const EDITORIAL_NOTE = `Every Bible served here is real, published, and translated by named humans — never machine-translated. The core of the catalog is public-domain editions that are ours forever: KJV, ASV, WEB, BBE, YLT, Darby, Douay-Rheims, Reina-Valera, Almeida, Louis Segond, Luther 1912, Synodal, Chinese Union, and the Clementine Vulgate. Where a modern translation is genuinely useful and the publisher offers a fair public API, we serve it live under license — currently only the ESV via Crossway's free API — clearly labelled and stored only in transit per the publisher's terms. We deliberately exclude paraphrases (The Message, The Passion, Living Bible), sectarian editions rejected by the mainstream Church (e.g., the New World Translation), and AI or machine-translated text of any kind.`;

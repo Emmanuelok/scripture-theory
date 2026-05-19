@@ -84,11 +84,21 @@ export default function TranslationsPage() {
                         <span className="font-serif text-ink-900 text-2xl">{t.abbrev}</span>
                         <span
                           className={`text-[10px] uppercase tracking-widest ${
-                            isSeeded ? "text-emerald-700" : "text-ink-400"
+                            t.requiresKey
+                              ? "text-flame-700"
+                              : isSeeded
+                              ? "text-emerald-700"
+                              : "text-ink-400"
                           }`}
-                          title={isSeeded ? "Bundled offline-ready" : "Fetched on first open"}
+                          title={
+                            t.requiresKey
+                              ? "Licensed · fetched live from the publisher's API"
+                              : isSeeded
+                              ? "Bundled offline-ready"
+                              : "Fetched on first open"
+                          }
                         >
-                          {isSeeded ? "● Seeded" : "○ On-demand"}
+                          {t.requiresKey ? "◆ Licensed API" : isSeeded ? "● Seeded" : "○ On-demand"}
                         </span>
                       </div>
                       <div className="text-sm text-ink-700 mt-1">{t.name}</div>
@@ -96,6 +106,9 @@ export default function TranslationsPage() {
                         {t.languageNative} · {t.year}
                       </div>
                       <div className="text-[11px] text-ink-400 mt-2 leading-snug">{t.publisher}</div>
+                      <div className={`text-[11px] mt-1 leading-snug ${t.requiresKey ? "text-flame-700" : "text-ink-500"}`}>
+                        {t.license}
+                      </div>
                       {t.note && (
                         <div className="text-[11px] text-flame-700 mt-2 leading-snug italic">
                           {t.note}
