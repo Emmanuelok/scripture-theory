@@ -121,6 +121,15 @@ export default function ResourcesHub() {
             glyph={<Glyph id="rule" size={48} />}
           />
 
+          {/* FIGURES */}
+          <Tile
+            href="/figures"
+            eyebrow="Visual"
+            title="Figures of the faith"
+            sub="Beautiful interactive diagrams across the site — the Trinity Shield, the Gospel Arc, the church year wheel, the fruit of the Spirit, and many more — gathered in one place."
+            glyph={<Glyph id="lamp" size={48} />}
+          />
+
           {/* TRANSLATIONS */}
           <Tile
             href="/bible/translations"

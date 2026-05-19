@@ -1,4 +1,5 @@
 import GiftsView from "@/components/GiftsView";
+import SpiritualGiftsWheel from "@/components/SpiritualGiftsWheel";
 
 export const metadata = {
   title: "Spiritual Gifts — Scripture Theory",
@@ -24,6 +25,10 @@ export default function GiftsPage() {
       <p className="mt-2 text-xs text-ink-500">
         "Now there are diversities of gifts, but the same Spirit." — 1 Corinthians 12:4
       </p>
+
+      <div className="mt-10">
+        <SpiritualGiftsWheel />
+      </div>
 
       <div className="mt-10">
         <GiftsView />
