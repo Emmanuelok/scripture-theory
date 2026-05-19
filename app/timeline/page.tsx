@@ -1,6 +1,7 @@
 import Link from "next/link";
 import ScriptureRef from "@/components/ScriptureRef";
 import BiblicalTimelineFigure from "@/components/BiblicalTimelineFigure";
+import DaysOfCreation from "@/components/DaysOfCreation";
 
 export const metadata = {
   title: "Biblical timeline — Scripture Theory",
@@ -228,6 +229,12 @@ export default function TimelinePage() {
               {era.title}
             </h2>
             <p className="mt-3 text-ink-700 leading-relaxed">{era.blurb}</p>
+
+            {era.id === "creation" && (
+              <div className="mt-6">
+                <DaysOfCreation />
+              </div>
+            )}
 
             <ul className="mt-5 space-y-2 border-l-2 border-flame-200 pl-4">
               {era.events.map((ev, i) => (

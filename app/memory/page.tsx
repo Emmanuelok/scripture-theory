@@ -1,4 +1,5 @@
 import MemoryTrainer from "@/components/MemoryTrainer";
+import MemoryProgress from "@/components/MemoryProgress";
 import { thisWeeksVerse, memoryVerses } from "@/data/memory";
 import { PageHero, Tile } from "@/components/ui/Tile";
 import { Glyph } from "@/components/ui/Glyph";
@@ -45,6 +46,10 @@ export default function MemoryPage() {
         <LevelCard step={2} title="First letters" sub="Recall, prompted." />
         <LevelCard step={3} title="Fill the blanks" sub="Most words gone." />
         <LevelCard step={4} title="Recite" sub="From a clean slate." />
+      </div>
+
+      <div className="mt-10">
+        <MemoryProgress />
       </div>
 
       <div className="mt-10">
