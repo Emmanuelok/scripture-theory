@@ -4,17 +4,17 @@ import { PageHero } from "@/components/ui/Tile";
 export const metadata = {
   title: "Family Altar — Scripture Theory",
   description:
-    "Daily household worship in seven steps — by age group, in ten minutes. The lost rhythm of Christian families, rebuilt for parents, spouses, and roommates who want to gather their home around Jesus.",
+    "A daily household devotional in seven steps — by age group, in ten minutes. Seven pillars, one a day, with fresh scripture, prayer, question, and activity that rotate week by week. The lost rhythm of Christian families, rebuilt for parents, spouses, and roommates.",
 };
 
 export default function FamilyPage() {
   return (
     <section className="mx-auto max-w-5xl px-5 pt-12 pb-24">
       <PageHero
-        eyebrow="Practice · Deuteronomy 6:7"
+        eyebrow="Daily devotional · Deuteronomy 6:7"
         title="Bring the Word"
         titleAccent="home."
-        intro="Ten minutes. Seven simple steps. A different theme for each day of the week, with prompts and activities for littles, kids, youth, and adults. The home was always meant to be the first sanctuary. This is how to start tonight."
+        intro="Ten minutes a day. Seven pillars across the week — Gather, Creation, Christ, Listening, Cross, One Another, Sabbath — with fresh scripture, prayer, question, and activity that rotate so the food stays new. The home was always meant to be the first sanctuary. Start tonight."
         scripture="You shall teach them diligently to your children, and shall talk of them when you sit in your house, when you walk by the way, when you lie down, and when you rise up."
         scriptureRef="Deuteronomy 6:7"
       />
