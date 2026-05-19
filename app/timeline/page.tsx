@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ScriptureRef from "@/components/ScriptureRef";
+import BiblicalTimelineFigure from "@/components/BiblicalTimelineFigure";
 
 export const metadata = {
   title: "Biblical timeline — Scripture Theory",
@@ -194,6 +195,8 @@ export default function TimelinePage() {
         </p>
         <p className="mt-1 text-sm text-ink-500">— Hebrews 13:8</p>
       </div>
+
+      <BiblicalTimelineFigure />
 
       <nav className="mt-10 rounded-3xl border border-ink-200 bg-card-subtle p-5">
         <div className="text-[10px] uppercase tracking-widest text-flame-700 mb-2">
