@@ -58,6 +58,9 @@ export default function GlossaryView({
     setMounted(true);
   }, []);
 
+  // Selected letter — "ALL" shows every letter at once.
+  const [letter, setLetter] = useState<string>("A");
+
   // ─────────── list-mode data ───────────
   const filtered = useMemo(() => {
     const sorted = [...GLOSSARY].sort((a, b) => a.word.localeCompare(b.word));
@@ -74,15 +77,34 @@ export default function GlossaryView({
     );
   }, [q]);
 
+  function firstChar(t: Term) {
+    return (t.word.replace(/^The\s+/, "")[0] ?? "?").toUpperCase();
+  }
+
   const byLetter = useMemo(() => {
     const m = new Map<string, Term[]>();
     for (const t of filtered) {
-      const ch = (t.word.replace(/^The\s+/, "")[0] ?? "?").toUpperCase();
+      const ch = firstChar(t);
       if (!m.has(ch)) m.set(ch, []);
       m.get(ch)!.push(t);
     }
     return Array.from(m.entries()).sort(([a], [b]) => a.localeCompare(b));
   }, [filtered]);
+
+  // When a search narrows results so that the active letter has nothing,
+  // hop to the first letter that does (or "ALL" if many matches).
+  useEffect(() => {
+    if (letter === "ALL") return;
+    if (byLetter.find(([ch]) => ch === letter)) return;
+    if (byLetter.length > 0) setLetter(byLetter[0][0]);
+  }, [byLetter, letter]);
+
+  // If the user is searching and several letters match, "ALL" is friendlier.
+  useEffect(() => {
+    if (q.trim() && byLetter.length > 1 && letter !== "ALL") setLetter("ALL");
+    if (!q.trim() && letter === "ALL") setLetter(byLetter[0]?.[0] ?? "A");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q]);
 
   // ─────────── card-mode data ───────────
   const cards = useMemo(() => {
@@ -174,9 +196,10 @@ export default function GlossaryView({
         Theological <span className="gradient-text">glossary.</span>
       </h1>
       <p className="mt-5 text-ink-700 leading-relaxed max-w-2xl">
-        {GLOSSARY.length} terms — accurate enough for a pastor to nod at,
-        short enough for a 14-year-old to read. Many entries carry the
-        original-language word in Hebrew, Aramaic, Greek, or Latin.
+        {GLOSSARY.length} terms across the alphabet — accurate enough for a
+        pastor to nod at, short enough for a 14-year-old to read. Many entries
+        carry the original word in Hebrew, Aramaic, Greek, or Latin. Click a
+        letter to open everything under it.
       </p>
 
       {/* Mode toggle */}
@@ -213,6 +236,8 @@ export default function GlossaryView({
           byLetter={byLetter}
           openSlug={openSlug}
           setOpenSlug={setOpenSlug}
+          letter={letter}
+          setLetter={setLetter}
         />
       ) : (
         <CardsMode
@@ -240,6 +265,8 @@ export default function GlossaryView({
 
 // ─────────────────────────── LIST MODE ───────────────────────────
 
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
 function ListMode({
   q,
   setQ,
@@ -247,6 +274,8 @@ function ListMode({
   byLetter,
   openSlug,
   setOpenSlug,
+  letter,
+  setLetter,
 }: {
   q: string;
   setQ: (v: string) => void;
@@ -254,7 +283,27 @@ function ListMode({
   byLetter: [string, Term[]][];
   openSlug: string | null;
   setOpenSlug: (v: string | null) => void;
+  letter: string;
+  setLetter: (v: string) => void;
 }) {
+  const present = new Map(byLetter);
+  const sectionsToRender =
+    letter === "ALL"
+      ? byLetter
+      : present.has(letter)
+      ? [[letter, present.get(letter)!] as [string, Term[]]]
+      : [];
+
+  // When the user clicks a "See also" link to a slug in another letter,
+  // jump the tab to that letter so the entry is actually visible.
+  function openSlugAcrossLetters(slug: string) {
+    const target = GLOSSARY.find((x) => x.slug === slug);
+    if (!target) return;
+    const ch = (target.word.replace(/^The\s+/, "")[0] ?? "?").toUpperCase();
+    if (letter !== "ALL" && letter !== ch) setLetter(ch);
+    setOpenSlug(slug);
+  }
+
   return (
     <>
       <div className="mt-8 sticky top-16 z-20 -mx-5 px-5 py-3 backdrop-blur bg-ink-50/85 border-y border-ink-200">
@@ -282,69 +331,89 @@ function ListMode({
           </div>
           <span className="text-xs text-ink-500">
             {filtered.length} of {GLOSSARY.length} terms
+            {letter !== "ALL" && present.has(letter) && (
+              <> · {present.get(letter)!.length} under {letter}</>
+            )}
           </span>
         </div>
 
-        <div className="mt-2 flex flex-wrap gap-1 text-[10px] uppercase tracking-widest">
-          {byLetter.map(([ch]) => (
-            <a
-              key={ch}
-              href={`#letter-${ch}`}
-              className="rounded-full border border-ink-200 bg-card w-7 h-7 inline-flex items-center justify-center text-ink-600 hover:border-flame-500 hover:text-flame-700"
-            >
-              {ch}
-            </a>
-          ))}
+        <div className="mt-2 flex flex-wrap gap-1 text-[11px]">
+          <button
+            onClick={() => setLetter("ALL")}
+            className={`rounded-full px-2.5 h-7 inline-flex items-center justify-center uppercase tracking-widest transition-colors ${
+              letter === "ALL"
+                ? "bg-ink-900 text-ink-50 border border-ink-900"
+                : "border border-ink-200 bg-card text-ink-600 hover:border-flame-500 hover:text-flame-700"
+            }`}
+            aria-pressed={letter === "ALL"}
+          >
+            All
+          </button>
+          {ALPHABET.map((ch) => {
+            const has = present.has(ch);
+            const isActive = letter === ch;
+            return (
+              <button
+                key={ch}
+                onClick={() => has && setLetter(ch)}
+                disabled={!has}
+                aria-pressed={isActive}
+                className={`w-7 h-7 inline-flex items-center justify-center rounded-full transition-colors font-medium ${
+                  isActive
+                    ? "bg-flame-600 text-ink-50 border border-flame-600"
+                    : has
+                    ? "border border-ink-200 bg-card text-ink-700 hover:border-flame-500 hover:text-flame-700"
+                    : "border border-ink-100 bg-transparent text-ink-300 cursor-not-allowed"
+                }`}
+              >
+                {ch}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      <div className="mt-8 space-y-10">
-        {byLetter.map(([letter, items]) => (
-          <section key={letter} id={`letter-${letter}`} className="scroll-mt-44">
+      <div className="mt-6 space-y-10">
+        {sectionsToRender.map(([ch, items]) => (
+          <section key={ch} id={`letter-${ch}`} className="scroll-mt-44">
             <div className="flex items-baseline gap-3 mb-3">
-              <span className="font-serif text-4xl text-flame-700/50">{letter}</span>
+              <span className="font-serif text-5xl text-flame-700/40 leading-none">{ch}</span>
               <span className="text-[10px] uppercase tracking-widest text-ink-500">
-                {items.length} terms
+                {items.length} {items.length === 1 ? "term" : "terms"}
               </span>
             </div>
-            <ul className="grid sm:grid-cols-2 gap-3">
+            <ul className="divide-y divide-ink-100 rounded-2xl border border-ink-200 bg-card overflow-hidden">
               {items.map((t) => {
                 const isOpen = openSlug === t.slug;
                 const orig = originalLineFor(t);
                 return (
-                  <li
-                    key={t.slug}
-                    className="group relative overflow-hidden rounded-2xl border border-ink-200 bg-card hover:-translate-y-0.5 hover:border-flame-500/60 hover:shadow-[0_18px_50px_-20px_rgba(249,115,22,0.28)] transition-all"
-                  >
-                    <span
-                      aria-hidden
-                      className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-flame-50/40 to-transparent"
-                    />
+                  <li key={t.slug} className={isOpen ? "bg-flame-50/30" : ""}>
                     <button
                       onClick={() => setOpenSlug(isOpen ? null : t.slug)}
-                      className="w-full text-left p-4 flex flex-wrap items-baseline justify-between gap-3 relative"
+                      className="w-full text-left px-4 py-2.5 flex items-baseline gap-3 hover:bg-flame-50/40 transition-colors"
                       aria-expanded={isOpen}
                     >
-                      <div className="min-w-0">
-                        <h2 className="font-serif text-lg text-ink-900 group-hover:text-flame-700 transition-colors">
-                          {t.word}
-                        </h2>
-                        {orig && (
-                          <p className="text-[11px] text-flame-700 mt-0.5 truncate">
-                            {orig}
-                          </p>
-                        )}
-                        <p className="text-sm text-ink-700 mt-1 leading-relaxed">{t.short}</p>
-                      </div>
+                      <span className="font-serif text-ink-900 shrink-0 min-w-[6.5rem] sm:min-w-[9rem]">
+                        {t.word}
+                      </span>
+                      <span className="text-sm text-ink-600 truncate">
+                        {t.short}
+                      </span>
+                      {orig && (
+                        <span className="hidden md:inline text-[11px] text-flame-700/80 ml-auto pl-3 shrink-0 max-w-[40%] truncate">
+                          {orig}
+                        </span>
+                      )}
                       <span
-                        className="text-flame-700 font-serif text-xl shrink-0 transition-transform"
+                        className="text-flame-700 font-serif text-lg shrink-0 ml-2 transition-transform"
                         style={{ transform: isOpen ? "rotate(45deg)" : "rotate(0)" }}
+                        aria-hidden
                       >
                         +
                       </span>
                     </button>
                     {isOpen && (
-                      <div className="border-t border-ink-100 p-4 space-y-3 relative">
+                      <div className="px-4 pb-4 pt-1 space-y-3 border-t border-ink-100">
                         <p className="text-sm text-ink-700 leading-relaxed">{t.long}</p>
                         {(t.hebrew || t.greek || t.latin || t.aramaic) && (
                           <div className="grid grid-cols-1 gap-1.5 text-xs">
@@ -386,7 +455,7 @@ function ListMode({
                               return (
                                 <span key={slug}>
                                   <button
-                                    onClick={() => setOpenSlug(slug)}
+                                    onClick={() => openSlugAcrossLetters(slug)}
                                     className="text-ink-700 hover:text-flame-700 hover:underline"
                                   >
                                     {rt.word}
