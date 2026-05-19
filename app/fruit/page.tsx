@@ -1,4 +1,5 @@
 import FruitView from "@/components/FruitView";
+import FruitFlower from "@/components/FruitFlower";
 
 export const metadata = {
   title: "Fruit of the Spirit — Scripture Theory",
@@ -26,6 +27,10 @@ export default function FruitPage() {
         faithfulness, gentleness, self-control. Against such there is no law." —
         Galatians 5:22-23
       </p>
+
+      <div className="mt-10">
+        <FruitFlower />
+      </div>
 
       <div className="mt-10">
         <FruitView />

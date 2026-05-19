@@ -11,6 +11,7 @@ import {
   SEASONS,
   type FeastId,
 } from "@/lib/calendar";
+import ChurchYearWheel from "@/components/ChurchYearWheel";
 
 export const metadata = {
   title: "The Christian Year — Scripture Theory",
@@ -68,6 +69,10 @@ export default function CalendarPage() {
         scripture="There is a time for everything, and a season for every activity under the heavens."
         scriptureRef="Ecclesiastes 3:1"
       />
+
+      <div className="mt-10">
+        <ChurchYearWheel />
+      </div>
 
       {/* Today's season — featured */}
       <Tile

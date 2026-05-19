@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { locales, localeOrder, type LocaleCode } from "@/data/gospel-i18n";
+import GospelArcFigure from "@/components/GospelArcFigure";
 
 const STORAGE = "scripture-theory-locale";
 
@@ -59,6 +60,10 @@ export default function GospelView() {
           {t.meta.pageTitle}
         </h1>
         <p className="mt-5 text-lg text-ink-700 leading-relaxed">{t.meta.pageIntro}</p>
+
+        <div className="mt-10">
+          <GospelArcFigure />
+        </div>
 
         <ol className="mt-12 space-y-10">
           {t.movements.map((m) => (

@@ -3,6 +3,7 @@ import { oldTestament, newTestament } from "@/data/bible/canon";
 import { translationOrder, translations } from "@/data/bible/translations";
 import ContinueReadingCard from "@/components/ContinueReadingCard";
 import BookGrid from "@/components/BookGrid";
+import CanonGrid from "@/components/CanonGrid";
 import { Tile, Bento, PageHero } from "@/components/ui/Tile";
 import { Glyph } from "@/components/ui/Glyph";
 
@@ -38,10 +39,15 @@ export default function BiblePage() {
       </div>
 
       {/* Stat strip */}
-      <div className="grid grid-cols-3 gap-3 md:gap-4 mb-10">
+      <div className="grid grid-cols-3 gap-3 md:gap-4 mb-6">
         <Stat label="Translations" value={String(translationOrder.length)} />
         <Stat label="Books" value="66" />
         <Stat label="Chapters" value={totalChapters.toLocaleString()} />
+      </div>
+
+      {/* Canon panorama */}
+      <div className="mb-10">
+        <CanonGrid />
       </div>
 
       {/* Quick-start passages */}

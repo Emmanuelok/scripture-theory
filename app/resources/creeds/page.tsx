@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CREEDS } from "@/data/resources/creeds";
 import { PageHero } from "@/components/ui/Tile";
+import TrinityShield from "@/components/TrinityShield";
 
 export const metadata = {
   title: "Historic Creeds — Scripture Theory",
@@ -23,6 +24,10 @@ export default function CreedsPage() {
           scripture="Hold the pattern of sound words which you have heard from me, in faith and love which is in Christ Jesus."
           scriptureRef="2 Timothy 1:13"
         />
+      </div>
+
+      <div className="mt-10">
+        <TrinityShield />
       </div>
 
       <div className="mt-12 space-y-4">
