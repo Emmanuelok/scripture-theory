@@ -10,6 +10,8 @@ import { passages, type Passage } from "@/data/lens";
 import ScriptureRef from "@/components/ScriptureRef";
 import ChristInEveryBook from "@/components/ChristInEveryBook";
 import SevenIAmSayings from "@/components/SevenIAmSayings";
+import ChristsFootsteps from "@/components/ChristsFootsteps";
+import GenealogyOfChrist from "@/components/GenealogyOfChrist";
 
 export const metadata = {
   title: "Jesus throughout the Scriptures — Scripture Theory",
@@ -263,6 +265,16 @@ export default function JesusPage() {
             className="text-ink-600 hover:text-flame-700"
           />
         </p>
+      </div>
+
+      {/* Footsteps — schematic map of His earthly walk */}
+      <div className="mt-10">
+        <ChristsFootsteps />
+      </div>
+
+      {/* Genealogy — Matthew 1 */}
+      <div className="mt-10">
+        <GenealogyOfChrist />
       </div>
 
       {/* "I AM" sayings — figure */}

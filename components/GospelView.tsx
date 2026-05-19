@@ -5,6 +5,7 @@ import Link from "next/link";
 import { locales, localeOrder, type LocaleCode } from "@/data/gospel-i18n";
 import GospelArcFigure from "@/components/GospelArcFigure";
 import RomanRoad from "@/components/RomanRoad";
+import SalvationBridge from "@/components/SalvationBridge";
 
 const STORAGE = "scripture-theory-locale";
 
@@ -115,6 +116,10 @@ export default function GospelView() {
             </li>
           ))}
         </ol>
+
+        <div className="mt-12">
+          <SalvationBridge />
+        </div>
 
         <div className="mt-12">
           <RomanRoad />

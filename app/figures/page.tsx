@@ -21,7 +21,10 @@ const FIGURES: Figure[] = [
   { title: "Roman Road",             blurb: "A winding road through five Romans verses, from sin to whoever calls.",     href: "/gospel",              group: "Story" },
   { title: "Canon Panorama",         blurb: "All 66 books as colour-coded bars sized by chapter count.",                 href: "/bible",               group: "Story" },
   { title: "Christ in Every Book",   blurb: "Sixty-six division-coloured tiles, each carrying its 'Jesus is…' headline.", href: "/jesus#canonical-sweep", group: "Story" },
+  { title: "Christ's Footsteps",     blurb: "A schematic walk through the places of His earthly ministry.",              href: "/jesus",               group: "Story" },
+  { title: "Genealogy of Christ",    blurb: "Matthew 1's three sets of fourteen, with the four women highlighted.",      href: "/jesus",               group: "Story" },
   { title: "Seven I AM Sayings",     blurb: "Seven self-disclosures of Jesus orbiting the divine name ἐγώ εἰμι.",        href: "/jesus",               group: "Story" },
+  { title: "Salvation Bridge",       blurb: "Two cliffs, one chasm, one cross — the gospel as a bridge.",                href: "/gospel",              group: "Story" },
   { title: "Beatitudes Ladder",      blurb: "Eight blessings as ascending stair-steps to the kingdom.",                  href: "/beatitudes",          group: "Story" },
   { title: "Sermon on the Mount",    blurb: "The architecture of Matthew 5-7 — eight movements rising to the rock.",     href: "/beatitudes",          group: "Story" },
   { title: "Seven Last Words",       blurb: "Jesus' seven sayings from the cross laid along the beam itself.",           href: "/seven-words",         group: "Story" },
@@ -52,6 +55,7 @@ const FIGURES: Figure[] = [
   { title: "Vocation Funnel",        blurb: "From the general call to particular sending.",                              href: "/vocation",            group: "Mission" },
 
   // Walk
+  { title: "Heart Compass",          blurb: "Eight practices as compass directions, all pointing inward to Christ.",     href: "/me",                  group: "Walk" },
   { title: "Practice Heatmap",       blurb: "A year of your practice grid, pulled from local profile data.",             href: "/me",                  group: "Walk" },
   { title: "Memory Progress",        blurb: "Each curated verse, shaded by mastery level.",                              href: "/memory",              group: "Walk" },
 ];
