@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { locales, localeOrder, type LocaleCode } from "@/data/gospel-i18n";
 import GospelArcFigure from "@/components/GospelArcFigure";
+import RomanRoad from "@/components/RomanRoad";
 
 const STORAGE = "scripture-theory-locale";
 
@@ -114,6 +115,10 @@ export default function GospelView() {
             </li>
           ))}
         </ol>
+
+        <div className="mt-12">
+          <RomanRoad />
+        </div>
 
         <div className="mt-16 rounded-3xl bg-ink-900 text-ink-50 p-8 md:p-10">
           <span className="text-xs uppercase tracking-widest text-flame-300">

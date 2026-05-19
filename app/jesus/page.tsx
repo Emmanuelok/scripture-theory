@@ -9,6 +9,7 @@ import { jesusStudy, studyEpigraph } from "@/data/jesus-study";
 import { passages, type Passage } from "@/data/lens";
 import ScriptureRef from "@/components/ScriptureRef";
 import ChristInEveryBook from "@/components/ChristInEveryBook";
+import SevenIAmSayings from "@/components/SevenIAmSayings";
 
 export const metadata = {
   title: "Jesus throughout the Scriptures — Scripture Theory",
@@ -262,6 +263,11 @@ export default function JesusPage() {
             className="text-ink-600 hover:text-flame-700"
           />
         </p>
+      </div>
+
+      {/* "I AM" sayings — figure */}
+      <div className="mt-10">
+        <SevenIAmSayings />
       </div>
 
       {/* Table of contents */}

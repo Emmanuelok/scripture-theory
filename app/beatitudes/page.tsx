@@ -1,5 +1,6 @@
 import Link from "next/link";
 import BeatitudesLadder from "@/components/BeatitudesLadder";
+import SermonOnMountSweep from "@/components/SermonOnMountSweep";
 import ScriptureRef from "@/components/ScriptureRef";
 
 export const metadata = {
@@ -45,6 +46,14 @@ export default function BeatitudesPage() {
 
       <div className="mt-10">
         <BeatitudesLadder />
+      </div>
+
+      <div className="mt-10">
+        <div className="text-xs uppercase tracking-widest text-flame-700">The whole sermon</div>
+        <h2 className="font-serif text-2xl md:text-3xl text-ink-900 mt-1 mb-4">
+          What follows the Beatitudes.
+        </h2>
+        <SermonOnMountSweep />
       </div>
 
       <div className="mt-12 space-y-4">
