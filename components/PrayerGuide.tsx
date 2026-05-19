@@ -8,6 +8,7 @@ import { locales, localeOrder, type LocaleCode } from "@/data/gospel-i18n";
 import { todaysNation, regions as nationRegions, rotationCycleDay } from "@/data/nations";
 import { flagEmoji } from "@/lib/flags";
 import NationFlag from "@/components/NationFlag";
+import LordsPrayerDiagram from "@/components/LordsPrayerDiagram";
 
 type Mode = "lords" | "acts" | "world" | "nations";
 
@@ -147,6 +148,7 @@ function LordsPrayerView({
 }) {
   return (
     <div className="space-y-4">
+      <LordsPrayerDiagram />
       <div className="rounded-2xl bg-ink-900 text-ink-50 p-6">
         <div className="text-xs uppercase tracking-widest text-flame-300">
           {t.lords.headingScriptureRef}

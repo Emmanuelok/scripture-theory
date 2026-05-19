@@ -1,4 +1,5 @@
 import ExamenView from "@/components/Examen";
+import ExamenFlow from "@/components/ExamenFlow";
 import { PageHero } from "@/components/ui/Tile";
 
 export const metadata = {
@@ -18,6 +19,9 @@ export default function ExamenPage() {
         scripture="Search me, O God, and know my heart; try me, and know my anxieties; and see if there is any wicked way in me, and lead me in the way everlasting."
         scriptureRef="Psalm 139:23–24"
       />
+      <div className="mt-10">
+        <ExamenFlow />
+      </div>
       <div className="mt-10">
         <ExamenView />
       </div>

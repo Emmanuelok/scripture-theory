@@ -8,6 +8,7 @@ import { voicesFor, type VoiceCitation } from "@/data/jesus-voices";
 import { jesusStudy, studyEpigraph } from "@/data/jesus-study";
 import { passages, type Passage } from "@/data/lens";
 import ScriptureRef from "@/components/ScriptureRef";
+import ChristInEveryBook from "@/components/ChristInEveryBook";
 
 export const metadata = {
   title: "Jesus throughout the Scriptures — Scripture Theory",
@@ -362,6 +363,8 @@ export default function JesusPage() {
             who have read it this way.
           </p>
         </div>
+
+        <ChristInEveryBook />
 
         {/* Division jump nav */}
         <nav className="rounded-3xl border border-ink-200 bg-card-subtle p-5 mb-10">

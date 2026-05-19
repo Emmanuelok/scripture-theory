@@ -1,4 +1,5 @@
 import SabbathView from "@/components/SabbathView";
+import SabbathRhythm from "@/components/SabbathRhythm";
 import { PageHero } from "@/components/ui/Tile";
 
 export const metadata = {
@@ -18,6 +19,9 @@ export default function SabbathPage() {
         scripture="Remember the Sabbath day, to keep it holy."
         scriptureRef="Exodus 20:8"
       />
+      <div className="mt-10">
+        <SabbathRhythm />
+      </div>
       <div className="mt-10">
         <SabbathView />
       </div>

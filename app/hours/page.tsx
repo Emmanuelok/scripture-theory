@@ -1,4 +1,5 @@
 import HoursView from "@/components/HoursView";
+import HoursClock from "@/components/HoursClock";
 import { PageHero } from "@/components/ui/Tile";
 
 export const metadata = {
@@ -18,6 +19,9 @@ export default function HoursPage() {
         scripture="Evening and morning and at noon I will pray, and cry aloud, and He shall hear my voice."
         scriptureRef="Psalm 55:17"
       />
+      <div className="mt-10">
+        <HoursClock />
+      </div>
       <div className="mt-10">
         <HoursView />
       </div>

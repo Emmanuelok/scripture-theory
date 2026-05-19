@@ -1,4 +1,5 @@
 import RuleOfLifeView from "@/components/RuleOfLifeView";
+import RuleOfLifeDial from "@/components/RuleOfLifeDial";
 import { PageHero } from "@/components/ui/Tile";
 
 export const metadata = {
@@ -18,6 +19,9 @@ export default function RulePage() {
         scripture="I am the vine, you are the branches. He who abides in Me, and I in him, bears much fruit; for without Me you can do nothing."
         scriptureRef="John 15:5"
       />
+      <div className="mt-10">
+        <RuleOfLifeDial />
+      </div>
       <div className="mt-10">
         <RuleOfLifeView />
       </div>

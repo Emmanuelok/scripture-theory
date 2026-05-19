@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PageHero, Tile } from "@/components/ui/Tile";
 import { Glyph } from "@/components/ui/Glyph";
+import OrdoSalutisFlow from "@/components/OrdoSalutisFlow";
 
 export const metadata = {
   title: "What we believe — Scripture Theory",
@@ -191,6 +192,15 @@ export default function BeliefsPage() {
           </details>
         </div>
       </div>
+
+      {/* Ordo salutis — the order of salvation */}
+      <section className="mt-14">
+        <div className="text-xs uppercase tracking-widest text-flame-700">The order of salvation</div>
+        <h2 className="font-serif text-2xl md:text-3xl text-ink-900 mt-1 mb-4">
+          Grace, from first to last.
+        </h2>
+        <OrdoSalutisFlow />
+      </section>
 
       {/* What we hold loosely */}
       <section className="mt-14 rounded-3xl border border-ink-200 bg-card-subtle p-6 md:p-8">
