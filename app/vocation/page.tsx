@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PageHero, Tile } from "@/components/ui/Tile";
 import { Glyph } from "@/components/ui/Glyph";
+import VocationFunnel from "@/components/VocationFunnel";
 
 export const metadata = {
   title: "Vocation — Scripture Theory",
@@ -19,6 +20,10 @@ export default function VocationPage() {
         scripture="As each has received a gift, use it to serve one another, as good managers of the grace of God in its various forms."
         scriptureRef="1 Peter 4:10"
       />
+
+      <div className="mt-10">
+        <VocationFunnel />
+      </div>
 
       <div className="mt-10 grid sm:grid-cols-2 gap-3 md:gap-4">
         <Tile

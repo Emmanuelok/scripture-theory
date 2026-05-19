@@ -77,27 +77,34 @@ export default function TrinityShield() {
                 <stop offset="60%" stopColor="rgb(249 115 22)" stopOpacity="0.18" />
                 <stop offset="100%" stopColor="rgb(249 115 22)" stopOpacity="0" />
               </radialGradient>
-              <linearGradient id="ts-edge" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="rgb(180 169 158)" />
-                <stop offset="100%" stopColor="rgb(180 169 158)" />
-              </linearGradient>
             </defs>
+
+            {/* SCVTVM · FIDEI caption — placed at the top where there's room */}
+            <text
+              x={W / 2}
+              y={22}
+              textAnchor="middle"
+              className="fill-ink-400"
+              style={{ font: "italic 10px ui-serif, Georgia, serif", letterSpacing: "0.08em", opacity: drawn ? 0.85 : 0, transition: "opacity 800ms ease 1900ms" }}
+            >
+              SCVTVM · FIDEI — the shield of faith
+            </text>
 
             {/* Central halo */}
             <circle cx={CENTRE.cx} cy={CENTRE.cy} r={70} fill="url(#ts-glow)" style={{ opacity: drawn ? 1 : 0, transition: "opacity 1200ms ease 600ms" }} />
 
-            {/* Outer triangle edges (is NOT) */}
+            {/* Outer triangle edges (is NOT). Solid stroke — gradients on <line> can render invisibly. */}
             {isNotEdges.map((e, i) => (
               <line
                 key={i}
                 x1={e.a.cx} y1={e.a.cy}
                 x2={e.b.cx} y2={e.b.cy}
-                stroke="url(#ts-edge)"
+                stroke="rgb(180 169 158 / 0.65)"
                 strokeWidth={2}
                 strokeLinecap="round"
                 style={{
-                  strokeDasharray: 600,
-                  strokeDashoffset: drawn ? 0 : 600,
+                  strokeDasharray: 700,
+                  strokeDashoffset: drawn ? 0 : 700,
                   transition: `stroke-dashoffset 1100ms ease ${300 + i * 150}ms`,
                 }}
               />
@@ -195,16 +202,6 @@ export default function TrinityShield() {
               </text>
             </g>
 
-            {/* Footer label */}
-            <text
-              x={W / 2}
-              y={H - 14}
-              textAnchor="middle"
-              className="fill-ink-400"
-              style={{ font: "italic 10px ui-serif, Georgia, serif", letterSpacing: "0.06em", opacity: drawn ? 0.85 : 0, transition: "opacity 800ms ease 1900ms" }}
-            >
-              SCVTVM · FIDEI — the shield of faith
-            </text>
           </svg>
         </div>
 

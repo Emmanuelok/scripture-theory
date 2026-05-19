@@ -1,6 +1,7 @@
 import Link from "next/link";
 import JourneyTracker from "@/components/JourneyTracker";
 import PersonalSubNav from "@/components/PersonalSubNav";
+import DiscipleshipStations from "@/components/DiscipleshipStations";
 
 export const metadata = {
   title: "Discipleship Journey — Scripture Theory",
@@ -25,6 +26,9 @@ export default function JourneyPage() {
 
       <div className="mt-10">
         <PersonalSubNav />
+        <div className="mt-6">
+          <DiscipleshipStations />
+        </div>
         <JourneyTracker />
       </div>
 
