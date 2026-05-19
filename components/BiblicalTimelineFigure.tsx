@@ -274,9 +274,9 @@ export default function BiblicalTimelineFigure() {
                       x={era.x}
                       y={labelAbove ? cy - 26 : cy + 34}
                       textAnchor="middle"
-                      className="fill-ink-400"
+                      className="fill-ink-200"
                       style={{
-                        font: "italic 9px ui-serif, Georgia, serif",
+                        font: "italic 10.5px ui-serif, Georgia, serif",
                         pointerEvents: "none",
                       }}
                     >

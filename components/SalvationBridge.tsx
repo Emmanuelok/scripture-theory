@@ -118,7 +118,7 @@ export default function SalvationBridge() {
               style={{ font: "700 22px ui-serif, Georgia, serif", letterSpacing: "0.03em" }}>
               Humanity
             </text>
-            <text x={leftCliffX / 2} y={groundY - 80} textAnchor="middle" className="fill-ink-400"
+            <text x={leftCliffX / 2} y={groundY - 80} textAnchor="middle" className="fill-ink-200"
               style={{ font: "italic 11px ui-serif, Georgia, serif" }}>
               made in His image · separated by sin
             </text>
@@ -174,11 +174,11 @@ export default function SalvationBridge() {
             onClick={() => setActive((c) => (c === "chasm" ? null : "chasm"))}
             style={{ cursor: "pointer", opacity: drawn ? 1 : 0, transition: "opacity 900ms ease 1000ms" }}
           >
-            <text x={CX} y={VIEW_H - 80} textAnchor="middle" className="fill-ink-400"
+            <text x={CX} y={VIEW_H - 80} textAnchor="middle" className="fill-ink-200"
               style={{ font: "italic 700 14px ui-serif, Georgia, serif", letterSpacing: "0.06em" }}>
               the chasm of sin
             </text>
-            <text x={CX} y={VIEW_H - 60} textAnchor="middle" className="fill-ink-500"
+            <text x={CX} y={VIEW_H - 60} textAnchor="middle" className="fill-ink-300"
               style={{ font: "italic 11px ui-serif, Georgia, serif" }}>
               no human work spans this
             </text>

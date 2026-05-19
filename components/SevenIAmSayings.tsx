@@ -120,8 +120,8 @@ export default function SevenIAmSayings() {
                     style={{ font: `${isOn ? "600" : "500"} 11px ui-serif, Georgia, serif`, letterSpacing: "0.01em", transition: "fill 200ms" }}>
                     {s.text.replace(/^I am /, "").replace(/\.$/, "")}
                   </text>
-                  <text x={lp.x} y={lp.y + 10} textAnchor="middle" className="fill-ink-500"
-                    style={{ font: "italic 9px ui-serif, Georgia, serif" }}>
+                  <text x={lp.x} y={lp.y + 10} textAnchor="middle" className="fill-ink-300"
+                    style={{ font: "italic 10.5px ui-serif, Georgia, serif" }}>
                     {s.ref}
                   </text>
                 </g>
@@ -140,7 +140,7 @@ export default function SevenIAmSayings() {
                 ἐγώ εἰμι
               </text>
               <text x={CX} y={CY + 26} textAnchor="middle" className="fill-flame-300"
-                style={{ font: "italic 9px ui-serif, Georgia, serif" }}>
+                style={{ font: "italic 10.5px ui-serif, Georgia, serif" }}>
                 I AM
               </text>
             </g>

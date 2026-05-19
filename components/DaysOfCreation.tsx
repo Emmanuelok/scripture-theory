@@ -128,11 +128,11 @@ export default function DaysOfCreation() {
                     {d.n}
                   </text>
                   <text x={p.x} y={p.y + 12} textAnchor="middle" className="fill-ink-50"
-                    style={{ font: "italic 9px ui-serif, Georgia, serif" }}>
+                    style={{ font: "italic 10.5px ui-serif, Georgia, serif" }}>
                     {isFill ? "fill" : "form"}
                   </text>
                   <text x={lp.x} y={lp.y + 4} textAnchor="middle" className="fill-ink-100"
-                    style={{ font: "500 11px ui-serif, Georgia, serif" }}>
+                    style={{ font: "600 11.5px ui-serif, Georgia, serif" }}>
                     {d.title}
                   </text>
                 </g>

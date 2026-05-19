@@ -115,7 +115,7 @@ export default function SpiritualGiftsWheel() {
                 Love
               </text>
               <text x={CX} y={CY + 30} textAnchor="middle" className="fill-flame-300"
-                style={{ font: "italic 9px ui-serif, Georgia, serif" }}>
+                style={{ font: "italic 10.5px ui-serif, Georgia, serif" }}>
                 the more excellent way
               </text>
             </g>

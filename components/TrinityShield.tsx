@@ -84,7 +84,7 @@ export default function TrinityShield() {
               x={W / 2}
               y={22}
               textAnchor="middle"
-              className="fill-ink-400"
+              className="fill-ink-200"
               style={{ font: "italic 10px ui-serif, Georgia, serif", letterSpacing: "0.08em", opacity: drawn ? 0.85 : 0, transition: "opacity 800ms ease 1900ms" }}
             >
               SCVTVM · FIDEI — the shield of faith

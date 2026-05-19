@@ -142,13 +142,13 @@ export default function WitnessCircles() {
             <g style={{ opacity: drawn ? 1 : 0, transition: "opacity 900ms ease 1400ms" }}>
               <circle cx={CX} cy={CY} r={14} fill="rgb(15 23 42)" stroke="rgb(254 215 170)" strokeWidth={1.5} />
               <text x={CX} y={CY + 4} textAnchor="middle" className="fill-flame-100"
-                style={{ font: "italic 9px ui-serif, Georgia, serif" }}>
+                style={{ font: "italic 10.5px ui-serif, Georgia, serif" }}>
                 you
               </text>
             </g>
 
             {/* Caption */}
-            <text x={CX} y={VIEW - 14} textAnchor="middle" className="fill-ink-400"
+            <text x={CX} y={VIEW - 14} textAnchor="middle" className="fill-ink-200"
               style={{ font: "italic 10px ui-serif, Georgia, serif", letterSpacing: "0.06em", opacity: drawn ? 0.85 : 0, transition: "opacity 800ms ease 1700ms" }}>
               Acts 1:8 — witness ripples outward from where you stand
             </text>

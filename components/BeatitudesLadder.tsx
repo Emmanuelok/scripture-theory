@@ -131,7 +131,7 @@ export default function BeatitudesLadder() {
                 </text>
                 {/* Promise label below */}
                 <text x={x + stepW / 2 + 6} y={y + 40} textAnchor="middle"
-                  style={{ font: "italic 8px ui-serif, Georgia, serif", fill: "rgb(15 23 42)" }}>
+                  style={{ font: "italic 10px ui-serif, Georgia, serif", fill: "rgb(15 23 42)" }}>
                   → {b.promise.length > 22 ? b.promise.slice(0, 22) + "…" : b.promise}
                 </text>
               </g>

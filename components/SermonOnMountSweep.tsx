@@ -132,8 +132,8 @@ export default function SermonOnMountSweep() {
                   strokeWidth={1.2}
                 />
                 {/* Number badge */}
-                <text x={x} y={y + 24} textAnchor="middle" className="fill-ink-400"
-                  style={{ font: "italic 9px ui-serif, Georgia, serif" }}>
+                <text x={x} y={y + 24} textAnchor="middle" className="fill-ink-200"
+                  style={{ font: "italic 10.5px ui-serif, Georgia, serif" }}>
                   {s.num}
                 </text>
                 {/* Title */}
@@ -143,8 +143,8 @@ export default function SermonOnMountSweep() {
                   {s.title}
                 </text>
                 {/* Refs */}
-                <text x={x} y={labelY - 14} textAnchor="middle" className="fill-ink-400"
-                  style={{ font: "italic 9px ui-serif, Georgia, serif" }}>
+                <text x={x} y={labelY - 14} textAnchor="middle" className="fill-ink-200"
+                  style={{ font: "italic 10.5px ui-serif, Georgia, serif" }}>
                   Matt {s.refs}
                 </text>
               </g>

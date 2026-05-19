@@ -104,7 +104,7 @@ export default function HoursClock() {
                       x={polarHour(R_HOUR - 32, h).x}
                       y={polarHour(R_HOUR - 32, h).y + 4}
                       textAnchor="middle"
-                      style={{ font: "500 11px ui-sans-serif, system-ui", fill: "rgb(203 213 225)", letterSpacing: "0.06em" }}
+                      style={{ font: "600 12px ui-sans-serif, system-ui", fill: "rgb(203 213 225)", letterSpacing: "0.06em" }}
                     >
                       {h.toString().padStart(2, "0")}
                     </text>
@@ -141,15 +141,15 @@ export default function HoursClock() {
                   {isOn && <circle cx={p.x} cy={p.y} r={26} fill="none" stroke={color} strokeWidth={1.4} opacity={0.55} />}
                   <circle cx={p.x} cy={p.y} r={isOn ? 18 : 15} fill={color} stroke="rgb(15 23 42)" strokeWidth={1.5} />
                   <text x={p.x} y={p.y + 4} textAnchor="middle" className="fill-ink-50"
-                    style={{ font: "700 10px ui-sans-serif, system-ui" }}>
+                    style={{ font: "700 11.5px ui-sans-serif, system-ui" }}>
                     {o.hour.toString().padStart(2, "0")}
                   </text>
                   <text x={lp.x} y={lp.y - 4} textAnchor="middle" className={isOn ? "fill-flame-200" : "fill-ink-100"}
                     style={{ font: `${isOn ? "600" : "500"} 11px ui-serif, Georgia, serif`, transition: "fill 200ms" }}>
                     {o.name.replace(" Prayer", "")}
                   </text>
-                  <text x={lp.x} y={lp.y + 10} textAnchor="middle" className="fill-ink-500"
-                    style={{ font: "italic 9px ui-serif, Georgia, serif" }}>
+                  <text x={lp.x} y={lp.y + 10} textAnchor="middle" className="fill-ink-300"
+                    style={{ font: "italic 10.5px ui-serif, Georgia, serif" }}>
                     {o.altName}
                   </text>
                 </g>

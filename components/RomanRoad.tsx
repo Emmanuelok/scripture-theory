@@ -170,8 +170,8 @@ export default function RomanRoad() {
                   style={{ font: `${isOn ? "600" : "500"} 11px ui-serif, Georgia, serif`, transition: "fill 200ms" }}>
                   {s.title}
                 </text>
-                <text x={x} y={labelY + (above ? -14 : 14)} textAnchor="middle" className="fill-ink-400"
-                  style={{ font: "italic 9px ui-serif, Georgia, serif" }}>
+                <text x={x} y={labelY + (above ? -14 : 14)} textAnchor="middle" className="fill-ink-200"
+                  style={{ font: "italic 10.5px ui-serif, Georgia, serif" }}>
                   {s.ref}
                 </text>
               </g>

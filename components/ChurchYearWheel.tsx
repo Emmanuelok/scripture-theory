@@ -212,7 +212,7 @@ export default function ChurchYearWheel() {
                     y={p.y}
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    style={{ font: "500 10px ui-sans-serif, system-ui", fill: "rgb(203 213 225)", letterSpacing: "0.08em" }}
+                    style={{ font: "600 11.5px ui-sans-serif, system-ui", fill: "rgb(203 213 225)", letterSpacing: "0.08em" }}
                   >
                     {m}
                   </text>

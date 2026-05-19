@@ -164,7 +164,7 @@ export default function ArmorOfGod() {
             })}
 
             {/* Bottom caption */}
-            <text x={VIEW_W / 2} y={VIEW_H - 14} textAnchor="middle" className="fill-ink-400"
+            <text x={VIEW_W / 2} y={VIEW_H - 14} textAnchor="middle" className="fill-ink-200"
               style={{ font: "italic 10px ui-serif, Georgia, serif", letterSpacing: "0.06em", opacity: drawn ? 0.85 : 0, transition: "opacity 800ms ease 1800ms" }}>
               Ephesians 6:13 — put on the whole armour of God
             </text>

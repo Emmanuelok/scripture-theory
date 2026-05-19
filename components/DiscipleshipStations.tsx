@@ -144,13 +144,13 @@ export default function DiscipleshipStations() {
                 <circle cx={x} cy={y} r={radius} fill={fill} stroke="rgb(15 23 42)" strokeWidth={1.4} />
                 {count > 0 && (
                   <text x={x} y={y + 3} textAnchor="middle"
-                    style={{ font: "700 9px ui-sans-serif, system-ui", fill: "rgb(15 23 42)", pointerEvents: "none" }}>
+                    style={{ font: "700 10.5px ui-sans-serif, system-ui", fill: "rgb(15 23 42)", pointerEvents: "none" }}>
                     {count}
                   </text>
                 )}
                 {/* Number badge above */}
-                <text x={x} y={y - radius - 22} textAnchor="middle" className="fill-ink-400"
-                  style={{ font: "italic 9px ui-serif, Georgia, serif" }}>
+                <text x={x} y={y - radius - 22} textAnchor="middle" className="fill-ink-200"
+                  style={{ font: "italic 10.5px ui-serif, Georgia, serif" }}>
                   {String(i + 1).padStart(2, "0")}
                 </text>
                 {/* Label below */}
@@ -159,8 +159,8 @@ export default function DiscipleshipStations() {
                   style={{ font: `${isOn ? "600" : "500"} 11px ui-serif, Georgia, serif`, transition: "fill 200ms" }}>
                   {s.label}
                 </text>
-                <text x={x} y={y + radius + 32} textAnchor="middle" className="fill-ink-500"
-                  style={{ font: "italic 9px ui-serif, Georgia, serif" }}>
+                <text x={x} y={y + radius + 32} textAnchor="middle" className="fill-ink-300"
+                  style={{ font: "italic 10.5px ui-serif, Georgia, serif" }}>
                   {s.ref}
                 </text>
               </g>

@@ -126,8 +126,8 @@ export default function ActsPrayerWheel() {
                     style={{ font: `${isOn ? "600" : "500"} 12px ui-serif, Georgia, serif`, transition: "fill 200ms" }}>
                     {s.word}
                   </text>
-                  <text x={lp.x} y={lp.y + 10} textAnchor="middle" className="fill-ink-500"
-                    style={{ font: "italic 9px ui-serif, Georgia, serif" }}>
+                  <text x={lp.x} y={lp.y + 10} textAnchor="middle" className="fill-ink-300"
+                    style={{ font: "italic 10.5px ui-serif, Georgia, serif" }}>
                     {s.ref}
                   </text>
                 </g>

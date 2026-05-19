@@ -132,11 +132,11 @@ export default function ExamenFlow() {
                     {s.label}
                   </text>
                   <text x={lp.x} y={lp.y - 4} textAnchor="middle" className="fill-ink-300"
-                    style={{ font: "500 10px ui-sans-serif, system-ui", letterSpacing: "0.04em" }}>
+                    style={{ font: "600 11.5px ui-sans-serif, system-ui", letterSpacing: "0.04em" }}>
                     {s.verb}
                   </text>
-                  <text x={lp.x} y={lp.y + 8} textAnchor="middle" className="fill-ink-500"
-                    style={{ font: "italic 8.5px ui-serif, Georgia, serif" }}>
+                  <text x={lp.x} y={lp.y + 8} textAnchor="middle" className="fill-ink-300"
+                    style={{ font: "italic 10px ui-serif, Georgia, serif" }}>
                     {s.ref}
                   </text>
                 </g>
@@ -145,13 +145,13 @@ export default function ExamenFlow() {
 
             {/* Centre badge */}
             <g style={{ opacity: drawn ? 1 : 0, transition: "opacity 900ms ease 1300ms" }}>
-              <circle cx={CX} cy={CY} r={42} fill="rgb(15 23 42)" stroke="rgb(249 115 22)" strokeWidth={2} />
-              <text x={CX} y={CY - 4} textAnchor="middle" className="fill-flame-300"
-                style={{ font: "italic 9px ui-serif, Georgia, serif" }}>
+              <circle cx={CX} cy={CY} r={48} fill="rgb(15 23 42)" stroke="rgb(249 115 22)" strokeWidth={2.4} />
+              <text x={CX} y={CY - 6} textAnchor="middle" className="fill-flame-300"
+                style={{ font: "italic 10.5px ui-serif, Georgia, serif" }}>
                 five minutes
               </text>
-              <text x={CX} y={CY + 12} textAnchor="middle" className="fill-flame-100"
-                style={{ font: "700 13px ui-serif, Georgia, serif" }}>
+              <text x={CX} y={CY + 14} textAnchor="middle" className="fill-flame-100"
+                style={{ font: "700 18px ui-serif, Georgia, serif", letterSpacing: "0.02em" }}>
                 Examen
               </text>
             </g>

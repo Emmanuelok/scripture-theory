@@ -152,7 +152,7 @@ export default function GospelArcFigure() {
                   x={m.x}
                   y={m.y + (i === 1 ? 28 : -22)}
                   textAnchor="middle"
-                  className="fill-ink-400"
+                  className="fill-ink-200"
                   style={{ font: "italic 10px ui-serif, Georgia, serif" }}
                 >
                   {m.number}

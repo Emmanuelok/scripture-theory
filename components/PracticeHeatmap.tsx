@@ -189,8 +189,8 @@ export default function PracticeHeatmap() {
               key={`${t.col}-${t.label}`}
               x={t.col * (CELL + GAP) + 24}
               y={14}
-              className="fill-ink-400"
-              style={{ font: "500 9px ui-sans-serif, system-ui", letterSpacing: "0.04em" }}
+              className="fill-ink-200"
+              style={{ font: "600 11px ui-sans-serif, system-ui", letterSpacing: "0.04em" }}
             >
               {t.label}
             </text>
@@ -201,8 +201,8 @@ export default function PracticeHeatmap() {
               key={`${i}-${l}`}
               x={8}
               y={24 + i * (CELL + GAP) + CELL - 2}
-              className="fill-ink-500"
-              style={{ font: "500 8px ui-sans-serif, system-ui" }}
+              className="fill-ink-300"
+              style={{ font: "600 9.5px ui-sans-serif, system-ui" }}
             >
               {l}
             </text>

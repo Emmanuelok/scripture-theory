@@ -124,7 +124,7 @@ export default function ApostlesConstellation() {
                     x={lp.x}
                     y={lp.y + 4}
                     textAnchor="middle"
-                    className={isOn ? "fill-flame-200" : isJudas ? "fill-ink-400" : "fill-ink-100"}
+                    className={isOn ? "fill-flame-200" : isJudas ? "fill-ink-300" : "fill-ink-100"}
                     style={{
                       font: `${isOn ? "600" : "500"} 10.5px ui-serif, Georgia, serif`,
                       letterSpacing: "0.01em",
@@ -139,15 +139,15 @@ export default function ApostlesConstellation() {
 
             {/* Christ at the centre */}
             <g style={{ opacity: drawn ? 1 : 0, transition: "opacity 900ms ease 1300ms" }}>
-              <circle cx={CX} cy={CY} r={48} fill="rgb(15 23 42)" stroke="rgb(249 115 22)" strokeWidth={2.4} />
-              <text x={CX} y={CY + 6} textAnchor="middle" className="fill-flame-100"
-                style={{ font: "700 16px ui-serif, Georgia, serif" }}>
+              <circle cx={CX} cy={CY} r={52} fill="rgb(15 23 42)" stroke="rgb(249 115 22)" strokeWidth={2.4} />
+              <text x={CX} y={CY + 7} textAnchor="middle" className="fill-flame-100"
+                style={{ font: "700 19px ui-serif, Georgia, serif", letterSpacing: "0.02em" }}>
                 Christ
               </text>
             </g>
 
             {/* Caption */}
-            <text x={VIEW / 2} y={VIEW - 14} textAnchor="middle" className="fill-ink-400"
+            <text x={VIEW / 2} y={VIEW - 14} textAnchor="middle" className="fill-ink-200"
               style={{ font: "italic 10px ui-serif, Georgia, serif", letterSpacing: "0.06em", opacity: drawn ? 0.85 : 0, transition: "opacity 800ms ease 1800ms" }}>
               Mark 3:14 — He appointed twelve, that they might be with Him
             </text>

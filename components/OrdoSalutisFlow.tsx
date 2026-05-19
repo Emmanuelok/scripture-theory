@@ -146,8 +146,8 @@ export default function OrdoSalutisFlow() {
                   x={x}
                   y={labelY + (above ? -14 : 14)}
                   textAnchor="middle"
-                  className="fill-ink-400"
-                  style={{ font: "italic 9px ui-serif, Georgia, serif" }}
+                  className="fill-ink-200"
+                  style={{ font: "italic 10.5px ui-serif, Georgia, serif" }}
                 >
                   {s.ref}
                 </text>

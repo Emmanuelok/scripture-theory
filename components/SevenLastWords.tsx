@@ -145,8 +145,8 @@ export default function SevenLastWords() {
                   {w.saying}
                 </text>
                 {/* ref */}
-                <text x={x} y={labelY + (above ? -14 : 14)} textAnchor="middle" className="fill-ink-400"
-                  style={{ font: "italic 9px ui-serif, Georgia, serif" }}>
+                <text x={x} y={labelY + (above ? -14 : 14)} textAnchor="middle" className="fill-ink-200"
+                  style={{ font: "italic 10.5px ui-serif, Georgia, serif" }}>
                   {w.ref}
                 </text>
               </g>

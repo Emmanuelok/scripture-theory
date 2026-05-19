@@ -84,23 +84,23 @@ export default function ChristsFootsteps() {
           {/* Decorative compass rose top-left */}
           <g style={{ opacity: drawn ? 0.7 : 0, transition: "opacity 1200ms ease 1000ms" }}>
             <text x={60} y={50} className="fill-ink-300" style={{ font: "italic 10px ui-serif, Georgia, serif", letterSpacing: "0.1em" }}>N ↑</text>
-            <text x={60} y={66} className="fill-ink-500" style={{ font: "italic 9px ui-serif, Georgia, serif" }}>schematic, not to scale</text>
+            <text x={60} y={66} className="fill-ink-300" style={{ font: "italic 10.5px ui-serif, Georgia, serif" }}>schematic, not to scale</text>
           </g>
 
           {/* Region labels */}
-          <text x={350} y={55} textAnchor="middle" className="fill-ink-400"
+          <text x={350} y={55} textAnchor="middle" className="fill-ink-200"
             style={{ font: "italic 500 11px ui-sans-serif, system-ui", letterSpacing: "0.16em", opacity: drawn ? 0.85 : 0, transition: "opacity 900ms ease 1100ms" }}>
             GALILEE
           </text>
-          <text x={400} y={250} textAnchor="middle" className="fill-ink-400"
+          <text x={400} y={250} textAnchor="middle" className="fill-ink-200"
             style={{ font: "italic 500 11px ui-sans-serif, system-ui", letterSpacing: "0.16em", opacity: drawn ? 0.85 : 0, transition: "opacity 900ms ease 1200ms" }}>
             SAMARIA
           </text>
-          <text x={500} y={420} textAnchor="middle" className="fill-ink-400"
+          <text x={500} y={420} textAnchor="middle" className="fill-ink-200"
             style={{ font: "italic 500 11px ui-sans-serif, system-ui", letterSpacing: "0.16em", opacity: drawn ? 0.85 : 0, transition: "opacity 900ms ease 1300ms" }}>
             JUDEA
           </text>
-          <text x={900} y={300} textAnchor="middle" className="fill-ink-400"
+          <text x={900} y={300} textAnchor="middle" className="fill-ink-200"
             style={{ font: "italic 500 11px ui-sans-serif, system-ui", letterSpacing: "0.16em", opacity: drawn ? 0.85 : 0, transition: "opacity 900ms ease 1400ms" }}>
             WILDERNESS
           </text>
@@ -155,8 +155,8 @@ export default function ChristsFootsteps() {
                   strokeWidth={1.2}
                 />
                 {/* Number badge */}
-                <text x={s.x} y={s.y - r - 8} textAnchor="middle" className="fill-ink-400"
-                  style={{ font: "italic 8px ui-serif, Georgia, serif" }}>
+                <text x={s.x} y={s.y - r - 8} textAnchor="middle" className="fill-ink-200"
+                  style={{ font: "italic 10px ui-serif, Georgia, serif" }}>
                   {String(i + 1).padStart(2, "0")}
                 </text>
                 {/* Place label, alternating sides */}
