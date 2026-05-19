@@ -9,6 +9,7 @@ import { todaysNation, regions as nationRegions, rotationCycleDay } from "@/data
 import { flagEmoji } from "@/lib/flags";
 import NationFlag from "@/components/NationFlag";
 import LordsPrayerDiagram from "@/components/LordsPrayerDiagram";
+import ActsPrayerWheel from "@/components/ActsPrayerWheel";
 
 type Mode = "lords" | "acts" | "world" | "nations";
 
@@ -190,6 +191,7 @@ function LordsPrayerView({
 function ActsView({ t, dir }: { t: ReturnType<typeof useT>; dir: "ltr" | "rtl" }) {
   return (
     <div className="space-y-4">
+      <ActsPrayerWheel />
       <p className="text-ink-700 leading-relaxed max-w-2xl">{t.acts.intro}</p>
       <ol className="grid md:grid-cols-2 gap-4">
         {t.acts.movements.map((m, i) => (
