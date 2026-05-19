@@ -2,6 +2,7 @@ import Link from "next/link";
 import { testimonies, sharePrompts } from "@/data/testimonies";
 import { PageHero, Tile } from "@/components/ui/Tile";
 import { Glyph } from "@/components/ui/Glyph";
+import WitnessCircles from "@/components/WitnessCircles";
 
 export const metadata = {
   title: "Witness — Scripture Theory",
@@ -34,6 +35,10 @@ export default function WitnessPage() {
         >
           How to tell one person ↓
         </a>
+      </div>
+
+      <div className="mt-10">
+        <WitnessCircles />
       </div>
 
       {/* Featured testimony — large */}

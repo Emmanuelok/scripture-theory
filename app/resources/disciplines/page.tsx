@@ -3,6 +3,7 @@ import { DISCIPLINES } from "@/data/resources/disciplines";
 import { referenceHref } from "@/lib/reference";
 import { PageHero } from "@/components/ui/Tile";
 import { Glyph, type GlyphId } from "@/components/ui/Glyph";
+import DisciplinesWheel from "@/components/DisciplinesWheel";
 
 export const metadata = {
   title: "Spiritual disciplines — Scripture Theory",
@@ -45,10 +46,17 @@ export default function DisciplinesPage() {
         />
       </div>
 
+      <div className="mt-10">
+        <DisciplinesWheel />
+      </div>
+
       <ol className="mt-12 space-y-5">
         {DISCIPLINES.map((d, i) => (
           <li key={d.slug}>
-            <article className="group relative overflow-hidden rounded-3xl border border-ink-200 bg-card p-6 md:p-8 hover:-translate-y-0.5 hover:border-flame-500/60 hover:shadow-[0_18px_50px_-20px_rgba(249,115,22,0.28)] transition-all">
+            <article
+              id={d.slug}
+              className="group relative overflow-hidden rounded-3xl border border-ink-200 bg-card p-6 md:p-8 scroll-mt-24 hover:-translate-y-0.5 hover:border-flame-500/60 hover:shadow-[0_18px_50px_-20px_rgba(249,115,22,0.28)] transition-all"
+            >
               <span
                 aria-hidden
                 className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-flame-50/40 to-transparent"
