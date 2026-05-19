@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useUI } from "@/lib/useUI";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function Footer() {
   const { t } = useUI();
@@ -72,11 +73,15 @@ export default function Footer() {
         </div>
       </div>
       <div className="border-t border-ink-200">
-        <div className="mx-auto max-w-6xl px-5 py-4 text-xs text-ink-400 flex flex-wrap items-center justify-between gap-2">
+        <div className="mx-auto max-w-6xl px-5 py-4 text-xs text-ink-400 flex flex-wrap items-center justify-between gap-3">
           <span>© {new Date().getFullYear()} Scripture Theory.</span>
-          <span className="italic">
+          <span className="italic flex-1 text-center min-w-[12rem]">
             &ldquo;Jesus Christ is the same yesterday and today and forever.&rdquo; — Hebrews 13:8
           </span>
+          <div className="flex items-center gap-2">
+            <span className="text-ink-500">Appearance</span>
+            <ThemeToggle />
+          </div>
         </div>
       </div>
     </footer>

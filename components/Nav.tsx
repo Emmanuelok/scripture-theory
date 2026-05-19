@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
-import ThemeToggle from "@/components/ThemeToggle";
 import AccountChip from "@/components/AccountChip";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
 import { NavLinks, NavStartButton, NavSearchLink } from "@/components/NavLinks";
@@ -19,7 +18,6 @@ export default function Nav() {
         <div className="flex items-center gap-2 shrink-0">
           <NavSearchLink />
           <LocaleSwitcher />
-          <ThemeToggle />
           <AccountChip />
           <NavStartButton />
         </div>
