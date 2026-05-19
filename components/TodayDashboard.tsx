@@ -15,7 +15,7 @@ import { todaysNation, regions as nationRegions, rotationCycleDay, findNation } 
 import { flagEmoji } from "@/lib/flags";
 import NationFlag from "@/components/NationFlag";
 import { thisWeeksVerse } from "@/data/memory";
-import { feastOn, seasonOn } from "@/lib/calendar";
+import { altarWeekdays, entryForDate } from "@/data/family-altar";
 import PrayingForList from "@/components/PrayingForList";
 import EncourageMe from "@/components/EncourageMe";
 import DailyDevotional from "@/components/DailyDevotional";
@@ -102,14 +102,11 @@ export default function TodayDashboard() {
   const memoryVerse = thisWeeksVerse(now);
   const memoryRecord = profile.memory?.find((r) => r.verseId === memoryVerse.id);
 
-  // Today's liturgical day — a feast (if any) takes precedence over the season
-  const liturgical = useMemo(() => {
-    const feast = feastOn(now);
-    if (feast) {
-      return { label: "Today · feast", value: feast.name, sub: feast.tagline };
-    }
-    const { season } = seasonOn(now);
-    return { label: "Today · season", value: season.name, sub: season.tagline };
+  // Today's Family Altar — daily devotional, fixed pillar per weekday with rotating entry
+  const todaysAltar = useMemo(() => {
+    const slot = altarWeekdays[now.getDay()];
+    const { entry } = entryForDate(now, slot);
+    return { pillar: slot.pillar, theme: entry.theme, scriptureRef: entry.scripture.ref };
   }, [now]);
 
   // Today's verse — rotated daily from the WEB seed (authentic public-domain text).
@@ -210,7 +207,12 @@ export default function TodayDashboard() {
             value={activePlanLocalName}
             sub={`${activeDone.length} of ${activePlan.totalDays} days read`}
           />
-          <Mini label={liturgical.label} value={liturgical.value} sub={liturgical.sub} />
+          <MiniLink
+            href="/family"
+            label={`Bring the Word home · ${todaysAltar.pillar}`}
+            value={todaysAltar.theme}
+            sub={todaysAltar.scriptureRef}
+          />
           <Mini
             label="Today's nation"
             value={`${flagEmoji(nation.iso)} ${nation.name}`}
@@ -487,6 +489,29 @@ function Mini({ label, value, sub }: { label: string; value: string; sub: string
       <div className="font-serif text-lg text-ink-50 mt-1">{value}</div>
       <div className="text-xs text-ink-300 mt-0.5">{sub}</div>
     </div>
+  );
+}
+
+function MiniLink({
+  href,
+  label,
+  value,
+  sub,
+}: {
+  href: string;
+  label: string;
+  value: string;
+  sub: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="block rounded-2xl bg-ink-800 border border-ink-700 p-4 hover:border-flame-500 transition-colors"
+    >
+      <div className="text-[10px] uppercase tracking-widest text-flame-300">{label}</div>
+      <div className="font-serif text-lg text-ink-50 mt-1 leading-snug">{value}</div>
+      <div className="text-xs text-ink-300 mt-0.5">{sub}</div>
+    </Link>
   );
 }
 
