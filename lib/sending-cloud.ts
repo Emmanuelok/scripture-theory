@@ -34,13 +34,19 @@ import { getSupabase } from "@/lib/supabase";
        -- people they are praying for / studying with / walking toward
        -- Jesus. We deliberately do NOT call this "souls won" or "saved";
        -- the Lord saves. The evangelist walks.
-       souls_walking_with  integer not null default 0 check (souls_walking_with between 0 and 10000)
+       souls_walking_with  integer not null default 0 check (souls_walking_with between 0 and 10000),
+       -- The Wall of Yeses · how many times the Body has lifted this
+       -- believer up in prayer. Visible only as a quiet number ("lifted
+       -- up 17 times"). Per-device dedup is enforced client-side.
+       prayed_for_count    integer not null default 0
      );
 
-     -- If you already created the table, add the column:
+     -- If you already created the table, add the new columns:
      --   alter table sending_covenant
      --     add column if not exists souls_walking_with integer not null default 0
      --     check (souls_walking_with between 0 and 10000);
+     --   alter table sending_covenant
+     --     add column if not exists prayed_for_count integer not null default 0;
 
      create index if not exists idx_sending_covenant_recent
        on sending_covenant (said_yes_at desc)
@@ -66,6 +72,26 @@ import { getSupabase } from "@/lib/supabase";
      create policy "update own souls (device)" on sending_covenant
        for update using (device_id is not null)
        with check (device_id is not null);
+
+     -- The wall pray-for action goes through this RPC so the count is
+     -- bumped atomically and clients can't set it to any arbitrary value.
+     create or replace function pray_for_yes(yes_id uuid)
+     returns integer
+     language plpgsql
+     security definer
+     set search_path = public
+     as $$
+     declare
+       new_count integer;
+     begin
+       update sending_covenant
+       set prayed_for_count = prayed_for_count + 1
+       where id = yes_id
+       returning prayed_for_count into new_count;
+       return coalesce(new_count, 0);
+     end;
+     $$;
+     grant execute on function pray_for_yes(uuid) to anon, authenticated;
 ────────────────────────────────────────────────────────────────── */
 
 export type SendingYes = {
@@ -77,9 +103,12 @@ export type SendingYes = {
   public: boolean;
   /** Self-reported souls this evangelist is praying for / walking with. */
   souls_walking_with: number;
+  /** How many times the Body has lifted this believer up in prayer. */
+  prayed_for_count: number;
 };
 
 const SOULS_MAX = 10_000;
+const PRAYED_FOR_KEY = "scripture-theory-sending-prayed-for";
 
 const TABLE = "sending_covenant";
 const LOCAL_ID_KEY = "scripture-theory-sending-yes-id";
@@ -175,7 +204,7 @@ export async function listCloud(limit = 60): Promise<SendingYes[]> {
   if (!sb) return [];
   const { data, error } = await sb
     .from(TABLE)
-    .select("id, first_name, region, prayer, said_yes_at, public, souls_walking_with")
+    .select("id, first_name, region, prayer, said_yes_at, public, souls_walking_with, prayed_for_count")
     .eq("public", true)
     .order("said_yes_at", { ascending: false })
     .limit(limit);
@@ -209,7 +238,7 @@ export async function sayYes(input: {
   const { data, error } = await sb
     .from(TABLE)
     .insert(row)
-    .select("id, first_name, region, prayer, said_yes_at, public, souls_walking_with")
+    .select("id, first_name, region, prayer, said_yes_at, public, souls_walking_with, prayed_for_count")
     .single();
   if (error) {
     console.warn("[sending-cloud] insert error", error.message);
@@ -226,7 +255,7 @@ export async function getMyYes(): Promise<SendingYes | null> {
   if (!sb || !id) return null;
   const { data, error } = await sb
     .from(TABLE)
-    .select("id, first_name, region, prayer, said_yes_at, public, souls_walking_with")
+    .select("id, first_name, region, prayer, said_yes_at, public, souls_walking_with, prayed_for_count")
     .eq("id", id)
     .maybeSingle();
   if (error) {
@@ -276,13 +305,64 @@ export async function updateMySouls(n: number): Promise<SendingYes | null> {
     .update({ souls_walking_with: clamped })
     .eq("id", id)
     .eq("device_id", device)
-    .select("id, first_name, region, prayer, said_yes_at, public, souls_walking_with")
+    .select("id, first_name, region, prayer, said_yes_at, public, souls_walking_with, prayed_for_count")
     .maybeSingle();
   if (error) {
     console.warn("[sending-cloud] update souls error", error.message);
     return null;
   }
   return (data as SendingYes | null) ?? null;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   The Wall of Yeses — letting the Body lift up new evangelists in prayer.
+────────────────────────────────────────────────────────────────── */
+
+/** localStorage-tracked set of yes IDs this device has prayed for. */
+export function getLocalPrayedSet(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = window.localStorage.getItem(PRAYED_FOR_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    return new Set(Array.isArray(arr) ? arr : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function addLocalPrayed(id: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    const cur = getLocalPrayedSet();
+    cur.add(id);
+    window.localStorage.setItem(PRAYED_FOR_KEY, JSON.stringify(Array.from(cur)));
+  } catch {}
+}
+
+/**
+ * Lift up one yes in prayer. Atomic server-side increment via the
+ * pray_for_yes() RPC; local dedup so the same device cannot click
+ * twice on the same person. Returns the new prayed_for_count.
+ */
+export async function prayForYes(yesId: string): Promise<{ ok: boolean; count?: number; error?: string }> {
+  const sb = getSupabase();
+  if (!sb) return { ok: false, error: "Cloud sync isn't configured." };
+  if (getLocalPrayedSet().has(yesId)) {
+    return { ok: false, error: "Already prayed for this brother / sister." };
+  }
+  const { data, error } = await sb.rpc("pray_for_yes", { yes_id: yesId });
+  if (error) return { ok: false, error: error.message };
+  addLocalPrayed(yesId);
+  return { ok: true, count: typeof data === "number" ? data : undefined };
+}
+
+/** Number of days since said_yes_at — used to highlight new yeses. */
+export function daysSince(iso: string): number {
+  const then = new Date(iso).getTime();
+  if (!Number.isFinite(then)) return Number.POSITIVE_INFINITY;
+  const ms = Date.now() - then;
+  return Math.max(0, Math.floor(ms / 86_400_000));
 }
 
 /** Pretty short label like "2,341" with thousands separator. */

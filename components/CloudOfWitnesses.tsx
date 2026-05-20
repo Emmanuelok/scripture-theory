@@ -2,13 +2,16 @@
 
 import { useEffect, useState } from "react";
 import {
+  daysSince,
   formatYesCount,
+  getLocalPrayedSet,
   getMyYes,
   getTotalSouls,
   getYesCount,
   isCloudConfigured,
   listCloud,
   percentOfMillion,
+  prayForYes,
   sayYes,
   updateMySouls,
   validateYes,
@@ -45,6 +48,11 @@ export default function CloudOfWitnesses() {
   const [soulsDraft, setSoulsDraft] = useState<string>("");
   const [savingSouls, setSavingSouls] = useState(false);
 
+  // Wall · prayed-for set + pending state per yes id
+  const [prayedSet, setPrayedSet] = useState<Set<string>>(new Set());
+  const [prayingId, setPrayingId] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
+
   useEffect(() => {
     let cancelled = false;
     if (!configured) {
@@ -55,7 +63,7 @@ export default function CloudOfWitnesses() {
       const [c, s, list, mine] = await Promise.all([
         getYesCount(),
         getTotalSouls(),
-        listCloud(60),
+        listCloud(120),
         getMyYes(),
       ]);
       if (cancelled) return;
@@ -63,12 +71,36 @@ export default function CloudOfWitnesses() {
       setSouls(s);
       setCloud(list);
       setMe(mine);
+      setPrayedSet(getLocalPrayedSet());
       setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
   }, [configured]);
+
+  async function liftUp(y: SendingYes) {
+    if (prayedSet.has(y.id) || prayingId) return;
+    setPrayingId(y.id);
+    try {
+      const res = await prayForYes(y.id);
+      if (res.ok) {
+        setPrayedSet((s) => {
+          const next = new Set(s);
+          next.add(y.id);
+          return next;
+        });
+        // Reflect the new count in the wall
+        setCloud((list) =>
+          list.map((x) =>
+            x.id === y.id ? { ...x, prayed_for_count: res.count ?? x.prayed_for_count + 1 } : x
+          )
+        );
+      }
+    } finally {
+      setPrayingId(null);
+    }
+  }
 
   async function saveSouls() {
     if (!me) return;
@@ -349,41 +381,172 @@ export default function CloudOfWitnesses() {
         </form>
       )}
 
-      {/* The wall */}
-      <div className="mt-8">
-        <div className="text-xs uppercase tracking-widest text-flame-700">
-          The cloud · most recent yeses
-        </div>
-        {cloud.length === 0 ? (
-          <p className="mt-3 text-sm text-ink-600 italic">
-            The cloud is gathering. Be among the first to say yes.
-          </p>
-        ) : (
-          <ul className="mt-3 flex flex-wrap gap-2">
-            {cloud.map((y) => (
-              <li
-                key={y.id}
-                title={
-                  y.prayer
-                    ? `${y.first_name} (${y.region}) — "${y.prayer}"`
-                    : `${y.first_name} (${y.region})`
-                }
-                className="inline-flex items-center gap-2 rounded-full border border-flame-300/60 bg-card px-3 py-1 text-xs text-ink-800"
-              >
-                <span className="font-medium">{y.first_name}</span>
-                <span className="text-flame-700/80">·</span>
-                <span className="text-ink-500">{y.region}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      {/* The Wall of Yeses — every yes shown as a card, with prayer lift */}
+      {(() => {
+        if (cloud.length === 0) {
+          return (
+            <div className="mt-8">
+              <div className="text-xs uppercase tracking-widest text-flame-700">
+                The Wall of Yeses
+              </div>
+              <p className="mt-3 text-sm text-ink-600 italic">
+                The cloud is gathering. Be among the first to say yes.
+              </p>
+            </div>
+          );
+        }
+        const newWeek = cloud.filter((y) => daysSince(y.said_yes_at) <= 7);
+        const older = cloud.filter((y) => daysSince(y.said_yes_at) > 7);
+        const olderShown = showAll ? older : older.slice(0, Math.max(0, 24 - newWeek.length));
+        return (
+          <>
+            {newWeek.length > 0 && (
+              <div className="mt-8">
+                <div className="flex items-baseline justify-between gap-3 mb-3">
+                  <div>
+                    <div className="text-xs uppercase tracking-widest text-flame-700">
+                      Just said yes this week · lift them up
+                    </div>
+                    <p className="mt-1 text-sm text-ink-700 italic max-w-2xl">
+                      The new evangelists, the just-stepped-out, the still-finding-their-feet.
+                      Pray for one of them right now — even if you do not know their face.
+                    </p>
+                  </div>
+                  <span className="text-[10px] uppercase tracking-widest text-flame-700">
+                    {newWeek.length} this week
+                  </span>
+                </div>
+                <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {newWeek.map((y) => (
+                    <YesCard
+                      key={y.id}
+                      y={y}
+                      prayed={prayedSet.has(y.id)}
+                      pending={prayingId === y.id}
+                      onPray={() => liftUp(y)}
+                      isFresh
+                    />
+                  ))}
+                </ul>
+              </div>
+            )}
 
-      <p className="mt-6 text-[11px] text-ink-500 italic leading-relaxed">
+            {older.length > 0 && (
+              <div className="mt-8">
+                <div className="flex items-baseline justify-between gap-3 mb-3">
+                  <div className="text-xs uppercase tracking-widest text-flame-700">
+                    The Wall of Yeses · the cloud
+                  </div>
+                  <span className="text-[10px] uppercase tracking-widest text-ink-500">
+                    {older.length} {older.length === 1 ? "voice" : "voices"}
+                  </span>
+                </div>
+                <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {olderShown.map((y) => (
+                    <YesCard
+                      key={y.id}
+                      y={y}
+                      prayed={prayedSet.has(y.id)}
+                      pending={prayingId === y.id}
+                      onPray={() => liftUp(y)}
+                    />
+                  ))}
+                </ul>
+                {!showAll && older.length > olderShown.length && (
+                  <div className="mt-4 text-center">
+                    <button
+                      onClick={() => setShowAll(true)}
+                      className="rounded-full border border-ink-300 bg-card px-4 py-2 text-sm text-ink-700 hover:border-flame-500 hover:text-flame-700"
+                    >
+                      Show all {older.length} →
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </>
+        );
+      })()}
+
+      <p className="mt-8 text-[11px] text-ink-500 italic leading-relaxed">
         Privacy: first names and countries only. No last names, no emails, no street-level
-        location, ever. The wall is not stored on your device after you leave; the count
-        lives on the platform&apos;s database so others can see it grow.
+        location, ever. The &ldquo;lifted up in prayer&rdquo; count is anonymous — a quiet
+        encouragement to the believer, not a vote tally.
       </p>
     </section>
+  );
+}
+
+/* ───────────── One yes — the wall card ───────────── */
+
+function YesCard({
+  y,
+  prayed,
+  pending,
+  onPray,
+  isFresh,
+}: {
+  y: SendingYes;
+  prayed: boolean;
+  pending: boolean;
+  onPray: () => void;
+  isFresh?: boolean;
+}) {
+  const days = daysSince(y.said_yes_at);
+  const ago =
+    days === 0 ? "today"
+    : days === 1 ? "yesterday"
+    : days < 7 ? `${days} days ago`
+    : days < 30 ? `${Math.floor(days / 7)} weeks ago`
+    : days < 365 ? `${Math.floor(days / 30)} months ago`
+    : `${Math.floor(days / 365)} years ago`;
+  return (
+    <li
+      className={`rounded-2xl border bg-card p-4 flex flex-col transition-all ${
+        isFresh
+          ? "border-flame-400/70 bg-gradient-to-br from-flame-50/70 to-card"
+          : "border-ink-200 hover:border-flame-400/50"
+      }`}
+    >
+      <div className="flex items-baseline justify-between gap-2">
+        <div className="min-w-0">
+          <div className="font-serif text-lg text-ink-900 truncate">{y.first_name}</div>
+          <div className="text-xs text-ink-500 truncate">{y.region}</div>
+        </div>
+        {isFresh && (
+          <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-flame-600 text-ink-50 px-2 py-0.5 text-[9px] uppercase tracking-widest">
+            <span className="h-1 w-1 rounded-full bg-ink-50 animate-pulse" />
+            New
+          </span>
+        )}
+      </div>
+      {y.prayer && (
+        <p className="mt-2 text-sm text-ink-700 italic leading-relaxed border-l-2 border-flame-300 pl-3 line-clamp-3">
+          &ldquo;{y.prayer}&rdquo;
+        </p>
+      )}
+      <div className="mt-3 pt-3 border-t border-ink-100 flex items-center justify-between gap-2">
+        <div className="text-[10px] uppercase tracking-widest text-ink-500">
+          said yes {ago}
+          {y.prayed_for_count > 0 && (
+            <> · lifted up {y.prayed_for_count}{y.prayed_for_count === 1 ? "" : "×"}</>
+          )}
+        </div>
+        {prayed ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-800 px-2.5 py-1 text-[10px] uppercase tracking-widest">
+            ✓ prayed
+          </span>
+        ) : (
+          <button
+            onClick={onPray}
+            disabled={pending}
+            className="inline-flex items-center gap-1 rounded-full bg-flame-600 hover:bg-flame-700 text-ink-50 px-3 py-1 text-[11px] disabled:opacity-60"
+            aria-label={`Lift up ${y.first_name} in prayer`}
+          >
+            {pending ? "…" : "Lift up in prayer"}
+          </button>
+        )}
+      </div>
+    </li>
   );
 }
