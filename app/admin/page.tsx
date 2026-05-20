@@ -19,6 +19,12 @@ const QUEUES = [
     sub: "Moderate the public Project 1M wall. Hide anything that exposes a believer or anything spam / abuse. Most rows need nothing.",
     eyebrow: "Project 1M",
   },
+  {
+    href: "/admin/prayers",
+    title: "Prayer Wall",
+    sub: "Review requests believers have flagged. Three flags hide a post automatically — restore the honest pain, delete only clear abuse.",
+    eyebrow: "Intercession",
+  },
 ];
 
 export default function AdminHomePage() {

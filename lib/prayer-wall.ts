@@ -192,3 +192,61 @@ export async function listPrayedIds(): Promise<Set<string>> {
   if (error || !data) return new Set();
   return new Set(data.map((r: { request_id: string }) => r.request_id));
 }
+
+/* ──────────────────────────────────────────────────────────────────
+   Admin moderation (gated server-side by is_admin())
+
+   Auto-hide kicks in at 3 distinct flags (see migration 0003). This
+   admin surface lets a maintainer:
+     - see auto-hidden + manually-hidden requests
+     - read every flag's reason
+     - restore (set status='open') or hard-delete
+
+   See migration 0005_prayer_admin.sql for the policies + RPCs.
+────────────────────────────────────────────────────────────────── */
+
+export type AdminPrayerStatus = "open" | "answered" | "hidden" | "all";
+
+export async function adminListPrayerRequests(
+  status: AdminPrayerStatus,
+  limit = 100,
+): Promise<PrayerRequest[]> {
+  const sb = getSupabase();
+  if (!sb) return [];
+  const { data, error } = await sb.rpc("admin_list_prayer_requests", {
+    the_status: status,
+    the_limit: limit,
+  });
+  if (error || !data) {
+    if (error) console.warn("[prayer-wall] admin list error", error.message);
+    return [];
+  }
+  return data as PrayerRequest[];
+}
+
+export type FlagReason = { reason: string | null; at: string };
+
+export async function adminListFlagReasons(requestId: string): Promise<FlagReason[]> {
+  const sb = getSupabase();
+  if (!sb) return [];
+  const { data, error } = await sb.rpc("admin_list_flag_reasons", { req_id: requestId });
+  if (error || !data) return [];
+  return data as FlagReason[];
+}
+
+export async function adminSetRequestStatus(
+  id: string,
+  status: "open" | "answered" | "hidden",
+): Promise<{ ok: boolean; error?: string }> {
+  const sb = getSupabase();
+  if (!sb) return { ok: false, error: "Cloud not configured." };
+  const { error } = await sb.from("prayer_requests").update({ status }).eq("id", id);
+  return error ? { ok: false, error: error.message } : { ok: true };
+}
+
+export async function adminDeleteRequest(id: string): Promise<{ ok: boolean; error?: string }> {
+  const sb = getSupabase();
+  if (!sb) return { ok: false, error: "Cloud not configured." };
+  const { error } = await sb.from("prayer_requests").delete().eq("id", id);
+  return error ? { ok: false, error: error.message } : { ok: true };
+}
