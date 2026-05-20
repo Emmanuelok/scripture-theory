@@ -38,7 +38,12 @@ import { getSupabase } from "@/lib/supabase";
        -- The Wall of Yeses · how many times the Body has lifted this
        -- believer up in prayer. Visible only as a quiet number ("lifted
        -- up 17 times"). Per-device dedup is enforced client-side.
-       prayed_for_count    integer not null default 0
+       prayed_for_count    integer not null default 0,
+       -- Moderation. Editors can hide a yes (doxxing, hostile-jurisdiction
+       -- name slipped through, spam, abuse). Hidden entries vanish from
+       -- the public wall but remain in the database for audit.
+       hidden              boolean not null default false,
+       flagged_reason      text check (flagged_reason is null or char_length(flagged_reason) <= 280)
      );
 
      -- If you already created the table, add the new columns:
@@ -47,6 +52,14 @@ import { getSupabase } from "@/lib/supabase";
      --     check (souls_walking_with between 0 and 10000);
      --   alter table sending_covenant
      --     add column if not exists prayed_for_count integer not null default 0;
+     --   alter table sending_covenant
+     --     add column if not exists hidden boolean not null default false,
+     --     add column if not exists flagged_reason text;
+
+     -- Moderation columns (covered by the create table block above when
+     -- you start fresh — listed separately here for clarity):
+     --   hidden          : set true to remove a yes from the public wall
+     --   flagged_reason  : short editor note on why (private, admin-only)
 
      create index if not exists idx_sending_covenant_recent
        on sending_covenant (said_yes_at desc)
@@ -54,9 +67,21 @@ import { getSupabase } from "@/lib/supabase";
 
      alter table sending_covenant enable row level security;
 
-     -- Anyone can read public entries
+     -- Public sees public + not-hidden entries only.
      create policy "read public" on sending_covenant
-       for select using (public = true);
+       for select using (public = true and hidden = false);
+
+     -- Admins (allowlisted in admin_emails — see testimonies-cloud.ts
+     -- for the is_admin() function) can read every row including hidden.
+     create policy "admin read all yeses" on sending_covenant
+       for select using (is_admin());
+
+     -- Admins can hide / unhide / annotate / delete any yes.
+     create policy "admin update yeses" on sending_covenant
+       for update using (is_admin()) with check (is_admin());
+
+     create policy "admin delete yeses" on sending_covenant
+       for delete using (is_admin());
 
      -- Anyone (anon or authed) can register a yes
      create policy "insert any" on sending_covenant
@@ -206,6 +231,7 @@ export async function listCloud(limit = 60): Promise<SendingYes[]> {
     .from(TABLE)
     .select("id, first_name, region, prayer, said_yes_at, public, souls_walking_with, prayed_for_count")
     .eq("public", true)
+    .eq("hidden", false)
     .order("said_yes_at", { ascending: false })
     .limit(limit);
   if (error) {
@@ -375,4 +401,66 @@ export function percentOfMillion(n: number): number {
   const p = (n / 1_000_000) * 100;
   if (!Number.isFinite(p)) return 0;
   return Math.max(0, Math.min(100, p));
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Admin helpers — Wall moderation.
+
+   Gated by is_admin() RLS on the server (defined in testimonies-cloud
+   schema). Non-admins calling these will just see empty results /
+   "permission denied" errors from Supabase.
+────────────────────────────────────────────────────────────────── */
+
+export type AdminYes = SendingYes & {
+  hidden: boolean;
+  flagged_reason: string | null;
+  device_id: string | null;
+};
+
+export type YesFilter = "visible" | "hidden";
+
+export async function listYesesForAdmin(filter: YesFilter, limit = 200): Promise<AdminYes[]> {
+  const sb = getSupabase();
+  if (!sb) return [];
+  const { data, error } = await sb
+    .from(TABLE)
+    .select(
+      "id, first_name, region, prayer, said_yes_at, public, souls_walking_with, prayed_for_count, hidden, flagged_reason, device_id",
+    )
+    .eq("hidden", filter === "hidden")
+    .order("said_yes_at", { ascending: false })
+    .limit(limit);
+  if (error) {
+    console.warn("[sending-cloud] admin list error", error.message);
+    return [];
+  }
+  return (data ?? []) as AdminYes[];
+}
+
+export async function setYesHidden(
+  id: string,
+  hidden: boolean,
+  reason?: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const sb = getSupabase();
+  if (!sb) return { ok: false, error: "Cloud not configured." };
+  const patch: { hidden: boolean; flagged_reason?: string | null } = { hidden };
+  if (hidden) {
+    patch.flagged_reason = (reason ?? "").trim().slice(0, 280) || null;
+  } else {
+    patch.flagged_reason = null;
+  }
+  const { error } = await sb.from(TABLE).update(patch).eq("id", id);
+  return error ? { ok: false, error: error.message } : { ok: true };
+}
+
+/**
+ * Hard-delete a yes. Reserved for clear abuse / safety cases — most
+ * removals should use hide instead so the audit trail survives.
+ */
+export async function deleteYesAsAdmin(id: string): Promise<{ ok: boolean; error?: string }> {
+  const sb = getSupabase();
+  if (!sb) return { ok: false, error: "Cloud not configured." };
+  const { error } = await sb.from(TABLE).delete().eq("id", id);
+  return error ? { ok: false, error: error.message } : { ok: true };
 }
