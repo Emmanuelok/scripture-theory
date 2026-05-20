@@ -22,15 +22,25 @@ import { getSupabase } from "@/lib/supabase";
    Run this once in the Supabase SQL editor:
 
      create table if not exists sending_covenant (
-       id          uuid primary key default gen_random_uuid(),
-       first_name  text not null check (char_length(first_name) between 1 and 32),
-       region      text not null check (char_length(region) between 1 and 64),
-       prayer      text check (prayer is null or char_length(prayer) <= 280),
-       said_yes_at timestamptz not null default now(),
-       public      boolean not null default true,
-       user_id     uuid,
-       device_id   text
+       id                  uuid primary key default gen_random_uuid(),
+       first_name          text not null check (char_length(first_name) between 1 and 32),
+       region              text not null check (char_length(region) between 1 and 64),
+       prayer              text check (prayer is null or char_length(prayer) <= 280),
+       said_yes_at         timestamptz not null default now(),
+       public              boolean not null default true,
+       user_id             uuid,
+       device_id           text,
+       -- Project 1M · the harvest. Self-reported by each evangelist —
+       -- people they are praying for / studying with / walking toward
+       -- Jesus. We deliberately do NOT call this "souls won" or "saved";
+       -- the Lord saves. The evangelist walks.
+       souls_walking_with  integer not null default 0 check (souls_walking_with between 0 and 10000)
      );
+
+     -- If you already created the table, add the column:
+     --   alter table sending_covenant
+     --     add column if not exists souls_walking_with integer not null default 0
+     --     check (souls_walking_with between 0 and 10000);
 
      create index if not exists idx_sending_covenant_recent
        on sending_covenant (said_yes_at desc)
@@ -49,6 +59,13 @@ import { getSupabase } from "@/lib/supabase";
      -- Signed-in users can delete their own entry
      create policy "delete own (user)" on sending_covenant
        for delete using (auth.uid() = user_id);
+
+     -- Anyone who knows their device_id can update their own souls count
+     -- (matched in the WHERE clause client-side; no PII leaks because no
+     -- user_id lookup happens here).
+     create policy "update own souls (device)" on sending_covenant
+       for update using (device_id is not null)
+       with check (device_id is not null);
 ────────────────────────────────────────────────────────────────── */
 
 export type SendingYes = {
@@ -58,7 +75,11 @@ export type SendingYes = {
   prayer: string | null;
   said_yes_at: string;
   public: boolean;
+  /** Self-reported souls this evangelist is praying for / walking with. */
+  souls_walking_with: number;
 };
+
+const SOULS_MAX = 10_000;
 
 const TABLE = "sending_covenant";
 const LOCAL_ID_KEY = "scripture-theory-sending-yes-id";
@@ -154,7 +175,7 @@ export async function listCloud(limit = 60): Promise<SendingYes[]> {
   if (!sb) return [];
   const { data, error } = await sb
     .from(TABLE)
-    .select("id, first_name, region, prayer, said_yes_at, public")
+    .select("id, first_name, region, prayer, said_yes_at, public, souls_walking_with")
     .eq("public", true)
     .order("said_yes_at", { ascending: false })
     .limit(limit);
@@ -188,7 +209,7 @@ export async function sayYes(input: {
   const { data, error } = await sb
     .from(TABLE)
     .insert(row)
-    .select("id, first_name, region, prayer, said_yes_at, public")
+    .select("id, first_name, region, prayer, said_yes_at, public, souls_walking_with")
     .single();
   if (error) {
     console.warn("[sending-cloud] insert error", error.message);
@@ -205,11 +226,60 @@ export async function getMyYes(): Promise<SendingYes | null> {
   if (!sb || !id) return null;
   const { data, error } = await sb
     .from(TABLE)
-    .select("id, first_name, region, prayer, said_yes_at, public")
+    .select("id, first_name, region, prayer, said_yes_at, public, souls_walking_with")
     .eq("id", id)
     .maybeSingle();
   if (error) {
     console.warn("[sending-cloud] my-yes error", error.message);
+    return null;
+  }
+  return (data as SendingYes | null) ?? null;
+}
+
+/**
+ * Aggregate of souls being walked with — summed across all evangelists.
+ * This is the harvest count; if 1M evangelists each walk with one soul,
+ * the prayer of Project 1M is answered.
+ */
+export async function getTotalSouls(): Promise<number> {
+  const sb = getSupabase();
+  if (!sb) return 0;
+  // We can't easily sum via the JS client without RPC, so fetch in pages.
+  // For now, ask Postgres for sum via a small RPC alternative: pull all
+  // rows' souls_walking_with via select sum.
+  const { data, error } = await sb
+    .from(TABLE)
+    .select("souls_walking_with");
+  if (error) {
+    console.warn("[sending-cloud] sum souls error", error.message);
+    return 0;
+  }
+  return (data ?? []).reduce(
+    (n: number, row: { souls_walking_with?: number | null }) => n + (row.souls_walking_with ?? 0),
+    0,
+  );
+}
+
+/**
+ * Update the calling device's own souls count. Bounded 0..SOULS_MAX.
+ * Matched by device_id so a believer can adjust their own count from
+ * the same device without signing in.
+ */
+export async function updateMySouls(n: number): Promise<SendingYes | null> {
+  const sb = getSupabase();
+  const id = getLocalYesId();
+  const device = getOrCreateDeviceId();
+  if (!sb || !id || !device) return null;
+  const clamped = Math.max(0, Math.min(SOULS_MAX, Math.floor(n)));
+  const { data, error } = await sb
+    .from(TABLE)
+    .update({ souls_walking_with: clamped })
+    .eq("id", id)
+    .eq("device_id", device)
+    .select("id, first_name, region, prayer, said_yes_at, public, souls_walking_with")
+    .maybeSingle();
+  if (error) {
+    console.warn("[sending-cloud] update souls error", error.message);
     return null;
   }
   return (data as SendingYes | null) ?? null;

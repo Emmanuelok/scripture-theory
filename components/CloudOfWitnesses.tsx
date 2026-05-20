@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import {
   formatYesCount,
   getMyYes,
+  getTotalSouls,
   getYesCount,
   isCloudConfigured,
   listCloud,
   percentOfMillion,
   sayYes,
+  updateMySouls,
   validateYes,
   type SendingYes,
 } from "@/lib/sending-cloud";
@@ -25,6 +27,7 @@ import {
 export default function CloudOfWitnesses() {
   const [configured] = useState(() => isCloudConfigured());
   const [count, setCount] = useState<number | null>(null);
+  const [souls, setSouls] = useState<number | null>(null);
   const [cloud, setCloud] = useState<SendingYes[]>([]);
   const [me, setMe] = useState<SendingYes | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,6 +40,11 @@ export default function CloudOfWitnesses() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Souls-walking editor
+  const [editingSouls, setEditingSouls] = useState(false);
+  const [soulsDraft, setSoulsDraft] = useState<string>("");
+  const [savingSouls, setSavingSouls] = useState(false);
+
   useEffect(() => {
     let cancelled = false;
     if (!configured) {
@@ -44,13 +52,15 @@ export default function CloudOfWitnesses() {
       return;
     }
     (async () => {
-      const [c, list, mine] = await Promise.all([
+      const [c, s, list, mine] = await Promise.all([
         getYesCount(),
+        getTotalSouls(),
         listCloud(60),
         getMyYes(),
       ]);
       if (cancelled) return;
       setCount(c);
+      setSouls(s);
       setCloud(list);
       setMe(mine);
       setLoading(false);
@@ -59,6 +69,23 @@ export default function CloudOfWitnesses() {
       cancelled = true;
     };
   }, [configured]);
+
+  async function saveSouls() {
+    if (!me) return;
+    const n = Math.max(0, Math.min(10000, parseInt(soulsDraft, 10) || 0));
+    setSavingSouls(true);
+    try {
+      const updated = await updateMySouls(n);
+      if (updated) {
+        const diff = updated.souls_walking_with - me.souls_walking_with;
+        setMe(updated);
+        setSouls((s) => (s ?? 0) + diff);
+        setEditingSouls(false);
+      }
+    } finally {
+      setSavingSouls(false);
+    }
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -110,24 +137,24 @@ export default function CloudOfWitnesses() {
 
   return (
     <section className="rounded-3xl border border-flame-300 bg-gradient-to-br from-flame-50 to-card p-6 md:p-8">
-      <div className="grid lg:grid-cols-[1fr_auto] gap-6 items-start mb-6">
-        <div>
-          <div className="text-xs uppercase tracking-widest text-flame-700">
-            The cloud of witnesses · Hebrews 12:1
-          </div>
-          <h2 className="font-serif text-2xl md:text-3xl text-ink-900 mt-1">
-            Believers who have said yes.
-          </h2>
-          <p className="mt-3 text-sm text-ink-700 leading-relaxed max-w-2xl">
-            Not a leaderboard. Not a stat to brag about. A &ldquo;great cloud of
-            witnesses&rdquo; (Hebrews 12:1) — visible only so the next believer
-            sees the cloud and is emboldened to add their amen. First names and
-            countries only; no comparison, no rank.
-          </p>
+      <div>
+        <div className="text-xs uppercase tracking-widest text-flame-700">
+          The cloud of witnesses · Hebrews 12:1
         </div>
+        <h2 className="font-serif text-2xl md:text-3xl text-ink-900 mt-1">
+          Believers who have said yes.
+        </h2>
+        <p className="mt-3 text-sm text-ink-700 leading-relaxed max-w-2xl">
+          Not a leaderboard. Not a stat to brag about. A &ldquo;great cloud of
+          witnesses&rdquo; (Hebrews 12:1) — visible only so the next believer
+          sees the cloud and is emboldened to add their amen. First names and
+          countries only; no comparison, no rank.
+        </p>
+      </div>
 
-        {/* Count card */}
-        <div className="shrink-0 rounded-2xl border border-flame-300 bg-ink-900 text-ink-50 px-5 py-4 text-center min-w-[160px]">
+      {/* Two-count headline — evangelists + souls being walked with */}
+      <div className="mt-6 grid sm:grid-cols-2 gap-3">
+        <div className="rounded-2xl border border-flame-300 bg-ink-900 text-ink-50 px-5 py-4 text-center">
           <div className="text-[10px] uppercase tracking-widest text-flame-300">
             Said yes so far
           </div>
@@ -135,13 +162,30 @@ export default function CloudOfWitnesses() {
             {loading ? "…" : formatYesCount(count ?? 0)}
           </div>
           <div className="mt-1 text-[10px] uppercase tracking-widest text-flame-300/80">
-            toward 1,000,000
+            evangelists · toward 1,000,000
+          </div>
+        </div>
+        <div className="rounded-2xl border border-flame-300 bg-ink-900 text-ink-50 px-5 py-4 text-center">
+          <div className="text-[10px] uppercase tracking-widest text-flame-300">
+            Souls being walked with
+          </div>
+          <div className="font-serif text-flame-100 text-4xl md:text-5xl mt-1 leading-none tabular-nums">
+            {loading ? "…" : formatYesCount(souls ?? 0)}
+          </div>
+          <div className="mt-1 text-[10px] uppercase tracking-widest text-flame-300/80">
+            self-reported · the Lord saves
           </div>
         </div>
       </div>
 
+      <p className="mt-3 text-[11px] text-ink-600 italic leading-relaxed">
+        Our prayer: one million evangelists, each walking with at least one soul toward
+        Jesus — that is the harvest of Project 1M. The Lord of the harvest brings the
+        increase; we walk.
+      </p>
+
       {/* Progress bar — capped, no false growth */}
-      <div className="mb-6">
+      <div className="mt-5 mb-6">
         <div className="h-2 rounded-full bg-ink-200/70 overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-flame-300 via-flame-500 to-flame-300 transition-all duration-700"
@@ -149,7 +193,7 @@ export default function CloudOfWitnesses() {
           />
         </div>
         <div className="mt-1.5 flex justify-between text-[10px] uppercase tracking-widest text-ink-500">
-          <span>{loading ? "…" : `${percentOfMillion(count ?? 0).toFixed(4)}% of 1M`}</span>
+          <span>{loading ? "…" : `${percentOfMillion(count ?? 0).toFixed(4)}% of 1M evangelists`}</span>
           <span>1,000,000</span>
         </div>
       </div>
@@ -168,8 +212,67 @@ export default function CloudOfWitnesses() {
           )}
           <p className="mt-3 text-[11px] text-ink-500 italic">
             Recorded {new Date(me.said_yes_at).toLocaleDateString()} · welcome to the cloud.
-            Now go — pray, witness, walk with one soul, and let the Spirit grow what He grows.
           </p>
+
+          {/* Souls editor */}
+          <div className="mt-5 pt-4 border-t border-ink-100">
+            <div className="text-xs uppercase tracking-widest text-flame-700">
+              Souls you are walking with
+            </div>
+            {!editingSouls ? (
+              <div className="mt-2 flex flex-wrap items-baseline justify-between gap-3">
+                <div>
+                  <span className="font-serif text-3xl text-ink-900 tabular-nums">
+                    {me.souls_walking_with}
+                  </span>
+                  <span className="ml-2 text-sm text-ink-600">
+                    {me.souls_walking_with === 1 ? "soul" : "souls"} you are praying for, studying with, or witnessing to.
+                  </span>
+                </div>
+                <button
+                  onClick={() => {
+                    setSoulsDraft(String(me.souls_walking_with));
+                    setEditingSouls(true);
+                  }}
+                  className="rounded-full border border-ink-300 bg-card px-3 py-1 text-xs text-ink-700 hover:border-flame-500 hover:text-flame-700"
+                >
+                  Update
+                </button>
+              </div>
+            ) : (
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={0}
+                    max={10000}
+                    value={soulsDraft}
+                    onChange={(e) => setSoulsDraft(e.target.value)}
+                    className="w-24 rounded-xl border border-ink-200 bg-card-subtle px-3 py-2 text-sm text-ink-900 focus:outline-none focus:border-flame-500"
+                  />
+                  <span className="text-sm text-ink-600">souls walking with you</span>
+                </label>
+                <button
+                  onClick={saveSouls}
+                  disabled={savingSouls}
+                  className="rounded-full bg-flame-600 text-ink-50 px-3 py-1.5 text-xs hover:bg-flame-700 disabled:opacity-60"
+                >
+                  {savingSouls ? "Saving…" : "Save"}
+                </button>
+                <button
+                  onClick={() => setEditingSouls(false)}
+                  className="rounded-full border border-ink-300 bg-card px-3 py-1.5 text-xs text-ink-600 hover:border-ink-900"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+            <p className="mt-2 text-[11px] text-ink-500 italic leading-relaxed">
+              These are people you are praying for or walking with toward Jesus — not
+              &ldquo;won&rdquo; or &ldquo;converted.&rdquo; The Lord saves. We walk. Update
+              gently as the Spirit grows the harvest in front of you.
+            </p>
+          </div>
         </div>
       ) : (
         <form onSubmit={submit} className="rounded-2xl border border-ink-200 bg-card p-5 md:p-6">
