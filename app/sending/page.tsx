@@ -106,24 +106,42 @@ export default function SendingPage() {
         <div className="relative grid md:grid-cols-[1fr_auto] gap-6 items-end">
           <div>
             <div className="text-[10px] uppercase tracking-widest text-flame-300">
-              Project 1M · our quiet prayer
+              Project 1M · pray with us
             </div>
             <h2 className="font-serif text-3xl md:text-4xl text-ink-50 mt-1 leading-tight">
-              One million believers — ordinary, sent.
+              A prayer to the Lord of the harvest.
             </h2>
-            <p className="mt-3 text-ink-200 leading-relaxed max-w-2xl">
-              We pray for a million. Not a brand. Not a counter on a dashboard. A
-              quiet, daily prayer that the Lord of the harvest would send
-              labourers into His harvest field — that the platform would be a
-              trellis the Spirit uses to raise, equip, send, and support an army
-              of ordinary believers who carry Jesus to every place on earth.
-            </p>
-            <p className="mt-3 text-ink-300 italic text-sm leading-relaxed max-w-2xl">
-              We will never count souls publicly. We will never run a leaderboard.
-              The Lord knows His own. We are after the obedience of one heart at
-              a time — multiplied a million times by the Spirit&apos;s own
-              addition.
-            </p>
+            <div className="mt-4 space-y-3 text-ink-100 leading-relaxed max-w-2xl">
+              <p>
+                <span className="font-serif text-flame-200">Father in heaven,</span> hallowed
+                be Your name. Your kingdom come, Your will be done, on earth as it is in heaven.
+              </p>
+              <p>
+                You said the harvest is plentiful, but the labourers are few. Lord of the
+                harvest, send labourers into Your harvest field — and count us among them.
+                <span className="block mt-1 text-[11px] not-italic text-flame-300/90 tracking-wide">— Matthew 9:37-38</span>
+              </p>
+              <p>
+                Raise up one million ordinary believers across every nation: prayerful, brave
+                with Your name, gentle with Your people, faithful in the small things You give
+                them to do. Make this platform a trellis Your Spirit uses to equip, send, and
+                sustain them.
+                <span className="block mt-1 text-[11px] not-italic text-flame-300/90 tracking-wide">— Acts 1:8 · 2 Timothy 2:2</span>
+              </p>
+              <p>
+                Keep us from the love of numbers; give us the love of souls. We will not boast
+                in counts — the Lord knows His own — but we will pray with hope, because the
+                end is already written: a great multitude no one can count, from every nation,
+                standing before the Lamb.
+                <span className="block mt-1 text-[11px] not-italic text-flame-300/90 tracking-wide">— 2 Timothy 2:19 · Revelation 7:9</span>
+              </p>
+              <p className="italic text-flame-100">
+                Here we are, Lord. Send us. We pray this in the name of Jesus, our Saviour
+                and our Sender.
+                <span className="not-italic text-flame-200"> Amen.</span>
+                <span className="block mt-1 text-[11px] not-italic text-flame-300/90 tracking-wide">— Isaiah 6:8 · John 20:21</span>
+              </p>
+            </div>
           </div>
           <div className="shrink-0 rounded-2xl border border-flame-300/50 bg-ink-800/60 px-5 py-4 text-center">
             <div className="font-serif text-flame-200 text-5xl md:text-6xl leading-none">
