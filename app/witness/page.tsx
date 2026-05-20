@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { testimonies, sharePrompts } from "@/data/testimonies";
+import { sharePrompts } from "@/data/testimonies";
 import { PageHero, Tile } from "@/components/ui/Tile";
 import { Glyph } from "@/components/ui/Glyph";
 import WitnessCircles from "@/components/WitnessCircles";
+import TestimoniesWall from "@/components/TestimoniesWall";
 
 export const metadata = {
   title: "Witness — Scripture Theory",
@@ -41,73 +42,8 @@ export default function WitnessPage() {
         <WitnessCircles />
       </div>
 
-      {/* Featured testimony — large */}
-      {testimonies[0] && (
-        <article className="mt-12 group relative overflow-hidden rounded-3xl bg-ink-900 text-ink-50 p-8 md:p-10 border border-ink-800">
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-0 opacity-90"
-            style={{
-              background:
-                "radial-gradient(70% 60% at 0% 0%, rgba(249,115,22,0.18), transparent 60%), radial-gradient(60% 40% at 100% 100%, rgba(184,66,12,0.16), transparent 60%)",
-            }}
-          />
-          <div className="relative">
-            <div className="text-[10px] uppercase tracking-[0.18em] text-flame-300">
-              Testimony · {testimonies[0].place}
-            </div>
-            <h2 className="font-serif text-3xl md:text-5xl mt-2 leading-tight">
-              {testimonies[0].name}
-            </h2>
-            <div className="mt-1 text-xs uppercase tracking-widest text-flame-300">
-              {testimonies[0].verse}
-            </div>
-            <div className="mt-7 grid md:grid-cols-3 gap-4">
-              <DarkBlock label="Before">{testimonies[0].before}</DarkBlock>
-              <DarkBlock label="Jesus met me">{testimonies[0].encounter}</DarkBlock>
-              <DarkBlock label="Now">{testimonies[0].now}</DarkBlock>
-            </div>
-          </div>
-        </article>
-      )}
-
-      {/* Remaining testimonies — uniform tile grid */}
-      <div className="mt-10">
-        <div className="flex flex-wrap items-baseline justify-between gap-3 mb-5">
-          <h2 className="font-serif text-2xl md:text-3xl text-ink-900">
-            More stories of the same Lord
-          </h2>
-          <p className="text-sm text-ink-500 italic">
-            One Christ, many tongues, many tribes.
-          </p>
-        </div>
-        <ol className="grid sm:grid-cols-2 gap-4">
-          {testimonies.slice(1).map((t) => (
-            <li key={t.name + t.place} className="group relative overflow-hidden rounded-3xl border border-ink-200 bg-card p-6 hover:-translate-y-0.5 hover:border-flame-500/60 hover:shadow-[0_18px_50px_-20px_rgba(249,115,22,0.28)] transition-all">
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-flame-50/50 to-transparent"
-              />
-              <div className="relative">
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <h3 className="font-serif text-xl text-ink-900 group-hover:text-flame-700 transition-colors">
-                    {t.name}
-                  </h3>
-                  <span className="text-[10px] uppercase tracking-widest text-flame-700">
-                    {t.verse}
-                  </span>
-                </div>
-                <div className="text-xs uppercase tracking-widest text-ink-500 mt-0.5">{t.place}</div>
-                <div className="mt-4 grid grid-cols-1 gap-2 text-sm">
-                  <LightBlock label="Before">{t.before}</LightBlock>
-                  <LightBlock label="Jesus met me">{t.encounter}</LightBlock>
-                  <LightBlock label="Now">{t.now}</LightBlock>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </div>
+      {/* Real testimonies, fetched from the database */}
+      <TestimoniesWall />
 
       {/* Tell one person */}
       <section id="share-the-gospel" className="mt-20 scroll-mt-24">
@@ -171,20 +107,3 @@ export default function WitnessPage() {
 }
 
 const STEP_GLYPHS = ["hands", "ear", "open-book", "cross", "people", "lamp"] as const;
-
-function DarkBlock({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-2xl border border-ink-700/60 bg-ink-800/40 p-4">
-      <div className="text-[10px] uppercase tracking-widest text-flame-300">{label}</div>
-      <p className="mt-1.5 text-ink-100 leading-relaxed text-sm">{children}</p>
-    </div>
-  );
-}
-function LightBlock({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-xl border border-ink-200 bg-card-subtle p-3">
-      <div className="text-[10px] uppercase tracking-widest text-flame-700">{label}</div>
-      <p className="mt-1 text-ink-800 leading-relaxed text-sm">{children}</p>
-    </div>
-  );
-}

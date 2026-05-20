@@ -1,6 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import {
+  isTestimonyCloudConfigured,
+  submitTestimony,
+} from "@/lib/testimonies-cloud";
 
 const INTAKE_EMAIL = "testimonies@scripture-theory.org";
 
@@ -98,6 +102,41 @@ export default function TestimonyForm() {
 
   async function sendViaSite() {
     setSend({ status: "sending" });
+
+    // First choice: write to the Supabase editorial queue (so testimonies
+    // are real, durable, and reviewable). Falls back to the legacy email
+    // intake when the database isn't configured on this deploy.
+    if (isTestimonyCloudConfigured()) {
+      try {
+        const res = await submitTestimony({
+          firstName: form.firstName,
+          initialsOnly: form.initialsOnly,
+          city: form.city,
+          country: form.country,
+          before: form.before,
+          encounter: form.encounter,
+          now: form.now,
+          verse: form.verse,
+          contact: form.contact,
+        });
+        if (res.ok) {
+          setSend({ status: "sent" });
+        } else {
+          setSend({
+            status: "error",
+            message: res.error || "Could not save your testimony. Please try email or copy.",
+          });
+        }
+      } catch {
+        setSend({
+          status: "error",
+          message: "Network error. Please use the email or copy options.",
+        });
+      }
+      return;
+    }
+
+    // Legacy email-intake path — only runs if Supabase is unset on the deploy.
     try {
       const res = await fetch("/api/intake", {
         method: "POST",

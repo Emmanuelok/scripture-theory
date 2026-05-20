@@ -1,3 +1,15 @@
+/**
+ * Testimonies type used across the witness pages.
+ *
+ * IMPORTANT: this file no longer contains any sample / placeholder stories.
+ * Real testimonies are submitted by believers through /witness/share and
+ * stored in the `testimonies` Supabase table (see lib/testimonies-cloud.ts
+ * for the schema and helpers). The `testimonies` array below is exported
+ * as an empty list ONLY so legacy imports keep type-checking — every
+ * surface that displays testimonies now reads them from the database
+ * via the TestimoniesWall component.
+ */
+
 export type Testimony = {
   name: string;
   place: string;
@@ -7,58 +19,7 @@ export type Testimony = {
   verse: string;
 };
 
-export const testimonies: Testimony[] = [
-  {
-    name: "Amaka",
-    place: "Lagos, Nigeria",
-    before:
-      "I was raised in church but had never met Jesus. I went through the motions and carried shame I never told anyone about.",
-    encounter:
-      "At a Bible study a friend read John 8 over me — 'neither do I condemn you.' I wept for an hour. Jesus did not turn away from what I was hiding.",
-    now: "I lead a small group of women in my neighborhood who were also hiding. Together we are learning how to pray.",
-    verse: "John 8:11",
-  },
-  {
-    name: "Daniel",
-    place: "São Paulo, Brazil",
-    before:
-      "I was addicted, angry, and had walked out on my family. I thought God was finished with me.",
-    encounter:
-      "A pastor visited me in jail and read Luke 15 — the father running to meet his son. I gave my life to Jesus on that concrete floor.",
-    now: "I am sober four years. I am back home. My wife and I started a recovery group out of our local church.",
-    verse: "Luke 15:20",
-  },
-  {
-    name: "Mei",
-    place: "Eastern Asia",
-    before:
-      "I had never read a Bible. A coworker quietly gave me one in my own language and told me to start with John.",
-    encounter:
-      "I read the whole Gospel in a weekend. By the end I knew Jesus was alive. I prayed in my bedroom and told Him I was His.",
-    now: "I meet with two other women in secret. We pray for our families. We pray for our nation. Jesus is enough.",
-    verse: "John 20:31",
-  },
-  {
-    name: "Hannah",
-    place: "Manchester, United Kingdom",
-    before:
-      "I had a degree, a career, and panic attacks every Sunday night. I did not believe in God.",
-    encounter:
-      "A friend dragged me to her church and the pastor preached on the Sermon on the Mount. Jesus made sense for the first time in my life.",
-    now: "I have been baptized. I read the Bible on my commute. I have peace for the first time I can remember.",
-    verse: "Matthew 11:28–30",
-  },
-  {
-    name: "Pedro",
-    place: "Mexico City, Mexico",
-    before:
-      "I grew up Catholic, but it was words I didn't understand. After my brother died I quit believing anything was real.",
-    encounter:
-      "A neighbor invited me to read Romans with him. When we got to chapter 8 I understood — nothing could separate me from God's love. Not even my grief.",
-    now: "I am still Catholic. I love my parish. But Jesus is no longer a stranger to me. He is my Lord.",
-    verse: "Romans 8:38–39",
-  },
-];
+export const testimonies: Testimony[] = [];
 
 export const sharePrompts = [
   {
