@@ -4,6 +4,7 @@ import { PageHero, Tile } from "@/components/ui/Tile";
 import { Glyph } from "@/components/ui/Glyph";
 import WitnessCircles from "@/components/WitnessCircles";
 import TestimoniesWall from "@/components/TestimoniesWall";
+import FigureBoundary from "@/components/figure-utils/FigureBoundary";
 
 export const metadata = {
   title: "Witness — Scripture Theory",
@@ -39,11 +40,15 @@ export default function WitnessPage() {
       </div>
 
       <div className="mt-10">
-        <WitnessCircles />
+        <FigureBoundary label="Acts 1:8 Circles">
+          <WitnessCircles />
+        </FigureBoundary>
       </div>
 
       {/* Real testimonies, fetched from the database */}
-      <TestimoniesWall />
+      <FigureBoundary label="Testimonies">
+        <TestimoniesWall />
+      </FigureBoundary>
 
       {/* Tell one person */}
       <section id="share-the-gospel" className="mt-20 scroll-mt-24">

@@ -2,6 +2,7 @@ import MeDashboard from "@/components/MeDashboard";
 import PersonalSubNav from "@/components/PersonalSubNav";
 import PracticeHeatmap from "@/components/PracticeHeatmap";
 import HeartCompass from "@/components/HeartCompass";
+import FigureBoundary from "@/components/figure-utils/FigureBoundary";
 
 export const metadata = {
   title: "My walk — Scripture Theory",
@@ -25,10 +26,14 @@ export default function MePage() {
       <div className="mt-10">
         <PersonalSubNav />
         <div className="mt-6">
-          <HeartCompass />
+          <FigureBoundary label="Heart Compass">
+            <HeartCompass />
+          </FigureBoundary>
         </div>
         <div className="mt-6">
-          <PracticeHeatmap />
+          <FigureBoundary label="Practice Heatmap">
+            <PracticeHeatmap />
+          </FigureBoundary>
         </div>
         <MeDashboard />
       </div>

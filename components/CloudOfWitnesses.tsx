@@ -59,7 +59,7 @@ export default function CloudOfWitnesses() {
       setLoading(false);
       return;
     }
-    (async () => {
+    async function refresh() {
       const [c, s, list, mine] = await Promise.all([
         getYesCount(),
         getTotalSouls(),
@@ -73,9 +73,22 @@ export default function CloudOfWitnesses() {
       setMe(mine);
       setPrayedSet(getLocalPrayedSet());
       setLoading(false);
-    })();
+    }
+    refresh();
+
+    // Re-fetch when the tab regains focus so the wall stays fresh.
+    function onVisibility() {
+      if (document.visibilityState === "visible") {
+        void refresh();
+      }
+    }
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("focus", refresh);
+
     return () => {
       cancelled = true;
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("focus", refresh);
     };
   }, [configured]);
 

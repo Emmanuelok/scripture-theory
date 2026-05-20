@@ -53,9 +53,35 @@ import { getSupabase } from "@/lib/supabase";
        for select using (status = 'published');
 
      -- Anyone (anon or signed-in) can submit. Insert is forced to
-     -- pending; editors then flip status from the Supabase console.
+     -- pending; editors then flip status from /admin/testimonies.
      create policy "submit any" on testimonies
        for insert with check (status = 'pending');
+
+     -- ── Admin / editor access ─────────────────────────────────
+     -- A tiny allowlist table + helper that returns true when the
+     -- caller's auth email is on the allowlist. Admins read/update
+     -- everything; non-admins still only see published rows.
+
+     create table if not exists admin_emails (
+       email text primary key
+     );
+
+     -- Add your maintainer email(s):
+     --   insert into admin_emails(email) values ('you@example.com');
+
+     create or replace function is_admin() returns boolean
+       language sql stable security definer
+       set search_path = public
+       as $$ select exists(select 1 from admin_emails where email = auth.email()) $$;
+     grant execute on function is_admin() to anon, authenticated;
+
+     -- Admins can read pending / hidden too
+     create policy "admin read all" on testimonies
+       for select using (is_admin());
+
+     -- Admins can update status (and any other column) on any row
+     create policy "admin update" on testimonies
+       for update using (is_admin()) with check (is_admin());
 ────────────────────────────────────────────────────────────────── */
 
 export type PublishedTestimony = {
@@ -203,4 +229,59 @@ export async function submitTestimony(s: TestimonySubmission): Promise<{ ok: boo
     return { ok: false, error: error.message };
   }
   return { ok: true, id: data?.id as string };
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Admin helpers (gated by is_admin() RLS on the server)
+────────────────────────────────────────────────────────────────── */
+
+export type AdminTestimony = PublishedTestimony & {
+  status: "pending" | "published" | "hidden";
+  contact: string | null;
+};
+
+/** True iff the caller's auth email is in the admin_emails table. */
+export async function checkIsAdmin(): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  const { data, error } = await sb.rpc("is_admin");
+  if (error) {
+    console.warn("[testimonies] is_admin error", error.message);
+    return false;
+  }
+  return Boolean(data);
+}
+
+export async function listTestimoniesByStatus(
+  status: "pending" | "published" | "hidden",
+  limit = 100,
+): Promise<AdminTestimony[]> {
+  const sb = getSupabase();
+  if (!sb) return [];
+  const { data, error } = await sb
+    .from("testimonies")
+    .select(
+      "id, first_name, initials_only, place, before_text, encounter, now_text, verse, contact, status, published_at, created_at",
+    )
+    .eq("status", status)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) {
+    console.warn("[testimonies] admin list error", error.message);
+    return [];
+  }
+  return (data ?? []) as AdminTestimony[];
+}
+
+export async function setTestimonyStatus(
+  id: string,
+  status: "pending" | "published" | "hidden",
+): Promise<{ ok: boolean; error?: string }> {
+  const sb = getSupabase();
+  if (!sb) return { ok: false, error: "Cloud not configured." };
+  const patch: { status: string; published_at?: string | null } = { status };
+  if (status === "published") patch.published_at = new Date().toISOString();
+  if (status !== "published") patch.published_at = null;
+  const { error } = await sb.from("testimonies").update(patch).eq("id", id);
+  return error ? { ok: false, error: error.message } : { ok: true };
 }

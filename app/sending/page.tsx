@@ -1,6 +1,7 @@
 import Link from "next/link";
 import SendingCompass from "@/components/SendingCompass";
 import CloudOfWitnesses from "@/components/CloudOfWitnesses";
+import FigureBoundary from "@/components/figure-utils/FigureBoundary";
 import { PageHero, Tile } from "@/components/ui/Tile";
 import { Glyph } from "@/components/ui/Glyph";
 import ScriptureRef from "@/components/ScriptureRef";
@@ -85,12 +86,16 @@ export default function SendingPage() {
 
       {/* The figure */}
       <div className="mt-10">
-        <SendingCompass />
+        <FigureBoundary label="Sending Compass">
+          <SendingCompass />
+        </FigureBoundary>
       </div>
 
       {/* The Cloud of Witnesses — live registry of yeses */}
       <div id="wall" className="mt-14 scroll-mt-20">
-        <CloudOfWitnesses />
+        <FigureBoundary label="Wall of Yeses">
+          <CloudOfWitnesses />
+        </FigureBoundary>
       </div>
 
       {/* The 1M prayer — internal framing, not a public counter */}

@@ -23,6 +23,8 @@ export default function robots(): MetadataRoute.Robots {
           // Course exam / certificate stay private to the user.
           "/course/exam",
           "/course/certificate",
+          // Admin surfaces — never indexed.
+          "/admin/",
         ],
       },
     ],

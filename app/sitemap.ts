@@ -68,7 +68,8 @@ const STATIC_ROUTES: { path: string; priority: number; changefreq: "daily" | "we
   { path: "/calendar",        priority: 0.6, changefreq: "monthly" },
 
   // Mission
-  { path: "/witness",         priority: 0.7, changefreq: "monthly" },
+  { path: "/witness",         priority: 0.7, changefreq: "weekly" },
+  { path: "/sending",         priority: 0.9, changefreq: "weekly" },
   { path: "/connect",         priority: 0.7, changefreq: "monthly" },
   { path: "/give",            priority: 0.6, changefreq: "monthly" },
   { path: "/vocation",        priority: 0.6, changefreq: "monthly" },
@@ -85,7 +86,14 @@ const STATIC_ROUTES: { path: string; priority: number; changefreq: "daily" | "we
   { path: "/hymns",           priority: 0.6, changefreq: "monthly" },
   { path: "/atlas",           priority: 0.6, changefreq: "yearly" },
   { path: "/timeline",        priority: 0.6, changefreq: "yearly" },
+  { path: "/figures",         priority: 0.7, changefreq: "monthly" },
   { path: "/apologetics",     priority: 0.6, changefreq: "monthly" },
+
+  // Themed Scripture pages
+  { path: "/beatitudes",      priority: 0.6, changefreq: "yearly" },
+  { path: "/armor",           priority: 0.6, changefreq: "yearly" },
+  { path: "/seven-words",     priority: 0.6, changefreq: "yearly" },
+  { path: "/apostles",        priority: 0.6, changefreq: "yearly" },
 
   // Trust & meta
   { path: "/about",           priority: 0.6, changefreq: "yearly" },
