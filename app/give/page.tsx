@@ -8,6 +8,12 @@ export const metadata = {
     "Scripture Theory is free and ad-free. If the Lord nudges you to support the work, here is how. Every dollar goes to keeping the lights on, paying contributors honestly, and reaching more nations.",
 };
 
+// Links come from env vars so deployments can wire any payment provider —
+// Stripe Payment Link, Ko-fi, Patreon, GoFundMe, etc. — without code changes.
+// Set in Vercel: NEXT_PUBLIC_GIVE_ONCE_URL, NEXT_PUBLIC_GIVE_MONTHLY_URL.
+const GIVE_ONCE_URL = process.env.NEXT_PUBLIC_GIVE_ONCE_URL ?? "";
+const GIVE_MONTHLY_URL = process.env.NEXT_PUBLIC_GIVE_MONTHLY_URL ?? "";
+
 const USES = [
   {
     glyph: "globe" as const,
@@ -39,6 +45,7 @@ const NEVERS = [
 ];
 
 export default function GivePage() {
+  const isConfigured = Boolean(GIVE_ONCE_URL || GIVE_MONTHLY_URL);
   return (
     <section className="mx-auto max-w-4xl px-5 pt-12 pb-24">
       <PageHero
@@ -65,27 +72,42 @@ export default function GivePage() {
         glyph={<Glyph id="hands" size={120} />}
         className="mt-12"
       >
-        <div className="mt-5 flex flex-wrap gap-2">
-          <a
-            href="https://ko-fi.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-5 py-2.5 text-sm hover:bg-flame-500"
-          >
-            Give once →
-          </a>
-          <a
-            href="https://patreon.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center rounded-full border border-ink-700 text-ink-50 px-5 py-2.5 text-sm hover:border-flame-300"
-          >
-            Give monthly →
-          </a>
-        </div>
-        <p className="mt-3 text-[11px] text-ink-300 italic">
-          Maintainer: replace the links above with your actual Stripe / Ko-fi / Patreon endpoints.
-        </p>
+        {isConfigured ? (
+          <div className="mt-5 flex flex-wrap gap-2">
+            {GIVE_ONCE_URL && (
+              <a
+                href={GIVE_ONCE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-5 py-2.5 text-sm hover:bg-flame-500"
+              >
+                Give once →
+              </a>
+            )}
+            {GIVE_MONTHLY_URL && (
+              <a
+                href={GIVE_MONTHLY_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center rounded-full border border-ink-700 text-ink-50 px-5 py-2.5 text-sm hover:border-flame-300"
+              >
+                Give monthly →
+              </a>
+            )}
+          </div>
+        ) : (
+          <div className="mt-5 rounded-2xl border border-ink-700/60 bg-ink-800/40 p-4 text-sm text-ink-300 leading-relaxed">
+            <div className="text-[10px] uppercase tracking-widest text-flame-300 mb-1">
+              Setup pending
+            </div>
+            Payment endpoints aren't configured yet. Set{" "}
+            <code className="rounded bg-ink-900 px-1.5 py-0.5 text-flame-200">NEXT_PUBLIC_GIVE_ONCE_URL</code>
+            {" "}and{" "}
+            <code className="rounded bg-ink-900 px-1.5 py-0.5 text-flame-200">NEXT_PUBLIC_GIVE_MONTHLY_URL</code>
+            {" "}in Vercel environment variables (Stripe Payment Link, Ko-fi, Patreon, etc.) and these
+            buttons will appear automatically — no code changes needed.
+          </div>
+        )}
       </Tile>
 
       {/* Where the money goes */}
@@ -170,8 +192,8 @@ export default function GivePage() {
         />
         <div className="relative">
           <p className="font-serif text-2xl md:text-3xl leading-snug italic">
-            "Each one must give as he has decided in his heart, not reluctantly or under
-            compulsion, for God loves a cheerful giver."
+            &ldquo;Each one must give as he has decided in his heart, not reluctantly or under
+            compulsion, for God loves a cheerful giver.&rdquo;
           </p>
           <p className="mt-2 text-ink-300">2 Corinthians 9:7</p>
         </div>

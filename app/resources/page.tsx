@@ -130,6 +130,15 @@ export default function ResourcesHub() {
             glyph={<Glyph id="lamp" size={48} />}
           />
 
+          {/* GIVE — quiet, voluntary, no pressure */}
+          <Tile
+            href="/give"
+            eyebrow="If the Lord nudges"
+            title="Support this work"
+            sub="The platform is free and ad-free. If you'd like to help keep the lights on, pay translators honestly, and reach more nations, the door is open here — gently, with no pressure."
+            glyph={<Glyph id="hands" size={48} />}
+          />
+
           {/* TRANSLATIONS */}
           <Tile
             href="/bible/translations"
