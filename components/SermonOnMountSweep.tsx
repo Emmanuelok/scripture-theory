@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
+import { useStepReveal } from "./figure-utils/useStepReveal";
+import StepControls, { StepProgress } from "./figure-utils/StepControls";
 
 // ─── Sermon on the Mount — the structural sweep ────────────────
 // Matthew 5-7 is not a loose collection of sayings but a carefully built
 // teaching. Eight sections rise from the Beatitudes through deeper Torah,
-// hidden righteousness, and warnings, to the climax: two builders.
+// hidden righteousness, and warnings, to the climax: two builders. Walks
+// through the sermon one movement at a time.
 
 type Section = {
   num: string;
@@ -26,46 +29,56 @@ const SECTIONS: Section[] = [
 ];
 
 const VIEW_W = 1200;
-const VIEW_H = 360;
+const VIEW_H = 380;
 
 export default function SermonOnMountSweep() {
-  const [drawn, setDrawn] = useState(false);
-  const [active, setActive] = useState<number | null>(null);
-
-  useEffect(() => {
-    const id = window.requestAnimationFrame(() => setDrawn(true));
-    return () => window.cancelAnimationFrame(id);
-  }, []);
-
-  const focused = active !== null ? SECTIONS[active] : null;
+  const state = useStepReveal(SECTIONS.length, 1700);
+  const { step } = state;
+  const activeIdx = step > 0 ? step - 1 : -1;
+  const focused = activeIdx >= 0 ? SECTIONS[activeIdx] : null;
 
   // X positions across width
-  const xs = SECTIONS.map((_, i) => 80 + (i * (VIEW_W - 160)) / (SECTIONS.length - 1));
-  // Y rises gently from left to right; last section is the highest (the climax)
-  const baseY = VIEW_H - 100;
-  const rise = 140;
-  const ys = SECTIONS.map((_, i) => baseY - (i / (SECTIONS.length - 1)) * rise);
+  const xs = useMemo(() => SECTIONS.map((_, i) => 90 + (i * (VIEW_W - 180)) / (SECTIONS.length - 1)), []);
+  const Y_BASE = VIEW_H - 100;
+  const RISE = 160;
+  const ys = useMemo(() => SECTIONS.map((_, i) => Y_BASE - (i / (SECTIONS.length - 1)) * RISE), []);
 
-  // Smooth path through sections
-  const pathD = (() => {
-    let d = `M ${xs[0]} ${ys[0]}`;
-    for (let i = 1; i < xs.length; i++) {
-      const px = xs[i - 1];
-      const py = ys[i - 1];
-      const cx = xs[i];
-      const cy = ys[i];
+  // Per-segment paths between consecutive sections (revealed step by step).
+  const segments = useMemo(() => {
+    const out: { i: number; d: string }[] = [];
+    for (let i = 0; i < SECTIONS.length - 1; i++) {
+      const px = xs[i];
+      const py = ys[i];
+      const cx = xs[i + 1];
+      const cy = ys[i + 1];
       const mx = (px + cx) / 2;
-      const my = (py + cy) / 2 - 16;
-      d += ` Q ${mx} ${my}, ${cx} ${cy}`;
+      const my = (py + cy) / 2 - 18;
+      out.push({ i, d: `M ${px} ${py} Q ${mx} ${my}, ${cx} ${cy}` });
     }
-    return d;
-  })();
+    return out;
+  }, [xs, ys]);
 
   return (
     <figure className="rounded-3xl border border-ink-200 bg-gradient-to-b from-ink-900 to-ink-800 text-ink-50 p-4 md:p-6 glow-ring">
+      <div className="flex flex-wrap items-baseline justify-between gap-3 mb-3">
+        <div className="min-w-0">
+          <div className="text-[10px] uppercase tracking-widest text-flame-300">
+            Step {Math.max(1, step)} of {SECTIONS.length}
+            {focused && <> · Matthew {focused.refs}</>}
+          </div>
+          <h3 className="font-serif text-2xl text-ink-50 mt-0.5 leading-snug">
+            {focused ? focused.title : "Sermon on the Mount"}
+          </h3>
+          {focused && <p className="text-sm text-ink-200 italic mt-1 max-w-2xl">{focused.blurb}</p>}
+        </div>
+        <StepControls state={state} />
+      </div>
+
+      <StepProgress state={state} />
+
       <div className="-mx-2 md:mx-0 overflow-x-auto">
         <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} className="block w-full min-w-[820px] h-auto"
-          role="img" aria-label="The Sermon on the Mount as a structural sweep through Matthew 5-7.">
+          role="img" aria-label={`Sermon on the Mount, step ${Math.max(1, step)} of ${SECTIONS.length}.`}>
           <defs>
             <linearGradient id="som-line" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="rgb(254 215 170)" />
@@ -79,71 +92,91 @@ export default function SermonOnMountSweep() {
             </radialGradient>
           </defs>
 
-          {/* Halo at the climax */}
-          <ellipse cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} rx={120} ry={60} fill="url(#som-peak)"
-            style={{ opacity: drawn ? 1 : 0, transition: "opacity 1400ms ease 1500ms" }} />
+          {/* Halo at the climax — appears only when the climax step is reached */}
+          {step >= SECTIONS.length && (
+            <ellipse cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} rx={140} ry={70} fill="url(#som-peak)"
+              style={{ opacity: 1, transition: "opacity 1200ms ease" }} />
+          )}
 
-          {/* Main path */}
-          <path
-            d={pathD}
-            fill="none"
-            stroke="url(#som-line)"
-            strokeWidth={2.5}
-            strokeLinecap="round"
-            style={{
-              strokeDasharray: 1400,
-              strokeDashoffset: drawn ? 0 : 1400,
-              transition: "stroke-dashoffset 2200ms cubic-bezier(0.22, 1, 0.36, 1)",
-            }}
-          />
+          {/* Segments — revealed step by step */}
+          {segments.map((seg) => {
+            const visible = step >= seg.i + 2;
+            return (
+              <path
+                key={`seg-${seg.i}`}
+                d={seg.d}
+                fill="none"
+                stroke="url(#som-line)"
+                strokeWidth={3}
+                strokeLinecap="round"
+                style={{
+                  strokeDasharray: 320,
+                  strokeDashoffset: visible ? 0 : 320,
+                  opacity: visible ? 1 : 0,
+                  transition: "stroke-dashoffset 900ms cubic-bezier(.22,1,.36,1), opacity 350ms ease",
+                }}
+              />
+            );
+          })}
 
           {/* Section nodes */}
           {SECTIONS.map((s, i) => {
-            const isOn = active === i;
+            const shown = step > i;
+            const isActive = activeIdx === i;
             const isClimax = i === SECTIONS.length - 1;
             const x = xs[i];
             const y = ys[i];
+            const r = isClimax ? 11 : 8;
             const labelY = y - 38;
+            const labelFontSize = isActive ? 15 : 13;
+            const labelWeight = isActive ? 700 : isClimax ? 700 : 600;
+            const labelFill = isActive ? "rgb(254 240 199)" : isClimax ? "rgb(254 215 170)" : "rgb(226 232 240)";
             return (
               <g
                 key={i}
-                tabIndex={0}
-                role="button"
-                aria-label={`${s.title}: ${s.blurb}`}
-                onMouseEnter={() => setActive(i)}
-                onMouseLeave={() => setActive((c) => (c === i ? null : c))}
-                onFocus={() => setActive(i)}
-                onClick={() => setActive((c) => (c === i ? null : i))}
                 style={{
-                  cursor: "pointer",
-                  opacity: drawn ? 1 : 0,
-                  transition: `opacity 700ms ease ${400 + i * 130}ms`,
+                  opacity: shown ? 1 : 0,
+                  transition: "opacity 500ms ease",
                 }}
               >
-                {(isOn || isClimax) && (
-                  <circle cx={x} cy={y} r={14} fill="none" stroke={isClimax ? "rgb(249 115 22)" : "rgb(254 215 170)"} strokeWidth={1.4} opacity={0.55} />
+                {(isActive || (isClimax && shown)) && (
+                  <circle cx={x} cy={y} r={r + 8} fill="none"
+                    stroke={isClimax ? "rgb(249 115 22)" : "rgb(254 215 170)"} strokeWidth={1.4} opacity={0.6} />
                 )}
                 <circle
                   cx={x}
                   cy={y}
-                  r={isClimax ? 9 : isOn ? 8 : 6}
+                  r={isActive ? r + 2 : r}
                   fill={isClimax ? "rgb(249 115 22)" : "rgb(254 215 170)"}
                   stroke="rgb(15 23 42)"
-                  strokeWidth={1.2}
+                  strokeWidth={1.4}
                 />
-                {/* Number badge */}
+                {/* Step badge */}
                 <text x={x} y={y + 24} textAnchor="middle" className="fill-ink-200"
                   style={{ font: "italic 10.5px ui-serif, Georgia, serif" }}>
                   {s.num}
                 </text>
-                {/* Title */}
+                {/* Pill background for active label */}
+                {isActive && (
+                  <rect
+                    x={x - estimateWidth(s.title, labelFontSize) / 2 - 8}
+                    y={labelY - labelFontSize - 4}
+                    width={estimateWidth(s.title, labelFontSize) + 16}
+                    height={labelFontSize + 10}
+                    rx={6}
+                    fill="rgb(15 23 42 / 0.85)"
+                    stroke="rgb(249 115 22)"
+                    strokeWidth={1.2}
+                  />
+                )}
                 <text x={x} y={labelY} textAnchor="middle"
-                  className={isClimax ? "fill-flame-200" : isOn ? "fill-flame-300" : "fill-ink-100"}
-                  style={{ font: `${isClimax || isOn ? "600" : "500"} 11px ui-serif, Georgia, serif` }}>
+                  style={{
+                    font: `${labelWeight} ${labelFontSize}px ui-serif, Georgia, serif`,
+                    fill: labelFill,
+                  }}>
                   {s.title}
                 </text>
-                {/* Refs */}
-                <text x={x} y={labelY - 14} textAnchor="middle" className="fill-ink-200"
+                <text x={x} y={labelY - (isActive ? labelFontSize + 10 : 16)} textAnchor="middle" className="fill-ink-300"
                   style={{ font: "italic 10.5px ui-serif, Georgia, serif" }}>
                   Matt {s.refs}
                 </text>
@@ -152,31 +185,45 @@ export default function SermonOnMountSweep() {
           })}
 
           {/* Endpoints */}
-          <text x={80} y={26} className="fill-flame-300"
-            style={{ font: "italic 500 11px ui-sans-serif, system-ui", letterSpacing: "0.06em", opacity: drawn ? 1 : 0, transition: "opacity 800ms ease 1300ms" }}>
+          <text x={90} y={28} className="fill-flame-300"
+            style={{ font: "italic 600 11.5px ui-sans-serif, system-ui", letterSpacing: "0.06em" }}>
             JESUS SITS DOWN — Matthew 5:1-2
           </text>
-          <text x={VIEW_W - 80} y={26} textAnchor="end" className="fill-flame-300"
-            style={{ font: "italic 500 11px ui-sans-serif, system-ui", letterSpacing: "0.06em", opacity: drawn ? 1 : 0, transition: "opacity 800ms ease 1400ms" }}>
+          <text x={VIEW_W - 90} y={28} textAnchor="end" className="fill-flame-300"
+            style={{ font: "italic 600 11.5px ui-sans-serif, system-ui", letterSpacing: "0.06em" }}>
             THE CROWDS ARE ASTONISHED — 7:28
           </text>
         </svg>
       </div>
 
-      <div className="mt-3 min-h-[3rem] text-sm leading-relaxed">
-        {focused ? (
-          <div>
-            <span className="text-[10px] uppercase tracking-widest text-flame-300 mr-2">Matthew {focused.refs}</span>
-            <span className="font-serif text-ink-50">{focused.title}.</span>
-            <span className="ml-2 text-ink-300 italic">{focused.blurb}</span>
-          </div>
-        ) : (
-          <span className="italic text-ink-400">
-            One sermon, eight movements, one rising point — the house on the rock. The
-            most consequential public address ever delivered.
-          </span>
-        )}
+      {/* Jump chips */}
+      <div className="mt-4 flex flex-wrap gap-1.5">
+        {SECTIONS.map((s, i) => {
+          const shown = step > i;
+          const isActive = activeIdx === i;
+          return (
+            <button
+              key={`som-chip-${i}`}
+              onClick={() => state.jumpTo(i + 1)}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] transition-all ${
+                isActive
+                  ? "bg-flame-600 text-ink-50 border-flame-300 font-medium"
+                  : shown
+                  ? "bg-ink-700/60 text-ink-100 border-flame-300/30"
+                  : "bg-ink-800/40 text-ink-400 border-ink-700/40 hover:border-flame-400/40 hover:text-ink-200"
+              }`}
+              aria-label={`Step ${i + 1}: ${s.title}`}
+            >
+              <span className="text-[9px] uppercase tracking-widest opacity-70">{s.num}</span>
+              <span>{s.title}</span>
+            </button>
+          );
+        })}
       </div>
     </figure>
   );
+}
+
+function estimateWidth(text: string, fontSize: number): number {
+  return text.length * fontSize * 0.55;
 }

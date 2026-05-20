@@ -232,7 +232,19 @@ export default function PracticeHeatmap() {
                   }}
                   onMouseMove={(e) => setTooltipPos({ x: e.clientX, y: e.clientY })}
                   onMouseLeave={() => setHover(null)}
+                  onClick={(e) => {
+                    // Touch support — tap toggles the tooltip
+                    setHover((cur) => (cur === cell.date ? null : cell.date));
+                    setTooltipPos({ x: e.clientX, y: e.clientY });
+                  }}
                   style={{ cursor: cell.total > 0 ? "pointer" : "default" }}
+                  tabIndex={cell.total > 0 ? 0 : -1}
+                  role={cell.total > 0 ? "button" : undefined}
+                  aria-label={
+                    cell.total > 0
+                      ? `${cell.date}: ${cell.practices.map((p) => `${KIND_LABEL[p.kind] ?? p.kind}${p.count > 1 ? ` ×${p.count}` : ""}`).join(", ")}`
+                      : `${cell.date}: no practice recorded`
+                  }
                 >
                   <title>
                     {cell.date}
@@ -263,13 +275,20 @@ export default function PracticeHeatmap() {
         </div>
       </div>
 
-      {/* Floating tooltip near the cursor */}
+      {/* Floating tooltip near the cursor, clamped to viewport so it never
+          overflows on a phone tap. */}
       {hoverDay && hoverDay.total > 0 && tooltipPos && (
         <div
-          className="pointer-events-none fixed z-40 rounded-xl border border-ink-700 bg-ink-900/95 text-ink-50 px-3 py-2 text-xs shadow-lg"
+          className="pointer-events-none fixed z-40 rounded-xl border border-ink-700 bg-ink-900/95 text-ink-50 px-3 py-2 text-xs shadow-lg max-w-[16rem]"
           style={{
-            left: tooltipPos.x + 14,
-            top: tooltipPos.y + 14,
+            left: Math.min(
+              tooltipPos.x + 14,
+              typeof window !== "undefined" ? window.innerWidth - 260 : tooltipPos.x + 14
+            ),
+            top: Math.min(
+              tooltipPos.y + 14,
+              typeof window !== "undefined" ? window.innerHeight - 180 : tooltipPos.y + 14
+            ),
           }}
         >
           <div className="text-flame-300 font-medium">{hoverDay.date}</div>

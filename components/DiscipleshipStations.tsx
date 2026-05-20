@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useProfile, type JourneyStage } from "@/lib/profile";
+import { useStepReveal } from "./figure-utils/useStepReveal";
+import StepControls, { StepProgress } from "./figure-utils/StepControls";
 
 // ─── Discipleship stations ─────────────────────────────────────
-// Seven stages from "outside" to "reproducing." The figure shows them as a
-// rising path of stations. If the household is tracking real disciples on
-// /disciple/journey, the figure colours each station by how many people
-// currently sit there — a quiet visual of the harvest.
+// Seven stages from "outside" to "reproducing." The figure walks the
+// household through one stage at a time. If real disciples are being
+// tracked on /disciple/journey, the station holding them lights up
+// with the count even in earlier steps.
 
 type Station = {
   id: JourneyStage;
@@ -26,20 +28,16 @@ const STATIONS: Station[] = [
   { id: "reproducing",  label: "Reproducing",       short: "Now walking with someone else through the stations.",          ref: "2 Timothy 2:2" },
 ];
 
-const VIEW_W = 1100;
-const VIEW_H = 380;
+const VIEW_W = 1200;
+const VIEW_H = 400;
 
 export default function DiscipleshipStations() {
   const { profile, mounted } = useProfile();
-  const [drawn, setDrawn] = useState(false);
-  const [active, setActive] = useState<JourneyStage | null>(null);
+  const state = useStepReveal(STATIONS.length, 1700);
+  const { step } = state;
+  const activeIdx = step > 0 ? step - 1 : -1;
+  const focused = activeIdx >= 0 ? STATIONS[activeIdx] : null;
 
-  useEffect(() => {
-    const id = window.requestAnimationFrame(() => setDrawn(true));
-    return () => window.cancelAnimationFrame(id);
-  }, []);
-
-  // Count current disciples at each stage (if any).
   const counts = useMemo(() => {
     const m = new Map<JourneyStage, number>();
     for (const d of profile.disciples ?? []) {
@@ -49,50 +47,62 @@ export default function DiscipleshipStations() {
   }, [profile.disciples]);
 
   const total = useMemo(() => (profile.disciples ?? []).length, [profile.disciples]);
-
-  // X positions along the path; ascend so the rightmost station is highest
-  const xs = STATIONS.map((_, i) => 80 + (i * (VIEW_W - 160)) / (STATIONS.length - 1));
-  const baseY = VIEW_H - 90;
-  const peakRise = 160;
-  const ys = STATIONS.map((_, i) => baseY - (i / (STATIONS.length - 1)) * peakRise);
-
-  // Smooth path through all stations
-  const pathD = (() => {
-    let d = `M ${xs[0]} ${ys[0]}`;
-    for (let i = 1; i < xs.length; i++) {
-      const px = xs[i - 1];
-      const py = ys[i - 1];
-      const cx = xs[i];
-      const cy = ys[i];
-      const mx = (px + cx) / 2;
-      const my = (py + cy) / 2 - 14;
-      d += ` Q ${mx} ${my}, ${cx} ${cy}`;
-    }
-    return d;
-  })();
-
-  const focused = active ? STATIONS.find((s) => s.id === active) : null;
   const focusedCount = focused ? counts.get(focused.id) ?? 0 : 0;
+
+  // Layout: stations ascend left → right
+  const xs = useMemo(
+    () => STATIONS.map((_, i) => 90 + (i * (VIEW_W - 180)) / (STATIONS.length - 1)),
+    []
+  );
+  const baseY = VIEW_H - 110;
+  const peakRise = 180;
+  const ys = useMemo(
+    () => STATIONS.map((_, i) => baseY - (i / (STATIONS.length - 1)) * peakRise),
+    [baseY]
+  );
+
+  const segments = useMemo(() => {
+    const out: { i: number; d: string }[] = [];
+    for (let i = 0; i < STATIONS.length - 1; i++) {
+      const px = xs[i];
+      const py = ys[i];
+      const cx = xs[i + 1];
+      const cy = ys[i + 1];
+      const mx = (px + cx) / 2;
+      const my = (py + cy) / 2 - 18;
+      out.push({ i, d: `M ${px} ${py} Q ${mx} ${my}, ${cx} ${cy}` });
+    }
+    return out;
+  }, [xs, ys]);
 
   return (
     <figure className="rounded-3xl border border-ink-200 bg-gradient-to-b from-ink-900 to-ink-800 text-ink-50 p-4 md:p-6 glow-ring">
-      <div className="flex items-baseline justify-between flex-wrap gap-2 mb-3">
-        <div>
-          <div className="text-[10px] uppercase tracking-widest text-flame-300">The journey</div>
-          <h3 className="font-serif text-xl text-ink-50 mt-0.5">
-            From outside to reproducing — seven stations.
-          </h3>
-        </div>
-        {mounted && total > 0 && (
-          <div className="text-xs text-ink-300 italic">
-            {total} {total === 1 ? "person" : "people"} on your record
+      <div className="flex flex-wrap items-baseline justify-between gap-3 mb-3">
+        <div className="min-w-0">
+          <div className="text-[10px] uppercase tracking-widest text-flame-300">
+            Step {Math.max(1, step)} of {STATIONS.length}
+            {focused && <> · {focused.ref}</>}
           </div>
-        )}
+          <h3 className="font-serif text-2xl text-ink-50 mt-0.5 leading-snug">
+            {focused ? focused.label : "From outside to reproducing"}
+          </h3>
+          {focused && (
+            <p className="text-sm text-ink-200 italic mt-1 max-w-2xl">
+              {focused.short}
+              {focusedCount > 0 && (
+                <span className="not-italic text-flame-300 ml-2">· {focusedCount} on your record</span>
+              )}
+            </p>
+          )}
+        </div>
+        <StepControls state={state} />
       </div>
+
+      <StepProgress state={state} />
 
       <div className="-mx-2 md:mx-0 overflow-x-auto">
         <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} className="block w-full min-w-[820px] h-auto"
-          role="img" aria-label="Seven discipleship stations from outside to reproducing.">
+          role="img" aria-label={`Discipleship stations, step ${Math.max(1, step)} of ${STATIONS.length}.`}>
           <defs>
             <linearGradient id="dj-line" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="rgb(120 113 108)" />
@@ -101,65 +111,84 @@ export default function DiscipleshipStations() {
             </linearGradient>
           </defs>
 
-          {/* Path */}
-          <path
-            d={pathD}
-            fill="none"
-            stroke="url(#dj-line)"
-            strokeWidth={2.5}
-            strokeLinecap="round"
-            style={{
-              strokeDasharray: 1400,
-              strokeDashoffset: drawn ? 0 : 1400,
-              transition: "stroke-dashoffset 2200ms cubic-bezier(0.22, 1, 0.36, 1)",
-            }}
-          />
+          {/* Segments revealed step by step */}
+          {segments.map((seg) => {
+            const visible = step >= seg.i + 2;
+            return (
+              <path
+                key={`seg-${seg.i}`}
+                d={seg.d}
+                fill="none"
+                stroke="url(#dj-line)"
+                strokeWidth={3}
+                strokeLinecap="round"
+                style={{
+                  strokeDasharray: 320,
+                  strokeDashoffset: visible ? 0 : 320,
+                  opacity: visible ? 1 : 0,
+                  transition: "stroke-dashoffset 900ms cubic-bezier(.22,1,.36,1), opacity 350ms ease",
+                }}
+              />
+            );
+          })}
 
           {/* Stations */}
           {STATIONS.map((s, i) => {
-            const isOn = active === s.id;
+            const shown = step > i;
+            const isActive = activeIdx === i;
             const x = xs[i];
             const y = ys[i];
-            const count = counts.get(s.id) ?? 0;
-            const radius = isOn ? 10 : count > 0 ? 9 : 7;
+            const count = mounted ? counts.get(s.id) ?? 0 : 0;
+            const radius = isActive ? 12 : count > 0 ? 11 : 9;
             const fill = count > 0 ? "rgb(249 115 22)" : "rgb(254 215 170)";
+            const labelY = y + radius + 22;
+            const labelFontSize = isActive ? 14.5 : 12.5;
+            const labelWeight = isActive ? 700 : 600;
+            const labelFill = isActive ? "rgb(254 240 199)" : "rgb(226 232 240)";
             return (
               <g
                 key={s.id}
-                tabIndex={0}
-                role="button"
-                aria-label={`${s.label}: ${s.short}${count > 0 ? ` (${count} on your record)` : ""}`}
-                onMouseEnter={() => setActive(s.id)}
-                onMouseLeave={() => setActive((c) => (c === s.id ? null : c))}
-                onFocus={() => setActive(s.id)}
                 style={{
-                  cursor: "pointer",
-                  opacity: drawn ? 1 : 0,
-                  transition: `opacity 700ms ease ${500 + i * 130}ms`,
+                  opacity: shown ? 1 : 0,
+                  transition: "opacity 500ms ease",
                 }}
               >
-                {(isOn || count > 0) && (
-                  <circle cx={x} cy={y} r={radius + 7} fill="none" stroke={fill} strokeWidth={1.2} opacity={0.5} />
+                {(isActive || count > 0) && (
+                  <circle cx={x} cy={y} r={radius + 9} fill="none" stroke={fill} strokeWidth={1.4} opacity={isActive ? 0.7 : 0.45} />
                 )}
-                <circle cx={x} cy={y} r={radius} fill={fill} stroke="rgb(15 23 42)" strokeWidth={1.4} />
+                <circle cx={x} cy={y} r={radius} fill={fill} stroke="rgb(15 23 42)" strokeWidth={1.5} />
                 {count > 0 && (
-                  <text x={x} y={y + 3} textAnchor="middle"
-                    style={{ font: "700 10.5px ui-sans-serif, system-ui", fill: "rgb(15 23 42)", pointerEvents: "none" }}>
+                  <text x={x} y={y + 4} textAnchor="middle"
+                    style={{ font: "700 11px ui-sans-serif, system-ui", fill: "rgb(15 23 42)", pointerEvents: "none" }}>
                     {count}
                   </text>
                 )}
-                {/* Number badge above */}
-                <text x={x} y={y - radius - 22} textAnchor="middle" className="fill-ink-200"
+                {/* Step badge */}
+                <text x={x} y={y - radius - 12} textAnchor="middle" className="fill-ink-200"
                   style={{ font: "italic 10.5px ui-serif, Georgia, serif" }}>
                   {String(i + 1).padStart(2, "0")}
                 </text>
-                {/* Label below */}
-                <text x={x} y={y + radius + 18} textAnchor="middle"
-                  className={isOn ? "fill-flame-200" : "fill-ink-100"}
-                  style={{ font: `${isOn ? "600" : "500"} 11px ui-serif, Georgia, serif`, transition: "fill 200ms" }}>
+                {/* Pill for active label */}
+                {isActive && (
+                  <rect
+                    x={x - estimateWidth(s.label, labelFontSize) / 2 - 8}
+                    y={labelY - labelFontSize - 4}
+                    width={estimateWidth(s.label, labelFontSize) + 16}
+                    height={labelFontSize + 10}
+                    rx={6}
+                    fill="rgb(15 23 42 / 0.85)"
+                    stroke="rgb(249 115 22)"
+                    strokeWidth={1.2}
+                  />
+                )}
+                <text x={x} y={labelY} textAnchor="middle"
+                  style={{
+                    font: `${labelWeight} ${labelFontSize}px ui-serif, Georgia, serif`,
+                    fill: labelFill,
+                  }}>
                   {s.label}
                 </text>
-                <text x={x} y={y + radius + 32} textAnchor="middle" className="fill-ink-300"
+                <text x={x} y={labelY + labelFontSize + 4} textAnchor="middle" className="fill-ink-300"
                   style={{ font: "italic 10.5px ui-serif, Georgia, serif" }}>
                   {s.ref}
                 </text>
@@ -167,37 +196,54 @@ export default function DiscipleshipStations() {
             );
           })}
 
-          {/* Endpoint labels */}
-          <text x={80} y={30} className="fill-flame-300"
-            style={{ font: "italic 500 11px ui-sans-serif, system-ui", letterSpacing: "0.06em", opacity: drawn ? 1 : 0, transition: "opacity 800ms ease 1300ms" }}>
+          {/* Endpoints */}
+          <text x={90} y={30} className="fill-flame-300"
+            style={{ font: "italic 600 11.5px ui-sans-serif, system-ui", letterSpacing: "0.06em" }}>
             START — pray by name
           </text>
-          <text x={VIEW_W - 80} y={30} textAnchor="end" className="fill-flame-300"
-            style={{ font: "italic 500 11px ui-sans-serif, system-ui", letterSpacing: "0.06em", opacity: drawn ? 1 : 0, transition: "opacity 800ms ease 1400ms" }}>
+          <text x={VIEW_W - 90} y={30} textAnchor="end" className="fill-flame-300"
+            style={{ font: "italic 600 11.5px ui-sans-serif, system-ui", letterSpacing: "0.06em" }}>
             MULTIPLY — 2 Timothy 2:2 →
           </text>
         </svg>
       </div>
 
-      <div className="mt-3 min-h-[3.5rem] text-sm leading-relaxed">
-        {focused ? (
-          <div>
-            <span className="text-[10px] uppercase tracking-widest text-flame-300 mr-2">{focused.ref}</span>
-            <span className="font-serif text-ink-50">{focused.label}.</span>
-            <span className="ml-2 text-ink-300 italic">{focused.short}</span>
-            {focusedCount > 0 && (
-              <span className="ml-3 text-flame-300 not-italic">
-                · {focusedCount} on your record
-              </span>
-            )}
-          </div>
-        ) : (
-          <span className="italic text-ink-400">
-            The line rises from praying-for to reproducing. Stations with a number show how
-            many people on your record sit there right now.
-          </span>
-        )}
+      {/* Jump chips */}
+      <div className="mt-4 flex flex-wrap gap-1.5">
+        {STATIONS.map((s, i) => {
+          const shown = step > i;
+          const isActive = activeIdx === i;
+          const count = mounted ? counts.get(s.id) ?? 0 : 0;
+          return (
+            <button
+              key={`ds-chip-${s.id}`}
+              onClick={() => state.jumpTo(i + 1)}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] transition-all ${
+                isActive
+                  ? "bg-flame-600 text-ink-50 border-flame-300 font-medium"
+                  : shown
+                  ? "bg-ink-700/60 text-ink-100 border-flame-300/30"
+                  : "bg-ink-800/40 text-ink-400 border-ink-700/40 hover:border-flame-400/40 hover:text-ink-200"
+              }`}
+              aria-label={`Step ${i + 1}: ${s.label}`}
+            >
+              <span className="text-[9px] uppercase tracking-widest opacity-70">{String(i + 1).padStart(2, "0")}</span>
+              <span>{s.label}</span>
+              {count > 0 && <span className="text-flame-200">· {count}</span>}
+            </button>
+          );
+        })}
       </div>
+
+      {mounted && total > 0 && (
+        <p className="mt-3 text-xs text-ink-300 italic">
+          {total} {total === 1 ? "person" : "people"} on your record · stations colour by who currently sits there
+        </p>
+      )}
     </figure>
   );
+}
+
+function estimateWidth(text: string, fontSize: number): number {
+  return text.length * fontSize * 0.55;
 }
