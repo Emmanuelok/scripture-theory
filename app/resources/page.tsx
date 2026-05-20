@@ -139,6 +139,15 @@ export default function ResourcesHub() {
             glyph={<Glyph id="hands" size={48} />}
           />
 
+          {/* SENDING — the mission of the platform */}
+          <Tile
+            href="/sending"
+            eyebrow="The Great Commission"
+            title="Sent · for every believer"
+            sub="The platform's mission, gathered. The five commands of Matthew 28, the six tools we've built for the sent life, and our quiet prayer to see a million ordinary believers carry Jesus to every place on earth."
+            glyph={<Glyph id="flame" size={48} />}
+          />
+
           {/* TRANSLATIONS */}
           <Tile
             href="/bible/translations"

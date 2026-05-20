@@ -42,6 +42,7 @@ export default function Footer() {
             <li><Link href="/pray/wall" className="hover:text-ink-900">Prayer Wall · global Body</Link></li>
             <li><Link href="/pray/live" className="hover:text-ink-900">Pray for the world · live</Link></li>
             <li><Link href="/witness" className="hover:text-ink-900">{t.footer.witness}</Link></li>
+            <li><Link href="/sending" className="hover:text-ink-900">Sent · the Great Commission</Link></li>
           </ul>
         </div>
         <div>

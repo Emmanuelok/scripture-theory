@@ -50,6 +50,7 @@ const FIGURES: Figure[] = [
   { title: "Disciplines Wheel",      blurb: "Eight historic disciplines as spokes around Christ.",                       href: "/resources/disciplines", group: "Prayer & Practice" },
 
   // Mission
+  { title: "Sending Compass",        blurb: "Five rays of the Great Commission radiating outward from Christ.",          href: "/sending",             group: "Mission" },
   { title: "Acts 1:8 Circles",       blurb: "Jerusalem → Judea → Samaria → ends of the earth.",                          href: "/witness",             group: "Mission" },
   { title: "Discipleship Stations",  blurb: "Seven stations from praying-for to reproducing.",                           href: "/disciple/journey",    group: "Mission" },
   { title: "Vocation Funnel",        blurb: "From the general call to particular sending.",                              href: "/vocation",            group: "Mission" },
