@@ -297,18 +297,28 @@ export default function JesusPage() {
       {/* ═════════ Part 1: The study (collapsed by default) ═════════ */}
       <details id="study" className="group mt-16 scroll-mt-24 rounded-3xl border border-ink-200 bg-card overflow-hidden">
         <summary className="cursor-pointer list-none p-6 md:p-7 hover:bg-card-subtle transition-colors">
-          <div className="flex items-start justify-between gap-3">
-            <div>
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0 flex-1">
               <span className="text-[10px] uppercase tracking-widest text-flame-700">Part one</span>
               <h2 className="font-serif text-3xl md:text-4xl text-ink-900 mt-1 leading-tight">
                 The Christ-centered reading of Scripture — a study
               </h2>
               <p className="mt-2 text-sm text-ink-600 italic">
-                Tracing the witness from Jesus through the Fathers, Reformers, Puritans, and moderns. {jesusStudy.length} sections · tap to open
+                Tracing the witness from Jesus through the Fathers, Reformers, Puritans, and moderns. {jesusStudy.length} sections.
               </p>
+              <span className="mt-3 inline-flex items-center gap-2 rounded-full bg-flame-600 text-ink-50 px-4 py-1.5 text-xs font-medium group-open:bg-ink-800">
+                <span className="group-open:hidden">Read this section</span>
+                <span className="hidden group-open:inline">Close section</span>
+                <span className="text-base leading-none transition-transform group-open:rotate-180" aria-hidden>
+                  ▼
+                </span>
+              </span>
             </div>
-            <span className="text-flame-700 font-serif text-3xl shrink-0 transition-transform group-open:rotate-45">
-              +
+            <span
+              aria-hidden
+              className="shrink-0 flex items-center justify-center w-10 h-10 rounded-full border border-ink-300 bg-card text-flame-700 text-xl transition-transform group-open:rotate-180"
+            >
+              ▼
             </span>
           </div>
         </summary>
@@ -346,18 +356,28 @@ export default function JesusPage() {
       {/* ═════════ Part 2: Six emphases on six key passages (collapsed) ═════════ */}
       <details id="emphases" className="group mt-6 scroll-mt-24 rounded-3xl border border-ink-200 bg-card overflow-hidden">
         <summary className="cursor-pointer list-none p-6 md:p-7 hover:bg-card-subtle transition-colors">
-          <div className="flex items-start justify-between gap-3">
-            <div>
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0 flex-1">
               <span className="text-[10px] uppercase tracking-widest text-flame-700">Part two</span>
               <h2 className="font-serif text-3xl md:text-4xl text-ink-900 mt-1 leading-tight">
                 Six emphases on six key passages
               </h2>
               <p className="mt-2 text-sm text-ink-600 italic">
-                One Christ, many faithful hearings. {passages.length} passages · tap to open
+                One Christ, many faithful hearings. {passages.length} passages.
               </p>
+              <span className="mt-3 inline-flex items-center gap-2 rounded-full bg-flame-600 text-ink-50 px-4 py-1.5 text-xs font-medium group-open:bg-ink-800">
+                <span className="group-open:hidden">Read this section</span>
+                <span className="hidden group-open:inline">Close section</span>
+                <span className="text-base leading-none transition-transform group-open:rotate-180" aria-hidden>
+                  ▼
+                </span>
+              </span>
             </div>
-            <span className="text-flame-700 font-serif text-3xl shrink-0 transition-transform group-open:rotate-45">
-              +
+            <span
+              aria-hidden
+              className="shrink-0 flex items-center justify-center w-10 h-10 rounded-full border border-ink-300 bg-card text-flame-700 text-xl transition-transform group-open:rotate-180"
+            >
+              ▼
             </span>
           </div>
         </summary>
@@ -428,8 +448,8 @@ export default function JesusPage() {
             return (
               <details key={d} id={slug} className="group scroll-mt-24 rounded-3xl border border-ink-200 bg-card overflow-hidden">
                 <summary className="cursor-pointer list-none p-5 md:p-6 hover:bg-card-subtle transition-colors">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="min-w-0 flex-1">
                       <span className="text-[10px] uppercase tracking-widest text-flame-700">
                         Division
                       </span>
@@ -437,11 +457,21 @@ export default function JesusPage() {
                         {d}
                       </h3>
                       <p className="mt-1 text-xs text-ink-500">
-                        {inDiv.length} {inDiv.length === 1 ? "book" : "books"} · tap to open
+                        {inDiv.length} {inDiv.length === 1 ? "book" : "books"}
                       </p>
+                      <span className="mt-2 inline-flex items-center gap-2 rounded-full bg-flame-600 text-ink-50 px-3 py-1 text-[11px] font-medium group-open:bg-ink-800">
+                        <span className="group-open:hidden">Read these books</span>
+                        <span className="hidden group-open:inline">Close</span>
+                        <span className="text-sm leading-none transition-transform group-open:rotate-180" aria-hidden>
+                          ▼
+                        </span>
+                      </span>
                     </div>
-                    <span className="text-flame-700 font-serif text-2xl shrink-0 transition-transform group-open:rotate-45">
-                      +
+                    <span
+                      aria-hidden
+                      className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full border border-ink-300 bg-card text-flame-700 text-base transition-transform group-open:rotate-180"
+                    >
+                      ▼
                     </span>
                   </div>
                 </summary>
