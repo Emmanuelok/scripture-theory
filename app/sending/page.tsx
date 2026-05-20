@@ -1,5 +1,6 @@
 import Link from "next/link";
 import SendingCompass from "@/components/SendingCompass";
+import CloudOfWitnesses from "@/components/CloudOfWitnesses";
 import { PageHero, Tile } from "@/components/ui/Tile";
 import { Glyph } from "@/components/ui/Glyph";
 import ScriptureRef from "@/components/ScriptureRef";
@@ -85,6 +86,11 @@ export default function SendingPage() {
       {/* The figure */}
       <div className="mt-10">
         <SendingCompass />
+      </div>
+
+      {/* The Cloud of Witnesses — live registry of yeses */}
+      <div className="mt-14">
+        <CloudOfWitnesses />
       </div>
 
       {/* The 1M prayer — internal framing, not a public counter */}

@@ -1,0 +1,286 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import {
+  formatYesCount,
+  getMyYes,
+  getYesCount,
+  isCloudConfigured,
+  listCloud,
+  percentOfMillion,
+  sayYes,
+  validateYes,
+  type SendingYes,
+} from "@/lib/sending-cloud";
+
+/**
+ * The Cloud of Witnesses (Hebrews 12:1) — visible "yes" wall for Project 1M.
+ *
+ * NOT a leaderboard. No rank. No competition. The aggregate count is the
+ * encouragement; the recent yeses are the cloud. First-name + region only.
+ *
+ * Falls back to a quiet "coming soon" state when Supabase isn't configured,
+ * so deploys without a backend still ship cleanly.
+ */
+export default function CloudOfWitnesses() {
+  const [configured] = useState(() => isCloudConfigured());
+  const [count, setCount] = useState<number | null>(null);
+  const [cloud, setCloud] = useState<SendingYes[]>([]);
+  const [me, setMe] = useState<SendingYes | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Form state
+  const [firstName, setFirstName] = useState("");
+  const [region, setRegion] = useState("");
+  const [prayer, setPrayer] = useState("");
+  const [isPublic, setIsPublic] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!configured) {
+      setLoading(false);
+      return;
+    }
+    (async () => {
+      const [c, list, mine] = await Promise.all([
+        getYesCount(),
+        listCloud(60),
+        getMyYes(),
+      ]);
+      if (cancelled) return;
+      setCount(c);
+      setCloud(list);
+      setMe(mine);
+      setLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [configured]);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    const v = validateYes({ firstName, region, prayer });
+    if (!v.ok) {
+      setError(v.error ?? "Please check the fields above.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const row = await sayYes({ firstName, region, prayer, isPublic });
+      if (!row) {
+        setError("Could not register your yes. Please try again in a moment.");
+        return;
+      }
+      setMe(row);
+      setCount((c) => (c ?? 0) + 1);
+      if (row.public) setCloud((list) => [row, ...list].slice(0, 60));
+      setFirstName("");
+      setRegion("");
+      setPrayer("");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  // ── Not-yet-configured fallback ────────────────────────────────
+  if (!configured) {
+    return (
+      <section className="rounded-3xl border border-ink-200 bg-card-subtle p-6 md:p-8">
+        <div className="text-xs uppercase tracking-widest text-flame-700">
+          The cloud of witnesses · Hebrews 12:1
+        </div>
+        <h2 className="font-serif text-2xl md:text-3xl text-ink-900 mt-1">
+          A wall of yeses, when the cloud is online.
+        </h2>
+        <p className="mt-3 text-sm text-ink-700 leading-relaxed max-w-3xl">
+          Once the platform&apos;s database is configured, this section will hold a
+          live registry of believers who have prayed the Acts 1:8 yes — first
+          name and country only, never last names, never any data that could
+          expose a brother or sister in a hostile place. The headline is the
+          aggregate; the wall is the encouragement. For now, pray your yes;
+          the cloud will gather them.
+        </p>
+      </section>
+    );
+  }
+
+  return (
+    <section className="rounded-3xl border border-flame-300 bg-gradient-to-br from-flame-50 to-card p-6 md:p-8">
+      <div className="grid lg:grid-cols-[1fr_auto] gap-6 items-start mb-6">
+        <div>
+          <div className="text-xs uppercase tracking-widest text-flame-700">
+            The cloud of witnesses · Hebrews 12:1
+          </div>
+          <h2 className="font-serif text-2xl md:text-3xl text-ink-900 mt-1">
+            Believers who have said yes.
+          </h2>
+          <p className="mt-3 text-sm text-ink-700 leading-relaxed max-w-2xl">
+            Not a leaderboard. Not a stat to brag about. A &ldquo;great cloud of
+            witnesses&rdquo; (Hebrews 12:1) — visible only so the next believer
+            sees the cloud and is emboldened to add their amen. First names and
+            countries only; no comparison, no rank.
+          </p>
+        </div>
+
+        {/* Count card */}
+        <div className="shrink-0 rounded-2xl border border-flame-300 bg-ink-900 text-ink-50 px-5 py-4 text-center min-w-[160px]">
+          <div className="text-[10px] uppercase tracking-widest text-flame-300">
+            Said yes so far
+          </div>
+          <div className="font-serif text-flame-100 text-4xl md:text-5xl mt-1 leading-none tabular-nums">
+            {loading ? "…" : formatYesCount(count ?? 0)}
+          </div>
+          <div className="mt-1 text-[10px] uppercase tracking-widest text-flame-300/80">
+            toward 1,000,000
+          </div>
+        </div>
+      </div>
+
+      {/* Progress bar — capped, no false growth */}
+      <div className="mb-6">
+        <div className="h-2 rounded-full bg-ink-200/70 overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-flame-300 via-flame-500 to-flame-300 transition-all duration-700"
+            style={{ width: `${percentOfMillion(count ?? 0)}%` }}
+          />
+        </div>
+        <div className="mt-1.5 flex justify-between text-[10px] uppercase tracking-widest text-ink-500">
+          <span>{loading ? "…" : `${percentOfMillion(count ?? 0).toFixed(4)}% of 1M`}</span>
+          <span>1,000,000</span>
+        </div>
+      </div>
+
+      {/* Already-said state, or the form */}
+      {me ? (
+        <div className="rounded-2xl border border-flame-300 bg-card p-5 md:p-6">
+          <div className="text-xs uppercase tracking-widest text-flame-700">You said yes</div>
+          <p className="mt-2 font-serif text-lg text-ink-900">
+            <span className="text-flame-700">{me.first_name}</span> · {me.region}
+          </p>
+          {me.prayer && (
+            <p className="mt-2 italic text-ink-700 leading-relaxed border-l-2 border-flame-300 pl-3">
+              &ldquo;{me.prayer}&rdquo;
+            </p>
+          )}
+          <p className="mt-3 text-[11px] text-ink-500 italic">
+            Recorded {new Date(me.said_yes_at).toLocaleDateString()} · welcome to the cloud.
+            Now go — pray, witness, walk with one soul, and let the Spirit grow what He grows.
+          </p>
+        </div>
+      ) : (
+        <form onSubmit={submit} className="rounded-2xl border border-ink-200 bg-card p-5 md:p-6">
+          <div className="text-xs uppercase tracking-widest text-flame-700">
+            Say yes — add your amen to the cloud
+          </div>
+          <p className="mt-2 text-sm text-ink-700 leading-relaxed">
+            Not a sign-up. A covenant. You are saying: <em>I am willing to be sent.</em>
+          </p>
+          <div className="mt-4 grid sm:grid-cols-2 gap-3">
+            <label className="block">
+              <span className="text-[11px] uppercase tracking-widest text-ink-500">First name</span>
+              <input
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                maxLength={32}
+                placeholder="Mary"
+                required
+                className="mt-1 w-full rounded-xl border border-ink-200 bg-card-subtle px-3 py-2 text-sm text-ink-900 focus:outline-none focus:border-flame-500"
+              />
+            </label>
+            <label className="block">
+              <span className="text-[11px] uppercase tracking-widest text-ink-500">Country / region</span>
+              <input
+                value={region}
+                onChange={(e) => setRegion(e.target.value)}
+                maxLength={64}
+                placeholder="Kenya"
+                required
+                className="mt-1 w-full rounded-xl border border-ink-200 bg-card-subtle px-3 py-2 text-sm text-ink-900 focus:outline-none focus:border-flame-500"
+              />
+            </label>
+          </div>
+          <label className="block mt-3">
+            <span className="text-[11px] uppercase tracking-widest text-ink-500">
+              Your prayer or sentence{" "}
+              <span className="lowercase tracking-normal text-ink-400">— optional, max 280 chars</span>
+            </span>
+            <textarea
+              value={prayer}
+              onChange={(e) => setPrayer(e.target.value)}
+              maxLength={280}
+              rows={2}
+              placeholder="Lord, send me. Make me brave with Your name."
+              className="mt-1 w-full rounded-xl border border-ink-200 bg-card-subtle px-3 py-2 text-sm text-ink-900 leading-relaxed focus:outline-none focus:border-flame-500"
+            />
+            <div className="mt-1 text-[10px] text-ink-400 text-right">{prayer.length}/280</div>
+          </label>
+          <label className="mt-3 flex items-start gap-2 text-xs text-ink-600">
+            <input
+              type="checkbox"
+              checked={isPublic}
+              onChange={(e) => setIsPublic(e.target.checked)}
+              className="mt-0.5"
+            />
+            <span>
+              Show my first name &amp; country on the public wall (uncheck if you live somewhere
+              following Jesus is dangerous — your yes still counts).
+            </span>
+          </label>
+          {error && (
+            <p className="mt-3 text-xs text-amber-700 italic">{error}</p>
+          )}
+          <button
+            type="submit"
+            disabled={submitting}
+            className="mt-4 inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-5 py-2.5 text-sm hover:bg-flame-700 disabled:opacity-60"
+          >
+            {submitting ? "Recording…" : "Say my yes →"}
+          </button>
+          <p className="mt-3 text-[10px] text-ink-400 italic leading-relaxed">
+            No last names. No emails. No tracking. Your yes is a covenant, not a contact form.
+          </p>
+        </form>
+      )}
+
+      {/* The wall */}
+      <div className="mt-8">
+        <div className="text-xs uppercase tracking-widest text-flame-700">
+          The cloud · most recent yeses
+        </div>
+        {cloud.length === 0 ? (
+          <p className="mt-3 text-sm text-ink-600 italic">
+            The cloud is gathering. Be among the first to say yes.
+          </p>
+        ) : (
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {cloud.map((y) => (
+              <li
+                key={y.id}
+                title={
+                  y.prayer
+                    ? `${y.first_name} (${y.region}) — "${y.prayer}"`
+                    : `${y.first_name} (${y.region})`
+                }
+                className="inline-flex items-center gap-2 rounded-full border border-flame-300/60 bg-card px-3 py-1 text-xs text-ink-800"
+              >
+                <span className="font-medium">{y.first_name}</span>
+                <span className="text-flame-700/80">·</span>
+                <span className="text-ink-500">{y.region}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <p className="mt-6 text-[11px] text-ink-500 italic leading-relaxed">
+        Privacy: first names and countries only. No last names, no emails, no street-level
+        location, ever. The wall is not stored on your device after you leave; the count
+        lives on the platform&apos;s database so others can see it grow.
+      </p>
+    </section>
+  );
+}
