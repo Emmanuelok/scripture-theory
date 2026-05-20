@@ -13,7 +13,12 @@ import type { LocaleCode } from "@/data/gospel-i18n";
  * document direction (LTR / RTL) immediately so the rest of the page
  * flips without a refresh.
  */
-export default function LocaleSwitcher() {
+export default function LocaleSwitcher({
+  direction = "down",
+}: {
+  /** Whether the dropdown opens above or below the trigger. */
+  direction?: "up" | "down";
+} = {}) {
   const { profile, update, mounted } = useProfile();
   const [open, setOpen] = useState(false);
   const detailsRef = useRef<HTMLDetailsElement | null>(null);
@@ -68,7 +73,9 @@ export default function LocaleSwitcher() {
       {mounted && (
         <div
           role="menu"
-          className="absolute right-0 mt-2 w-56 rounded-2xl border border-ink-200 bg-card shadow-lg p-1.5 z-50 max-h-[70vh] overflow-y-auto"
+          className={`absolute right-0 w-56 rounded-2xl border border-ink-200 bg-card shadow-lg p-1.5 z-50 max-h-[70vh] overflow-y-auto ${
+            direction === "up" ? "bottom-full mb-2" : "mt-2"
+          }`}
         >
           <div className="text-[10px] uppercase tracking-widest text-ink-500 px-2 py-1.5">
             Language · {LOCALE_LABELS[active]?.english}

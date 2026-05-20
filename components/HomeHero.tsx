@@ -1,40 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useProfile } from "@/lib/profile";
 import { homeHero } from "@/data/homepage-i18n";
-import { locales, localeOrder, type LocaleCode } from "@/data/gospel-i18n";
-
-const STORAGE = "scripture-theory-locale";
+import { locales, type LocaleCode } from "@/data/gospel-i18n";
 
 export default function HomeHero() {
-  const [locale, setLocale] = useState<LocaleCode>("en");
-  const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(STORAGE) as LocaleCode | null;
-      if (saved && homeHero[saved]) setLocale(saved);
-    } catch {}
-    setMounted(true);
-  }, []);
-
-  function pick(code: LocaleCode) {
-    setLocale(code);
-    setOpen(false);
-    try {
-      window.localStorage.setItem(STORAGE, code);
-    } catch {}
-  }
-
+  const { profile, mounted } = useProfile();
+  const locale: LocaleCode = ((profile.locale as LocaleCode) ?? "en") in homeHero
+    ? ((profile.locale as LocaleCode) ?? "en")
+    : "en";
   const t = homeHero[locale];
   const dir = locales[locale].meta.dir;
 
   return (
     <section
       className="relative isolate overflow-hidden"
-      dir={dir}
+      dir={mounted ? dir : "ltr"}
       suppressHydrationWarning
     >
       {/* Aurora background — subtle in light, dramatic in dark */}
@@ -46,42 +28,6 @@ export default function HomeHero() {
       />
 
       <div className="mx-auto max-w-5xl px-5 pt-24 md:pt-32 pb-16 md:pb-24 text-center">
-        {/* Tiny language pill, hidden until needed */}
-        <div className="absolute right-5 top-5 md:top-6 md:right-7">
-          <button
-            onClick={() => setOpen((v) => !v)}
-            className="inline-flex items-center gap-1 rounded-full border border-ink-200 bg-card/80 backdrop-blur px-3 py-1 text-xs text-ink-600 hover:text-ink-900"
-            aria-haspopup="menu"
-            aria-expanded={open}
-          >
-            <span className="font-medium">{locales[locale].meta.nativeName}</span>
-            <span aria-hidden>▾</span>
-          </button>
-          {open && (
-            <div className="absolute right-0 mt-2 w-44 rounded-2xl border border-ink-200 bg-card shadow-lg p-1 z-30">
-              {localeOrder.map((code) => {
-                const active = code === locale;
-                return (
-                  <button
-                    key={code}
-                    onClick={() => pick(code)}
-                    className={`w-full text-left rounded-xl px-3 py-1.5 text-sm flex items-center justify-between ${
-                      active ? "bg-ink-900 text-ink-50" : "text-ink-800 hover:bg-ink-100"
-                    }`}
-                    lang={code}
-                    dir={locales[code].meta.dir}
-                  >
-                    <span>{locales[code].meta.nativeName}</span>
-                    <span className={active ? "text-ink-300 text-xs" : "text-ink-400 text-xs"}>
-                      {locales[code].meta.languageName}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
         <span className="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-card/80 backdrop-blur px-3 py-1 text-xs text-ink-600 animate-fade-in">
           <span className="h-1.5 w-1.5 rounded-full bg-flame-500 animate-pulse" />
           For every believer
@@ -103,7 +49,7 @@ export default function HomeHero() {
           {t.subtitle}
         </p>
 
-        <div className={`mt-10 flex flex-wrap justify-center gap-3`}>
+        <div className="mt-10 flex flex-wrap justify-center gap-3">
           <Link
             href="/today"
             className="inline-flex items-center rounded-full bg-ink-900 text-ink-50 px-6 py-3 text-sm font-medium hover:bg-flame-700 transition-colors shadow-sm"
@@ -120,7 +66,7 @@ export default function HomeHero() {
             href="/pray/nations"
             className="inline-flex items-center rounded-full border border-ink-300 bg-card/60 backdrop-blur px-6 py-3 text-sm font-medium text-ink-900 hover:border-ink-900 transition-colors"
           >
-            Today's nation
+            Today&apos;s nation
           </Link>
         </div>
       </div>

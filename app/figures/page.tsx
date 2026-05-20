@@ -1,9 +1,9 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Figures — Scripture Theory",
+  title: "Visual diagrams — Scripture Theory",
   description:
-    "Every graphical figure across the site, gathered in one place. Beautiful, interactive diagrams that help the eye see what the text says.",
+    "Every interactive diagram across the site, in one place. Visual maps of Scripture, doctrine, the Christian year, prayer, and practice — geometry that helps the eye see what the text says.",
 };
 
 type Figure = {
@@ -70,13 +70,14 @@ export default function FiguresPage() {
         ← Resources
       </Link>
       <h1 className="font-serif text-4xl md:text-6xl mt-3 text-ink-900 leading-[1.05] tracking-tight">
-        Figures of the <span className="gradient-text">faith.</span>
+        Visual <span className="gradient-text">diagrams.</span>
       </h1>
       <p className="mt-5 text-ink-700 leading-relaxed max-w-2xl">
-        Beautiful, interactive diagrams scattered across the site — gathered here in one
-        place. Geometry doing theology: the Cross at the centre of history, fruit as one
-        plant with nine facets, the believer's calling narrowing from &ldquo;made on purpose&rdquo;
-        to &ldquo;sent.&rdquo; Visit any figure to read it; the text below each is its companion.
+        Every interactive diagram across the site, gathered in one place — visual maps of
+        Scripture, doctrine, the Christian year, prayer, and practice. Geometry doing
+        theology: the Cross at the centre of history, fruit as one plant with nine facets,
+        the believer&apos;s calling narrowing from &ldquo;made on purpose&rdquo; to &ldquo;sent.&rdquo;
+        Tap any tile to open the diagram on its home page.
       </p>
 
       {/* Count + jump nav so all six sections are obvious at a glance */}

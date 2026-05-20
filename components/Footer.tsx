@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useUI } from "@/lib/useUI";
 import ThemeToggle from "@/components/ThemeToggle";
+import LocaleSwitcher from "@/components/LocaleSwitcher";
 
 export default function Footer() {
   const { t } = useUI();
@@ -78,9 +79,15 @@ export default function Footer() {
           <span className="italic flex-1 text-center min-w-[12rem]">
             &ldquo;Jesus Christ is the same yesterday and today and forever.&rdquo; — Hebrews 13:8
           </span>
-          <div className="flex items-center gap-2">
-            <span className="text-ink-500">Appearance</span>
-            <ThemeToggle />
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-ink-500">Language</span>
+              <LocaleSwitcher direction="up" />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-ink-500">Appearance</span>
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       </div>
