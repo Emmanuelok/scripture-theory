@@ -285,90 +285,104 @@ export default function JesusPage() {
       {/* Table of contents */}
       <nav className="mt-10 rounded-3xl border border-ink-200 bg-card-subtle p-5">
         <div className="text-[10px] uppercase tracking-widest text-flame-700 mb-2">
-          On this page
+          On this page · tap any to open
         </div>
         <ol className="grid sm:grid-cols-2 gap-x-6 gap-y-1.5 text-sm text-ink-700 list-decimal pl-5">
-          <li><a href="#study" className="hover:text-flame-700 hover:underline">The study — 9 sections</a></li>
+          <li><a href="#study" className="hover:text-flame-700 hover:underline">The study — {jesusStudy.length} sections</a></li>
           <li><a href="#emphases" className="hover:text-flame-700 hover:underline">Six emphases on six key passages</a></li>
           <li><a href="#canonical-sweep" className="hover:text-flame-700 hover:underline">Christ in every book of the Bible</a></li>
         </ol>
       </nav>
 
-      {/* ═════════ Part 1: The study ═════════ */}
-      <section id="study" className="mt-16 scroll-mt-24">
-        <div className="border-b border-ink-200 pb-3 mb-8">
-          <span className="text-[10px] uppercase tracking-widest text-flame-700">
-            Part one
-          </span>
-          <h2 className="font-serif text-3xl md:text-4xl text-ink-900 mt-1">
-            The Christ-centered reading of Scripture — a study
-          </h2>
-          <p className="mt-2 text-sm text-ink-600 italic">
-            Tracing the witness from Jesus through the Fathers, Reformers, Puritans, and moderns.
-          </p>
-        </div>
+      {/* ═════════ Part 1: The study (collapsed by default) ═════════ */}
+      <details id="study" className="group mt-16 scroll-mt-24 rounded-3xl border border-ink-200 bg-card overflow-hidden">
+        <summary className="cursor-pointer list-none p-6 md:p-7 hover:bg-card-subtle transition-colors">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <span className="text-[10px] uppercase tracking-widest text-flame-700">Part one</span>
+              <h2 className="font-serif text-3xl md:text-4xl text-ink-900 mt-1 leading-tight">
+                The Christ-centered reading of Scripture — a study
+              </h2>
+              <p className="mt-2 text-sm text-ink-600 italic">
+                Tracing the witness from Jesus through the Fathers, Reformers, Puritans, and moderns. {jesusStudy.length} sections · tap to open
+              </p>
+            </div>
+            <span className="text-flame-700 font-serif text-3xl shrink-0 transition-transform group-open:rotate-45">
+              +
+            </span>
+          </div>
+        </summary>
 
-        <div className="space-y-10">
-          {jesusStudy.map((s) => (
-            <article id={s.id} key={s.id} className="scroll-mt-24">
-              <h3 className="font-serif text-2xl md:text-3xl text-ink-900 leading-tight">
-                {s.heading}
-              </h3>
-              {s.epigraph && (
-                <blockquote className="mt-3 border-l-4 border-flame-300 pl-4 italic text-ink-800 leading-relaxed">
-                  "{s.epigraph.text}"
-                  <span className="block mt-1 not-italic text-sm text-ink-500">
-                    —{" "}
-                    <ScriptureRef
-                      reference={s.epigraph.reference}
-                      className="text-ink-500 hover:text-flame-700"
-                    />
-                  </span>
-                </blockquote>
-              )}
-              <div className="mt-4 space-y-3 text-ink-800 leading-relaxed">
-                {s.body.map((p, i) => (
-                  <p key={i}>{p}</p>
-                ))}
-              </div>
-            </article>
-          ))}
+        <div className="px-6 md:px-7 pb-8 border-t border-ink-100 pt-6">
+          <div className="space-y-10">
+            {jesusStudy.map((s) => (
+              <article id={s.id} key={s.id} className="scroll-mt-24">
+                <h3 className="font-serif text-2xl md:text-3xl text-ink-900 leading-tight">
+                  {s.heading}
+                </h3>
+                {s.epigraph && (
+                  <blockquote className="mt-3 border-l-4 border-flame-300 pl-4 italic text-ink-800 leading-relaxed">
+                    "{s.epigraph.text}"
+                    <span className="block mt-1 not-italic text-sm text-ink-500">
+                      —{" "}
+                      <ScriptureRef
+                        reference={s.epigraph.reference}
+                        className="text-ink-500 hover:text-flame-700"
+                      />
+                    </span>
+                  </blockquote>
+                )}
+                <div className="mt-4 space-y-3 text-ink-800 leading-relaxed">
+                  {s.body.map((p, i) => (
+                    <p key={i}>{p}</p>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
-      </section>
+      </details>
 
-      {/* ═════════ Part 2: Six emphases on six key passages ═════════ */}
-      <section id="emphases" className="mt-20 scroll-mt-24">
-        <div className="border-b border-ink-200 pb-3 mb-8">
-          <span className="text-[10px] uppercase tracking-widest text-flame-700">
-            Part two
-          </span>
-          <h2 className="font-serif text-3xl md:text-4xl text-ink-900 mt-1">
-            Six emphases on six key passages
-          </h2>
-          <p className="mt-2 text-sm text-ink-600 italic">
-            One Christ, many faithful hearings. Six facets the Church across the centuries has
-            heard in six of the most-loved passages in Scripture — each one converging on the
-            same Lord.
-          </p>
+      {/* ═════════ Part 2: Six emphases on six key passages (collapsed) ═════════ */}
+      <details id="emphases" className="group mt-6 scroll-mt-24 rounded-3xl border border-ink-200 bg-card overflow-hidden">
+        <summary className="cursor-pointer list-none p-6 md:p-7 hover:bg-card-subtle transition-colors">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <span className="text-[10px] uppercase tracking-widest text-flame-700">Part two</span>
+              <h2 className="font-serif text-3xl md:text-4xl text-ink-900 mt-1 leading-tight">
+                Six emphases on six key passages
+              </h2>
+              <p className="mt-2 text-sm text-ink-600 italic">
+                One Christ, many faithful hearings. {passages.length} passages · tap to open
+              </p>
+            </div>
+            <span className="text-flame-700 font-serif text-3xl shrink-0 transition-transform group-open:rotate-45">
+              +
+            </span>
+          </div>
+        </summary>
+
+        <div className="px-6 md:px-7 pb-8 border-t border-ink-100 pt-6">
+          <div className="rounded-3xl border border-ink-200 bg-card-subtle p-5 mb-8 text-sm text-ink-700 leading-relaxed">
+            We do not name parties or pit them against each other. We name what believers across
+            time have heard in each verse, and we let Christ be the center of every hearing. The
+            historical voices cited under each emphasis — Fathers, mothers, mystics, Reformers,
+            Puritans, Pietists, missionaries, modern teachers — testify together to the one Lord
+            they all confess.
+          </div>
+
+          <div className="space-y-8">
+            {passages.map((p) => (
+              <TraditionPassage key={p.reference} p={p} />
+            ))}
+          </div>
         </div>
+      </details>
 
-        <div className="rounded-3xl border border-ink-200 bg-card-subtle p-5 mb-8 text-sm text-ink-700 leading-relaxed">
-          We do not name parties or pit them against each other. We name what believers across
-          time have heard in each verse, and we let Christ be the center of every hearing. The
-          historical voices cited under each emphasis — Fathers, mothers, mystics, Reformers,
-          Puritans, Pietists, missionaries, modern teachers — testify together to the one Lord
-          they all confess.
-        </div>
-
-        <div className="space-y-8">
-          {passages.map((p) => (
-            <TraditionPassage key={p.reference} p={p} />
-          ))}
-        </div>
-      </section>
-
-      {/* ═════════ Part 3: Canonical sweep ═════════ */}
-      <section id="canonical-sweep" className="mt-20 scroll-mt-24">
+      {/* ═════════ Part 3: Canonical sweep ═════════
+         Header + ChristInEveryBook figure stay open; per-book reading
+         sections are wrapped in <details> further below. */}
+      <section id="canonical-sweep" className="mt-12 scroll-mt-24">
         <div className="border-b border-ink-200 pb-3 mb-8">
           <span className="text-[10px] uppercase tracking-widest text-flame-700">
             Part three
@@ -377,17 +391,16 @@ export default function JesusPage() {
             Christ in every book of the Bible
           </h2>
           <p className="mt-2 text-sm text-ink-600 italic">
-            Sixty-six books, ten canonical divisions, one Christ — with the historical voices
-            who have read it this way.
+            Sixty-six books, ten canonical divisions, one Christ. Browse the figure below; expand any division for the full Christ-centered reading.
           </p>
         </div>
 
         <ChristInEveryBook />
 
         {/* Division jump nav */}
-        <nav className="rounded-3xl border border-ink-200 bg-card-subtle p-5 mb-10">
+        <nav className="rounded-3xl border border-ink-200 bg-card-subtle p-5 mt-8 mb-6">
           <div className="text-[10px] uppercase tracking-widest text-flame-700 mb-2">
-            Jump to a section
+            Jump to a division
           </div>
           <ul className="flex flex-wrap gap-2 text-sm">
             {divisions.map((d) => {
@@ -407,41 +420,53 @@ export default function JesusPage() {
           </ul>
         </nav>
 
-        <div className="space-y-14">
+        <div className="space-y-4">
           {divisions.map((d) => {
             const slug = d.toLowerCase().replace(/[^a-z0-9]+/g, "-");
             const inDiv = jesusInScripture.filter((b) => b.division === d);
             if (inDiv.length === 0) return null;
             return (
-              <section key={d} id={slug} className="scroll-mt-24">
-                <div className="flex items-baseline justify-between gap-3 mb-5 border-b border-ink-200 pb-3">
-                  <h3 className="font-serif text-2xl md:text-3xl text-ink-900">
-                    {d}
-                  </h3>
-                  <span className="text-xs text-ink-500">
-                    {inDiv.length} {inDiv.length === 1 ? "book" : "books"}
-                  </span>
-                </div>
+              <details key={d} id={slug} className="group scroll-mt-24 rounded-3xl border border-ink-200 bg-card overflow-hidden">
+                <summary className="cursor-pointer list-none p-5 md:p-6 hover:bg-card-subtle transition-colors">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <span className="text-[10px] uppercase tracking-widest text-flame-700">
+                        Division
+                      </span>
+                      <h3 className="font-serif text-2xl md:text-3xl text-ink-900 mt-1">
+                        {d}
+                      </h3>
+                      <p className="mt-1 text-xs text-ink-500">
+                        {inDiv.length} {inDiv.length === 1 ? "book" : "books"} · tap to open
+                      </p>
+                    </div>
+                    <span className="text-flame-700 font-serif text-2xl shrink-0 transition-transform group-open:rotate-45">
+                      +
+                    </span>
+                  </div>
+                </summary>
 
-                <ul className="flex flex-wrap gap-2 mb-6">
-                  {inDiv.map((b) => (
-                    <li key={b.bookId}>
-                      <a
-                        href={`#${b.bookId}`}
-                        className="rounded-full bg-card border border-ink-200 px-2.5 py-0.5 text-[11px] text-ink-700 hover:border-flame-500 hover:text-flame-700"
-                      >
-                        {b.name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+                <div className="px-5 md:px-6 pb-6 border-t border-ink-100 pt-5">
+                  <ul className="flex flex-wrap gap-2 mb-5">
+                    {inDiv.map((b) => (
+                      <li key={b.bookId}>
+                        <a
+                          href={`#${b.bookId}`}
+                          className="rounded-full bg-card-subtle border border-ink-200 px-2.5 py-0.5 text-[11px] text-ink-700 hover:border-flame-500 hover:text-flame-700"
+                        >
+                          {b.name}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
 
-                <div className="space-y-5">
-                  {inDiv.map((b) => (
-                    <BookCard key={b.bookId} b={b} />
-                  ))}
+                  <div className="space-y-5">
+                    {inDiv.map((b) => (
+                      <BookCard key={b.bookId} b={b} />
+                    ))}
+                  </div>
                 </div>
-              </section>
+              </details>
             );
           })}
         </div>
