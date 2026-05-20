@@ -70,6 +70,7 @@ const STATIC_ROUTES: { path: string; priority: number; changefreq: "daily" | "we
   // Mission
   { path: "/witness",         priority: 0.7, changefreq: "weekly" },
   { path: "/sending",         priority: 0.9, changefreq: "weekly" },
+  { path: "/sending/begin",   priority: 0.8, changefreq: "monthly" },
   { path: "/connect",         priority: 0.7, changefreq: "monthly" },
   { path: "/give",            priority: 0.6, changefreq: "monthly" },
   { path: "/vocation",        priority: 0.6, changefreq: "monthly" },

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   daysSince,
@@ -258,6 +259,15 @@ export default function CloudOfWitnesses() {
           <p className="mt-3 text-[11px] text-ink-500 italic">
             Recorded {new Date(me.said_yes_at).toLocaleDateString()} · welcome to the cloud.
           </p>
+
+          <div className="mt-4">
+            <Link
+              href="/sending/begin"
+              className="inline-flex items-center rounded-full bg-flame-600 text-ink-50 px-4 py-2 text-xs hover:bg-flame-700"
+            >
+              Walk your first week →
+            </Link>
+          </div>
 
           {/* Souls editor */}
           <div className="mt-5 pt-4 border-t border-ink-100">

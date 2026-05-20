@@ -237,6 +237,14 @@ export default function SendingPage() {
             </li>
           ))}
         </ol>
+        <div className="mt-6">
+          <Link
+            href="/sending/begin"
+            className="inline-flex items-center rounded-full bg-ink-900 text-ink-50 px-5 py-2.5 text-sm hover:bg-flame-700 transition-colors"
+          >
+            Walk the first week, step by step →
+          </Link>
+        </div>
       </section>
 
       {/* A covenant prayer the reader can pray right now */}

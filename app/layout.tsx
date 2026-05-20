@@ -34,6 +34,12 @@ export const metadata: Metadata = {
     description:
       "Encounter JESUS. Engage the Word. Live the Kingdom. Connect with the Body.",
   },
+  alternates: {
+    types: {
+      "application/rss+xml": "/feed/votd.xml",
+      "application/json": "/feed/votd.json",
+    },
+  },
 };
 
 export const viewport: Viewport = {

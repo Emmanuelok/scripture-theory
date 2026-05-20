@@ -24,6 +24,7 @@ export default function Footer() {
             <li><Link href="/help" className="hover:text-ink-900">Help</Link></li>
             <li><Link href="/give" className="hover:text-ink-900">Support the work</Link></li>
             <li><Link href="/new-believer" className="hover:text-ink-900">{t.footer.newBeliever}</Link></li>
+            <li><a href="/feed/votd.xml" className="hover:text-ink-900" title="Verse-of-the-day RSS feed">Subscribe (RSS)</a></li>
           </ul>
         </div>
         <div>

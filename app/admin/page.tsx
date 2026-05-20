@@ -8,6 +8,12 @@ export const metadata = {
 
 const QUEUES = [
   {
+    href: "/admin/health",
+    title: "Health",
+    sub: "One glance at what's waiting and what isn't wired up. Pending counts across every queue plus env-var status.",
+    eyebrow: "Overview",
+  },
+  {
     href: "/admin/testimonies",
     title: "Testimonies",
     sub: "Review and publish submitted testimonies of Jesus. Pending stories wait here until an editor reads and approves them.",
