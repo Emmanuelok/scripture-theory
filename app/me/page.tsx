@@ -2,6 +2,7 @@ import MeDashboard from "@/components/MeDashboard";
 import PersonalSubNav from "@/components/PersonalSubNav";
 import PracticeHeatmap from "@/components/PracticeHeatmap";
 import HeartCompass from "@/components/HeartCompass";
+import DeviceBridge from "@/components/DeviceBridge";
 import FigureBoundary from "@/components/figure-utils/FigureBoundary";
 
 export const metadata = {
@@ -36,6 +37,9 @@ export default function MePage() {
           </FigureBoundary>
         </div>
         <MeDashboard />
+        <div className="mt-12">
+          <DeviceBridge />
+        </div>
       </div>
     </section>
   );
