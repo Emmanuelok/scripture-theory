@@ -109,6 +109,20 @@ export default function TodayDashboard() {
     return { pillar: slot.pillar, theme: entry.theme, scriptureRef: entry.scripture.ref };
   }, [now]);
 
+  // Project 1M — rotating daily covenant prompt.
+  const sendingPrompt = useMemo(() => {
+    const prompts: { eyebrow: string; prompt: string; ref: string }[] = [
+      { eyebrow: "Pray", prompt: "Name one person who does not yet know Jesus. Pray for them by name before the day ends.", ref: "1 Timothy 2:1" },
+      { eyebrow: "Tell", prompt: "Tell one believer this week that you are willing to be sent.", ref: "Isaiah 6:8" },
+      { eyebrow: "Practise", prompt: "Read the four-movement gospel until you could tell it to a friend in two minutes.", ref: "Romans 10:14" },
+      { eyebrow: "Lift up", prompt: `Pray for today's nation — ${nation.name} — by name. The whole field is the Lord's.`, ref: "Revelation 7:9" },
+      { eyebrow: "Listen", prompt: "Read Matthew 28:18-20 aloud, slowly. Whose authority sends you?", ref: "Matthew 28:18" },
+      { eyebrow: "Witness", prompt: "Say one true sentence about Jesus to one person today.", ref: "Acts 1:8" },
+      { eyebrow: "Ask", prompt: "Ask the Lord of the harvest to send labourers — and to count you among them.", ref: "Matthew 9:38" },
+    ];
+    return prompts[dayOfYear(now) % prompts.length];
+  }, [now, nation.name]);
+
   // Today's verse — rotated daily from the WEB seed (authentic public-domain text).
   const dailyVerse = useMemo(() => {
     const webChapters = bibleSeed.filter((c) => c.translation === "WEB");
@@ -218,6 +232,41 @@ export default function TodayDashboard() {
             value={`${flagEmoji(nation.iso)} ${nation.name}`}
             sub={nationRegions[nation.region]}
           />
+        </div>
+      </section>
+
+      {/* Project 1M · daily covenant reminder */}
+      <section className="rounded-3xl bg-ink-900 text-ink-50 p-5 md:p-6 glow-ring relative overflow-hidden">
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-90"
+          style={{
+            background:
+              "radial-gradient(60% 80% at 0% 50%, rgba(249,115,22,0.18), transparent 60%)",
+          }}
+        />
+        <div className="relative grid sm:grid-cols-[auto_1fr_auto] items-center gap-4 md:gap-5">
+          <div className="shrink-0 rounded-2xl border border-flame-300/50 bg-ink-800/60 px-4 py-3 text-center">
+            <div className="font-serif text-flame-200 text-3xl md:text-4xl leading-none">1M</div>
+            <div className="mt-0.5 text-[9px] uppercase tracking-widest text-flame-300/80">Project</div>
+          </div>
+          <div className="min-w-0">
+            <div className="text-[10px] uppercase tracking-widest text-flame-300">
+              Today&apos;s covenant · {sendingPrompt.eyebrow}
+            </div>
+            <p className="mt-1 font-serif text-lg md:text-xl text-ink-50 leading-snug">
+              {sendingPrompt.prompt}
+            </p>
+            <p className="mt-1 text-[11px] uppercase tracking-widest text-flame-300/80">
+              {sendingPrompt.ref}
+            </p>
+          </div>
+          <Link
+            href="/sending"
+            className="justify-self-start sm:justify-self-end shrink-0 inline-flex items-center rounded-full bg-flame-600 hover:bg-flame-700 text-ink-50 px-4 py-2 text-xs font-medium"
+          >
+            Open Sent →
+          </Link>
         </div>
       </section>
 
