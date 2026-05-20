@@ -11,9 +11,9 @@ import { getSupabase } from "@/lib/supabase";
 
    Editorial workflow:
      1. Believer submits → row inserted with status='pending'
-     2. Pastor / editor reviews in Supabase (or future admin UI)
-     3. Editor flips status to 'published' and sets published_at
-     4. The witness page surfaces it
+     2. Maintainer reviews from /admin/testimonies
+     3. Editor flips status to 'published' (sets published_at) or 'hidden'
+     4. The witness page surfaces only 'published'
 
    Privacy:
      - First name (or initials) only. Place is the country / region.
@@ -21,67 +21,11 @@ import { getSupabase } from "@/lib/supabase";
        editor sees it (used to reply with a draft for approval).
      - RLS hides 'pending' and 'hidden' rows from anonymous reads.
 
-   ── Schema ──────────────────────────────────────────────────────
-   Run once in the Supabase SQL editor:
+   Schema: see supabase/migrations/0006_testimonies.sql
+   Depends on: supabase/migrations/0005_prayer_admin.sql (admin_emails + is_admin)
 
-     create table if not exists testimonies (
-       id              uuid primary key default gen_random_uuid(),
-       first_name      text not null check (char_length(first_name) between 1 and 64),
-       initials_only   boolean not null default false,
-       place           text check (place is null or char_length(place) <= 96),
-       before_text     text not null check (char_length(before_text) between 10 and 2000),
-       encounter       text not null check (char_length(encounter) between 10 and 2000),
-       now_text        text not null check (char_length(now_text) between 10 and 2000),
-       verse           text check (verse is null or char_length(verse) <= 64),
-       contact         text check (contact is null or char_length(contact) <= 256),
-       status          text not null default 'pending'
-                       check (status in ('pending', 'published', 'hidden')),
-       user_id         uuid,
-       device_id       text,
-       created_at      timestamptz not null default now(),
-       published_at    timestamptz
-     );
-
-     create index if not exists idx_testimonies_published
-       on testimonies (published_at desc nulls last)
-       where status = 'published';
-
-     alter table testimonies enable row level security;
-
-     -- The public sees published rows only.
-     create policy "read published" on testimonies
-       for select using (status = 'published');
-
-     -- Anyone (anon or signed-in) can submit. Insert is forced to
-     -- pending; editors then flip status from /admin/testimonies.
-     create policy "submit any" on testimonies
-       for insert with check (status = 'pending');
-
-     -- ── Admin / editor access ─────────────────────────────────
-     -- A tiny allowlist table + helper that returns true when the
-     -- caller's auth email is on the allowlist. Admins read/update
-     -- everything; non-admins still only see published rows.
-
-     create table if not exists admin_emails (
-       email text primary key
-     );
-
-     -- Add your maintainer email(s):
-     --   insert into admin_emails(email) values ('you@example.com');
-
-     create or replace function is_admin() returns boolean
-       language sql stable security definer
-       set search_path = public
-       as $$ select exists(select 1 from admin_emails where email = auth.email()) $$;
-     grant execute on function is_admin() to anon, authenticated;
-
-     -- Admins can read pending / hidden too
-     create policy "admin read all" on testimonies
-       for select using (is_admin());
-
-     -- Admins can update status (and any other column) on any row
-     create policy "admin update" on testimonies
-       for update using (is_admin()) with check (is_admin());
+   To add yourself to the allowlist, run in Supabase SQL:
+     insert into admin_emails(email) values ('you@example.com');
 ────────────────────────────────────────────────────────────────── */
 
 export type PublishedTestimony = {
