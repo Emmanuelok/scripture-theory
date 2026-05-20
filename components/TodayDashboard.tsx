@@ -268,6 +268,16 @@ export default function TodayDashboard() {
             Open Sent →
           </Link>
         </div>
+        {/* Quiet cross-link to the wall — for whoever wants to intercede right now */}
+        <div className="relative mt-3 pt-3 border-t border-ink-700/60 text-xs text-ink-300 flex flex-wrap items-center justify-between gap-2">
+          <span className="italic">Carry one of the new evangelists in prayer.</span>
+          <Link
+            href="/sending#wall"
+            className="text-flame-300 hover:text-flame-100 font-medium"
+          >
+            Lift up a new evangelist →
+          </Link>
+        </div>
       </section>
 
       <ForYouToday />

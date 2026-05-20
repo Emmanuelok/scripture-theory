@@ -104,6 +104,29 @@ export default function PrayerGuide() {
       {mode === "nations" && <NationsTeaser />}
       {mode === "world" && <WorldView />}
 
+      {/* Cross-link to Project 1M's Wall of Yeses */}
+      <Link
+        href="/sending#wall"
+        className="block rounded-3xl border border-flame-300 bg-gradient-to-br from-flame-50 to-card p-6 hover:border-flame-500 transition-colors group"
+      >
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <div>
+            <div className="text-[10px] uppercase tracking-widest text-flame-700">
+              Project 1M · the Wall of Yeses
+            </div>
+            <h3 className="font-serif text-xl md:text-2xl text-ink-900 mt-1 group-hover:text-flame-700 transition-colors">
+              Lift up a believer who just said yes.
+            </h3>
+            <p className="mt-2 text-sm text-ink-700 leading-relaxed max-w-2xl">
+              Real first names, real countries. New evangelists in their first week of
+              following Jesus — the ones who most need the Body around them. Pray for one
+              right now, by name.
+            </p>
+          </div>
+          <span className="text-flame-700 font-medium text-sm shrink-0">Open the wall →</span>
+        </div>
+      </Link>
+
       <div className="rounded-3xl bg-ink-900 text-ink-50 p-8 text-center" dir={dir}>
         <p className="font-serif text-2xl">"{t.closing.quote}"</p>
         <p className="mt-2 text-ink-300">{t.closing.ref}</p>

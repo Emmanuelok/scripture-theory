@@ -89,7 +89,7 @@ export default function SendingPage() {
       </div>
 
       {/* The Cloud of Witnesses — live registry of yeses */}
-      <div className="mt-14">
+      <div id="wall" className="mt-14 scroll-mt-20">
         <CloudOfWitnesses />
       </div>
 
