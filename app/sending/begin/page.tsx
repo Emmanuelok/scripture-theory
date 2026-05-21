@@ -58,8 +58,8 @@ const STEPS: Step[] = [
     eyebrow: "Carry a name",
     title: "Name one person.",
     body:
-      "Write down — on paper, in a note, somewhere you will see it — the name of one person you long to know Jesus. Don't strategise. Pray for them by name every day this week. Watch how the Father moves.",
-    cta: { href: "/pray/wall", label: "Take a request to the Father →" },
+      "Write down — on paper, in a note, somewhere you will see it — the name of one person you long to know Jesus. Don't strategise. Pray for them by name every day this week. Watch how the Father moves. The /me page has a private place to keep names; it lives only on your device.",
+    cta: { href: "/me#names", label: "Add a name to your list →" },
     scripture: {
       ref: "1 Timothy 2:1",
       text: "First of all… that supplications, prayers, intercessions, and thanksgivings be made for all people.",
