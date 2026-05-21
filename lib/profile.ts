@@ -13,6 +13,13 @@ export type PrayingForRecord = {
   addedAt: string;
   prayedAt: string[];
   sharedAt?: string;
+  /**
+   * Posture toward this name. Absent / "walking-with" means active
+   * intercession; "rejoicing-in" means the Lord has met them — we
+   * change from petition to thanksgiving but the name stays.
+   */
+  status?: "walking-with" | "rejoicing-in";
+  metJesusAt?: string;
 };
 
 export type MemoryLevel = "reading" | "first-letters" | "blanks" | "recited" | "mastered";

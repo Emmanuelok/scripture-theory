@@ -10,7 +10,10 @@ export default function PrayingForList() {
   const [name, setName] = useState("");
   const [note, setNote] = useState("");
 
-  const list = profile.prayingFor ?? [];
+  const all = profile.prayingFor ?? [];
+  // Today widget shows only active intercession; "rejoicing-in" names
+  // live on /me where the fuller view is.
+  const list = all.filter((p) => p.status !== "rejoicing-in");
   const today = new Date().toISOString().slice(0, 10);
 
   function add() {
@@ -23,14 +26,15 @@ export default function PrayingForList() {
       note: note.trim() || undefined,
       addedAt: new Date().toISOString(),
       prayedAt: [],
+      status: "walking-with",
     };
-    update({ prayingFor: [...list, record] });
+    update({ prayingFor: [...all, record] });
     setName("");
     setNote("");
   }
 
   function markPrayed(id: string) {
-    const next = list.map((p) => {
+    const next = all.map((p) => {
       if (p.id !== id) return p;
       const last = p.prayedAt[p.prayedAt.length - 1];
       if (last === today) return p;
@@ -40,7 +44,7 @@ export default function PrayingForList() {
   }
 
   function markShared(id: string) {
-    const next = list.map((p) => {
+    const next = all.map((p) => {
       if (p.id !== id) return p;
       return { ...p, sharedAt: p.sharedAt ?? new Date().toISOString() };
     });
@@ -50,7 +54,7 @@ export default function PrayingForList() {
   function remove(id: string) {
     if (typeof window !== "undefined" && !window.confirm("Remove this person from your list?"))
       return;
-    update({ prayingFor: list.filter((p) => p.id !== id) });
+    update({ prayingFor: all.filter((p) => p.id !== id) });
   }
 
   if (!mounted) return null;

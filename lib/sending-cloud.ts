@@ -309,7 +309,7 @@ export function percentOfMillion(n: number): number {
 /* ──────────────────────────────────────────────────────────────────
    Admin helpers — Wall moderation.
 
-   Gated by is_admin() RLS on the server (defined in testimonies-cloud
+   Gated by is_admin() RLS on the server (defined in migration 0005
    schema). Non-admins calling these will just see empty results /
    "permission denied" errors from Supabase.
 ────────────────────────────────────────────────────────────────── */
