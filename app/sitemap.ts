@@ -31,9 +31,12 @@ const STATIC_ROUTES: { path: string; priority: number; changefreq: "daily" | "we
   { path: "/bible",           priority: 0.9, changefreq: "weekly" },
   { path: "/bible/translations", priority: 0.7, changefreq: "monthly" },
   { path: "/read",            priority: 0.7, changefreq: "weekly" },
+  { path: "/read/build",      priority: 0.6, changefreq: "monthly" },
   { path: "/memory",          priority: 0.7, changefreq: "weekly" },
   { path: "/devotional",      priority: 0.7, changefreq: "daily" },
   { path: "/listen",          priority: 0.6, changefreq: "weekly" },
+  { path: "/search",          priority: 0.5, changefreq: "monthly" },
+  { path: "/lens",            priority: 0.6, changefreq: "monthly" },
 
   // Prayer
   { path: "/pray",            priority: 0.8, changefreq: "weekly" },
@@ -44,6 +47,12 @@ const STATIC_ROUTES: { path: string; priority: number; changefreq: "daily" | "we
 
   // Discipleship & courses
   { path: "/course",          priority: 0.8, changefreq: "monthly" },
+  { path: "/course/begin",    priority: 0.7, changefreq: "monthly" },
+  { path: "/course/history",  priority: 0.6, changefreq: "monthly" },
+  { path: "/course/memory",   priority: 0.6, changefreq: "monthly" },
+  { path: "/course/sent",     priority: 0.6, changefreq: "monthly" },
+  { path: "/course/workbook", priority: 0.6, changefreq: "monthly" },
+  { path: "/course/lead",     priority: 0.6, changefreq: "monthly" },
   { path: "/track",           priority: 0.7, changefreq: "monthly" },
   { path: "/disciple",        priority: 0.7, changefreq: "monthly" },
   { path: "/disciple/journey",priority: 0.6, changefreq: "monthly" },
@@ -69,11 +78,15 @@ const STATIC_ROUTES: { path: string; priority: number; changefreq: "daily" | "we
 
   // Mission
   { path: "/witness",         priority: 0.7, changefreq: "weekly" },
+  { path: "/witness/share",   priority: 0.7, changefreq: "monthly" },
   { path: "/sending",         priority: 0.9, changefreq: "weekly" },
   { path: "/sending/begin",   priority: 0.8, changefreq: "monthly" },
   { path: "/connect",         priority: 0.7, changefreq: "monthly" },
+  { path: "/connect/claim",   priority: 0.6, changefreq: "monthly" },
   { path: "/give",            priority: 0.6, changefreq: "monthly" },
   { path: "/vocation",        priority: 0.6, changefreq: "monthly" },
+  { path: "/vocation/discerning-schools", priority: 0.5, changefreq: "yearly" },
+  { path: "/vocation/seminary",           priority: 0.5, changefreq: "yearly" },
   { path: "/calling",         priority: 0.6, changefreq: "monthly" },
   { path: "/marriage",        priority: 0.6, changefreq: "monthly" },
   { path: "/parenting",       priority: 0.6, changefreq: "monthly" },
@@ -89,6 +102,8 @@ const STATIC_ROUTES: { path: string; priority: number; changefreq: "daily" | "we
   { path: "/timeline",        priority: 0.6, changefreq: "yearly" },
   { path: "/figures",         priority: 0.7, changefreq: "monthly" },
   { path: "/apologetics",     priority: 0.6, changefreq: "monthly" },
+  { path: "/sermons",         priority: 0.6, changefreq: "weekly" },
+  { path: "/sermon-library",  priority: 0.6, changefreq: "monthly" },
 
   // Themed Scripture pages
   { path: "/beatitudes",      priority: 0.6, changefreq: "yearly" },

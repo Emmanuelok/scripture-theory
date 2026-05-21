@@ -61,9 +61,9 @@ export default function SabbathView() {
   }
 
   function toggleList(key: "rhythms" | "abstain", v: string) {
-    const list = (s[key] ?? []) as string[];
+    const list = s[key] ?? [];
     const next = list.includes(v) ? list.filter((x) => x !== v) : [...list, v];
-    patch({ [key]: next } as any);
+    patch({ [key]: next });
   }
 
   function markKept() {

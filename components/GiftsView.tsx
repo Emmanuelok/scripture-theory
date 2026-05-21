@@ -20,7 +20,7 @@ export default function GiftsView() {
   const [submitted, setSubmitted] = useState(!!saved);
 
   const score = useMemo(() => {
-    const acc: Record<GiftId, number> = {} as any;
+    const acc: Partial<Record<GiftId, number>> = {};
     for (const s of statements) {
       acc[s.gift] = (acc[s.gift] ?? 0) + (responses[s.id] ?? 0);
     }

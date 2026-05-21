@@ -58,12 +58,6 @@ export default function ParentingView() {
     });
   }
 
-  function toggleIntention(text: string) {
-    const intentions = (p as any).intentions ?? []; // we'll piggyback on marriage style if useful
-    // Parenting doesn't have intentions field; we'll just show the list.
-    return text;
-  }
-
   return (
     <div className="space-y-8">
       <section className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8 glow-ring">
