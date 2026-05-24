@@ -9,6 +9,7 @@ import { todaysDevotional } from "@/data/devotional";
 import { slugifyDevotional } from "@/lib/devotional-slug";
 import { canon } from "@/data/bible/canon";
 import { useToday } from "@/lib/useToday";
+import { dueVerses } from "@/lib/memorySchedule";
 
 /* ──────────────────────────────────────────────────────────────────
    ResumeStrip — surfaces where the believer left off, so /today
@@ -114,7 +115,7 @@ function nextChapterRef(last: LastRead): { bookId: string; bookName: string; cha
 
 export default function ResumeStrip() {
   const today = useToday();
-  const { mounted: profileMounted } = useProfile();
+  const { profile, mounted: profileMounted } = useProfile();
   const [mounted, setMounted] = useState(false);
   const [lastRead, setLastRead] = useState<LastRead | null>(null);
   const [progress, setProgress] = useState<PlanProgress>({});
@@ -140,9 +141,10 @@ export default function ResumeStrip() {
   const plan = topPlan(progress);
   const next = lastRead ? nextChapterRef(lastRead) : null;
   const devotional = todaysDevotional(today);
+  const due = dueVerses(profile.memory ?? [], today);
 
   // Brand-new visitor with nothing to resume — render nothing
-  if (!lastRead && !plan) return null;
+  if (!lastRead && !plan && due.length === 0) return null;
 
   return (
     <section className="rounded-3xl border border-ink-200 bg-card-subtle p-5 md:p-6">
@@ -215,6 +217,31 @@ export default function ResumeStrip() {
             <div className="mt-2 text-xs text-flame-700">Read today's meditation →</div>
           </Link>
         </li>
+
+        {/* Memory verses due for review (Leitner spaced-repetition) */}
+        {due.length > 0 && (
+          <li>
+            <Link
+              href={`/memory?verse=${encodeURIComponent(due[0].verse.id)}`}
+              className="block h-full rounded-2xl border border-amber-300 bg-amber-50/40 p-4 hover:border-flame-500 transition-colors"
+            >
+              <div className="text-[10px] uppercase tracking-widest text-amber-700">
+                Memory · {due.length} due
+              </div>
+              <div className="font-serif text-lg text-ink-900 mt-1 leading-tight">
+                {due.length === 1
+                  ? `Keep ${due[0].verse.ref} warm`
+                  : `${due.length} verses ready for review`}
+              </div>
+              <div className="text-[11px] text-ink-500 mt-1">
+                {due[0].overdue > 0
+                  ? `${due[0].verse.ref} · ${due[0].overdue}d overdue`
+                  : `Start with ${due[0].verse.ref}`}
+              </div>
+              <div className="mt-2 text-xs text-flame-700">Practice now →</div>
+            </Link>
+          </li>
+        )}
       </ul>
     </section>
   );
