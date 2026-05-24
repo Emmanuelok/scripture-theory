@@ -2,64 +2,162 @@
 
 **Encounter JESUS. Engage the Word. Live the Kingdom. Belong to the Body.**
 
-An inter-denominational, Scripture-centered AI platform for global discipleship.
-JESUS at the center. The Word as the source. The local Body as the home.
+An inter-denominational, JESUS-centered discipleship platform. The Bible in
+14 trusted public-domain translations, daily prayer for the nations, on-device
+journals, a global Wall of Yeses (Project 1M), and the practices that have
+shaped the Church for two thousand years — all free, free of ads, free of
+tracking, free of any AI-generated Scripture or theology.
 
-This repository is the public web platform (Next.js 14 + Tailwind, deployable to Vercel).
+Live: **[scripture-theory.vercel.app](https://scripture-theory.vercel.app)**
 
 ---
 
-## The unsolved pain point we are building against
+## Editorial principles (the non-negotiables)
 
-Every major Bible / Christian platform is missing the same three things — at the same time:
+- **JESUS alone, not denomination.** Where traditions differ, every voice is named.
+- **No AI in Scripture or theology.** Every word in the Bible comes from a named
+  human translation; every devotional from Scripture Theory editorial. Zero LLM
+  dependencies.
+- **No streaks. No shame. No DMs.** Believers are met, not gamified.
+- **Privacy by default.** The Secret Place, the Names, reading progress — all
+  device-local. Cloud sync is opt-in. The Wall of Yeses shows first names +
+  country only.
+- **Free forever.** No paywall. No ads on Scripture-adjacent pages. No data sale.
 
-1. **The Scripture-AI Trust Gap.** YouVersion's CEO has publicly said today's leading AI models
-   misquote Scripture between 15% and 60% of the time — which is why YouVersion (1B+ installs)
-   deliberately refuses to ship an AI answer feature. No major platform has shipped a
-   citation-grounded Scripture AI that refuses to fabricate verses.
-2. **The Single-Lens Bias Problem.** Independent reviews of Bible chatbots find they quietly
-   default to a narrow theological outlook. No major platform transparently shows how Orthodox,
-   Catholic, Reformed, Wesleyan, Pentecostal and Anabaptist streams have read the same passage,
-   side by side, with named voices.
-3. **The Discipleship Deficit.** Only ~52% of pastors have an intentional discipleship plan; the
-   18–25 dropout rate has risen from 59% to 64%. Apps deliver content but rarely produce formed
-   disciples connected to a real local body.
+---
 
-Scripture Theory is built on the exact intersection where these three failures meet.
+## Tech stack
 
-## Pillars
+- **Next.js 16** (App Router, Turbopack) · TypeScript · React 18
+- **Tailwind 3** (CSS variables for palette, class-based dark mode)
+- **Supabase** (Postgres + Auth + RLS) for cloud-backed features
+- **Crossway ESV API** (optional, for the ESV translation)
+- PWA (manifest + service worker + offline shell)
+- Zero AI / LLM dependencies
 
-- **Encounter** — pointing to the living Jesus (John 17:3)
-- **Engage** — citation-grounded Scripture (2 Tim 3:16)
-- **Embody** — measurable discipleship (Matt 28:19–20)
-- **Belong** — handoff to a real local church (Heb 10:24–25)
+---
 
-## Live surfaces
-
-- `/` — vision, gap, products, principles
-- `/lens` — flagship **Verse Lens** demo: one passage, six traditions, named voices, no invented verses
-- `/disciple` — The Path: a 12-stage discipleship journey
-- `/connect` — Local Body Connect: warm pastor intros, not pins on a map
-- `/roadmap` — the 12-month plan
-
-## Local development
+## Quickstart
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open http://localhost:3000.
+Open <http://localhost:3000>. Most surfaces work without any env vars — they
+degrade to read-only or "setup pending" panels when Supabase isn't configured.
 
-## Deploy to Vercel
+### Optional environment variables
 
-1. Push this branch to GitHub (already configured: `claude/scripture-theory-ai-platform-oVCIS`).
-2. In Vercel → **Add New… → Project** → import the GitHub repo.
-3. Framework preset: **Next.js** (auto-detected). No environment variables required for the MVP.
-4. Click **Deploy**.
+```bash
+# .env.local
+NEXT_PUBLIC_SUPABASE_URL=...           # cloud sync, admin queues, prayer wall
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+NEXT_PUBLIC_SITE_URL=https://yourdomain
+ESV_API_KEY=...                        # ESV translation (server-only)
+NEXT_PUBLIC_GIVE_ONCE_URL=...          # Stripe / Ko-fi / Patreon link
+NEXT_PUBLIC_GIVE_MONTHLY_URL=...
+INTAKE_CLAIM_TO=onboarding@...         # pastor claim → email
+INTAKE_TESTIMONY_TO=testimonies@...
+INTAKE_FROM=...
+RESEND_API_KEY=...                     # email transport for /api/intake
+```
 
-The MVP has zero external dependencies, so the first deploy should succeed in under 2 minutes.
+---
 
-## Roadmap
+## Deploy
 
-See `/roadmap` on the live site, or `data/strategy.ts` in this repo.
+### 1 · Vercel (the app)
+
+Import the repo. Framework auto-detects as Next.js. Set the env vars above
+that you need. Deploy. The PWA, the offline shell, every static page, and
+the daily-rotating content (verse-of-the-day, nation-of-the-day, season
+banner) all work immediately.
+
+### 2 · Supabase (the data)
+
+Create a free Supabase project. From the SQL editor, run each file in
+[`supabase/migrations/`](supabase/migrations/) in order — or `supabase db push`
+if you use the CLI. See [`supabase/migrations/README.md`](supabase/migrations/README.md)
+for the run order and what each migration adds.
+
+### 3 · Admin allowlist
+
+Add your maintainer email so `/admin` opens for you:
+
+```sql
+insert into admin_emails(email) values ('you@example.com');
+```
+
+Sign in on the live site with that email, then visit `/admin` — four queues
+(Health, Testimonies, Wall of Yeses, Prayer Wall) become available.
+
+---
+
+## Daily operations
+
+| Route | Purpose |
+|---|---|
+| `/admin` | Hub for all moderation surfaces |
+| `/admin/health` | Pending counts + env-var status at a glance |
+| `/admin/testimonies` | Editorial review of submitted testimonies |
+| `/admin/yeses` | Moderate the Project 1M Wall of Yeses |
+| `/admin/prayers` | Review flagged prayer requests (auto-hide at 3 flags) |
+
+Admin pages are robots-disallowed and gated server-side by RLS via the
+`admin_emails` allowlist.
+
+---
+
+## Backup
+
+See [`BACKUP.md`](BACKUP.md) for the full playbook: git mirror to a second host,
+monthly `git bundle`, encrypted tarball, `pg_dump` for Supabase, `vercel env pull`
+for environment variables, and a monthly cron script.
+
+---
+
+## Repo map
+
+```
+app/                  Next.js routes — public pages, /admin, /api, feeds
+components/           UI — ~120 components. The biggest are
+                      TodayDashboard, CloudOfWitnesses, BibleChapter,
+                      MemoryTrainer, NamesPanel, AdminPrayers, …
+data/                 All editorial content — Bible canon, glossary (369 terms),
+                      69 nations, devotional library, hymns, course material,
+                      66 topical-index entries, liturgical calendar, …
+lib/                  Pure libraries — supabase client, profile, calendar
+                      math, spaced-repetition schedule, useToday hook, …
+supabase/migrations/  Authoritative database schema (0001–0007)
+public/               Static assets — icons, manifest, service worker
+```
+
+---
+
+## Contributing
+
+Editorial guardrails are enforced by a multi-agent audit — see the latest
+audit commit (`d0cb14c` and after) for the format. Before opening a PR:
+
+1. `npx tsc --noEmit` must be clean
+2. `npx next build` must be clean
+3. Editorial guardrails (no synthetic testimonies, no AI in Scripture, no
+   streaks language, no DM/chat surfaces, first-name + region only on the
+   public wall) must hold
+
+Tests aren't required — the platform leans on tsc + Next's build, the
+admin queues, and human pastoral review.
+
+---
+
+## Built into the work
+
+> "Each one must give as he has decided in his heart, not reluctantly or
+> under compulsion, for God loves a cheerful giver."
+> — *2 Corinthians 9:7*
+
+If the Lord nudges you to help fund hosting, translation, or reaching new
+language groups — `/give` on the live site.
+
+Walk well.
