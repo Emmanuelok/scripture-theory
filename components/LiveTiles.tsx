@@ -30,7 +30,7 @@ export default function LiveTiles() {
   const memory = thisWeeksVerse(now);
 
   return (
-    <section className="mx-auto max-w-6xl px-5 -mt-8 md:-mt-16 relative z-10">
+    <section className="mx-auto max-w-6xl px-5 mt-8 relative z-10">
       <div className="grid md:grid-cols-3 gap-4">
         {/* Today's Nation — flag-led, the most visually striking */}
         <Link

@@ -110,6 +110,30 @@ export default function SeasonBanner({
 
   // Feast today wins the headline
   if (feast) {
+    // Slim variant for the home strip — keep the page calm
+    if (variant === "strip") {
+      return (
+        <Link
+          href="/calendar"
+          className={`block rounded-2xl border p-3 md:p-4 hover:border-ink-700 transition-colors ${theme.border} ${theme.bg}`}
+        >
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <div className="flex items-baseline gap-3">
+              <span className={`text-[10px] uppercase tracking-widest ${theme.tag}`}>
+                Feast · today
+              </span>
+              <span className={`font-serif text-base md:text-lg ${theme.titleAccent}`}>
+                {feast.name}
+              </span>
+            </div>
+            <span className="text-[11px] text-ink-600 italic">
+              {feast.tagline}
+            </span>
+          </div>
+        </Link>
+      );
+    }
+
     return (
       <div className={`relative rounded-3xl border p-5 md:p-6 ${theme.border} ${theme.bg}`}>
         <div className={`text-[10px] uppercase tracking-widest ${theme.tag}`}>
