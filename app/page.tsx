@@ -2,6 +2,7 @@ import Link from "next/link";
 import HomeHero from "@/components/HomeHero";
 import LiveTiles from "@/components/LiveTiles";
 import ExploreGrid from "@/components/ExploreGrid";
+import DailyRhythmReminder from "@/components/DailyRhythmReminder";
 
 // Today's verse + today's nation are rendered server-side here too,
 // so rebuild hourly to track the day-of-year rotation.
@@ -11,6 +12,11 @@ export default function HomePage() {
   return (
     <>
       <HomeHero />
+
+      <section className="mx-auto max-w-5xl px-5 mt-6">
+        <DailyRhythmReminder variant="strip" />
+      </section>
+
       <LiveTiles />
 
       {/* The ONE Gospel — single, calm, beautiful */}

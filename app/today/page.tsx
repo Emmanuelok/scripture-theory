@@ -1,4 +1,5 @@
 import TodayDashboard from "@/components/TodayDashboard";
+import DailyRhythmReminder from "@/components/DailyRhythmReminder";
 
 export const metadata = {
   title: "Today — Scripture Theory",
@@ -22,6 +23,10 @@ export default function TodayPage() {
         Three things a day, in your language, shaped for where you are with Jesus. No notifications,
         no streaks, no shame — just a faithful next step.
       </p>
+
+      <div className="mt-8">
+        <DailyRhythmReminder />
+      </div>
 
       <div className="mt-10">
         <TodayDashboard />
