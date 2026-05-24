@@ -3,6 +3,7 @@ import HomeHero from "@/components/HomeHero";
 import LiveTiles from "@/components/LiveTiles";
 import ExploreGrid from "@/components/ExploreGrid";
 import DailyRhythmReminder from "@/components/DailyRhythmReminder";
+import SeasonBanner from "@/components/SeasonBanner";
 
 // Today's verse + today's nation are rendered server-side here too,
 // so rebuild hourly to track the day-of-year rotation.
@@ -13,7 +14,8 @@ export default function HomePage() {
     <>
       <HomeHero />
 
-      <section className="mx-auto max-w-5xl px-5 mt-6">
+      <section className="mx-auto max-w-5xl px-5 mt-6 space-y-3">
+        <SeasonBanner variant="strip" />
         <DailyRhythmReminder variant="strip" />
       </section>
 
