@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { TOPICS, CATEGORIES } from "@/data/resources/topics";
 import { referenceHref } from "@/lib/reference";
 
@@ -9,6 +9,18 @@ export default function TopicalIndexPage() {
   const [cat, setCat] = useState<string>("all");
   const [q, setQ] = useState("");
   const [openSlug, setOpenSlug] = useState<string | null>(null);
+
+  // Land on /resources/topical-index#anxiety → auto-open anxiety
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    function applyHash() {
+      const slug = window.location.hash.replace(/^#/, "");
+      if (slug && TOPICS.some((t) => t.slug === slug)) setOpenSlug(slug);
+    }
+    applyHash();
+    window.addEventListener("hashchange", applyHash);
+    return () => window.removeEventListener("hashchange", applyHash);
+  }, []);
 
   const filtered = useMemo(() => {
     let xs = TOPICS;
@@ -93,8 +105,9 @@ export default function TopicalIndexPage() {
           return (
             <li
               key={t.slug}
+              id={t.slug}
               className={[
-                "group relative overflow-hidden rounded-2xl border bg-card hover:-translate-y-0.5 hover:border-flame-500/60 hover:shadow-[0_18px_50px_-20px_rgba(249,115,22,0.28)] transition-all",
+                "group relative overflow-hidden rounded-2xl border bg-card hover:-translate-y-0.5 hover:border-flame-500/60 hover:shadow-[0_18px_50px_-20px_rgba(249,115,22,0.28)] transition-all scroll-mt-24",
                 isOpen ? "border-flame-500 sm:col-span-2" : "border-ink-200",
               ].join(" ")}
             >

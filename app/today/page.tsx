@@ -2,6 +2,7 @@ import TodayDashboard from "@/components/TodayDashboard";
 import DailyRhythmReminder from "@/components/DailyRhythmReminder";
 import SeasonBanner from "@/components/SeasonBanner";
 import ResumeStrip from "@/components/ResumeStrip";
+import WhatYouCarryToday from "@/components/WhatYouCarryToday";
 
 export const metadata = {
   title: "Today — Scripture Theory",
@@ -30,6 +31,7 @@ export default function TodayPage() {
         <SeasonBanner />
         <DailyRhythmReminder />
         <ResumeStrip />
+        <WhatYouCarryToday />
       </div>
 
       <div className="mt-10">
