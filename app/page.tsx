@@ -3,6 +3,10 @@ import HomeHero from "@/components/HomeHero";
 import LiveTiles from "@/components/LiveTiles";
 import ExploreGrid from "@/components/ExploreGrid";
 
+// Today's verse + today's nation are rendered server-side here too,
+// so rebuild hourly to track the day-of-year rotation.
+export const revalidate = 3600;
+
 export default function HomePage() {
   return (
     <>

@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { todaysNation, regions, rotationCycleDay } from "@/data/nations";
 import { thisWeeksVerse } from "@/data/memory";
@@ -5,6 +7,7 @@ import { seed as bibleSeed } from "@/data/bible/seed";
 import { canon } from "@/data/bible/canon";
 import { flagEmoji } from "@/lib/flags";
 import NationFlag from "@/components/NationFlag";
+import { useToday } from "@/lib/useToday";
 
 function dayOfYear(d = new Date()) {
   const start = Date.UTC(d.getUTCFullYear(), 0, 0);
@@ -13,7 +16,7 @@ function dayOfYear(d = new Date()) {
 }
 
 export default function LiveTiles() {
-  const now = new Date();
+  const now = useToday();
 
   // Today's verse — rotated daily across the WEB seed
   const webVerses = bibleSeed.filter((c) => c.translation === "WEB");

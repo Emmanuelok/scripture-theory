@@ -11,6 +11,10 @@ export const metadata = {
     "Every day, one nation. One flag. One focused moment of intercession. The whole Body of Christ praying for the same country, all over the world.",
 };
 
+// Today-keyed content (todaysNation, rotationCycleDay) — rebuild hourly so
+// the daily rotation reflects the actual UTC day, not the build day.
+export const revalidate = 3600;
+
 export default function NationsPage() {
   const nation = todaysNation();
   const day = rotationCycleDay();

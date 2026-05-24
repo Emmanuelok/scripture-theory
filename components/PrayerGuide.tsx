@@ -7,6 +7,7 @@ import { prayerLocales } from "@/data/prayers-i18n";
 import { locales, localeOrder, type LocaleCode } from "@/data/gospel-i18n";
 import { todaysNation, regions as nationRegions, rotationCycleDay } from "@/data/nations";
 import { flagEmoji } from "@/lib/flags";
+import { useToday } from "@/lib/useToday";
 import NationFlag from "@/components/NationFlag";
 import LordsPrayerDiagram from "@/components/LordsPrayerDiagram";
 import ActsPrayerWheel from "@/components/ActsPrayerWheel";
@@ -240,8 +241,9 @@ function ActsView({ t, dir }: { t: ReturnType<typeof useT>; dir: "ltr" | "rtl" }
 }
 
 function NationsTeaser() {
-  const today = todaysNation();
-  const day = rotationCycleDay();
+  const now = useToday();
+  const today = todaysNation(now);
+  const day = rotationCycleDay(now);
   return (
     <div className="space-y-5" dir="ltr">
       <div className="rounded-3xl overflow-hidden border border-ink-200 bg-card glow-ring">
@@ -297,7 +299,8 @@ function NationsTeaser() {
 }
 
 function WorldView() {
-  const today = worldPrayer[todaysRegionIndex()];
+  const now = useToday();
+  const today = worldPrayer[todaysRegionIndex(now)];
   return (
     <div dir="ltr" className="space-y-6">
       <div className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8 glow-ring">

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useProfile } from "@/lib/profile";
+import { useToday } from "@/lib/useToday";
 import {
   altarWeekdays,
   altarPattern,
@@ -41,7 +42,7 @@ export default function FamilyAltarView() {
   const log = profile.familyAltar ?? [];
 
   const [ageGroup, setAgeGroup] = useState<AgeGroup>("kids");
-  const [today] = useState(() => new Date());
+  const today = useToday();
   const [viewDate, setViewDate] = useState<Date>(() => new Date());
 
   useEffect(() => {

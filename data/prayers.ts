@@ -187,10 +187,9 @@ export const worldPrayer: RegionPrayer[] = [
   },
 ];
 
-export function todaysRegionIndex() {
-  const now = new Date();
-  const start = Date.UTC(now.getUTCFullYear(), 0, 0);
-  const diff = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) - start;
+export function todaysRegionIndex(d: Date = new Date()) {
+  const start = Date.UTC(d.getUTCFullYear(), 0, 0);
+  const diff = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) - start;
   const day = Math.floor(diff / 86400000);
   return day % worldPrayer.length;
 }

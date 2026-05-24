@@ -6,6 +6,11 @@ export const metadata = {
     "Your daily rhythm with Jesus: today's chapter, today's prayer, today's region of the world, and a curated next step shaped for where you are.",
 };
 
+// Belt-and-suspenders: the dashboard is a client component using useToday(),
+// but rebuild the page shell hourly too so the SSR'd HTML is fresh for the
+// first paint, search engines, and link previews.
+export const revalidate = 3600;
+
 export default function TodayPage() {
   return (
     <section className="mx-auto max-w-5xl px-5 pt-12 pb-20">

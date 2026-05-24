@@ -10,6 +10,9 @@ export const metadata = {
   description: `${devotional.length} short, Christ-centered meditations. Read today's, browse the library, or carry one through the week.`,
 };
 
+// Today's featured entry rotates by day-of-year — rebuild hourly so it tracks.
+export const revalidate = 3600;
+
 export default function DevotionalLibraryPage() {
   const today = todaysDevotional();
 

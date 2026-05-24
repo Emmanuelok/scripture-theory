@@ -10,6 +10,10 @@ export const metadata = {
     "Hide God's Word in your heart. Curated public-domain verses with four practice levels: read, first letters, fill the blanks, recite. Progress saved on your device.",
 };
 
+// "This week's verse" rotates weekly; rebuild daily so the header is fresh
+// without taxing the cache.
+export const revalidate = 86_400;
+
 export default function MemoryPage() {
   const week = thisWeeksVerse();
   return (

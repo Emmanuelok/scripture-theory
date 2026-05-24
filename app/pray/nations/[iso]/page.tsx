@@ -8,6 +8,9 @@ export function generateStaticParams() {
   return nations.map((n) => ({ iso: n.iso.toLowerCase() }));
 }
 
+// "Is this today's nation?" depends on the day-of-year — revalidate hourly.
+export const revalidate = 3600;
+
 export async function generateMetadata({
   params,
 }: {

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useProfile } from "@/lib/profile";
+import { useToday } from "@/lib/useToday";
 import { findNation, nations, todaysNation } from "@/data/nations";
 import { flagEmoji } from "@/lib/flags";
 
@@ -38,6 +39,7 @@ function computeStreak(prayedDates: string[]): number {
 
 export default function NationsRhythm() {
   const { profile, mounted } = useProfile();
+  const now = useToday();
 
   if (!mounted) {
     return (
@@ -50,8 +52,8 @@ export default function NationsRhythm() {
   }
 
   const records = profile.nationsPrayed ?? [];
-  const today = todayKey();
-  const todays = todaysNation();
+  const today = todayKey(now);
+  const todays = todaysNation(now);
   const prayedToday = records.some((r) => r.iso === todays.iso && r.date === today);
   const allDates = Array.from(new Set(records.map((r) => r.date)));
   const streak = computeStreak(allDates);

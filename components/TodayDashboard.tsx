@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useToday } from "@/lib/useToday";
 import { useProfile, stageInfo } from "@/lib/profile";
 import { readingPlans } from "@/data/readings";
 import { localizedPlan, localizedDay } from "@/data/readings-i18n";
@@ -68,7 +69,7 @@ export default function TodayDashboard() {
   const locale = (profile.locale ?? "en") as LocaleCode;
   const dir = locales[locale].meta.dir;
   const stage = profile.stage;
-  const now = useMemo(() => new Date(), []);
+  const now = useToday();
 
   // Active reading plan = the one with the most progress; else first
   const activePlan = useMemo(() => {

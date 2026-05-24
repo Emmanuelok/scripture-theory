@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { todaysDevotional } from "@/data/devotional";
 import { slugifyDevotional } from "@/lib/devotional-slug";
+import { useToday } from "@/lib/useToday";
 import ScriptureRef from "@/components/ScriptureRef";
 
 export default function DailyDevotional() {
-  const entry = useMemo(() => todaysDevotional(), []);
+  const today = useToday();
+  const entry = todaysDevotional(today);
   const permalink = `/devotional/${slugifyDevotional(entry.title)}`;
   const [open, setOpen] = useState(false);
 
