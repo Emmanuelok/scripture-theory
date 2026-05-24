@@ -66,3 +66,33 @@ export function useTodayKey(): string {
   const now = useToday();
   return now.toISOString().slice(0, 10);
 }
+
+/**
+ * Polls the wall clock at a coarse interval (default 5 min) and re-renders
+ * when the value passed through `derive` changes — for time-of-day
+ * adaptive UI without re-rendering on every minute.
+ */
+export function useTimeBand<T>(derive: (d: Date) => T, intervalMs = 5 * 60_000): T {
+  const today = useToday();
+  const [band, setBand] = useState<T>(() => derive(today));
+
+  useEffect(() => {
+    setBand(derive(new Date()));
+    const i = setInterval(() => {
+      setBand((prev) => {
+        const next = derive(new Date());
+        return Object.is(prev, next) ? prev : next;
+      });
+    }, intervalMs);
+    return () => clearInterval(i);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [intervalMs]);
+
+  // also refresh whenever the UTC day rolls over
+  useEffect(() => {
+    setBand(derive(today));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [today]);
+
+  return band;
+}

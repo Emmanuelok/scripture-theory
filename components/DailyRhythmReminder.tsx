@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useToday } from "@/lib/useToday";
+import { useTimeBand, useToday } from "@/lib/useToday";
 import {
+  currentLiturgicalHour,
   dismissToday,
   maybeFireDailyNotification,
   todaysReminder,
@@ -26,6 +27,8 @@ export default function DailyRhythmReminder({
   variant?: "card" | "strip";
 }) {
   const today = useToday();
+  // Re-render when the liturgical-hour band changes (morning → midday → evening → night)
+  const hour = useTimeBand(currentLiturgicalHour);
   const [mounted, setMounted] = useState(false);
   const [hidden, setHidden] = useState(false);
 
@@ -37,10 +40,16 @@ export default function DailyRhythmReminder({
     maybeFireDailyNotification(today);
   }, [today]);
 
+  // Reset dismissal when the hour band changes — the user gets the next
+  // band's reminder even if they dismissed the previous one.
+  useEffect(() => {
+    setHidden(wasDismissedToday(today));
+  }, [hour, today]);
+
   if (!mounted || hidden) return null;
 
   const reminder = todaysReminder(today);
-  const isSunday = reminder.kind === "sunday";
+  const isSunday = reminder.shape === "sunday";
 
   function handleDismiss() {
     dismissToday(today);
