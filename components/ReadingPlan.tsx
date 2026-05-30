@@ -41,6 +41,10 @@ export default function ReadingPlanView() {
     if (typeof window !== "undefined") {
       const saved = window.localStorage.getItem(LOCALE_STORAGE) as LocaleCode | null;
       if (saved && locales[saved]) setLocale(saved);
+      // Deep-link: /read?plan=<id> pre-selects a plan (e.g. from the
+      // "where you left off" strip on /today).
+      const wanted = new URLSearchParams(window.location.search).get("plan");
+      if (wanted && readingPlans.some((p) => p.id === wanted)) setActiveId(wanted);
     }
     setMounted(true);
     if (typeof window === "undefined") return;

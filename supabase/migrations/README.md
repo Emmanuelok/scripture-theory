@@ -12,6 +12,7 @@ Apply these in order. Each file is idempotent (`if not exists` /
 | 0005 | `0005_prayer_admin.sql` | `admin_emails` allowlist, `is_admin()`, admin policies on the Prayer Wall |
 | 0006 | `0006_testimonies.sql` | Testimonies table + editorial RLS (depends on 0005) |
 | 0007 | `0007_sending_covenant.sql` | Project 1M Cloud of Witnesses + `pray_for_yes` RPC (depends on 0005) |
+| 0008 | `0008_sending_update_hardening.sql` | Replaces the over-broad Wall update policy with an `update_my_souls` RPC (depends on 0007) |
 
 ## After applying
 

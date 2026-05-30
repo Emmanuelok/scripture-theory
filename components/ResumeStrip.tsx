@@ -179,7 +179,7 @@ export default function ResumeStrip() {
         {plan && (
           <li>
             <Link
-              href={`/read/${plan.id}#day-${plan.nextDay}`}
+              href={`/read?plan=${plan.id}`}
               className="block h-full rounded-2xl border border-ink-200 bg-card p-4 hover:border-flame-500 transition-colors"
             >
               <div className="text-[10px] uppercase tracking-widest text-flame-700">

@@ -229,18 +229,20 @@ export async function updateMySouls(n: number): Promise<SendingYes | null> {
   const device = getOrCreateDeviceId();
   if (!sb || !id || !device) return null;
   const clamped = Math.max(0, Math.min(SOULS_MAX, Math.floor(n)));
-  const { data, error } = await sb
-    .from(TABLE)
-    .update({ souls_walking_with: clamped })
-    .eq("id", id)
-    .eq("device_id", device)
-    .select("id, first_name, region, prayer, said_yes_at, public, souls_walking_with, prayed_for_count")
-    .maybeSingle();
+  // Routed through a security-definer RPC (migration 0008) so the broad
+  // table-level UPDATE policy can stay revoked — the RPC matches id+device,
+  // clamps the value, and only ever writes souls_walking_with.
+  const { data, error } = await sb.rpc("update_my_souls", {
+    yes_id: id,
+    dev: device,
+    n: clamped,
+  });
   if (error) {
     console.warn("[sending-cloud] update souls error", error.message);
     return null;
   }
-  return (data as SendingYes | null) ?? null;
+  if (typeof data !== "number") return null; // null = wrong device / unknown id
+  return getMyYes();
 }
 
 /* ──────────────────────────────────────────────────────────────────

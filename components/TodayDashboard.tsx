@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useToday } from "@/lib/useToday";
+import { dayOfYearUTC as dayOfYear } from "@/lib/date-helpers";
 import { useProfile, stageInfo } from "@/lib/profile";
 import { readingPlans } from "@/data/readings";
 import { localizedPlan, localizedDay } from "@/data/readings-i18n";
@@ -26,13 +27,11 @@ import { slotKey, SLOT_CHANGE_EVENT } from "@/lib/slots";
 
 const PLAN_PROGRESS_BASE = "scripture-theory-progress";
 
-type Progress = Record<string, number[]>;
+// Signals already shown by dedicated cards above the dashboard on /today,
+// so ForYouToday doesn't repeat them. Module-level for a stable reference.
+const FORYOU_EXCLUDE = ["feast", "season", "memory-due", "examen", "lauds"];
 
-function dayOfYear(d: Date) {
-  const start = Date.UTC(d.getUTCFullYear(), 0, 0);
-  const here = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
-  return Math.floor((here - start) / 86400000);
-}
+type Progress = Record<string, number[]>;
 
 function greeting(now: Date, locale: LocaleCode) {
   const h = now.getHours();
@@ -281,7 +280,7 @@ export default function TodayDashboard() {
         </div>
       </section>
 
-      <ForYouToday />
+      <ForYouToday exclude={FORYOU_EXCLUDE} />
 
       <section className="rounded-3xl border border-ink-200 bg-card p-6 md:p-8 glow-ring">
         <div className="text-xs uppercase tracking-widest text-flame-700">Today's next step</div>

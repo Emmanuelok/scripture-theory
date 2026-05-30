@@ -7,6 +7,16 @@ export function generateStaticParams() {
   return canon.map((b) => ({ book: b.id }));
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ book: string }> }) {
+  const { book: bookId } = await params;
+  const book = getBook(bookId);
+  if (!book) return { title: "Bible — Scripture Theory" };
+  return {
+    title: `${book.name} — Read the Bible — Scripture Theory`,
+    description: `Read the book of ${book.name} (${book.chapters} chapter${book.chapters === 1 ? "" : "s"}) in trusted public-domain translations. Free, ad-free, JESUS-centered.`,
+  };
+}
+
 export default async function BookPage({ params }: { params: Promise<{ book: string }> }) {
   const { book: bookId } = await params;
   const book = getBook(bookId);

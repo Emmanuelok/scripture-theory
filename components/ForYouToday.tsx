@@ -455,7 +455,7 @@ function buildSignals(profile: Profile, now: Date): Signal[] {
   return signals.sort((a, b) => b.priority - a.priority);
 }
 
-export default function ForYouToday() {
+export default function ForYouToday({ exclude = [] }: { exclude?: string[] } = {}) {
   const { profile, mounted } = useProfile();
   const [now, setNow] = useState<Date | null>(null);
 
@@ -467,8 +467,14 @@ export default function ForYouToday() {
 
   const signals = useMemo(() => {
     if (!mounted || !now) return [];
-    return buildSignals(profile, now).slice(0, 4);
-  }, [profile, now, mounted]);
+    // Skip signals already surfaced by dedicated cards on the same page
+    // (SeasonBanner owns feast/season, ResumeStrip owns memory-due,
+    // DailyRhythmReminder owns the office/examen by time of day).
+    const skip = new Set(exclude);
+    return buildSignals(profile, now)
+      .filter((s) => !skip.has(s.id))
+      .slice(0, 4);
+  }, [profile, now, mounted, exclude]);
 
   if (!mounted || !now || signals.length === 0) return null;
 

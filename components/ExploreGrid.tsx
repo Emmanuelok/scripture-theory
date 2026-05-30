@@ -10,17 +10,12 @@ import { heidelberg } from "@/data/catechism";
 import { persecutedOfTheMonth } from "@/data/persecuted";
 import { seed as bibleSeed } from "@/data/bible/seed";
 import { canon as bibleCanon } from "@/data/bible/canon";
+import { dayOfYearUTC as dayOfYear } from "@/lib/date-helpers";
 
 /* ──────────────────────────────────────────────────────────────────
    ExploreGrid — a bento-style, mouse-tracking, live-data tile grid.
    Replaces the bland uniform grid on the landing page.
 ────────────────────────────────────────────────────────────────── */
-
-function dayOfYear(d: Date) {
-  const start = Date.UTC(d.getUTCFullYear(), 0, 0);
-  const here = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
-  return Math.floor((here - start) / 86400000);
-}
 function weekOfYear(d: Date) {
   return Math.floor(dayOfYear(d) / 7);
 }

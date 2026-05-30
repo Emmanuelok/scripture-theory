@@ -18,6 +18,18 @@ const INTAKE_TO: Record<IntakeKind, string> = {
 
 const INTAKE_FROM = process.env.INTAKE_FROM ?? "Scripture Theory <noreply@scripture-theory.org>";
 
+// Conservative single-address email check — enough to keep a malformed
+// or header-injecting value out of Resend's reply_to.
+const EMAIL_RE = /^[^\s@,;:<>"]+@[^\s@,;:<>"]+\.[^\s@,;:<>"]+$/;
+
+/** Returns a safe reply-to email, or undefined if absent/malformed. */
+function safeReplyTo(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const v = value.trim();
+  if (!v || v.length > 254 || !EMAIL_RE.test(v)) return undefined;
+  return v;
+}
+
 function isValid(input: unknown): input is IntakePayload {
   if (!input || typeof input !== "object") return false;
   const p = input as Record<string, unknown>;
@@ -56,6 +68,8 @@ export async function POST(request: Request) {
     );
   }
 
+  const replyTo = safeReplyTo(payload.replyTo);
+
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -66,7 +80,7 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         from: INTAKE_FROM,
         to: [INTAKE_TO[payload.kind]],
-        reply_to: payload.replyTo ? [payload.replyTo] : undefined,
+        reply_to: replyTo ? [replyTo] : undefined,
         subject: payload.subject,
         text: payload.body,
       }),
@@ -81,9 +95,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true, delivered: true, mode: "sent" }, { status: 200 });
   } catch (err) {
-    return NextResponse.json(
-      { ok: false, error: "Delivery error", detail: String(err) },
-      { status: 502 }
-    );
+    console.warn("[intake] delivery error", err instanceof Error ? err.message : err);
+    return NextResponse.json({ ok: false, error: "Delivery error" }, { status: 502 });
   }
 }

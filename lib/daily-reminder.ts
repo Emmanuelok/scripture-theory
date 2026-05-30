@@ -23,6 +23,8 @@
      scripture-theory-reminder-prefs       → { browser: bool, sundayOnly: bool }
 ────────────────────────────────────────────────────────────────── */
 
+import { localDayKey } from "@/lib/date-helpers";
+
 const LAST_FIRED_KEY = "scripture-theory-reminder-last-fired";
 const PREFS_KEY = "scripture-theory-reminder-prefs";
 const DISMISS_PREFIX = "scripture-theory-reminder-dismissed-";
@@ -61,8 +63,12 @@ export function setPrefs(patch: Partial<ReminderPrefs>): ReminderPrefs {
   return next;
 }
 
+// This module is wall-clock-local throughout: Sunday detection and the
+// liturgical hour band both read local time, so the day key must be local
+// too — otherwise a dismissal set near UTC midnight is keyed to a different
+// day than the band that produced it, and the card reappears or sticks.
 export function todayKey(d: Date = new Date()): string {
-  return d.toISOString().slice(0, 10);
+  return localDayKey(d);
 }
 
 export function isSunday(d: Date = new Date()): boolean {

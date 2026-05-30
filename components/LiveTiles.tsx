@@ -8,12 +8,7 @@ import { canon } from "@/data/bible/canon";
 import { flagEmoji } from "@/lib/flags";
 import NationFlag from "@/components/NationFlag";
 import { useToday } from "@/lib/useToday";
-
-function dayOfYear(d = new Date()) {
-  const start = Date.UTC(d.getUTCFullYear(), 0, 0);
-  const here = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
-  return Math.floor((here - start) / 86400000);
-}
+import { dayOfYearUTC as dayOfYear } from "@/lib/date-helpers";
 
 export default function LiveTiles() {
   const now = useToday();
