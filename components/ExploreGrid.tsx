@@ -2,25 +2,24 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { todaysNation, regions as nationRegions, rotationCycleDay, NATION_CYCLE_LENGTH } from "@/data/nations";
 import { flagEmoji } from "@/lib/flags";
-import { thisWeeksVerse } from "@/data/memory";
 import { whichOfficeNow, offices } from "@/data/hours";
-import { heidelberg } from "@/data/catechism";
-import { persecutedOfTheMonth } from "@/data/persecuted";
-import { seed as bibleSeed } from "@/data/bible/seed";
-import { canon as bibleCanon } from "@/data/bible/canon";
-import { dayOfYearUTC as dayOfYear } from "@/lib/date-helpers";
+import type { TodayData } from "@/lib/today-data";
 
 /* ──────────────────────────────────────────────────────────────────
    ExploreGrid — a bento-style, mouse-tracking, live-data tile grid.
    Replaces the bland uniform grid on the landing page.
-────────────────────────────────────────────────────────────────── */
-function weekOfYear(d: Date) {
-  return Math.floor(dayOfYear(d) / 7);
-}
 
-export default function ExploreGrid() {
+   Daily-rotation data (nation, verse, memory, catechism, persecuted)
+   arrives as a server-computed `today` prop so the big editorial
+   modules don't ship to the browser. The component still polls local
+   time every 60s to keep the user-local greeting and the canonical
+   hour (whichOfficeNow) accurate to the user's wall clock.
+────────────────────────────────────────────────────────────────── */
+export default function ExploreGrid({ today }: { today: TodayData }) {
+  // Wall-clock-local state for the greeting + current canonical hour.
+  // Starts null so initial SSR/hydrate doesn't lock to the server's
+  // timezone; the first effect tick fills it in from the user's clock.
   const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
@@ -29,34 +28,13 @@ export default function ExploreGrid() {
     return () => clearInterval(i);
   }, []);
 
-  // Live data — pre-compute on each render (cheap)
-  const data = useMemo(() => {
+  const localized = useMemo(() => {
     const d = now ?? new Date();
-    const nation = todaysNation(d);
-    const memory = thisWeeksVerse(d);
     const officeId = whichOfficeNow(d);
     const office = offices.find((o) => o.id === officeId)!;
-    const ld = heidelberg[weekOfYear(d) % heidelberg.length];
-    const persecuted = persecutedOfTheMonth(d);
-
-    // Today's verse — rotated daily from WEB seed
-    const webChapters = bibleSeed.filter((c) => c.translation === "WEB");
-    const tuples: { book: string; chapter: number; v: number; t: string }[] = [];
-    for (const c of webChapters)
-      for (const v of c.verses) tuples.push({ book: c.book, chapter: c.chapter, v: v.v, t: v.t });
-    const verse = tuples[dayOfYear(d) % tuples.length];
-    const bookName = bibleCanon.find((b) => b.id === verse.book)?.name ?? verse.book;
-
     return {
       d,
-      nation,
-      nationDay: rotationCycleDay(d),
-      memory,
       office,
-      ld,
-      persecuted,
-      verse,
-      bookName,
       hour: d.getHours(),
     };
   }, [now]);
@@ -76,6 +54,20 @@ export default function ExploreGrid() {
       </section>
     );
   }
+
+  // Merge server-rendered daily data with user-local time data into a single
+  // `data` object so the JSX below stays close to its original shape.
+  const data = {
+    ...localized,
+    nation: today.nation,
+    nationDay: today.nationDay,
+    memory: today.memory,
+    ld: today.ld,
+    persecuted: today.persecuted,
+    verse: today.verse,
+    bookName: today.verse.bookName,
+    nationRegionLabel: today.nationRegionLabel,
+  };
 
   const greet =
     data.hour < 12 ? "Good morning" : data.hour < 18 ? "Good afternoon" : "Good evening";
@@ -164,7 +156,7 @@ export default function ExploreGrid() {
         <Tile
           href="/pray/nations"
           variant="tall"
-          eyebrow={`Day ${data.nationDay} of ${NATION_CYCLE_LENGTH}`}
+          eyebrow={`Day ${data.nationDay} of ${today.nationCycleLength}`}
           title="The Nations"
           tag="Intercession"
         >
@@ -175,7 +167,7 @@ export default function ExploreGrid() {
             <div className="min-w-0">
               <div className="font-serif text-xl text-ink-50 truncate">{data.nation.name}</div>
               <div className="text-[10px] uppercase tracking-widest text-flame-300">
-                {nationRegions[data.nation.region]}
+                {data.nationRegionLabel}
               </div>
             </div>
           </div>

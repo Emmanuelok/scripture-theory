@@ -4,12 +4,18 @@ import LiveTiles from "@/components/LiveTiles";
 import ExploreGrid from "@/components/ExploreGrid";
 import DailyRhythmReminder from "@/components/DailyRhythmReminder";
 import SeasonBanner from "@/components/SeasonBanner";
+import { getTodayData } from "@/lib/today-data";
 
-// Today's verse + today's nation are rendered server-side here too,
-// so rebuild hourly to track the day-of-year rotation.
+// Today's verse + today's nation are rendered server-side here,
+// so rebuild hourly to track the day-of-year rotation. Computing
+// the daily primitives on the server keeps the heavy editorial
+// modules (nations / catechism / bible seed / memory / persecuted)
+// out of the client bundle.
 export const revalidate = 3600;
 
 export default function HomePage() {
+  const today = getTodayData();
+
   return (
     <>
       <HomeHero />
@@ -19,7 +25,7 @@ export default function HomePage() {
         <DailyRhythmReminder variant="strip" />
       </section>
 
-      <LiveTiles />
+      <LiveTiles today={today} />
 
       {/* The ONE Gospel — single, calm, beautiful */}
       <section className="mx-auto max-w-3xl px-5 py-24 md:py-32 text-center">
@@ -41,7 +47,7 @@ export default function HomePage() {
         </Link>
       </section>
 
-      <ExploreGrid />
+      <ExploreGrid today={today} />
 
       {/* Single, quiet closing */}
       <section className="mx-auto max-w-3xl px-5 pb-24 text-center">
