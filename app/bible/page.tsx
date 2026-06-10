@@ -38,6 +38,11 @@ export default function BiblePage() {
         <ContinueReadingCard />
       </div>
 
+      {/* The 66 books — first stop, what most readers came for */}
+      <div className="mt-8 mb-12">
+        <BookGrid />
+      </div>
+
       {/* Stat strip */}
       <div className="grid grid-cols-3 gap-3 md:gap-4 mb-6">
         <Stat label="Translations" value={String(translationOrder.length)} />
@@ -88,11 +93,6 @@ export default function BiblePage() {
             />
           ))}
         </Bento>
-      </div>
-
-      {/* Search/find a book */}
-      <div className="mb-8">
-        <BookGrid />
       </div>
 
       {/* Translations catalog promo */}
