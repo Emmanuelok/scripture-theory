@@ -445,11 +445,18 @@ export function useProfile() {
       if (detail) setProfile(detail);
     };
     const onSlot = () => setProfile(loadProfile());
+    // Cross-tab liveness: the `storage` event only fires in OTHER tabs,
+    // so two open tabs (e.g. /me and /today) stay in step when either writes.
+    const onStorage = (e: StorageEvent) => {
+      if (e.key && e.key.startsWith(PROFILE_BASE)) setProfile(loadProfile());
+    };
     window.addEventListener(PROFILE_CHANGE_EVENT, onProfile);
     window.addEventListener(SLOT_CHANGE_EVENT, onSlot);
+    window.addEventListener("storage", onStorage);
     return () => {
       window.removeEventListener(PROFILE_CHANGE_EVENT, onProfile);
       window.removeEventListener(SLOT_CHANGE_EVENT, onSlot);
+      window.removeEventListener("storage", onStorage);
     };
   }, []);
 
