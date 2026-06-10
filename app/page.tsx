@@ -4,6 +4,7 @@ import LiveTiles from "@/components/LiveTiles";
 import ExploreGrid from "@/components/ExploreGrid";
 import DailyRhythmReminder from "@/components/DailyRhythmReminder";
 import SeasonBanner from "@/components/SeasonBanner";
+import PersonalWelcome from "@/components/PersonalWelcome";
 import { getTodayData } from "@/lib/today-data";
 
 // Today's verse + today's nation are rendered server-side here,
@@ -19,6 +20,8 @@ export default function HomePage() {
   return (
     <>
       <HomeHero />
+
+      <PersonalWelcome />
 
       <section className="mx-auto max-w-5xl px-5 mt-6 space-y-3">
         <SeasonBanner variant="strip" />

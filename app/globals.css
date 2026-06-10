@@ -286,3 +286,81 @@ html[data-a11y-underline="on"] a {
     margin: 18mm 14mm 18mm 14mm;
   }
 }
+
+/* ──────────────────────────────────────────────────────────────────
+   Personal accent — "make it yours".
+   The believer picks the hue their copy of the site burns in; we
+   remap the --flame-* scale. Stored on-device (scripture-theory-
+   accent), applied pre-paint by the boot script in app/layout.tsx.
+   Each accent has a dark-theme variant tuned for legibility.
+────────────────────────────────────────────────────────────────── */
+
+html[data-accent="olive"] {
+  --flame-50: 247 250 235; --flame-100: 236 244 212; --flame-300: 163 191 89;
+  --flame-500: 101 131 40; --flame-600: 77 102 28; --flame-700: 63 84 24;
+}
+html[data-accent="olive"][data-theme="dark"] {
+  --flame-50: 34 40 18; --flame-100: 44 52 24; --flame-300: 190 215 116;
+  --flame-500: 174 203 93; --flame-600: 201 222 135; --flame-700: 201 222 135;
+}
+html[data-accent="sea"] {
+  --flame-50: 236 254 250; --flame-100: 204 247 239; --flame-300: 94 212 196;
+  --flame-500: 20 184 166; --flame-600: 13 148 136; --flame-700: 15 118 110;
+}
+html[data-accent="sea"][data-theme="dark"] {
+  --flame-50: 15 45 42; --flame-100: 19 58 53; --flame-300: 45 212 191;
+  --flame-500: 45 212 191; --flame-600: 94 234 212; --flame-700: 94 234 212;
+}
+html[data-accent="violet"] {
+  --flame-50: 245 243 255; --flame-100: 237 233 254; --flame-300: 196 181 253;
+  --flame-500: 139 92 246; --flame-600: 124 58 237; --flame-700: 109 40 217;
+}
+html[data-accent="violet"][data-theme="dark"] {
+  --flame-50: 40 30 66; --flame-100: 52 38 84; --flame-300: 196 181 253;
+  --flame-500: 167 139 250; --flame-600: 196 181 253; --flame-700: 196 181 253;
+}
+html[data-accent="rose"] {
+  --flame-50: 255 241 242; --flame-100: 255 228 230; --flame-300: 253 164 175;
+  --flame-500: 225 29 72; --flame-600: 190 18 60; --flame-700: 159 18 57;
+}
+html[data-accent="rose"][data-theme="dark"] {
+  --flame-50: 60 20 28; --flame-100: 76 26 36; --flame-300: 253 164 175;
+  --flame-500: 251 113 133; --flame-600: 253 164 175; --flame-700: 253 164 175;
+}
+html[data-accent="gold"] {
+  --flame-50: 255 251 235; --flame-100: 254 243 199; --flame-300: 252 211 77;
+  --flame-500: 217 119 6; --flame-600: 180 83 9; --flame-700: 146 64 14;
+}
+html[data-accent="gold"][data-theme="dark"] {
+  --flame-50: 60 42 12; --flame-100: 74 52 16; --flame-300: 252 211 77;
+  --flame-500: 251 191 36; --flame-600: 252 211 77; --flame-700: 252 211 77;
+}
+
+/* ── Quiet life — small touches that make the page feel hand-made ── */
+
+::selection {
+  background: rgb(var(--flame-300) / 0.45);
+  color: rgb(var(--ink-900));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+/* Gentle entrance for personal surfaces */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.rise { animation: rise-in 480ms cubic-bezier(0.21, 0.7, 0.35, 1) both; }
+
+/* Whisper of paper grain on light theme only — imperceptible, warm */
+html:not([data-theme="dark"]) body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.018 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}

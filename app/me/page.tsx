@@ -5,6 +5,7 @@ import HeartCompass from "@/components/HeartCompass";
 import DeviceBridge from "@/components/DeviceBridge";
 import NamesPanel from "@/components/NamesPanel";
 import DailyReminderSettings from "@/components/DailyReminderSettings";
+import MakeItYours from "@/components/MakeItYours";
 import FigureBoundary from "@/components/figure-utils/FigureBoundary";
 
 export const metadata = {
@@ -41,6 +42,9 @@ export default function MePage() {
         <MeDashboard />
         <div id="names" className="mt-12 scroll-mt-20">
           <NamesPanel />
+        </div>
+        <div id="yours" className="mt-12 scroll-mt-20">
+          <MakeItYours />
         </div>
         <div id="reminders" className="mt-12 scroll-mt-20">
           <DailyReminderSettings />
