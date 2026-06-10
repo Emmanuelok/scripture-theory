@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import type { PrayerDot } from "@/components/WorldMap";
 import { categoryById } from "@/data/prayer-categories";
+import { prayerFor } from "@/lib/prayer-intelligence";
 
 function timeAgo(iso: string | null): string {
   if (!iso) return "";
@@ -43,6 +44,10 @@ export default function PrayerStoryModal({
   const cat = categoryById(dot.categoryId);
   if (!cat) return null;
 
+  // Read the actual story and pick the most-fitting scripture set.
+  // Falls back to the category's general anchors when no sub-topic fires.
+  const prayer = prayerFor(cat, dot.title, dot.description);
+
   return (
     <>
       <div
@@ -62,6 +67,11 @@ export default function PrayerStoryModal({
             <div className="min-w-0">
               <div className="text-[10px] uppercase tracking-widest text-flame-700">
                 {cat.label}
+                {prayer.subLabel && (
+                  <span className="ml-1.5 text-ink-500 normal-case tracking-normal">
+                    · {prayer.subLabel}
+                  </span>
+                )}
               </div>
               <div className="text-xs text-ink-500 truncate">
                 {dot.placeName} · {dot.source}
@@ -105,7 +115,7 @@ export default function PrayerStoryModal({
             <div className="text-[10px] uppercase tracking-widest text-flame-700">
               Why Scripture asks us to pray here
             </div>
-            <p className="mt-2 text-sm text-ink-800 leading-relaxed">{cat.why}</p>
+            <p className="mt-2 text-sm text-ink-800 leading-relaxed">{prayer.why}</p>
           </section>
 
           {/* Anchor verses */}
@@ -114,7 +124,7 @@ export default function PrayerStoryModal({
               Anchor Scriptures
             </div>
             <ul className="mt-3 space-y-3">
-              {cat.anchors.map((a) => (
+              {prayer.anchors.map((a) => (
                 <li key={a.ref} className="border-l-2 border-flame-300 pl-4">
                   <p className="prose-scripture text-ink-900 italic">"{a.text}"</p>
                   <div className="mt-1 text-xs text-ink-500">— {a.ref}</div>
@@ -129,7 +139,7 @@ export default function PrayerStoryModal({
               Pray now
             </div>
             <ol className="mt-3 space-y-2.5">
-              {cat.prompts.map((p, i) => (
+              {prayer.prompts.map((p, i) => (
                 <li key={i} className="flex gap-3 leading-relaxed text-sm">
                   <span className="font-serif text-flame-300 shrink-0">{i + 1}.</span>
                   <span className="text-ink-100">{p}</span>

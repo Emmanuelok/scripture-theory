@@ -101,14 +101,32 @@ function escapeRe(s: string): string {
 
 /**
  * Compile keywords to a whole-word regex.
- *   "war"        → \bwar(s|es)?\b   (word + simple plural; "warm-up" can't match)
- *   "persecut*"  → \bpersecut\w*    (explicit stem: persecuted/persecution/…)
+ *   "war"        → \bwar(s|es|ed|d|ing|ies)?\b  (plurals + past tense + gerund)
+ *   "persecut*"  → \bpersecut\w*\b              (explicit stem)
+ *   "world cup"  → \bworld\s+cup(s|...)?\b      (phrase with simple plural on head)
+ * "warm-up" can't match because the \w in war breaks at the hyphen, and
+ * the surrounding \b anchors prevent partial matches.
  */
 function compileKeywords(words: string[]): RegExp {
-  const parts = words.map((w) =>
-    w.endsWith("*") ? `${escapeRe(w.slice(0, -1))}\\w*` : `${escapeRe(w)}(?:s|es)?\\b`,
-  );
-  return new RegExp(`\\b(?:${parts.join("|")})`, "i");
+  const stemToken = (tok: string) =>
+    tok.includes("*") ? `${escapeRe(tok.replace(/\*/g, ""))}\\w*` : null;
+
+  const parts = words.map((w) => {
+    if (w.includes(" ")) {
+      const toks = w.split(/\s+/);
+      const lastIdx = toks.length - 1;
+      return toks
+        .map((t, i) => {
+          const stem = stemToken(t);
+          if (stem) return stem;
+          return i === lastIdx ? `${escapeRe(t)}(?:s|es|ed|d|ing|ies)?` : escapeRe(t);
+        })
+        .join("\\s+");
+    }
+    const stem = stemToken(w);
+    return stem ? stem : `${escapeRe(w)}(?:s|es|ed|d|ing|ies)?`;
+  });
+  return new RegExp(`\\b(?:${parts.join("|")})\\b`, "i");
 }
 
 // Stories that are clearly sport / entertainment / lifestyle are dropped
