@@ -32,8 +32,8 @@ export const PRAYER_CATEGORIES: PrayerCategory[] = [
     scripture: "Hebrews 13:3",
     why: "Scripture explicitly tells us to remember the imprisoned and persecuted as though we were in chains with them.",
     keywords: [
-      "christian", "christians", "church", "pastor", "priest", "missionar",
-      "persecut", "blasphemy", "convert",
+      "christian", "church", "pastor", "priest", "missionar*",
+      "persecut*", "blasphemy", "convert",
       "monastery", "monk", "nun", "cathedral",
     ],
     anchors: [
@@ -85,7 +85,7 @@ export const PRAYER_CATEGORIES: PrayerCategory[] = [
       "parliament", "congress", "senate", "supreme court",
       "election", "vote", "elected", "polls",
       "sanction", "treaty", "summit", "diplomat",
-      "scandal", "impeach", "indict", "trial of",
+      "scandal", "impeach*", "indict*", "trial of",
       "corruption", "bribery", "anti-corruption",
     ],
     anchors: [
@@ -107,7 +107,7 @@ export const PRAYER_CATEGORIES: PrayerCategory[] = [
     scripture: "Matthew 6:11",
     why: "Jesus taught us to pray for daily bread — for ourselves and for every person without it.",
     keywords: [
-      "famine", "starv", "malnutri", "hunger", "food shortage", "food insecurity",
+      "famine", "starv*", "malnutri*", "hunger", "food shortage", "food insecurity",
       "drought", "crop failure", "harvest fail",
       "world food program", "wfp", "humanitarian crisis",
     ],
@@ -158,7 +158,7 @@ export const PRAYER_CATEGORIES: PrayerCategory[] = [
       "flood", "flooding", "wildfire", "bush fire",
       "landslide", "mudslide", "volcanic", "eruption",
       "storm", "blizzard", "heatwave", "drought",
-      "evacuat", "displaced by", "shelter", "rescue",
+      "evacuat*", "displaced by", "shelter", "rescue",
     ],
     anchors: [
       { ref: "Psalm 46:1–3", text: "God is our refuge and strength, a very present help in trouble. Therefore we won't be afraid, though the earth changes, though the mountains are shaken into the heart of the seas." },
@@ -179,9 +179,9 @@ export const PRAYER_CATEGORIES: PrayerCategory[] = [
     scripture: "Isaiah 1:17",
     why: "Scripture tells us to seek justice, rescue the oppressed, defend the orphan, and plead for the widow.",
     keywords: [
-      "traffick", "child labor", "child labour", "abduct", "kidnap",
+      "traffick*", "child labor", "child labour", "abduct*", "kidnap*",
       "missing girl", "missing boy", "missing children",
-      "abuse", "exploit", "forced marriage",
+      "abus*", "exploit", "forced marriage",
       "orphan", "street children", "child soldier",
     ],
     anchors: [
@@ -203,8 +203,8 @@ export const PRAYER_CATEGORIES: PrayerCategory[] = [
     scripture: "Leviticus 19:34",
     why: "Scripture commands us to treat the stranger as the native — and to love them as ourselves.",
     keywords: [
-      "refugee", "refugees", "asylum",
-      "migrant", "migrants", "border crossing",
+      "refugee", "asylum",
+      "migrant", "border crossing",
       "displaced", "internally displaced", "idp",
       "rohingya", "sahel", "venezuelan migrant",
       "humanitarian", "aid camp", "shelter",
@@ -228,8 +228,7 @@ export const PRAYER_CATEGORIES: PrayerCategory[] = [
     scripture: "2 Thessalonians 3:1",
     why: "Scripture tells us to pray that the word of the Lord may run swiftly and be glorified.",
     keywords: [
-      "mission", "missionary",
-      "evangeli", "revival", "baptism", "baptiz",
+      "evangeli*", "revival", "baptism", "baptiz*",
       "bible translation", "scripture access",
       "underground church", "house church",
       "great commission", "unreached",
@@ -254,7 +253,7 @@ export const PRAYER_CATEGORIES: PrayerCategory[] = [
     why: "Scripture commands us to pray for the peace of Jerusalem — that those who love her may prosper.",
     keywords: [
       "jerusalem", "israel", "israeli", "tel aviv",
-      "gaza", "palestin", "west bank", "ramallah",
+      "gaza", "palestin*", "west bank", "ramallah",
       "hamas", "hezbollah", "netanyahu",
       "two-state", "messianic",
     ],

@@ -90,14 +90,59 @@ export const WORLD_FEEDS: { url: string; source: string }[] = [
   { url: "https://feeds.reuters.com/Reuters/worldNews", source: "Reuters World" },
 ];
 
+// ── Classification ────────────────────────────────────────────────
+// Whole-word matching only. The old substring check made "World Cup
+// warm-up" match the keyword "war" and put a football friendly on the
+// intercession map under "War and conflict". Never again.
+
+function escapeRe(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * Compile keywords to a whole-word regex.
+ *   "war"        → \bwar(s|es)?\b   (word + simple plural; "warm-up" can't match)
+ *   "persecut*"  → \bpersecut\w*    (explicit stem: persecuted/persecution/…)
+ */
+function compileKeywords(words: string[]): RegExp {
+  const parts = words.map((w) =>
+    w.endsWith("*") ? `${escapeRe(w.slice(0, -1))}\\w*` : `${escapeRe(w)}(?:s|es)?\\b`,
+  );
+  return new RegExp(`\\b(?:${parts.join("|")})`, "i");
+}
+
+// Stories that are clearly sport / entertainment / lifestyle are dropped
+// before classification — they are not what Scripture asks us to pray
+// about, however many metaphorical "battles" their headlines contain.
+// Title-only, so a war report whose body happens to mention a stadium
+// isn't lost.
+const NOT_PRAYER_NEWS = compileKeywords([
+  "world cup", "premier league", "champions league", "europa league",
+  "fifa", "uefa", "olympics", "olympic", "paralympic",
+  "international friendly", "friendly match",
+  "football", "soccer", "cricket", "rugby", "tennis", "golf",
+  "formula 1", "formula one", "grand prix", "motogp",
+  "nba", "nfl", "mlb", "nhl", "playoff", "playoffs",
+  "semi-final", "semifinal", "quarter-final", "quarterfinal",
+  "kick-off", "kickoff", "halftime", "matchday", "transfer window",
+  "grand slam", "wimbledon", "super bowl",
+  "box office", "film festival", "red carpet", "movie review",
+  "album", "grammy", "grammys", "oscars", "billboard",
+  "celebrity", "concert tour", "fashion week",
+]);
+
+const CATEGORY_MATCHERS = PRAYER_CATEGORIES.map((cat) => ({
+  cat,
+  re: compileKeywords(cat.keywords),
+}));
+
 // Categorize. Returns the *first* matching PrayerCategory or null.
 // Order matters: PRAYER_CATEGORIES is arranged most-specific-first.
 export function categorize(item: NewsItem): PrayerCategory | null {
-  const hay = `${item.title} ${item.description ?? ""}`.toLowerCase();
-  for (const cat of PRAYER_CATEGORIES) {
-    for (const k of cat.keywords) {
-      if (hay.includes(k)) return cat;
-    }
+  if (NOT_PRAYER_NEWS.test(item.title)) return null;
+  const hay = `${item.title} ${item.description ?? ""}`;
+  for (const m of CATEGORY_MATCHERS) {
+    if (m.re.test(hay)) return m.cat;
   }
   return null;
 }
