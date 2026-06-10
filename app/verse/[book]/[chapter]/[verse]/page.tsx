@@ -8,6 +8,7 @@ import { referenceHref } from "@/lib/reference";
 import { PageHero, Tile } from "@/components/ui/Tile";
 import { Glyph } from "@/components/ui/Glyph";
 import VerseShareButtons from "@/components/VerseShareButtons";
+import VerseCardEditor from "@/components/VerseCardEditor";
 
 type Params = Promise<{ book: string; chapter: string; verse: string }>;
 
@@ -59,13 +60,6 @@ export default async function VersePermalinkPage({ params }: { params: Params })
   const meta = translations[translation];
   const ref = `${b!.name} ${ch}:${v}`;
   const crossRefs = crossRefsFor(book, ch, v);
-  // We already resolved the verse text on the server above; pass it through
-  // so the image route doesn't have to re-fetch from the upstream API and
-  // can render the card instantly.
-  const cardUrl = `/api/verse-card/${book}/${ch}/${v}?translation=${translation}&theme=light&t=${encodeURIComponent(
-    verseRow.t,
-  )}`;
-
   return (
     <section className="mx-auto max-w-3xl px-5 pt-12 pb-24">
       <Link href={`/bible/${book}/${ch}`} className="text-xs uppercase tracking-widest text-flame-700 hover:underline">
@@ -110,20 +104,22 @@ export default async function VersePermalinkPage({ params }: { params: Params })
         />
       </div>
 
-      {/* Verse card preview */}
+      {/* Verse card editor */}
       <div className="mt-10">
         <h2 className="font-serif text-2xl text-ink-900">A card to share</h2>
         <p className="mt-1 text-sm text-ink-600">
-          Tap to open full-size; long-press on mobile or right-click on desktop to save.
+          Pick a template, choose a palette, even rewrite the text to fit your own
+          words — every change updates the preview live. Open full-size to save.
         </p>
-        <div className="mt-4 rounded-3xl overflow-hidden border border-ink-200 bg-ink-50">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={cardUrl}
-            alt={`Verse card · ${ref}`}
-            width={1080}
-            height={1080}
-            className="w-full h-auto block"
+        <div className="mt-5">
+          <VerseCardEditor
+            book={book}
+            chapter={ch}
+            verse={v}
+            translation={translation}
+            translationAbbrev={meta.abbrev ?? translation}
+            defaultVerseText={verseRow.t}
+            defaultRef={ref}
           />
         </div>
       </div>
