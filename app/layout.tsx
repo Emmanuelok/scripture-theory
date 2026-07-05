@@ -11,7 +11,9 @@ export const metadata: Metadata = {
   title: "Scripture Theory — Encounter JESUS. Engage the Word. Live the Kingdom.",
   description:
     "An inter-denominational, JESUS-centered platform for global discipleship. Read the Bible in 14 trusted public-domain translations. Pray for a different nation every day. Memorize Scripture. Find a real local body.",
-  metadataBase: new URL("https://scripture-theory.vercel.app"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://scripture-theory.vercel.app",
+  ),
   applicationName: "Scripture Theory",
   appleWebApp: {
     capable: true,
@@ -67,11 +69,19 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
       </head>
       <body className="min-h-screen flex flex-col bg-ink-50 text-ink-900">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-full focus:bg-ink-900 focus:px-4 focus:py-2 focus:text-sm focus:text-ink-50"
+        >
+          Skip to content
+        </a>
         <AuthProvider>
           <ProfileSyncBridge />
           <ServiceWorkerRegistrar />
           <Nav />
-          <main className="flex-1">{children}</main>
+          <main id="main" tabIndex={-1} className="flex-1">
+            {children}
+          </main>
           <Footer />
           <InstallPrompt />
         </AuthProvider>

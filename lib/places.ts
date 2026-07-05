@@ -160,10 +160,18 @@ export const PLACES: Place[] = [
 
 export function placeFromText(text: string): Place | null {
   const hay = text.toLowerCase();
+  // Prefer the LONGEST matching keyword (most specific). A plain first-match
+  // in array order mis-pinned "South Sudan" onto Khartoum because "sudan" is
+  // a substring of "south sudan" and Khartoum is listed first.
+  let best: Place | null = null;
+  let bestLen = 0;
   for (const p of PLACES) {
     for (const k of p.keywords) {
-      if (hay.includes(k)) return p;
+      if (k.length > bestLen && hay.includes(k)) {
+        best = p;
+        bestLen = k.length;
+      }
     }
   }
-  return null;
+  return best;
 }

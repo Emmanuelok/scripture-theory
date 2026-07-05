@@ -1,8 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import WorldMap, { type PrayerDot } from "@/components/WorldMap";
+import dynamic from "next/dynamic";
+import { type PrayerDot } from "@/components/WorldMap";
 import PrayerStoryModal from "@/components/PrayerStoryModal";
+
+// The world map pulls in d3-geo + topojson-client (heavy). Load it lazily,
+// client-only, so it doesn't sit in the initial /pray/live bundle.
+const WorldMap = dynamic(() => import("@/components/WorldMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="aspect-[2/1] w-full animate-pulse rounded-3xl bg-ink-100" aria-hidden />
+  ),
+});
 
 export default function PrayLive() {
   const [stories, setStories] = useState<PrayerDot[]>([]);

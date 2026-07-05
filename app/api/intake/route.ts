@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
+import { fetchWithTimeout } from "@/lib/fetch-timeout";
 
 export const runtime = "nodejs";
 
@@ -43,6 +45,16 @@ function isValid(input: unknown): input is IntakePayload {
 }
 
 export async function POST(request: Request) {
+  // Abuse control: this endpoint sends real email via Resend. Cap it per-IP
+  // so it can't be looped into an email bomb / quota-and-billing drain.
+  const limit = rateLimit(`intake:${clientIp(request)}`, 5, 60 * 60 * 1000); // 5/hour
+  if (!limit.ok) {
+    return NextResponse.json(
+      { ok: false, error: "Too many submissions. Please try again later." },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfterSec) } }
+    );
+  }
+
   let payload: unknown;
   try {
     payload = await request.json();
@@ -71,8 +83,9 @@ export async function POST(request: Request) {
   const replyTo = safeReplyTo(payload.replyTo);
 
   try {
-    const res = await fetch("https://api.resend.com/emails", {
+    const res = await fetchWithTimeout("https://api.resend.com/emails", {
       method: "POST",
+      timeoutMs: 10_000,
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { GLOSSARY, type Term } from "@/data/resources/glossary";
 import { referenceHref } from "@/lib/reference";
@@ -62,11 +62,17 @@ export default function GlossaryView({
   const [letter, setLetter] = useState<string>("A");
 
   // ─────────── list-mode data ───────────
+  // Sort the 370-term corpus once, not on every keystroke.
+  const sortedTerms = useMemo(
+    () => [...GLOSSARY].sort((a, b) => a.word.localeCompare(b.word)),
+    [],
+  );
+  // Filter against a deferred query so typing stays responsive.
+  const deferredQ = useDeferredValue(q);
   const filtered = useMemo(() => {
-    const sorted = [...GLOSSARY].sort((a, b) => a.word.localeCompare(b.word));
-    if (!q.trim()) return sorted;
-    const n = q.trim().toLowerCase();
-    return sorted.filter(
+    if (!deferredQ.trim()) return sortedTerms;
+    const n = deferredQ.trim().toLowerCase();
+    return sortedTerms.filter(
       (t) =>
         t.word.toLowerCase().includes(n) ||
         t.short.toLowerCase().includes(n) ||
@@ -75,7 +81,7 @@ export default function GlossaryView({
         (t.greek?.translit.toLowerCase().includes(n) ?? false) ||
         (t.latin?.script.toLowerCase().includes(n) ?? false),
     );
-  }, [q]);
+  }, [deferredQ, sortedTerms]);
 
   function firstChar(t: Term) {
     return (t.word.replace(/^The\s+/, "")[0] ?? "?").toUpperCase();

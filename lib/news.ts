@@ -84,10 +84,12 @@ export function parseRss(xml: string, defaultSource = "News"): NewsItem[] {
 }
 
 export const WORLD_FEEDS: { url: string; source: string }[] = [
-  { url: "http://feeds.bbci.co.uk/news/world/rss.xml", source: "BBC World" },
+  // BBC over https (was http — plain-HTTP fetch of a mixed-content feed).
+  { url: "https://feeds.bbci.co.uk/news/world/rss.xml", source: "BBC World" },
   { url: "https://www.aljazeera.com/xml/rss/all.xml", source: "Al Jazeera" },
   { url: "https://feeds.npr.org/1004/rss.xml", source: "NPR World" },
-  { url: "https://feeds.reuters.com/Reuters/worldNews", source: "Reuters World" },
+  // (Reuters' feeds.reuters.com RSS was discontinued in 2020; dropped so it
+  // no longer burns a DNS/connect timeout on every 15-minute revalidation.)
 ];
 
 // ── Classification ────────────────────────────────────────────────

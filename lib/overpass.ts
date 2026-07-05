@@ -1,3 +1,5 @@
+import { fetchWithTimeout } from "@/lib/fetch-timeout";
+
 // Overpass API client — queries the OpenStreetMap dataset for places of
 // worship tagged as Christian. OpenStreetMap is community-edited, openly
 // licensed (ODbL), and the same data source used by Apple Maps, Wikipedia,
@@ -173,16 +175,33 @@ export const DENOMINATION_SYNONYMS: Record<string, string[]> = {
   ],
 };
 
+// OSM denomination tags are lowercase [a-z0-9_-]. Strip everything else so
+// a caller-supplied value can never break out of the Overpass regex literal
+// and inject arbitrary Overpass QL (the `?? [opts.denomination]` fallback
+// otherwise interpolates the raw string). Empty after sanitizing → no filter.
+function sanitizeDenomToken(s: string): string {
+  return s.toLowerCase().replace(/[^a-z0-9_-]/g, "");
+}
+
 function buildQuery(opts: {
   lat: number;
   lng: number;
   radiusMeters: number;
   denomination?: string | null;
 }): string {
+  // Clamp coordinates/radius to sane ranges — defence in depth against a
+  // malformed value reaching the interpolated query.
+  const lat = Math.max(-90, Math.min(90, Number(opts.lat) || 0));
+  const lng = Math.max(-180, Math.min(180, Number(opts.lng) || 0));
+  const radius = Math.max(1, Math.min(100_000, Math.round(Number(opts.radiusMeters) || 0)));
+
   // Some denominations have multiple OSM synonyms — accept any of them.
   const denomFilter = (() => {
     if (!opts.denomination || opts.denomination === "any") return "";
-    const list = DENOMINATION_SYNONYMS[opts.denomination] ?? [opts.denomination];
+    const list = (DENOMINATION_SYNONYMS[opts.denomination] ?? [opts.denomination])
+      .map(sanitizeDenomToken)
+      .filter((s) => s.length > 0);
+    if (list.length === 0) return "";
     // Anchored, case-insensitive, exact match over the union of synonyms.
     const re = `^(${list.join("|")})$`;
     return `["denomination"~"${re}",i]`;
@@ -191,9 +210,9 @@ function buildQuery(opts: {
   return `
 [out:json][timeout:25];
 (
-  node["amenity"="place_of_worship"]["religion"="christian"]${denomFilter}(around:${opts.radiusMeters},${opts.lat},${opts.lng});
-  way["amenity"="place_of_worship"]["religion"="christian"]${denomFilter}(around:${opts.radiusMeters},${opts.lat},${opts.lng});
-  relation["amenity"="place_of_worship"]["religion"="christian"]${denomFilter}(around:${opts.radiusMeters},${opts.lat},${opts.lng});
+  node["amenity"="place_of_worship"]["religion"="christian"]${denomFilter}(around:${radius},${lat},${lng});
+  way["amenity"="place_of_worship"]["religion"="christian"]${denomFilter}(around:${radius},${lat},${lng});
+  relation["amenity"="place_of_worship"]["religion"="christian"]${denomFilter}(around:${radius},${lat},${lng});
 );
 out tags center 200;
 `.trim();
@@ -240,7 +259,7 @@ export async function searchChurches(opts: {
   const query = buildQuery(opts);
   for (const endpoint of OVERPASS_ENDPOINTS) {
     try {
-      const res = await fetch(endpoint, {
+      const res = await fetchWithTimeout(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -248,6 +267,9 @@ export async function searchChurches(opts: {
           Accept: "application/json",
         },
         body: `data=${encodeURIComponent(query)}`,
+        // Cap each mirror attempt so three slow mirrors can't stack into a
+        // 75s+ hang; the loop still falls through to the next endpoint.
+        timeoutMs: 12_000,
         // Cache per (lat, lng, radius, denomination) for 24h server-side.
         next: { revalidate: 86400, tags: [`overpass:${opts.lat}:${opts.lng}:${opts.radiusMeters}:${opts.denomination ?? ""}`] },
       });

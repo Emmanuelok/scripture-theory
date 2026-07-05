@@ -151,37 +151,61 @@ export async function pushCloudProfile(profile: Profile): Promise<{ ok: boolean;
 }
 
 /**
+ * Identity of a record inside each syncable array collection. Different
+ * collections key on different fields — memory on `verseId`, nations on
+ * `iso`, family-altar on date+dayId — so a naive `id`-only merge would
+ * DROP every record that has no `id` (silent data loss). Each entry here
+ * returns a stable identity so cross-device union merges never lose or
+ * duplicate a believer's records.
+ */
+const COLLECTION_IDENTITY: Partial<Record<SyncableKey, (r: unknown) => string | undefined>> = {
+  prayingFor: (r) => (r as { id?: string }).id,
+  memory: (r) => (r as { verseId?: string }).verseId,
+  disciples: (r) => (r as { id?: string }).id,
+  fasts: (r) => (r as { id?: string }).id,
+  examens: (r) => (r as { id?: string }).id,
+  forgiveness: (r) => (r as { id?: string }).id,
+  listening: (r) => (r as { id?: string }).id,
+  sermons: (r) => (r as { id?: string }).id,
+  fruit: (r) => (r as { id?: string }).id,
+  healing: (r) => (r as { id?: string }).id,
+  calling: (r) => (r as { id?: string }).id,
+  nationsPrayed: (r) => (r as { iso?: string }).iso,
+  familyAltar: (r) => {
+    const f = r as { date?: string; dayId?: string };
+    return f.date != null && f.dayId != null ? `${f.date}::${f.dayId}` : undefined;
+  },
+};
+
+/**
  * Merge a cloud profile into a local one.
- * The local profile wins for keys it has set; the cloud fills the gaps.
- * Arrays of records (prayingFor, memory, etc.) are merged by id with
- * last-write-wins on a per-record updatedAt where present.
+ * The local profile wins for scalar keys it has set; the cloud fills gaps.
+ * Array-of-record collections are UNION-merged by each collection's
+ * identity field (local overrides cloud on collision) so that records
+ * created on one device are never wiped by a leaner blob from another.
  */
 export function mergeProfiles(local: Profile, cloud: Partial<Profile>): Profile {
   const out: Profile = { ...cloud, ...local };
 
-  // For id-keyed array collections, merge & dedupe
-  const idKeys: SyncableKey[] = [
-    "prayingFor",
-    "memory",
-    "disciples",
-    "fasts",
-    "examens",
-    "forgiveness",
-    "listening",
-    "sermons",
-    "fruit",
-    "healing",
-    "calling",
-  ];
-  for (const key of idKeys) {
-    const a = (local[key] as unknown as { id?: string }[] | undefined) ?? [];
-    const b = (cloud[key] as unknown as { id?: string }[] | undefined) ?? [];
+  for (const key of Object.keys(COLLECTION_IDENTITY) as SyncableKey[]) {
+    const identity = COLLECTION_IDENTITY[key]!;
+    const a = (local[key] as unknown as unknown[] | undefined) ?? [];
+    const b = (cloud[key] as unknown as unknown[] | undefined) ?? [];
     if (a.length === 0 && b.length === 0) continue;
-    const byId = new Map<string, { id?: string }>();
-    for (const r of b) if (r && r.id) byId.set(r.id, r);
-    for (const r of a) if (r && r.id) byId.set(r.id, r); // local overrides
+    const byId = new Map<string, unknown>();
+    const extras: unknown[] = []; // records without a resolvable identity — keep, never drop
+    for (const r of b) {
+      const id = r != null ? identity(r) : undefined;
+      if (id != null) byId.set(id, r);
+      else if (r != null) extras.push(r);
+    }
+    for (const r of a) {
+      const id = r != null ? identity(r) : undefined;
+      if (id != null) byId.set(id, r); // local overrides cloud
+      else if (r != null) extras.push(r);
+    }
     // @ts-expect-error — key is keyof Profile
-    out[key] = Array.from(byId.values());
+    out[key] = [...byId.values(), ...extras];
   }
 
   return out;

@@ -52,7 +52,9 @@ export async function listRequests(opts: ListOpts = {}): Promise<PrayerRequest[]
   if (!sb) return [];
   let q = sb
     .from("prayer_requests")
-    .select("*")
+    // Public feed: explicit non-PII columns only — the poster's auth
+    // user_id is never exposed to anon (see migration 0009).
+    .select("id, alias, body, language, status, prayer_count, flagged_count, created_at, updated_at")
     .order("created_at", { ascending: false })
     .limit(opts.limit ?? 50);
   q = q.eq("status", opts.status ?? "open");

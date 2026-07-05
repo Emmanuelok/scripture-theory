@@ -1,6 +1,6 @@
 import Link from "next/link";
 import ScriptureRef from "@/components/ScriptureRef";
-import BibleLandsMap from "@/components/BibleLandsMap";
+import BibleLandsMap from "@/components/BibleLandsMapLazy";
 import { atlasRegions } from "@/data/atlas";
 
 export const metadata = {

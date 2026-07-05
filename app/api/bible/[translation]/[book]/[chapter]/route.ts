@@ -15,11 +15,15 @@ export async function GET(
   if (!translationOrder.includes(upper as TranslationId)) {
     return NextResponse.json({ ok: false, error: "Unknown translation" }, { status: 400 });
   }
-  if (!getBook(book)) {
+  const bookMeta = getBook(book);
+  if (!bookMeta) {
     return NextResponse.json({ ok: false, error: "Unknown book" }, { status: 404 });
   }
   const num = Number(chapter);
-  if (!Number.isFinite(num) || num < 1) {
+  // Must be a real chapter of this book — bounds the value so an attacker
+  // can't enumerate /genesis/1..N and fan out uncached upstream fetches
+  // (bible-api.com relay, ESV quota) with attacker-chosen cache keys.
+  if (!Number.isInteger(num) || num < 1 || num > bookMeta.chapters) {
     return NextResponse.json({ ok: false, error: "Invalid chapter" }, { status: 400 });
   }
 
@@ -29,7 +33,12 @@ export async function GET(
     const reason = meta?.requiresKey
       ? `${meta.name} requires an API key on the server. Set ${upper}_API_KEY in environment variables.`
       : "Translation not yet available for this chapter";
-    return NextResponse.json({ ok: false, error: reason }, { status: 404 });
+    // Never CDN-cache a fetch failure for a valid chapter — a transient
+    // upstream blip must not stick a 404 for the 24h revalidate window.
+    return NextResponse.json(
+      { ok: false, error: reason },
+      { status: 404, headers: { "Cache-Control": "no-store" } }
+    );
   }
 
   // Licensed translations get a shorter, no-SWR cache header so the CDN

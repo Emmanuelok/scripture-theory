@@ -129,7 +129,7 @@ data/                 All editorial content — Bible canon, glossary (369 terms
                       66 topical-index entries, liturgical calendar, …
 lib/                  Pure libraries — supabase client, profile, calendar
                       math, spaced-repetition schedule, useToday hook, …
-supabase/migrations/  Authoritative database schema (0001–0007)
+supabase/migrations/  Authoritative database schema (0001–0009)
 public/               Static assets — icons, manifest, service worker
 ```
 
@@ -138,16 +138,17 @@ public/               Static assets — icons, manifest, service worker
 ## Contributing
 
 Editorial guardrails are enforced by a multi-agent audit — see the latest
-audit commit (`d0cb14c` and after) for the format. Before opening a PR:
+audit commit (`d0cb14c` and after) for the format. Before opening a PR
+(all four are wired into CI — see `.github/workflows/ci.yml`):
 
-1. `npx tsc --noEmit` must be clean
-2. `npx next build` must be clean
-3. Editorial guardrails (no synthetic testimonies, no AI in Scripture, no
-   streaks language, no DM/chat surfaces, first-name + region only on the
-   public wall) must hold
+1. `npx tsc --noEmit` — clean
+2. `npm run lint` — clean (ESLint flat config + `eslint-config-next`)
+3. `npm test` — green (Vitest: pure logic + data invariants)
+4. `npm run build` — clean
 
-Tests aren't required — the platform leans on tsc + Next's build, the
-admin queues, and human pastoral review.
+Editorial guardrails (no synthetic testimonies, no AI in Scripture, no
+streaks language, no DM/chat surfaces, first-name + region only on the
+public wall) must hold. See `ARCHITECTURE.md` for the system map.
 
 ---
 

@@ -41,10 +41,11 @@ export type DueVerse = {
 /** Verses started but currently due for review, soonest-overdue last. */
 export function dueVerses(records: MemoryRecord[], now: Date = new Date()): DueVerse[] {
   const byId = new Map(memoryVerses.map((v) => [v.id, v] as const));
+  // `isDue` already applies each level's interval, including the mastered
+  // 30-day monthly warm-up. A second `daysOverdue >= 30` gate on mastered
+  // rows double-counted the interval and hid them for 60 days, not 30.
   return records
     .filter((r) => isDue(r, now))
-    .filter((r) => r.level !== "mastered" || daysOverdue(r, now) >= SR_INTERVAL_DAYS.mastered)
-    // mastered verses are surfaced only when fully overdue (monthly warm-up)
     .map((r) => {
       const verse = byId.get(r.verseId);
       if (!verse) return null;

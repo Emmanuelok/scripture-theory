@@ -118,7 +118,9 @@ export async function getYesCount(): Promise<number> {
   if (!sb) return 0;
   const { count, error } = await sb
     .from(TABLE)
-    .select("*", { count: "exact", head: true });
+    // count-only (head:true) — select a single non-PII column so the
+    // anon role never needs table-wide SELECT (see migration 0009).
+    .select("id", { count: "exact", head: true });
   if (error) {
     console.warn("[sending-cloud] count error", error.message);
     return 0;

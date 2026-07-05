@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import AccountChip from "@/components/AccountChip";
-import { NavLinks, NavStartButton, NavSearchLink } from "@/components/NavLinks";
+import { NavLinks, NavStartButton, NavSearchLink, MobileNav } from "@/components/NavLinks";
 
 export default function Nav() {
   return (
@@ -18,6 +18,7 @@ export default function Nav() {
           <NavSearchLink />
           <AccountChip />
           <NavStartButton />
+          <MobileNav />
         </div>
       </nav>
     </header>

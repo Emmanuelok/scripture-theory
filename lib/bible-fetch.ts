@@ -8,6 +8,7 @@
 import type { ChapterText } from "@/data/bible/seed";
 import type { TranslationId } from "@/data/bible/translations";
 import { getBook } from "@/data/bible/canon";
+import { fetchWithTimeout } from "@/lib/fetch-timeout";
 
 const TRANSLATION_API_KEY: Partial<Record<TranslationId, string>> = {
   WEB: "web",
@@ -66,7 +67,8 @@ export async function fetchChapterFromApi(
   )}?translation=${apiKey}`;
 
   try {
-    const res = await fetch(url, {
+    const res = await fetchWithTimeout(url, {
+      timeoutMs: 8000,
       // Cache server-side for 24h. Subsequent visits to the same chapter
       // hit Vercel's data cache, not the upstream.
       next: { revalidate: 86400, tags: [`bible:${translation}:${bookId}:${chapter}`] },
@@ -115,7 +117,8 @@ async function fetchEsvChapter(bookId: string, chapter: number): Promise<Chapter
   const url = `https://api.esv.org/v3/passage/text/?${params.toString()}`;
 
   try {
-    const res = await fetch(url, {
+    const res = await fetchWithTimeout(url, {
+      timeoutMs: 8000,
       headers: { Authorization: `Token ${token}` },
       // Crossway permits short caching for performance. Stay well inside.
       next: { revalidate: 3600, tags: [`bible:ESV:${bookId}:${chapter}`] },

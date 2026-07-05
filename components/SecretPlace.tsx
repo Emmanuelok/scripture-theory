@@ -678,7 +678,10 @@ function PrayerJournalSection({
                           Release it
                         </button>
                         <button
-                          onClick={() => onDelete(p.id)}
+                          onClick={() => {
+                            if (typeof window !== "undefined" && window.confirm("Remove this prayer permanently? This can't be undone."))
+                              onDelete(p.id);
+                          }}
                           className="ml-auto text-xs text-ink-400 hover:text-red-600"
                         >
                           Remove
@@ -695,7 +698,10 @@ function PrayerJournalSection({
                         Move back to active
                       </button>
                       <button
-                        onClick={() => onDelete(p.id)}
+                        onClick={() => {
+                          if (typeof window !== "undefined" && window.confirm("Remove this prayer permanently? This can't be undone."))
+                            onDelete(p.id);
+                        }}
                         className="ml-auto text-xs text-ink-400 hover:text-red-600"
                       >
                         Remove
@@ -768,7 +774,10 @@ function GratitudeSection({
                 <span className="text-sm text-ink-800 leading-relaxed">✨ {g.text}</span>
                 <span className="text-xs text-ink-500 shrink-0">{fmtDate(g.date)}</span>
                 <button
-                  onClick={() => onDelete(g.id)}
+                  onClick={() => {
+                    if (typeof window !== "undefined" && window.confirm("Remove this gratitude permanently?"))
+                      onDelete(g.id);
+                  }}
                   className="text-xs text-ink-400 hover:text-red-600"
                   aria-label="Remove"
                 >

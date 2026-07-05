@@ -89,7 +89,12 @@ function loadMarks(): Marks {
 
 function saveMarks(m: Marks) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(MARKS_STORAGE(), JSON.stringify(m));
+  try {
+    window.localStorage.setItem(MARKS_STORAGE(), JSON.stringify(m));
+  } catch {
+    // Storage full / disabled (private mode). Highlights are best-effort —
+    // never let a quota error thrown from a setState updater crash the reader.
+  }
 }
 
 function loadPrefs(): ReaderPrefs {
@@ -120,7 +125,11 @@ function loadPrefs(): ReaderPrefs {
 
 function savePrefs(p: ReaderPrefs) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(READER_PREFS, JSON.stringify(p));
+  try {
+    window.localStorage.setItem(READER_PREFS, JSON.stringify(p));
+  } catch {
+    // Storage full / disabled — reader prefs are best-effort.
+  }
 }
 
 function verseKey(translation: TranslationId, bookId: string, chapter: number, v: number) {
