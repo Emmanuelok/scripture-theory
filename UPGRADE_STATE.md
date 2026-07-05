@@ -10,11 +10,14 @@ additive) — NOT a rewrite. Editorial guardrails held throughout.
 - **Batch 2** `0976a77` — CSP + security headers (next.config.js), Overpass injection fix + coord clamp, bible chapter bound, geocode length cap, intake rate-limit (5/hr) + origin, fetch timeouts everywhere (lib/fetch-timeout.ts), lib/rate-limit.ts. BBC http→https, dead Reuters feed dropped.
 - **Batch 3** `6b45be1` — app/error.tsx + global-error.tsx, bible chapter/verse throw-on-transient (stop 24h cache of failures) + scoped loading.tsx, bible API no-store on failure, BibleChapter localStorage quota guard, /api/health.
 
-## Remaining
-- **Batch 4 — Performance:** /today server-side data (mirror home), next/dynamic for maps, lazy supabase in shared bundle, debounce search/glossary, bounded souls sum.
-- **Batch 5 — DX/tooling + tests:** restore lint (ESLint flat + eslint-config-next), Prettier format, GitHub Actions CI, complete .env.example, engines/.nvmrc, ARCHITECTURE.md, vitest + high-value unit/data-invariant tests.
-- **Batch 6 — a11y/SEO/UX:** skip-to-content, mobile nav, focus-visible, contrast; canonical URLs, sitemap completeness, JSON-LD; destructive-action confirmations, form UX, privacy-page accuracy.
-- Phase 4 verify + adversarial self-review; Phase 5 UPGRADE_REPORT.md; push.
+## Status: COMPLETE
+- **Batch 4** `78f7caa` — lazy-load d3 maps (pray/live, atlas); useDeferredValue on search/glossary.
+- **Batch 5** `ae1b7e5` — lint restored (ESLint flat config), Vitest (24 tests) + CI, Prettier, engines/.nvmrc, .env.example, ARCHITECTURE.md; fixed memorySchedule + places bugs; pruned dangling data cross-refs.
+- **Batch 6** `ccbcebd` — mobile nav, skip link, robots `/me$` fix, metadataBase env; cohort composer + SecretPlace delete data-loss fixes.
+- **Phase 4** `5dab49a` — clean `npm ci` + tsc + lint + test + build all green; adversarial diff review; runtime smoke test of touched routes; verse permalink made resilient.
+- **Phase 5** — `UPGRADE_REPORT.md` written. Remaining/deferred items live there.
+
+Deferred (human decision) and next-iteration targets: see `UPGRADE_REPORT.md`.
 
 ## Deferred (human decision) — see UPGRADE_AUDIT.md
 Deletion tombstones for cloud sync; account/email deletion (GDPR); major deps (React 19 / Tailwind 4 / TS 6); build-time Bible ingestion; god-component splits.
