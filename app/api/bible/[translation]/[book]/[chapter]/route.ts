@@ -33,7 +33,12 @@ export async function GET(
     const reason = meta?.requiresKey
       ? `${meta.name} requires an API key on the server. Set ${upper}_API_KEY in environment variables.`
       : "Translation not yet available for this chapter";
-    return NextResponse.json({ ok: false, error: reason }, { status: 404 });
+    // Never CDN-cache a fetch failure for a valid chapter — a transient
+    // upstream blip must not stick a 404 for the 24h revalidate window.
+    return NextResponse.json(
+      { ok: false, error: reason },
+      { status: 404, headers: { "Cache-Control": "no-store" } }
+    );
   }
 
   // Licensed translations get a shorter, no-SWR cache header so the CDN

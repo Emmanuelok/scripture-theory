@@ -53,7 +53,13 @@ export default async function VersePermalinkPage({ params }: { params: Params })
   if (!b || Number.isNaN(ch) || Number.isNaN(v)) notFound();
 
   const chapterText = await getChapter(book, ch);
-  const verseRow = chapterText?.verses.find((vv) => vv.v === v);
+  if (!chapterText) {
+    // Upstream fetch failed — do NOT cache a hard 404 for a valid permalink.
+    // Throw so the error boundary retries; a genuine missing verse (chapter
+    // present, verse absent) still 404s below.
+    throw new Error(`Upstream Bible fetch failed for ${book} ${ch}`);
+  }
+  const verseRow = chapterText.verses.find((vv) => vv.v === v);
   if (!verseRow) notFound();
 
   const translation: TranslationId = (chapterText?.translation as TranslationId) ?? "WEB";

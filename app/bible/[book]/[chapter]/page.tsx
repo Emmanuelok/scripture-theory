@@ -38,6 +38,11 @@ export default async function ChapterPage({
   // Fetch the WEB chapter eagerly (the default view). Other translations are
   // fetched on-demand by the client component when the user switches to them.
   const initial = await getChapter(book.id, chapter, "WEB");
+  if (!initial) {
+    // Upstream fetch failed for a valid chapter. Throw so the error boundary
+    // retries — never cache a soft-error page for 24h (the ISR window).
+    throw new Error(`Upstream Bible fetch failed for ${book.id} ${chapter}`);
+  }
   const chaptersByTranslation = {} as Record<TranslationId, ChapterText | undefined>;
   for (const t of translationOrder) {
     chaptersByTranslation[t] = t === "WEB" ? initial : undefined;
@@ -59,38 +64,17 @@ export default async function ChapterPage({
       </h1>
 
       <div className="mt-8">
-        {initial ? (
-          <BibleChapter
-            chapters={chaptersByTranslation}
-            bookId={book.id}
-            bookName={book.name}
-            chapterNum={chapter}
-            available={available}
-            prev={prev}
-            next={next}
-          />
-        ) : (
-          <FetchFailure book={book.name} chapter={chapter} />
-        )}
+        <BibleChapter
+          chapters={chaptersByTranslation}
+          bookId={book.id}
+          bookName={book.name}
+          chapterNum={chapter}
+          available={available}
+          prev={prev}
+          next={next}
+        />
       </div>
     </section>
-  );
-}
-
-function FetchFailure({ book, chapter }: { book: string; chapter: number }) {
-  return (
-    <div className="rounded-3xl border border-amber-200 bg-amber-50 p-8 text-amber-900">
-      <div className="text-xs uppercase tracking-widest text-amber-700">
-        Couldn't reach the upstream just now
-      </div>
-      <h2 className="font-serif text-2xl mt-2">
-        {book} {chapter} should be here.
-      </h2>
-      <p className="mt-3 text-sm leading-relaxed">
-        The Bible is fetched live from <code className="bg-amber-100 px-1.5 py-0.5 rounded">bible-api.com</code>
-        {" "}(public-domain). The request failed this time. Try again in a moment, or refresh.
-      </p>
-    </div>
   );
 }
 
