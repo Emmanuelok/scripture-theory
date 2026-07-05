@@ -13,6 +13,7 @@ Apply these in order. Each file is idempotent (`if not exists` /
 | 0006 | `0006_testimonies.sql` | Testimonies table + editorial RLS (depends on 0005) |
 | 0007 | `0007_sending_covenant.sql` | Project 1M Cloud of Witnesses + `pray_for_yes` RPC (depends on 0005) |
 | 0008 | `0008_sending_update_hardening.sql` | Replaces the over-broad Wall update policy with an `update_my_souls` RPC (depends on 0007) |
+| 0009 | `0009_pii_column_hardening.sql` | Column-level privilege lockdown: keeps `contact`/`device_id`/`user_id` PII out of anon reads and forgeable columns out of anon inserts (depends on 0003, 0006, 0007, 0008) |
 
 ## After applying
 
