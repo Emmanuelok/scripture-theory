@@ -81,10 +81,14 @@ export default function CohortView({ code }: { code: string }) {
   const isLeader = cohort && user && cohort.leader_id === user.id;
   const myAlias = me?.alias || profile.name || profile.secretPlace?.alias || "Member";
 
-  async function submitPrayer(body: string) {
-    if (!cohort || !body.trim()) return;
+  async function submitPrayer(body: string): Promise<boolean> {
+    if (!cohort || !body.trim()) return false;
     const np = await postCohortPrayer(cohort.id, myAlias, body);
-    if (np) setPrayers((prev) => [np, ...prev]);
+    if (np) {
+      setPrayers((prev) => [np, ...prev]);
+      return true;
+    }
+    return false;
   }
 
   async function removePrayer(id: string) {
@@ -338,18 +342,23 @@ function PrayerComposer({
   onSubmit,
   alias,
 }: {
-  onSubmit: (body: string) => Promise<void> | void;
+  onSubmit: (body: string) => Promise<boolean>;
   alias: string;
 }) {
   const [body, setBody] = useState("");
   const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
 
   async function submit() {
     if (!body.trim()) return;
     setBusy(true);
-    await onSubmit(body);
+    setErr("");
+    const ok = await onSubmit(body);
     setBusy(false);
-    setBody("");
+    // Only clear the textarea on success — a failed post used to wipe the
+    // believer's typed prayer with no error shown.
+    if (ok) setBody("");
+    else setErr("Couldn't post just now — your words are still here. Try again.");
   }
 
   return (
@@ -365,6 +374,11 @@ function PrayerComposer({
         placeholder="Short, honest. Three lines is plenty."
         className="mt-2 w-full rounded-xl border border-ink-200 bg-card-subtle px-3 py-2 text-sm text-ink-900 focus:outline-none focus:border-flame-500"
       />
+      {err && (
+        <p className="mt-2 text-xs text-red-600" role="alert">
+          {err}
+        </p>
+      )}
       <div className="mt-2 flex justify-end">
         <button
           onClick={submit}

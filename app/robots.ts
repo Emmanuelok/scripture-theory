@@ -14,7 +14,9 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
         disallow: [
           // Personal / device-local surfaces we deliberately do not index.
-          "/me",
+          // Anchor with $ so this blocks only /me — a bare "/me" prefix also
+          // blocked /memory (which the sitemap promotes).
+          "/me$",
           "/account",
           "/bible/my",
           "/api/",
