@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useDeferredValue, useMemo, useRef, useState } from "react";
 import {
   search,
   searchKindLabel,
@@ -65,7 +65,10 @@ export default function SearchView() {
   const stats = useMemo(() => quickStats(), []);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const allResults = useMemo(() => search(q, 80), [q]);
+  // Keep typing responsive: the full corpus scan runs against a deferred
+  // value so keystrokes never block on it (React yields to input first).
+  const deferredQ = useDeferredValue(q);
+  const allResults = useMemo(() => search(deferredQ, 80), [deferredQ]);
   const results = useMemo(
     () => allResults.filter((r) => enabled.has(r.kind)),
     [allResults, enabled]
