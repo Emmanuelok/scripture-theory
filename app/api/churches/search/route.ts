@@ -72,10 +72,13 @@ export async function GET(req: Request) {
       }
     );
   } catch (err) {
+    // Never surface the raw error object to clients (leaks internal detail);
+    // log server-side, return a generic message.
+    console.warn("[churches/search] overpass error", err instanceof Error ? err.message : err);
     return NextResponse.json(
       {
         ok: false,
-        error: String(err),
+        error: "upstream_unavailable",
         message:
           "OpenStreetMap is the data source — the public Overpass API is temporarily unreachable. Try again in a moment.",
       },

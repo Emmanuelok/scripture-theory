@@ -6,12 +6,14 @@ import {
   sortByPublished,
   type NewsItem,
 } from "@/lib/news";
+import { fetchWithTimeout } from "@/lib/fetch-timeout";
 
 export const revalidate = 900; // 15 minutes — the world moves quickly
 
 async function fetchOne(url: string, source: string): Promise<NewsItem[]> {
   try {
-    const res = await fetch(url, {
+    const res = await fetchWithTimeout(url, {
+      timeoutMs: 8000,
       next: { revalidate: 900, tags: [`news:world:${source}`] },
       headers: {
         "User-Agent":

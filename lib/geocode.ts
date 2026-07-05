@@ -2,6 +2,8 @@
 // (lat, lng). Nominatim is the open-source geocoder used by OpenStreetMap
 // itself. Per their usage policy we identify ourselves and cap calls.
 
+import { fetchWithTimeout } from "@/lib/fetch-timeout";
+
 const NOMINATIM = "https://nominatim.openstreetmap.org/search";
 const USER_AGENT =
   "ScriptureTheory/1.0 (church-finder; +https://scripture-theory.org; mailto:contact@scripture-theory.org)";
@@ -17,7 +19,8 @@ export type GeocodeResult = {
 export async function geocode(q: string, limit = 5): Promise<GeocodeResult[]> {
   const url = `${NOMINATIM}?q=${encodeURIComponent(q)}&format=json&addressdetails=0&limit=${limit}`;
   try {
-    const res = await fetch(url, {
+    const res = await fetchWithTimeout(url, {
+      timeoutMs: 8000,
       headers: {
         "User-Agent": USER_AGENT,
         Accept: "application/json",

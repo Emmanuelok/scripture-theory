@@ -15,11 +15,15 @@ export async function GET(
   if (!translationOrder.includes(upper as TranslationId)) {
     return NextResponse.json({ ok: false, error: "Unknown translation" }, { status: 400 });
   }
-  if (!getBook(book)) {
+  const bookMeta = getBook(book);
+  if (!bookMeta) {
     return NextResponse.json({ ok: false, error: "Unknown book" }, { status: 404 });
   }
   const num = Number(chapter);
-  if (!Number.isFinite(num) || num < 1) {
+  // Must be a real chapter of this book — bounds the value so an attacker
+  // can't enumerate /genesis/1..N and fan out uncached upstream fetches
+  // (bible-api.com relay, ESV quota) with attacker-chosen cache keys.
+  if (!Number.isInteger(num) || num < 1 || num > bookMeta.chapters) {
     return NextResponse.json({ ok: false, error: "Invalid chapter" }, { status: 400 });
   }
 
