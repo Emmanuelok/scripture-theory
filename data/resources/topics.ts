@@ -41,7 +41,7 @@ export const TOPICS: Topic[] = [
       { ref: "Psalm 27:1", text: "Yahweh is my light and my salvation. Whom shall I fear?" },
       { ref: "1 John 4:18", text: "There is no fear in love; but perfect love casts out fear." },
     ],
-    cross: ["anxiety", "courage", "trust"],
+    cross: ["anxiety", "trust"],
   },
   {
     slug: "anger",
@@ -764,7 +764,7 @@ export const TOPICS: Topic[] = [
       { ref: "1 John 1:9", text: "If we confess our sins, he is faithful and righteous to forgive us the sins, and to cleanse us from all unrighteousness." },
       { ref: "Joel 2:13", text: "Tear your heart, and not your garments, and turn to Yahweh, your God; for he is gracious and merciful, slow to anger, and abundant in loving kindness." },
     ],
-    cross: ["guilt-shame", "forgiveness"],
+    cross: ["forgiveness"],
   },
   {
     slug: "sanctification",
@@ -836,7 +836,7 @@ export const TOPICS: Topic[] = [
       { ref: "Luke 6:38", text: "Give, and it will be given to you: good measure, pressed down, shaken together, and running over." },
       { ref: "1 Timothy 6:18–19", text: "That they do good, that they be rich in good works, that they be ready to distribute, willing to share." },
     ],
-    cross: ["money", "justice-poor"],
+    cross: ["money"],
   },
   {
     slug: "discipleship",

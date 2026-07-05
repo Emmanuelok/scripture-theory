@@ -578,7 +578,7 @@ export const GLOSSARY: Term[] = [
     long: "Tehillim is the plural — 'Praises.' Tehillah is praise rendered in song, often spontaneous, often public. It's the response of a heart that has seen who God is and cannot stay silent. Psalm 22:3 says God is enthroned on the praises of His people.",
     refs: ["Psalm 22:3", "Psalm 33:1", "Psalm 100:4"],
     hebrew: { script: "תְּהִלָּה", translit: "tehillah", gloss: "praise, song of praise" },
-    related: ["worship", "psalms"] },
+    related: ["worship"] },
 
   { slug: "aletheia", word: "Alētheia (Truth)",
     short: "Truth — not just accurate facts but reality as God sees it.",
@@ -649,7 +649,7 @@ export const GLOSSARY: Term[] = [
     long: "Literally 'called to one's side.' Jesus uses it of the Spirit in John's farewell discourse (chapters 14-16) and 1 John uses it of Christ Himself as our advocate with the Father. The Spirit comforts, counsels, convicts, and stands with us — He is not an impersonal force.",
     refs: ["John 14:16-17", "John 16:7-15", "1 John 2:1"],
     greek: { script: "παράκλητος", translit: "paraklētos", gloss: "advocate, helper, comforter" },
-    related: ["holy-spirit", "comfort"] },
+    related: ["holy-spirit"] },
 
   { slug: "apostasy", word: "Apostasy",
     short: "A deliberate falling away from the faith one once professed.",
@@ -693,35 +693,35 @@ export const GLOSSARY: Term[] = [
     long: "Roughly a third of the Psalms are laments. Lamentations is an entire book of them. Lament tells God the truth about pain without losing hold of Him; it usually moves toward hope but does not rush there. Jesus laments in Gethsemane and on the cross. Sorrow has a place in the prayer book.",
     refs: ["Psalm 13", "Psalm 22", "Lamentations 3:19-26", "Matthew 27:46"],
     hebrew: { script: "קִינָה", translit: "qinah", gloss: "dirge, lament" },
-    related: ["prayer", "psalms"] },
+    related: ["prayer"] },
 
   { slug: "mediator", word: "Mediator",
     short: "The one who stands between God and humanity to bring them together — Christ alone.",
     long: "Moses mediated the old covenant; Jesus mediates the new and better one (Hebrews 8-9). 1 Timothy 2:5 — 'there is one God, and one mediator between God and men, the Man Christ Jesus.' He is uniquely fit: fully God to represent God, fully human to represent us.",
     refs: ["1 Timothy 2:5", "Hebrews 8:6", "Hebrews 9:15", "Hebrews 12:24"],
     greek: { script: "μεσίτης", translit: "mesitēs", gloss: "mediator, go-between" },
-    related: ["christ", "covenant", "priesthood"] },
+    related: ["christ", "covenant"] },
 
   { slug: "omnipotence", word: "Omnipotence",
     short: "God is all-powerful — able to do anything consistent with His nature.",
     long: "From Latin omnis (all) + potens (powerful). Scripture says 'nothing is too hard for the LORD' (Jeremiah 32:17) and 'with God all things are possible' (Matthew 19:26). Classical theology has always added: God cannot lie, cannot deny Himself, cannot make a square circle. His power is the power of who He is.",
     refs: ["Jeremiah 32:17", "Matthew 19:26", "Revelation 19:6"],
     latin: { script: "omnipotens", translit: "omnipotens", gloss: "all-powerful" },
-    related: ["sovereignty", "attributes-of-god"] },
+    related: ["sovereignty"] },
 
   { slug: "omnipresence", word: "Omnipresence",
     short: "God is fully present everywhere at once — not spread thin, fully there.",
     long: "Psalm 139 — 'where shall I go from your Spirit?' Jeremiah 23:24 — 'do I not fill heaven and earth?' Omnipresence is not pantheism (God is not the creation) but it does mean there is no place outside His knowledge, care, or reach. The same God meets you in the prison cell and the cathedral.",
     refs: ["Psalm 139:7-10", "Jeremiah 23:23-24", "Acts 17:27-28"],
     latin: { script: "omnipraesens", translit: "omnipraesens", gloss: "everywhere present" },
-    related: ["attributes-of-god", "sovereignty"] },
+    related: ["sovereignty"] },
 
   { slug: "omniscience", word: "Omniscience",
     short: "God knows all things — past, present, future, actual, possible.",
     long: "He knows the number of hairs on your head (Matthew 10:30) and the words on your tongue before you speak them (Psalm 139:4). His knowledge is not learned and is not increased by events. This is sobering — and a comfort. The God who knows everything about us loves us still.",
     refs: ["Psalm 139:1-6", "Hebrews 4:13", "1 John 3:20"],
     latin: { script: "omnisciens", translit: "omnisciens", gloss: "all-knowing" },
-    related: ["attributes-of-god", "wisdom"] },
+    related: ["wisdom"] },
 
   { slug: "passion-of-christ", word: "Passion of Christ",
     short: "The suffering of Jesus from Gethsemane to the cross.",
@@ -868,19 +868,19 @@ export const GLOSSARY: Term[] = [
     long: "Baal worship promised rain and crops in exchange for fertility rites and child sacrifice. Elijah faces Baal's prophets on Carmel (1 Kings 18). Every age has its Baals: the lord who 'gives' if you give yourself.",
     refs: ["1 Kings 18:20-40", "Jeremiah 19:5", "Hosea 2:8"],
     hebrew: { script: "בַּעַל", translit: "baal", gloss: "lord, master, owner" },
-    related: ["idol", "elijah"] },
+    related: ["idol"] },
 
   { slug: "babel", word: "Babel",
     short: "The proud tower in Genesis 11 — humanity scattered when it built upward without God.",
     long: "Genesis 11 sets the stage for Genesis 12 (the call of Abraham) and Acts 2 (Pentecost) — the great reversal where many tongues understand one gospel. Babel keeps recurring wherever 'making a name for ourselves' replaces calling on the Name.",
     refs: ["Genesis 11:1-9", "Acts 2:1-12"],
-    related: ["pentecost", "pride"] },
+    related: ["pentecost"] },
 
   { slug: "babylon", word: "Babylon",
     short: "The empire that exiled Judah — and in Revelation, the symbol of every God-defying system.",
     long: "Historical Babylon takes Judah in 586 BC and falls in 539. Peter calls Rome 'Babylon' (1 Peter 5:13). Revelation 17-18 widens the image to every proud city built on injustice.",
     refs: ["2 Kings 25", "Daniel 1-5", "Revelation 18"],
-    related: ["exile", "kosmos"] },
+    related: ["kosmos"] },
 
   { slug: "baptism-infant", word: "Baptism — infant or believer?",
     short: "A real disagreement among Christians who share one Lord and one baptism.",
@@ -991,7 +991,7 @@ export const GLOSSARY: Term[] = [
     short: "The inward witness God has placed in every person — to be informed by Scripture, not bullied.",
     long: "Romans 2:15 says even those without the law have it. Conscience can be wounded (1 Cor 8), seared (1 Tim 4:2), or cleansed by Christ's blood (Heb 9:14). A clean conscience before God is a great Christian goal.",
     refs: ["Romans 2:14-15", "1 Timothy 1:5", "Hebrews 9:14"],
-    related: ["repentance", "freedom"] },
+    related: ["repentance"] },
 
   { slug: "consecration", word: "Consecration",
     short: "Being set apart for God's use — both an act and a lifelong practice.",
@@ -1266,7 +1266,7 @@ export const GLOSSARY: Term[] = [
     short: "The fullness of deity — the one God in three Persons.",
     long: "An older English word, used in older translations of Romans 1:20, Colossians 2:9, and Acts 17:29. Means the divine nature itself, which dwells bodily in Christ.",
     refs: ["Acts 17:29", "Romans 1:20", "Colossians 2:9"],
-    related: ["trinity", "deity-of-christ"] },
+    related: ["trinity"] },
 
   { slug: "godliness", word: "Godliness",
     short: "A life shaped by reverence for God — practical piety, not religious performance.",
@@ -1305,7 +1305,7 @@ export const GLOSSARY: Term[] = [
     long: "Greek translation of Hebrew Sheol. Acts 2:27 quotes Psalm 16: 'you will not abandon my soul to Hades.' Revelation 20:14 says Hades itself will be thrown into the lake of fire — death dies.",
     refs: ["Acts 2:27", "Revelation 1:18", "Revelation 20:13-14"],
     greek: { script: "ᾅδης", translit: "hadēs", gloss: "place of the dead" },
-    related: ["sheol", "hell"] },
+    related: ["hell"] },
 
   { slug: "hallelujah", word: "Hallelujah",
     short: "'Praise Yah(weh)!' — a Hebrew word so good every language kept it.",
@@ -1325,7 +1325,7 @@ export const GLOSSARY: Term[] = [
   { slug: "hebrew", word: "Hebrew",
     short: "The language of the Old Testament — and a name for Abraham's people.",
     long: "A Semitic language, written right to left, mostly without vowels. Most of the Old Testament is in it; a few sections (Daniel, Ezra) are in its sister Aramaic.",
-    related: ["torah", "tanakh"] },
+    related: ["torah"] },
 
   { slug: "heresy", word: "Heresy",
     short: "Teaching that contradicts the core gospel — not every disagreement, but the deal-breakers.",
@@ -1362,7 +1362,7 @@ export const GLOSSARY: Term[] = [
     short: "The third Person of the Trinity — fully God, sent by the Father and the Son.",
     long: "He hovered over creation, anointed kings and prophets, conceived Christ in the womb, came at Pentecost, and indwells believers. He convicts, comforts, gifts, sanctifies. He is a Person, not a force.",
     refs: ["Genesis 1:2", "John 14:16-17", "Acts 2:1-4", "Romans 8:9-17"],
-    related: ["pneuma", "parakletos", "trinity"] },
+    related: ["parakletos", "trinity"] },
 
   { slug: "hope", word: "Hope (elpis)",
     short: "Confident expectation grounded in God's promise — not wishful thinking.",
@@ -1521,7 +1521,7 @@ export const GLOSSARY: Term[] = [
     short: "The character of God, the great commandment, and the heart of the Christian life.",
     long: "Greek distinguishes agapē (self-giving love), philia (friendship), storgē (family affection). All converge in Christ (John 15:13). 'God is love' (1 John 4:8) — the most exposed sentence in the Bible.",
     refs: ["1 Corinthians 13", "1 John 4:7-12", "John 13:34-35"],
-    related: ["agape", "phileo"] },
+    related: ["agape"] },
 
   { slug: "magi", word: "Magi",
     short: "The 'wise men from the East' who came seeking the newborn King.",
@@ -1749,7 +1749,7 @@ export const GLOSSARY: Term[] = [
     short: "Suffering for following Christ — promised by Him, endured by His people in every age.",
     long: "John 15:20 — 'a servant is not greater than his master.' The book of Acts is half stories of persecution. The early church grew under it; so do many parts of the church today.",
     refs: ["Matthew 5:10-12", "John 15:18-21", "2 Timothy 3:12"],
-    related: ["suffering", "martyr"] },
+    related: ["suffering"] },
 
   { slug: "perseverance", word: "Perseverance of the saints",
     short: "The doctrine that those truly in Christ will be kept by Him to the end.",
@@ -1790,7 +1790,7 @@ export const GLOSSARY: Term[] = [
   { slug: "pneumatology", word: "Pneumatology",
     short: "The branch of theology that studies the Holy Spirit.",
     long: "From Greek pneuma (spirit) + logia (study). The deity, personality, and work of the Spirit. The church confessed Him fully at Constantinople (381).",
-    related: ["holy-spirit", "pneuma", "trinity"] },
+    related: ["holy-spirit", "trinity"] },
 
   { slug: "power", word: "Power (dunamis)",
     short: "God's saving energy — the power of the resurrection, the power of the Spirit, the power of the gospel.",
@@ -1885,7 +1885,7 @@ export const GLOSSARY: Term[] = [
     long: "Hebrew rab + the suffix -i, 'my master, my great one.' Used over a dozen times of Jesus in the Gospels. He taught with authority that the scribes did not have (Mark 1:22).",
     refs: ["John 1:38", "John 3:2", "Matthew 23:8"],
     hebrew: { script: "רַבִּי", translit: "rabbi", gloss: "my teacher, my master" },
-    related: ["disciple", "teacher"] },
+    related: [] },
 
   { slug: "ransom", word: "Ransom",
     short: "The price paid to free a captive — the New Testament's word for what Christ did for us.",
@@ -1984,7 +1984,7 @@ export const GLOSSARY: Term[] = [
     short: "The Bible — God's written word, breathed out by Him through human authors.",
     long: "Greek graphē, 'writing.' 2 Timothy 3:16 — 'all Scripture is breathed out by God.' The Old Testament Israel received; the New Testament the apostles wrote; together, the church's only infallible rule of faith and life.",
     refs: ["2 Timothy 3:16-17", "2 Peter 1:20-21", "Psalm 19:7-11"],
-    related: ["inspiration", "canon", "scripture-doctrine"] },
+    related: ["inspiration", "canon"] },
 
   { slug: "second-adam", word: "Second Adam",
     short: "Paul's name for Christ — the head of a new humanity.",
