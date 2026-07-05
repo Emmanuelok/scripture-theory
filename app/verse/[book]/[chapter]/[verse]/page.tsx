@@ -54,10 +54,11 @@ export default async function VersePermalinkPage({ params }: { params: Params })
 
   const chapterText = await getChapter(book, ch);
   if (!chapterText) {
-    // Upstream fetch failed — do NOT cache a hard 404 for a valid permalink.
-    // Throw so the error boundary retries; a genuine missing verse (chapter
-    // present, verse absent) still 404s below.
-    throw new Error(`Upstream Bible fetch failed for ${book} ${ch}`);
+    // Upstream fetch failed for a valid permalink (this is a social-share
+    // target). Degrade to a graceful 200 with the reference and navigation
+    // rather than a hard 404 or a 500 — the reader can retry or open the
+    // chapter. This route is dynamic, so the failure is never cached.
+    return <VerseUnavailable book={b!.name} bookId={book} chapter={ch} verse={v} />;
   }
   const verseRow = chapterText.verses.find((vv) => vv.v === v);
   if (!verseRow) notFound();
@@ -178,6 +179,49 @@ export default async function VersePermalinkPage({ params }: { params: Params })
         "The grass withers, the flower fades, but the word of our God will stand forever." —
         Isaiah 40:8
       </p>
+    </section>
+  );
+}
+
+/** Graceful fallback when the verse text can't be loaded right now. */
+function VerseUnavailable({
+  book,
+  bookId,
+  chapter,
+  verse,
+}: {
+  book: string;
+  bookId: string;
+  chapter: number;
+  verse: number;
+}) {
+  const ref = `${book} ${chapter}:${verse}`;
+  return (
+    <section className="mx-auto max-w-3xl px-5 pt-12 pb-24">
+      <Link href={`/bible/${bookId}/${chapter}`} className="text-xs uppercase tracking-widest text-flame-700 hover:underline">
+        ← {book} {chapter}
+      </Link>
+      <PageHero eyebrow="verse" title={ref} intro="One verse, one link." />
+      <div className="mt-8 rounded-3xl border border-amber-200 bg-amber-50 p-8 text-amber-900">
+        <p className="text-sm leading-relaxed">
+          We couldn&apos;t load the text of {ref} just now — the public-domain
+          source didn&apos;t answer. Please refresh, or open the whole chapter.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Link
+            href={`/bible/${bookId}/${chapter}`}
+            className="inline-flex items-center rounded-full bg-ink-900 text-ink-50 px-5 py-2.5 text-sm hover:bg-flame-700 transition-colors"
+          >
+            Read {book} {chapter} →
+          </Link>
+          <Link
+            href={`/bible/${bookId}`}
+            className="inline-flex items-center rounded-full border border-ink-300 bg-card px-5 py-2.5 text-sm text-ink-900 hover:border-ink-900 transition-colors"
+          >
+            The book of {book}
+          </Link>
+        </div>
+      </div>
     </section>
   );
 }
