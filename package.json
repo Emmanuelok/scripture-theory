@@ -15,7 +15,9 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "ingest-bible": "node scripts/ingest-bible.mjs"
+    "ingest-bible": "node scripts/ingest-bible.mjs",
+    "smoke:bible-api": "node scripts/bible-api-smoke.mjs",
+    "smoke:esv": "node scripts/esv-smoke.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.0",
