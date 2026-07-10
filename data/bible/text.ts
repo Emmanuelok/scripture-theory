@@ -1,13 +1,14 @@
-// This file is overwritten by `npm run ingest-bible` with authentic
-// public-domain translations fetched from bible-api.com.
-// Until then it exports an empty catalog — the app falls back to the seed.
+// This file is overwritten by the targeted `npm run ingest-bible` command.
+// Until then it exports an empty catalog and the app falls back to the seed,
+// then configured runtime providers.
 //
 // Shape: ingested[translation][book][chapter] = ChapterText
 //
-// Run all available translations:
-//   npm run ingest-bible
-// Run a subset:
-//   npm run ingest-bible -- --translations=web,kjv,asv --books=john,romans,psalms
+// Example targeted bundle:
+//   npm run ingest-bible -- --translations=web,kjv --books=john,romans
+//
+// Do not use the public chapter API to download whole Bibles. Full-canon
+// ingestion must use the publishers' source archives.
 
 import type { ChapterText } from "./seed";
 import type { TranslationId } from "./translations";
