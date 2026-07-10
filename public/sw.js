@@ -6,16 +6,18 @@
 //
 // Strategy:
 //   - HTML navigations: network-first → cache → offline fallback
-//   - Bible API: cache-first, revalidate in background (immutable text)
+//   - Public-domain Bible API: cache-first, revalidate in background
+//   - Licensed Bible API: network-only; never persisted by the PWA
 //   - Audio API: cache-first, opaque-safe (so MP3 plays offline once heard)
 //   - Static assets: cache-first
 //   - Everything else (cross-origin, POST): pass through
 
-const VERSION = "v3";
+const VERSION = "v4";
 const CORE_CACHE = `st-core-${VERSION}`;
 const PAGE_CACHE = `st-pages-${VERSION}`;
 const BIBLE_CACHE = `st-bible-${VERSION}`;
 const STATIC_CACHE = `st-static-${VERSION}`;
+const LICENSED_BIBLE_TRANSLATIONS = new Set(["ESV"]);
 
 // Pre-cache the routes most likely to be needed offline.
 const CORE_URLS = [
@@ -39,7 +41,7 @@ self.addEventListener("install", (event) => {
       // Pre-cache opportunistically — failures here must not block install.
       await Promise.allSettled(CORE_URLS.map((u) => cache.add(u)));
       await self.skipWaiting();
-    })()
+    })(),
   );
 });
 
@@ -48,18 +50,33 @@ self.addEventListener("activate", (event) => {
     (async () => {
       const keys = await caches.keys();
       const live = new Set([CORE_CACHE, PAGE_CACHE, BIBLE_CACHE, STATIC_CACHE]);
-      await Promise.all(keys.filter((k) => !live.has(k)).map((k) => caches.delete(k)));
+      await Promise.all(
+        keys.filter((k) => !live.has(k)).map((k) => caches.delete(k)),
+      );
       await self.clients.claim();
-    })()
+    })(),
   );
 });
 
 function isNavigation(req) {
-  return req.mode === "navigate" || (req.method === "GET" && req.headers.get("accept")?.includes("text/html"));
+  return (
+    req.mode === "navigate" ||
+    (req.method === "GET" && req.headers.get("accept")?.includes("text/html"))
+  );
 }
 
 function isBibleApi(url) {
   return url.pathname.startsWith("/api/bible/");
+}
+
+function bibleTranslation(url) {
+  const match = url.pathname.match(/^\/api\/bible\/([^/]+)(?:\/|$)/i);
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]).toUpperCase();
+  } catch {
+    return null;
+  }
 }
 
 function isStaticAsset(url) {
@@ -90,7 +107,9 @@ async function networkFirst(req, cacheName) {
     if (cached) return cached;
     // For navigations, fall back to /offline
     if (isNavigation(req)) {
-      const offline = await cache.match("/offline") || await (await caches.open(CORE_CACHE)).match("/offline");
+      const offline =
+        (await cache.match("/offline")) ||
+        (await (await caches.open(CORE_CACHE)).match("/offline"));
       if (offline) return offline;
     }
     return new Response("Offline — and we don't have this page cached yet.", {
@@ -107,19 +126,53 @@ async function cacheFirst(req, cacheName) {
     // Revalidate in the background (stale-while-revalidate)
     fetch(req)
       .then((r) => {
-        if (r && r.ok) cache.put(req, r.clone()).catch(() => {});
+        if (canStore(r)) cache.put(req, r.clone()).catch(() => {});
+        else if (forbidsStorage(r)) cache.delete(req).catch(() => {});
       })
       .catch(() => {});
     return cached;
   }
   try {
     const fresh = await fetch(req);
-    if (fresh && (fresh.ok || fresh.type === "opaque")) {
+    if (canStore(fresh)) {
       cache.put(req, fresh.clone()).catch(() => {});
     }
     return fresh;
   } catch {
     return new Response("Offline.", { status: 503 });
+  }
+}
+
+function canStore(response) {
+  if (!response || (!response.ok && response.type !== "opaque")) return false;
+  return !forbidsStorage(response);
+}
+
+function forbidsStorage(response) {
+  if (!response || !response.ok) return false;
+  const cacheControl = response.headers.get("Cache-Control") || "";
+  return /(?:^|,)\s*(?:no-store|private)\b/i.test(cacheControl);
+}
+
+async function networkOnly(req) {
+  try {
+    return await fetch(req, { cache: "no-store" });
+  } catch {
+    return new Response(
+      JSON.stringify({
+        ok: false,
+        code: "OFFLINE_LIVE_TRANSLATION",
+        error:
+          "This licensed translation is live-only. Reconnect and try again.",
+      }),
+      {
+        status: 503,
+        headers: {
+          "Cache-Control": "no-store",
+          "Content-Type": "application/json; charset=utf-8",
+        },
+      },
+    );
   }
 }
 
@@ -133,7 +186,12 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin) return;
 
   if (isBibleApi(url)) {
-    event.respondWith(cacheFirst(req, BIBLE_CACHE));
+    const translation = bibleTranslation(url);
+    event.respondWith(
+      translation && LICENSED_BIBLE_TRANSLATIONS.has(translation)
+        ? networkOnly(req)
+        : cacheFirst(req, BIBLE_CACHE),
+    );
     return;
   }
   if (isStaticAsset(url)) {
