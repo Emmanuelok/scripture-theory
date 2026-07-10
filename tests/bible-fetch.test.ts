@@ -47,22 +47,25 @@ afterEach(() => {
 
 describe("public-domain Bible provider", () => {
   it("uses the structured USFM endpoint for an entire single-chapter book", async () => {
+    let requestedInput: string | URL | Request | undefined;
+    let requestedInit: RequestInit | undefined;
     const fetchMock = vi.fn(
-      async () =>
-        new Response(JSON.stringify(publicChapter()), {
+      async (input: string | URL | Request, init?: RequestInit) => {
+        requestedInput = input;
+        requestedInit = init;
+        return new Response(JSON.stringify(publicChapter()), {
           status: 200,
           headers: { "Content-Type": "application/json" },
-        }),
+        });
+      },
     );
     vi.stubGlobal("fetch", fetchMock);
 
     const result = await fetchChapterResultFromApi("WEB", "jude", 1);
     expect(result.ok).toBe(true);
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(fetchMock.mock.calls[0]?.[0]).toBe(
-      "https://bible-api.com/data/web/JUD/1",
-    );
-    expect(fetchMock.mock.calls[0]?.[1]).toMatchObject({
+    expect(requestedInput).toBe("https://bible-api.com/data/web/JUD/1");
+    expect(requestedInit).toMatchObject({
       next: { revalidate: 86_400, tags: ["bible:WEB:jude:1"] },
     });
   });
@@ -125,9 +128,11 @@ describe("Crossway ESV provider", () => {
 
   it("sends the token server-side and explicitly disables storage", async () => {
     process.env.ESV_API_KEY = "test-token";
+    let requestedInit: RequestInit | undefined;
     const fetchMock = vi.fn(
-      async () =>
-        new Response(
+      async (_input: string | URL | Request, init?: RequestInit) => {
+        requestedInit = init;
+        return new Response(
           JSON.stringify({
             passages: [
               "[1] In the beginning was the Word.\n[2] He was in the beginning with God.",
@@ -137,20 +142,20 @@ describe("Crossway ESV provider", () => {
             status: 200,
             headers: { "Content-Type": "application/json" },
           },
-        ),
+        );
+      },
     );
     vi.stubGlobal("fetch", fetchMock);
 
     const result = await fetchChapterResultFromApi("ESV", "john", 1);
     expect(result.ok).toBe(true);
-    const init = fetchMock.mock.calls[0]?.[1];
-    expect(init).toMatchObject({
+    expect(requestedInit).toMatchObject({
       cache: "no-store",
       headers: {
         Accept: "application/json",
         Authorization: "Token test-token",
       },
     });
-    expect(init).not.toHaveProperty("next");
+    expect(requestedInit).not.toHaveProperty("next");
   });
 });
