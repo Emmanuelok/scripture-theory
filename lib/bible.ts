@@ -10,10 +10,16 @@ import { ingested } from "@/data/bible/text";
 import {
   translations,
   translationOrder,
+  translationSupportsTestament,
   type TranslationId,
   type TranslationMeta,
 } from "@/data/bible/translations";
-import { fetchChapterFromApi, isRuntimeFetchable, RUNTIME_TRANSLATIONS } from "@/lib/bible-fetch";
+import {
+  fetchChapterResultFromApi,
+  isRuntimeFetchable,
+  RUNTIME_TRANSLATIONS,
+  type BibleFetchResult,
+} from "@/lib/bible-fetch";
 
 export const DEFAULT_TRANSLATION: TranslationId = "WEB";
 
@@ -22,65 +28,106 @@ export const DEFAULT_TRANSLATION: TranslationId = "WEB";
 export function getChapterSync(
   bookId: string,
   chapter: number,
-  translation: TranslationId = DEFAULT_TRANSLATION
+  translation: TranslationId = DEFAULT_TRANSLATION,
 ): ChapterText | undefined {
   const fromIngested = ingested[translation]?.[bookId]?.[chapter];
   if (fromIngested) return fromIngested;
   return findSeedChapter(bookId, chapter, translation);
 }
 
-// Async lookup with runtime fallback: ingested → seed → bible-api.com
-// (cached 24h via Next.js fetch cache). This is what the chapter reader
-// uses, so any chapter on earth loads on first visit.
+// Async lookup with runtime fallback: ingested → seed → configured provider.
 export async function getChapter(
   bookId: string,
   chapter: number,
-  translation: TranslationId = DEFAULT_TRANSLATION
+  translation: TranslationId = DEFAULT_TRANSLATION,
 ): Promise<ChapterText | undefined> {
+  const result = await getChapterResult(bookId, chapter, translation);
+  return result.ok ? result.chapter : undefined;
+}
+
+export async function getChapterResult(
+  bookId: string,
+  chapter: number,
+  translation: TranslationId = DEFAULT_TRANSLATION,
+): Promise<BibleFetchResult> {
   const local = getChapterSync(bookId, chapter, translation);
-  if (local) return local;
-  if (isRuntimeFetchable(translation)) {
-    const fetched = await fetchChapterFromApi(translation, bookId, chapter);
-    if (fetched) return fetched;
+  if (local) return { ok: true, chapter: local };
+
+  const book = getBook(bookId);
+  if (
+    !book ||
+    !Number.isInteger(chapter) ||
+    chapter < 1 ||
+    chapter > book.chapters
+  ) {
+    return {
+      ok: false,
+      error: { code: "INVALID_REQUEST", provider: "local", retryable: false },
+    };
   }
-  return undefined;
+
+  const meta = translations[translation];
+  if (!translationSupportsTestament(translation, book.testament)) {
+    return {
+      ok: false,
+      error: { code: "UNSUPPORTED_BOOK", provider: "local", retryable: false },
+    };
+  }
+  if (meta.provider === "crossway" && !process.env.ESV_API_KEY) {
+    return {
+      ok: false,
+      error: { code: "MISSING_API_KEY", provider: "esv", retryable: false },
+    };
+  }
+  if (!isRuntimeFetchable(translation, bookId)) {
+    return {
+      ok: false,
+      error: { code: "NO_RUNTIME_SOURCE", provider: "local", retryable: false },
+    };
+  }
+
+  return fetchChapterResultFromApi(translation, bookId, chapter);
 }
 
-// All translations available for a chapter — local seed/ingested PLUS the
-// runtime-fetchable set (we promise we can deliver them on demand).
-export function availableTranslations(bookId: string, chapter: number): TranslationId[] {
+// All translations available for this exact chapter: local text plus provider
+// editions that are configured and cover the book's testament.
+export function availableTranslations(
+  bookId: string,
+  chapter: number,
+): TranslationId[] {
   const set = new Set<TranslationId>();
-  for (const t of translationOrder) {
-    if (ingested[t]?.[bookId]?.[chapter]) set.add(t);
+  for (const id of translationOrder) {
+    if (ingested[id]?.[bookId]?.[chapter]) set.add(id);
   }
-  for (const t of seedLoadedTranslations(bookId, chapter)) set.add(t);
-  for (const t of RUNTIME_TRANSLATIONS) set.add(t);
-  return translationOrder.filter((t) => set.has(t));
+  for (const id of seedLoadedTranslations(bookId, chapter)) set.add(id);
+  for (const id of RUNTIME_TRANSLATIONS) {
+    if (isRuntimeFetchable(id, bookId)) set.add(id);
+  }
+  return translationOrder.filter((id) => set.has(id));
 }
 
-// "Is this chapter loadable at all?" — yes if local OR runtime-fetchable in
-// any supported translation.
 export function isLoaded(bookId: string, chapter: number): boolean {
   if (seedLoadedChapters(bookId).includes(chapter)) return true;
-  for (const t of translationOrder) if (ingested[t]?.[bookId]?.[chapter]) return true;
-  // Anything in the canon is runtime-fetchable from at least one translation.
-  return RUNTIME_TRANSLATIONS.length > 0;
+  for (const id of translationOrder) {
+    if (ingested[id]?.[bookId]?.[chapter]) return true;
+  }
+  return RUNTIME_TRANSLATIONS.some((id) => isRuntimeFetchable(id, bookId));
 }
 
 export function loadedChaptersOf(bookId: string): number[] {
-  // For book overviews we treat every chapter as loadable (because runtime
-  // fetch can serve any of them). The "ready" badge on /bible reflects
-  // chapters with seed/ingested text only — see seedOnlyChapters.
-  const book = canon.find((b) => b.id === bookId);
+  const book = canon.find((candidate) => candidate.id === bookId);
   if (!book) return [];
-  return Array.from({ length: book.chapters }, (_, i) => i + 1);
+  return Array.from({ length: book.chapters }, (_, index) => index + 1);
 }
 
 export function seedChaptersOf(bookId: string): number[] {
   const set = new Set<number>(seedLoadedChapters(bookId));
-  for (const t of translationOrder) {
-    const tBook = ingested[t]?.[bookId];
-    if (tBook) for (const k of Object.keys(tBook)) set.add(Number(k));
+  for (const id of translationOrder) {
+    const translatedBook = ingested[id]?.[bookId];
+    if (translatedBook) {
+      for (const chapter of Object.keys(translatedBook))
+        set.add(Number(chapter));
+    }
   }
   return Array.from(set).sort((a, b) => a - b);
 }
@@ -103,27 +150,26 @@ export function loadedSummary(): LoadedSummary {
     if (loaded.length > 0) booksWithText++;
     chaptersWithText += loaded.length;
   }
+
   const translationsLoaded = new Set<TranslationId>();
-  for (const c of seed) translationsLoaded.add(c.translation);
-  for (const t of translationOrder) {
-    if (ingested[t] && Object.keys(ingested[t]!).length > 0) translationsLoaded.add(t);
+  for (const chapter of seed) translationsLoaded.add(chapter.translation);
+  for (const id of translationOrder) {
+    if (ingested[id] && Object.keys(ingested[id]!).length > 0)
+      translationsLoaded.add(id);
   }
+
   return {
     totalBooks: canon.length,
-    totalChapters: canon.reduce((a, b) => a + b.chapters, 0),
+    totalChapters: canon.reduce((sum, book) => sum + book.chapters, 0),
     booksWithText,
     chaptersWithText,
     translationsLoaded: translationsLoaded.size,
     translationsCatalog: translationOrder.length,
-    runtimeTranslations: RUNTIME_TRANSLATIONS.length,
+    runtimeTranslations: RUNTIME_TRANSLATIONS.filter((id) =>
+      isRuntimeFetchable(id),
+    ).length,
   };
 }
 
-export {
-  canon,
-  getBook,
-  seed,
-  translations,
-  translationOrder,
-};
+export { canon, getBook, seed, translations, translationOrder };
 export type { BookMeta, ChapterText, TranslationId, TranslationMeta };

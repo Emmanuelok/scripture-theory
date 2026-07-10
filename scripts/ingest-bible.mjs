@@ -1,145 +1,236 @@
 #!/usr/bin/env node
-// Ingest authentic, published, public-domain Bible translations from bible-api.com.
-// We never machine-translate Scripture. Every translation served is in its
-// original published wording.
+// Ingest a targeted set of authentic public-domain Bible chapters from
+// bible-api.com's structured data endpoint. Scripture Theory never
+// machine-translates text.
 //
-// Run all available translations:
-//   npm run ingest-bible
-// Restrict to a subset:
-//   npm run ingest-bible -- --translations=kjv,asv
-//   npm run ingest-bible -- --books=john,romans,psalms
-//   npm run ingest-bible -- --translations=web --books=psalms
+// Examples:
+//   npm run ingest-bible -- --translations=web,kjv --books=john,romans
+//   npm run ingest-bible -- --translations=cuv --books=john
 //
-// bible-api.com is a free public-domain Scripture API (no key, no auth).
-// Source for each translation is the public-domain edition:
-//   WEB     — World English Bible (Michael Paul Johnson · eBible.org)
-//   KJV     — King James Version (1769 Oxford)
-//   ASV     — American Standard Version (1901)
-//   BBE     — Bible in Basic English (1949)
-//   YLT     — Young's Literal Translation (1898)
-//   Darby   — Darby Bible (1890)
-//   DRB     — Douay-Rheims (Challoner Revision, 1899)
-//   Almeida — João Ferreira de Almeida (Portuguese, public-domain edition)
+// Both flags are required. bible-api.com explicitly asks clients not to use
+// its live API to download whole Bibles; use the upstream source archives for
+// a full-canon build. This script caps and paces small editorial bundles.
 
-import { writeFileSync, mkdirSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..");
 const OUT_PATH = resolve(REPO_ROOT, "data/bible/text.ts");
+const REQUEST_DELAY_MS = 2_100;
+const MAX_REQUESTS = 250;
 
-// Translations bible-api.com serves natively that meet our editorial standard:
-// authentic, published, public-domain Bibles by named human translators.
-// (We deliberately do NOT carry paraphrases, sectarian editions, or AI
-// translations — but we DO carry scholarly/historical editions like YLT,
-// Darby, and BBE so readers can compare them and choose for themselves.)
-//
-// The other six in our catalog (RVR1909, LSG, Luther 1912, Synodal, CUV,
-// Vulgate) are seeded by hand for Psalm 23 and will be ingested from
-// eBible.org's USFM archives in a follow-up adapter.
 const TRANSLATIONS = [
-  { id: "WEB", key: "web" },
-  { id: "KJV", key: "kjv" },
-  { id: "ASV", key: "asv" },
-  { id: "BBE", key: "bbe" },
-  { id: "YLT", key: "ylt" },
-  { id: "DARBY", key: "darby" },
-  { id: "DRA", key: "drb" },
-  { id: "ALMEIDA", key: "almeida" },
+  { id: "WEB", apiId: "web", coverage: "full" },
+  { id: "WEBBE", apiId: "webbe", coverage: "full" },
+  { id: "KJV", apiId: "kjv", coverage: "full" },
+  { id: "OEBUS", apiId: "oeb-us", coverage: "full" },
+  { id: "OEBCW", apiId: "oeb-cw", coverage: "full" },
+  { id: "ASV", apiId: "asv", coverage: "full" },
+  { id: "BBE", apiId: "bbe", coverage: "full" },
+  { id: "YLT", apiId: "ylt", coverage: "new-testament" },
+  { id: "DARBY", apiId: "darby", coverage: "full" },
+  { id: "DRA", apiId: "dra", coverage: "full" },
+  { id: "ALMEIDA", apiId: "almeida", coverage: "full" },
+  { id: "BKR", apiId: "bkr", coverage: "full" },
+  { id: "RCCV", apiId: "rccv", coverage: "full" },
+  { id: "CUV", apiId: "cuv", coverage: "full" },
+  { id: "CHEROKEE", apiId: "cherokee", coverage: "new-testament" },
 ];
 
+// [local slug, USFM book id, chapters, testament]
 const CANON = [
-  ["genesis", 50], ["exodus", 40], ["leviticus", 27], ["numbers", 36], ["deuteronomy", 34],
-  ["joshua", 24], ["judges", 21], ["ruth", 4], ["1samuel", 31], ["2samuel", 24],
-  ["1kings", 22], ["2kings", 25], ["1chronicles", 29], ["2chronicles", 36],
-  ["ezra", 10], ["nehemiah", 13], ["esther", 10], ["job", 42], ["psalms", 150],
-  ["proverbs", 31], ["ecclesiastes", 12], ["songofsongs", 8], ["isaiah", 66],
-  ["jeremiah", 52], ["lamentations", 5], ["ezekiel", 48], ["daniel", 12],
-  ["hosea", 14], ["joel", 3], ["amos", 9], ["obadiah", 1], ["jonah", 4],
-  ["micah", 7], ["nahum", 3], ["habakkuk", 3], ["zephaniah", 3], ["haggai", 2],
-  ["zechariah", 14], ["malachi", 4],
-  ["matthew", 28], ["mark", 16], ["luke", 24], ["john", 21], ["acts", 28],
-  ["romans", 16], ["1corinthians", 16], ["2corinthians", 13], ["galatians", 6],
-  ["ephesians", 6], ["philippians", 4], ["colossians", 4],
-  ["1thessalonians", 5], ["2thessalonians", 3], ["1timothy", 6], ["2timothy", 4],
-  ["titus", 3], ["philemon", 1], ["hebrews", 13], ["james", 5],
-  ["1peter", 5], ["2peter", 3], ["1john", 5], ["2john", 1], ["3john", 1],
-  ["jude", 1], ["revelation", 22],
+  ["genesis", "GEN", 50, "OT"],
+  ["exodus", "EXO", 40, "OT"],
+  ["leviticus", "LEV", 27, "OT"],
+  ["numbers", "NUM", 36, "OT"],
+  ["deuteronomy", "DEU", 34, "OT"],
+  ["joshua", "JOS", 24, "OT"],
+  ["judges", "JDG", 21, "OT"],
+  ["ruth", "RUT", 4, "OT"],
+  ["1samuel", "1SA", 31, "OT"],
+  ["2samuel", "2SA", 24, "OT"],
+  ["1kings", "1KI", 22, "OT"],
+  ["2kings", "2KI", 25, "OT"],
+  ["1chronicles", "1CH", 29, "OT"],
+  ["2chronicles", "2CH", 36, "OT"],
+  ["ezra", "EZR", 10, "OT"],
+  ["nehemiah", "NEH", 13, "OT"],
+  ["esther", "EST", 10, "OT"],
+  ["job", "JOB", 42, "OT"],
+  ["psalms", "PSA", 150, "OT"],
+  ["proverbs", "PRO", 31, "OT"],
+  ["ecclesiastes", "ECC", 12, "OT"],
+  ["songofsongs", "SNG", 8, "OT"],
+  ["isaiah", "ISA", 66, "OT"],
+  ["jeremiah", "JER", 52, "OT"],
+  ["lamentations", "LAM", 5, "OT"],
+  ["ezekiel", "EZK", 48, "OT"],
+  ["daniel", "DAN", 12, "OT"],
+  ["hosea", "HOS", 14, "OT"],
+  ["joel", "JOL", 3, "OT"],
+  ["amos", "AMO", 9, "OT"],
+  ["obadiah", "OBA", 1, "OT"],
+  ["jonah", "JON", 4, "OT"],
+  ["micah", "MIC", 7, "OT"],
+  ["nahum", "NAM", 3, "OT"],
+  ["habakkuk", "HAB", 3, "OT"],
+  ["zephaniah", "ZEP", 3, "OT"],
+  ["haggai", "HAG", 2, "OT"],
+  ["zechariah", "ZEC", 14, "OT"],
+  ["malachi", "MAL", 4, "OT"],
+  ["matthew", "MAT", 28, "NT"],
+  ["mark", "MRK", 16, "NT"],
+  ["luke", "LUK", 24, "NT"],
+  ["john", "JHN", 21, "NT"],
+  ["acts", "ACT", 28, "NT"],
+  ["romans", "ROM", 16, "NT"],
+  ["1corinthians", "1CO", 16, "NT"],
+  ["2corinthians", "2CO", 13, "NT"],
+  ["galatians", "GAL", 6, "NT"],
+  ["ephesians", "EPH", 6, "NT"],
+  ["philippians", "PHP", 4, "NT"],
+  ["colossians", "COL", 4, "NT"],
+  ["1thessalonians", "1TH", 5, "NT"],
+  ["2thessalonians", "2TH", 3, "NT"],
+  ["1timothy", "1TI", 6, "NT"],
+  ["2timothy", "2TI", 4, "NT"],
+  ["titus", "TIT", 3, "NT"],
+  ["philemon", "PHM", 1, "NT"],
+  ["hebrews", "HEB", 13, "NT"],
+  ["james", "JAS", 5, "NT"],
+  ["1peter", "1PE", 5, "NT"],
+  ["2peter", "2PE", 3, "NT"],
+  ["1john", "1JN", 5, "NT"],
+  ["2john", "2JN", 1, "NT"],
+  ["3john", "3JN", 1, "NT"],
+  ["jude", "JUD", 1, "NT"],
+  ["revelation", "REV", 22, "NT"],
 ];
-
-const URL_NAME = {
-  songofsongs: "song of solomon",
-  "1samuel": "1 samuel",
-  "2samuel": "2 samuel",
-  "1kings": "1 kings",
-  "2kings": "2 kings",
-  "1chronicles": "1 chronicles",
-  "2chronicles": "2 chronicles",
-  "1corinthians": "1 corinthians",
-  "2corinthians": "2 corinthians",
-  "1thessalonians": "1 thessalonians",
-  "2thessalonians": "2 thessalonians",
-  "1timothy": "1 timothy",
-  "2timothy": "2 timothy",
-  "1peter": "1 peter",
-  "2peter": "2 peter",
-  "1john": "1 john",
-  "2john": "2 john",
-  "3john": "3 john",
-};
 
 const args = process.argv.slice(2);
 function arg(flag) {
-  const a = args.find((x) => x.startsWith(flag + "="));
-  return a ? a.replace(flag + "=", "") : null;
+  const value = args.find((entry) => entry.startsWith(`${flag}=`));
+  return value ? value.slice(flag.length + 1) : null;
 }
-const booksArg = arg("--books");
-const translationsArg = arg("--translations");
 
-const onlyBooks = booksArg ? new Set(booksArg.split(",").map((s) => s.trim())) : null;
-const onlyTranslations = translationsArg
-  ? new Set(translationsArg.split(",").map((s) => s.trim().toLowerCase()))
-  : null;
+function values(value) {
+  return value
+    ? new Set(value.split(",").map((entry) => entry.trim().toLowerCase()))
+    : null;
+}
 
-async function fetchChapter(apiKey, bookSlug, chapter) {
-  const bookForUrl = URL_NAME[bookSlug] ?? bookSlug;
-  const url = `https://bible-api.com/${encodeURIComponent(
-    bookForUrl + " " + chapter
-  )}?translation=${apiKey}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const data = await res.json();
-  if (!data.verses || data.verses.length === 0) throw new Error("empty verses");
-  return data.verses.map((v) => ({ v: v.verse, t: (v.text || "").trim() }));
+const onlyBooks = values(arg("--books"));
+const onlyTranslations = values(arg("--translations"));
+
+function delay(ms) {
+  return new Promise((resolveDelay) => setTimeout(resolveDelay, ms));
+}
+
+async function fetchChapter(apiId, bookApiId, chapter) {
+  const url = `https://bible-api.com/data/${apiId}/${bookApiId}/${chapter}`;
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    const response = await fetch(url, { signal: AbortSignal.timeout(12_000) });
+    if (response.ok) {
+      const data = await response.json();
+      if (!data.verses?.length) throw new Error("empty verses");
+      return data.verses.map((verse) => ({
+        v: Number(verse.verse),
+        t: String(verse.text ?? "").trim(),
+      }));
+    }
+
+    const retryable = response.status === 429 || response.status >= 500;
+    if (!retryable || attempt === 3) throw new Error(`HTTP ${response.status}`);
+    const retryAfter = Number(response.headers.get("retry-after"));
+    await delay(
+      Number.isFinite(retryAfter) && retryAfter > 0
+        ? retryAfter * 1_000
+        : 1_000 * 2 ** attempt,
+    );
+  }
+  throw new Error("unreachable");
 }
 
 async function main() {
-  const catalog = {}; // catalog[translationId][book][chapter] = ChapterText
+  const catalog = {};
   let totalChapters = 0;
   let failed = 0;
 
+  if (!onlyBooks || !onlyTranslations) {
+    throw new Error(
+      "Targeted ingestion requires both --translations and --books. The live API must not be used to download whole Bibles.",
+    );
+  }
+
   const activeTranslations = TRANSLATIONS.filter(
-    (t) => !onlyTranslations || onlyTranslations.has(t.key) || onlyTranslations.has(t.id.toLowerCase())
+    ({ id, apiId }) =>
+      !onlyTranslations ||
+      onlyTranslations.has(id.toLowerCase()) ||
+      onlyTranslations.has(apiId),
   );
 
-  for (const tr of activeTranslations) {
-    console.log(`\n— ${tr.id} (${tr.key}) —`);
-    catalog[tr.id] = {};
-    for (const [slug, chapters] of CANON) {
-      if (onlyBooks && !onlyBooks.has(slug)) continue;
-      catalog[tr.id][slug] = {};
-      for (let c = 1; c <= chapters; c++) {
+  if (activeTranslations.length === 0) {
+    throw new Error(
+      "No matching translations. Check --translations against data/bible/translations.ts.",
+    );
+  }
+
+  const activeBooks = CANON.filter(([slug]) => onlyBooks.has(slug));
+  if (activeBooks.length === 0) throw new Error("No matching canonical books.");
+  const estimatedRequests = activeTranslations.reduce(
+    (sum, translation) =>
+      sum +
+      activeBooks.reduce(
+        (bookSum, [, , chapterCount, testament]) =>
+          bookSum +
+          (translation.coverage === "new-testament" && testament !== "NT"
+            ? 0
+            : chapterCount),
+        0,
+      ),
+    0,
+  );
+  if (estimatedRequests > MAX_REQUESTS) {
+    throw new Error(
+      `This targeted job would make ${estimatedRequests} requests (limit ${MAX_REQUESTS}). Use source archives for larger ingestion jobs.`,
+    );
+  }
+
+  for (const translation of activeTranslations) {
+    console.log(`\n— ${translation.id} (${translation.apiId}) —`);
+    catalog[translation.id] = {};
+
+    for (const [slug, bookApiId, chapterCount, testament] of activeBooks) {
+      if (translation.coverage === "new-testament" && testament !== "NT")
+        continue;
+
+      catalog[translation.id][slug] = {};
+      for (let chapter = 1; chapter <= chapterCount; chapter += 1) {
         try {
-          const verses = await fetchChapter(tr.key, slug, c);
-          catalog[tr.id][slug][c] = { book: slug, chapter: c, translation: tr.id, verses };
-          totalChapters++;
-          process.stdout.write(`\r  ${slug} ${c}/${chapters}      `);
-          await new Promise((r) => setTimeout(r, 80));
-        } catch (err) {
-          failed++;
-          console.error(`\n  ! ${tr.id} ${slug} ${c}: ${err.message}`);
+          const verses = await fetchChapter(
+            translation.apiId,
+            bookApiId,
+            chapter,
+          );
+          catalog[translation.id][slug][chapter] = {
+            book: slug,
+            chapter,
+            translation: translation.id,
+            verses,
+          };
+          totalChapters += 1;
+          process.stdout.write(`\r  ${slug} ${chapter}/${chapterCount}      `);
+        } catch (error) {
+          failed += 1;
+          console.error(
+            `\n  ! ${translation.id} ${slug} ${chapter}: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          );
         }
+        await delay(REQUEST_DELAY_MS);
       }
       process.stdout.write("\n");
     }
@@ -155,16 +246,16 @@ import type { TranslationId } from "./translations";
 export const ingested: Partial<
   Record<TranslationId, Record<string, Record<number, ChapterText>>>
 > = `;
-  const body = JSON.stringify(catalog, null, 0);
-  writeFileSync(OUT_PATH, header + body + ";\n", "utf8");
+  writeFileSync(OUT_PATH, `${header}${JSON.stringify(catalog)};\n`, "utf8");
 
   console.log(
-    `\nIngested ${totalChapters} chapter-translations · ${failed} failure(s).`
+    `\nIngested ${totalChapters} chapter-translations · ${failed} failure(s).`,
   );
   console.log(`Wrote ${OUT_PATH}`);
+  if (failed > 0) process.exitCode = 1;
 }
 
-main().catch((err) => {
-  console.error(err);
+main().catch((error) => {
+  console.error(error);
   process.exit(1);
 });

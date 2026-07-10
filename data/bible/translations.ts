@@ -1,50 +1,36 @@
 // Registry of Bible translations served by Scripture Theory.
 //
-// Public-domain editions are the heart of the catalog (KJV, ASV, WEB, BBE,
-// YLT, Darby, DRA, RVR1909, Almeida, LSG, LUT1912, Synodal, CUV, Vulgate).
-// They are ours forever, free of usage caps and attribution boilerplate, and
-// they cover the major language families.
-//
-// Where a modern translation is genuinely useful and the publisher offers a
-// fair public API, we wire it up under license — currently only the ESV
-// via Crossway's free API (requires an API key set in ESV_API_KEY; falls
-// back gracefully when not configured). Licensed translations are clearly
-// labelled and stored only in transit per the publisher's terms.
-//
-// Editorial standard for any translation we serve:
-//   - Real, named, published by a recognized publisher or translation
-//     committee.
-//   - Not a paraphrase (so no The Message, Passion, Living Bible).
-//   - Not a sectarian edition rejected by the mainstream Church (e.g., the
-//     New World Translation).
-//   - Never AI- or machine-translated. Scripture must come from named
-//     human translators.
+// Public-domain editions are delivered through bible-api.com's structured
+// chapter API where possible. Licensed editions are requested directly from
+// their publisher and are never cached offline. A small number of historical
+// editions remain selected-passage entries until a verified full-text source
+// is connected.
 
 export type TranslationId =
-  // English (public domain)
-  | "WEB"     // World English Bible (eBible.org, public domain)
-  | "KJV"     // King James Version (1769 Oxford)
-  | "ASV"     // American Standard Version (1901)
-  | "BBE"     // Bible in Basic English (1949)
-  | "YLT"     // Young's Literal Translation (1898)
-  | "DARBY"   // Darby Bible (1890)
-  | "DRA"     // Douay-Rheims (Challoner Revision, 1899) — Roman Catholic
-  // English (licensed via free API)
-  | "ESV"     // English Standard Version — via Crossway's free API
-  // Spanish
-  | "RVR1909" // Reina-Valera 1909
-  // Portuguese
-  | "ALMEIDA" // João Ferreira de Almeida (Corrigida)
-  // French
-  | "LSG"     // Louis Segond 1910
-  // German
-  | "LUT1912" // Luther Bibel 1912
-  // Russian
-  | "SYNODAL" // Russian Synodal Translation (1876)
-  // Chinese (Mandarin)
-  | "CUV"     // Chinese Union Version (1919)
-  // Latin
-  | "VULGATE";// Clementine Vulgate (1592)
+  | "WEB"
+  | "WEBBE"
+  | "KJV"
+  | "ESV"
+  | "OEBUS"
+  | "OEBCW"
+  | "ASV"
+  | "BBE"
+  | "YLT"
+  | "DARBY"
+  | "DRA"
+  | "RVR1909"
+  | "ALMEIDA"
+  | "LSG"
+  | "LUT1912"
+  | "BKR"
+  | "RCCV"
+  | "SYNODAL"
+  | "CUV"
+  | "CHEROKEE"
+  | "VULGATE";
+
+export type TranslationProvider = "bible-api" | "crossway" | "bundled";
+export type TranslationCoverage = "full" | "new-testament" | "selected";
 
 export type TranslationMeta = {
   id: TranslationId;
@@ -52,138 +38,409 @@ export type TranslationMeta = {
   abbrev: string;
   language: string;
   languageNative: string;
+  /** BCP 47 language tag used by the reader for accessibility and typography. */
+  bcp47: string;
   year: number | string;
   publisher: string;
   license: string;
   source?: string;
+  /** bible-api.com translation identifier. */
+  apiId?: string;
+  /** Backwards-compatible alias used by the build-time ingestion script. */
   ingestKey?: string;
+  provider: TranslationProvider;
+  coverage: TranslationCoverage;
   dir?: "ltr" | "rtl";
   note?: string;
   /** True for licensed APIs that require an env-configured key. */
   requiresKey?: boolean;
   /** Required attribution string to display when this translation is active. */
   attribution?: string;
+  /** Publisher page required alongside licensed attribution. */
+  attributionUrl?: string;
 };
 
 export const translations: Record<TranslationId, TranslationMeta> = {
   WEB: {
-    id: "WEB", name: "World English Bible", abbrev: "WEB",
-    language: "English", languageNative: "English", year: 2000,
+    id: "WEB",
+    name: "World English Bible",
+    abbrev: "WEB",
+    language: "English",
+    languageNative: "English",
+    bcp47: "en",
+    year: 2000,
     publisher: "Michael Paul Johnson · eBible.org",
     license: "Public domain",
-    source: "ebible.org",
+    source: "bible-api.com · eBible.org",
+    apiId: "web",
     ingestKey: "web",
+    provider: "bible-api",
+    coverage: "full",
+  },
+  WEBBE: {
+    id: "WEBBE",
+    name: "World English Bible, British Edition",
+    abbrev: "WEBBE",
+    language: "English",
+    languageNative: "English (UK)",
+    bcp47: "en-GB",
+    year: 2000,
+    publisher: "Michael Paul Johnson · eBible.org",
+    license: "Public domain",
+    source: "bible-api.com · eBible.org",
+    apiId: "webbe",
+    ingestKey: "webbe",
+    provider: "bible-api",
+    coverage: "full",
   },
   KJV: {
-    id: "KJV", name: "King James Version", abbrev: "KJV",
-    language: "English", languageNative: "English", year: 1769,
+    id: "KJV",
+    name: "King James Version",
+    abbrev: "KJV",
+    language: "English",
+    languageNative: "English",
+    bcp47: "en",
+    year: 1769,
     publisher: "Authorized Version (Oxford)",
-    license: "Public domain (worldwide; UK Crown Patent for printing only)",
-    source: "Authorized Version, 1769 Oxford standard",
+    license: "Public domain in most territories; UK Crown rights apply",
+    source: "bible-api.com · 1769 Oxford standard",
+    apiId: "kjv",
     ingestKey: "kjv",
-  },
-  ASV: {
-    id: "ASV", name: "American Standard Version", abbrev: "ASV",
-    language: "English", languageNative: "English", year: 1901,
-    publisher: "Thomas Nelson & Sons",
-    license: "Public domain",
-    ingestKey: "asv",
-  },
-  BBE: {
-    id: "BBE", name: "Bible in Basic English", abbrev: "BBE",
-    language: "English", languageNative: "English (Basic)", year: 1949,
-    publisher: "Samuel Hooke · Cambridge University Press",
-    license: "Public domain",
-    ingestKey: "bbe",
-    note: "Simplified-vocabulary edition. Useful for English-as-a-second-language readers.",
-  },
-  YLT: {
-    id: "YLT", name: "Young's Literal Translation", abbrev: "YLT",
-    language: "English", languageNative: "English", year: 1898,
-    publisher: "Robert Young",
-    license: "Public domain",
-    ingestKey: "ylt",
-    note: "Strictly literal word-for-word rendering. A study tool, not a reading Bible.",
-  },
-  DARBY: {
-    id: "DARBY", name: "Darby Bible", abbrev: "Darby",
-    language: "English", languageNative: "English", year: 1890,
-    publisher: "John Nelson Darby",
-    license: "Public domain",
-    ingestKey: "darby",
-    note: "Translated by J. N. Darby; widely used in Plymouth Brethren and study contexts.",
-  },
-  DRA: {
-    id: "DRA", name: "Douay-Rheims (Challoner)", abbrev: "DRA",
-    language: "English", languageNative: "English", year: 1899,
-    publisher: "Roman Catholic — Challoner revision",
-    license: "Public domain",
-    ingestKey: "drb",
+    provider: "bible-api",
+    coverage: "full",
   },
   ESV: {
-    id: "ESV", name: "English Standard Version", abbrev: "ESV",
-    language: "English", languageNative: "English", year: 2001,
+    id: "ESV",
+    name: "English Standard Version",
+    abbrev: "ESV",
+    language: "English",
+    languageNative: "English",
+    bcp47: "en",
+    year: "2001 · 2025 text edition",
     publisher: "Crossway",
-    license: "Licensed · served live via Crossway's free ESV API",
+    license:
+      "Licensed · served live from Crossway for eligible non-commercial use",
     source: "api.esv.org",
+    provider: "crossway",
+    coverage: "full",
     requiresKey: true,
     attribution:
-      "Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard Version®), copyright © 2001 by Crossway, a publishing ministry of Good News Publishers. Used by permission. All rights reserved.",
-    note: "Fetched live from Crossway's API. Requires ESV_API_KEY. Per Crossway's terms, not stored offline.",
+      "Scripture quotations marked ESV are from the ESV® Bible (The Holy Bible, English Standard Version®), © 2001 by Crossway, a publishing ministry of Good News Publishers. ESV Text Edition: 2025. Used by permission. All rights reserved.",
+    attributionUrl: "https://www.esv.org/",
+    note: "Requires ESV_API_KEY. Requested live from Crossway and never stored by the service worker.",
+  },
+  OEBUS: {
+    id: "OEBUS",
+    name: "Open English Bible, US Edition",
+    abbrev: "OEB-US",
+    language: "English",
+    languageNative: "English (US)",
+    bcp47: "en-US",
+    year: "ongoing",
+    publisher: "Open English Bible project",
+    license: "Public domain",
+    source: "bible-api.com · openenglishbible.org",
+    apiId: "oeb-us",
+    ingestKey: "oeb-us",
+    provider: "bible-api",
+    coverage: "full",
+  },
+  OEBCW: {
+    id: "OEBCW",
+    name: "Open English Bible, Commonwealth Edition",
+    abbrev: "OEB-CW",
+    language: "English",
+    languageNative: "English (Commonwealth)",
+    bcp47: "en-GB",
+    year: "ongoing",
+    publisher: "Open English Bible project",
+    license: "Public domain",
+    source: "bible-api.com · openenglishbible.org",
+    apiId: "oeb-cw",
+    ingestKey: "oeb-cw",
+    provider: "bible-api",
+    coverage: "full",
+  },
+  ASV: {
+    id: "ASV",
+    name: "American Standard Version",
+    abbrev: "ASV",
+    language: "English",
+    languageNative: "English",
+    bcp47: "en",
+    year: 1901,
+    publisher: "Thomas Nelson & Sons",
+    license: "Public domain",
+    source: "bible-api.com",
+    apiId: "asv",
+    ingestKey: "asv",
+    provider: "bible-api",
+    coverage: "full",
+  },
+  BBE: {
+    id: "BBE",
+    name: "Bible in Basic English",
+    abbrev: "BBE",
+    language: "English",
+    languageNative: "English (Basic)",
+    bcp47: "en",
+    year: 1949,
+    publisher: "Samuel Hooke · Cambridge University Press",
+    license: "Public domain",
+    source: "bible-api.com",
+    apiId: "bbe",
+    ingestKey: "bbe",
+    provider: "bible-api",
+    coverage: "full",
+    note: "Simplified-vocabulary edition for readers and English-language learners.",
+  },
+  YLT: {
+    id: "YLT",
+    name: "Young's Literal Translation",
+    abbrev: "YLT",
+    language: "English",
+    languageNative: "English",
+    bcp47: "en",
+    year: 1898,
+    publisher: "Robert Young",
+    license: "Public domain",
+    source: "bible-api.com",
+    apiId: "ylt",
+    ingestKey: "ylt",
+    provider: "bible-api",
+    coverage: "new-testament",
+    note: "The connected API currently carries the New Testament. A literal study edition.",
+  },
+  DARBY: {
+    id: "DARBY",
+    name: "Darby Bible",
+    abbrev: "Darby",
+    language: "English",
+    languageNative: "English",
+    bcp47: "en",
+    year: 1890,
+    publisher: "John Nelson Darby",
+    license: "Public domain",
+    source: "bible-api.com",
+    apiId: "darby",
+    ingestKey: "darby",
+    provider: "bible-api",
+    coverage: "full",
+  },
+  DRA: {
+    id: "DRA",
+    name: "Douay-Rheims 1899 American Edition",
+    abbrev: "DRA",
+    language: "English",
+    languageNative: "English",
+    bcp47: "en",
+    year: 1899,
+    publisher: "Roman Catholic · Challoner revision",
+    license: "Public domain",
+    source: "bible-api.com",
+    apiId: "dra",
+    ingestKey: "dra",
+    provider: "bible-api",
+    coverage: "full",
   },
   RVR1909: {
-    id: "RVR1909", name: "Reina-Valera 1909", abbrev: "RVR1909",
-    language: "Spanish", languageNative: "Español", year: 1909,
-    publisher: "Sociedades Bíblicas Unidas — Reina (1569) / Valera (1602)",
+    id: "RVR1909",
+    name: "Reina-Valera 1909",
+    abbrev: "RVR1909",
+    language: "Spanish",
+    languageNative: "Español",
+    bcp47: "es",
+    year: 1909,
+    publisher: "Sociedades Bíblicas Unidas · Reina / Valera",
     license: "Public domain",
-    source: "Reina-Valera 1909 revision",
+    source: "Verified local selections",
+    provider: "bundled",
+    coverage: "selected",
+    note: "Selected passages are available while a verified full-canon adapter is prepared.",
   },
   ALMEIDA: {
-    id: "ALMEIDA", name: "Almeida — Corrigida", abbrev: "Almeida",
-    language: "Portuguese", languageNative: "Português", year: 1819,
-    publisher: "João Ferreira Annes d'Almeida — Sociedade Bíblica",
+    id: "ALMEIDA",
+    name: "João Ferreira de Almeida",
+    abbrev: "Almeida",
+    language: "Portuguese",
+    languageNative: "Português",
+    bcp47: "pt",
+    year: 1819,
+    publisher: "João Ferreira Annes d'Almeida",
     license: "Public domain",
-    source: "Almeida (Antiga / Corrigida)",
+    source: "bible-api.com",
+    apiId: "almeida",
     ingestKey: "almeida",
+    provider: "bible-api",
+    coverage: "full",
   },
   LSG: {
-    id: "LSG", name: "Louis Segond 1910", abbrev: "LSG",
-    language: "French", languageNative: "Français", year: 1910,
-    publisher: "Louis Segond / Société biblique de Genève",
+    id: "LSG",
+    name: "Louis Segond 1910",
+    abbrev: "LSG",
+    language: "French",
+    languageNative: "Français",
+    bcp47: "fr",
+    year: 1910,
+    publisher: "Louis Segond · Société biblique de Genève",
     license: "Public domain",
+    source: "Verified local selections",
+    provider: "bundled",
+    coverage: "selected",
+    note: "Selected passages are available while a verified full-canon adapter is prepared.",
   },
   LUT1912: {
-    id: "LUT1912", name: "Luther Bibel 1912", abbrev: "LUT",
-    language: "German", languageNative: "Deutsch", year: 1912,
-    publisher: "Martin Luther (1545) — revision of 1912",
+    id: "LUT1912",
+    name: "Luther Bibel 1912",
+    abbrev: "LUT",
+    language: "German",
+    languageNative: "Deutsch",
+    bcp47: "de",
+    year: 1912,
+    publisher: "Martin Luther · 1912 revision",
     license: "Public domain",
+    source: "Verified local selections",
+    provider: "bundled",
+    coverage: "selected",
+    note: "Selected passages are available while a verified full-canon adapter is prepared.",
+  },
+  BKR: {
+    id: "BKR",
+    name: "Bible kralická",
+    abbrev: "BKR",
+    language: "Czech",
+    languageNative: "Čeština",
+    bcp47: "cs",
+    year: 1613,
+    publisher: "Unity of the Brethren",
+    license: "Public domain",
+    source: "bible-api.com",
+    apiId: "bkr",
+    ingestKey: "bkr",
+    provider: "bible-api",
+    coverage: "full",
+  },
+  RCCV: {
+    id: "RCCV",
+    name: "Romanian Corrected Cornilescu Version",
+    abbrev: "RCCV",
+    language: "Romanian",
+    languageNative: "Română",
+    bcp47: "ro",
+    year: "corrected edition",
+    publisher: "Dumitru Cornilescu tradition",
+    license: "Public domain",
+    source: "bible-api.com",
+    apiId: "rccv",
+    ingestKey: "rccv",
+    provider: "bible-api",
+    coverage: "full",
   },
   SYNODAL: {
-    id: "SYNODAL", name: "Russian Synodal Bible", abbrev: "СИНОД",
-    language: "Russian", languageNative: "Русский", year: 1876,
+    id: "SYNODAL",
+    name: "Russian Synodal Translation",
+    abbrev: "СИНОД",
+    language: "Russian",
+    languageNative: "Русский",
+    bcp47: "ru",
+    year: 1876,
     publisher: "Russian Orthodox Synod",
     license: "Public domain",
+    source: "Verified local selections",
+    provider: "bundled",
+    coverage: "selected",
+    note: "Selected passages only. The upstream catalog lists this edition, but its chapter endpoint is not currently available.",
   },
   CUV: {
-    id: "CUV", name: "Chinese Union Version", abbrev: "和合本",
-    language: "Chinese", languageNative: "中文", year: 1919,
+    id: "CUV",
+    name: "Chinese Union Version",
+    abbrev: "和合本",
+    language: "Chinese",
+    languageNative: "中文",
+    bcp47: "zh-Hant",
+    year: 1919,
     publisher: "China Bible House",
     license: "Public domain",
+    source: "bible-api.com",
+    apiId: "cuv",
+    ingestKey: "cuv",
+    provider: "bible-api",
+    coverage: "full",
+  },
+  CHEROKEE: {
+    id: "CHEROKEE",
+    name: "Cherokee New Testament",
+    abbrev: "CHR",
+    language: "Cherokee",
+    languageNative: "ᏣᎳᎩ",
+    bcp47: "chr",
+    year: 1860,
+    publisher: "American Bible Society · Cherokee translators",
+    license: "Public domain",
+    source: "bible-api.com",
+    apiId: "cherokee",
+    ingestKey: "cherokee",
+    provider: "bible-api",
+    coverage: "new-testament",
+    note: "New Testament only.",
   },
   VULGATE: {
-    id: "VULGATE", name: "Clementine Vulgate", abbrev: "Vulgata",
-    language: "Latin", languageNative: "Latina", year: 1592,
-    publisher: "Pope Clement VIII — Jerome's Latin Vulgate",
+    id: "VULGATE",
+    name: "Clementine Vulgate",
+    abbrev: "Vulgata",
+    language: "Latin",
+    languageNative: "Latina",
+    bcp47: "la",
+    year: 1592,
+    publisher: "Pope Clement VIII · Jerome's Latin Vulgate",
     license: "Public domain",
+    source: "Verified local selections",
+    provider: "bundled",
+    coverage: "selected",
+    note: "Selected passages only while Psalm numbering and canon mappings are verified.",
   },
 };
 
 export const translationOrder: TranslationId[] = [
-  "WEB", "KJV", "ESV", "ASV", "BBE", "YLT", "DARBY", "DRA",
-  "RVR1909", "ALMEIDA", "LSG", "LUT1912", "SYNODAL", "CUV", "VULGATE",
+  "WEB",
+  "WEBBE",
+  "KJV",
+  "ESV",
+  "OEBUS",
+  "OEBCW",
+  "ASV",
+  "BBE",
+  "YLT",
+  "DARBY",
+  "DRA",
+  "RVR1909",
+  "ALMEIDA",
+  "LSG",
+  "LUT1912",
+  "BKR",
+  "RCCV",
+  "SYNODAL",
+  "CUV",
+  "CHEROKEE",
+  "VULGATE",
 ];
 
-export const englishTranslations: TranslationId[] = ["WEB", "KJV", "ESV", "ASV", "BBE", "YLT", "DARBY", "DRA"];
+export const englishTranslations = translationOrder.filter(
+  (id) => translations[id].language === "English",
+);
 
-// Why this catalog is what it is (shown on /bible).
-export const EDITORIAL_NOTE = `Every Bible served here is real, published, and translated by named humans — never machine-translated. The core of the catalog is public-domain editions that are ours forever: KJV, ASV, WEB, BBE, YLT, Darby, Douay-Rheims, Reina-Valera, Almeida, Louis Segond, Luther 1912, Synodal, Chinese Union, and the Clementine Vulgate. Where a modern translation is genuinely useful and the publisher offers a fair public API, we serve it live under license — currently only the ESV via Crossway's free API — clearly labelled and stored only in transit per the publisher's terms. We deliberately exclude paraphrases (The Message, The Passion, Living Bible), sectarian editions rejected by the mainstream Church (e.g., the New World Translation), and AI or machine-translated text of any kind.`;
+export const publicApiTranslations = translationOrder.filter(
+  (id) => translations[id].provider === "bible-api",
+);
+
+export function translationSupportsTestament(
+  id: TranslationId,
+  testament: "OT" | "NT",
+): boolean {
+  const coverage = translations[id].coverage;
+  if (coverage === "full") return true;
+  if (coverage === "new-testament") return testament === "NT";
+  return false;
+}
+
+export const EDITORIAL_NOTE = `Every Bible served here is a real published translation made by human translators — never machine-generated. Fifteen public-domain editions can load on demand through a structured Scripture API, including WEB, KJV, ASV, both Open English Bible editions, Almeida, Chinese Union, Bible kralická, Romanian Cornilescu, and the Cherokee New Testament. The ESV is served live from Crossway only when a server-side ESV_API_KEY is configured, with its required attribution and no offline storage. Historical editions without a working, verified full-canon adapter remain clearly labelled as selected passages. We exclude paraphrases, sectarian rewrites rejected by the mainstream Church, and AI-translated Scripture.`;

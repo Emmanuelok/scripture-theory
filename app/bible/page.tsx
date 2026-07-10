@@ -14,16 +14,43 @@ export const metadata = {
 };
 
 const QUICK_START = [
-  { href: "/bible/john/3", title: "John 3", sub: "For God so loved the world." },
-  { href: "/bible/romans/8", title: "Romans 8", sub: "No condemnation. No separation." },
-  { href: "/bible/psalms/23", title: "Psalm 23", sub: "The Lord is my shepherd." },
-  { href: "/bible/matthew/5", title: "Matthew 5", sub: "The Sermon on the Mount." },
-  { href: "/bible/genesis/1", title: "Genesis 1", sub: "In the beginning, God." },
-  { href: "/bible/revelation/22", title: "Revelation 22", sub: "Behold, I am coming soon." },
+  {
+    href: "/bible/john/3",
+    title: "John 3",
+    sub: "For God so loved the world.",
+  },
+  {
+    href: "/bible/romans/8",
+    title: "Romans 8",
+    sub: "No condemnation. No separation.",
+  },
+  {
+    href: "/bible/psalms/23",
+    title: "Psalm 23",
+    sub: "The Lord is my shepherd.",
+  },
+  {
+    href: "/bible/matthew/5",
+    title: "Matthew 5",
+    sub: "The Sermon on the Mount.",
+  },
+  {
+    href: "/bible/genesis/1",
+    title: "Genesis 1",
+    sub: "In the beginning, God.",
+  },
+  {
+    href: "/bible/revelation/22",
+    title: "Revelation 22",
+    sub: "Behold, I am coming soon.",
+  },
 ];
 
 export default function BiblePage() {
-  const totalChapters = [...oldTestament, ...newTestament].reduce((n, b) => n + b.chapters, 0);
+  const totalChapters = [...oldTestament, ...newTestament].reduce(
+    (n, b) => n + b.chapters,
+    0,
+  );
 
   return (
     <section className="mx-auto max-w-6xl px-5 pt-12 pb-24">
@@ -45,7 +72,10 @@ export default function BiblePage() {
 
       {/* Stat strip */}
       <div className="grid grid-cols-3 gap-3 md:gap-4 mb-6">
-        <Stat label="Translations" value={String(translationOrder.length)} />
+        <Stat
+          label="Catalogued editions"
+          value={String(translationOrder.length)}
+        />
         <Stat label="Books" value="66" />
         <Stat label="Chapters" value={totalChapters.toLocaleString()} />
       </div>
@@ -59,7 +89,10 @@ export default function BiblePage() {
       <div className="mb-10">
         <div className="flex flex-wrap items-baseline justify-between gap-3 mb-4">
           <h2 className="font-serif text-2xl text-ink-900">Start here</h2>
-          <Link href="/bible/my" className="text-xs text-flame-700 hover:underline">
+          <Link
+            href="/bible/my"
+            className="text-xs text-flame-700 hover:underline"
+          >
             My highlights & notes →
           </Link>
         </div>
@@ -101,14 +134,16 @@ export default function BiblePage() {
           href="/bible/translations"
           size="wide"
           tone="dark"
-          eyebrow="Translations"
+          eyebrow="Translation catalog"
           title={
             <>
-              Every translation we serve —{" "}
-              <span className="text-flame-300">real translations, made by named humans.</span>
+              Named human translators —{" "}
+              <span className="text-flame-300">
+                with the source and availability made clear.
+              </span>
             </>
           }
-          sub="WEB · KJV · ASV · RVR · LSG · CUV · Vulgate · ELB · LUT · ALB · BBE and more. The story of each one, the language family, the era it was made."
+          sub="Browse public-domain editions, selected historical texts, and the licensed ESV. Every card names its provider, canon coverage, configuration status, and offline policy."
           glyph={<Glyph id="library" size={64} />}
         >
           <div className="mt-4 flex flex-wrap gap-1.5">
@@ -116,7 +151,7 @@ export default function BiblePage() {
               <span
                 key={t}
                 className="inline-flex items-center rounded-full bg-ink-800/60 border border-ink-700/60 px-2.5 py-0.5 text-[10px] uppercase tracking-widest text-flame-300"
-                title={translations[t]?.name}
+                title={`${translations[t]?.name} · ${translations[t]?.source ?? "provider pending"}`}
               >
                 {translations[t]?.abbrev ?? t}
               </span>
@@ -146,11 +181,23 @@ export default function BiblePage() {
   );
 }
 
-function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
+function Stat({
+  label,
+  value,
+  sub,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+}) {
   return (
     <div className="rounded-2xl border border-ink-200 bg-card p-4 md:p-5 text-center">
-      <div className="text-[10px] uppercase tracking-widest text-flame-700">{label}</div>
-      <div className="font-serif text-3xl md:text-4xl text-ink-900 mt-1">{value}</div>
+      <div className="text-[10px] uppercase tracking-widest text-flame-700">
+        {label}
+      </div>
+      <div className="font-serif text-3xl md:text-4xl text-ink-900 mt-1">
+        {value}
+      </div>
       {sub && <div className="text-xs text-ink-500 mt-0.5">{sub}</div>}
     </div>
   );
