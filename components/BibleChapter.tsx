@@ -9,6 +9,7 @@ import { crossRefsFor } from "@/data/bible/cross-refs";
 import { referenceHref } from "@/lib/reference";
 import { studyLinksFor } from "@/lib/study-tools";
 import VerseCardModal from "@/components/VerseCardModal";
+import NeuralAudioPlayer, { type NarrationSegment } from "@/components/NeuralAudioPlayer";
 import { slotKey } from "@/lib/slots";
 
 export type HighlightColor =
@@ -176,6 +177,7 @@ export default function BibleChapter({
   const [fetched, setFetched] = useState<Partial<Record<TranslationId, ChapterText>>>({});
   const [loadingTranslation, setLoadingTranslation] = useState<TranslationId | null>(null);
   const [hintDismissed, setHintDismissed] = useState(false);
+  const [listenOpen, setListenOpen] = useState(false);
 
   useEffect(() => {
     setMarks(loadMarks());
@@ -277,6 +279,13 @@ export default function BibleChapter({
 
   const chapter = chapters[translationId] ?? fetched[translationId];
   const meta = translations[translationId];
+
+  // Narration segments for the Listen player — one per verse (verse numbers are
+  // not spoken). Sentence-level chunking happens inside the neural engine.
+  const narration: NarrationSegment[] = useMemo(
+    () => (chapter ? chapter.verses.map((v) => ({ text: v.t })) : []),
+    [chapter]
+  );
 
   const lensMatch = useMemo(() => {
     const ref = `${bookName} ${chapterNum}`.toLowerCase();
@@ -453,6 +462,19 @@ export default function BibleChapter({
           {prefs.layout === "flow" ? "One verse per line" : "Continuous flow"}
         </button>
 
+        <button
+          onClick={() => setListenOpen((v) => !v)}
+          className={`rounded-full border px-3 py-1 text-xs inline-flex items-center gap-1.5 transition-colors ${
+            listenOpen
+              ? "border-flame-500 bg-flame-50 text-flame-700"
+              : "border-ink-300 text-ink-700 hover:border-ink-900"
+          }`}
+          title="Read this chapter aloud in a natural voice"
+          aria-pressed={listenOpen}
+        >
+          <span aria-hidden>🔊</span> Listen
+        </button>
+
         <Link
           href="/bible/my"
           className="rounded-full border border-ink-300 px-3 py-1 text-xs text-ink-700 hover:border-ink-900 inline-flex items-center gap-1.5"
@@ -461,6 +483,16 @@ export default function BibleChapter({
           <span aria-hidden>✎</span> My marks
         </Link>
       </div>
+
+      {/* Listen — natural-voice narration of the current chapter */}
+      {mounted && listenOpen && chapter && (
+        <NeuralAudioPlayer
+          key={`${translationId}:${bookId}:${chapterNum}`}
+          title={`${bookName} ${chapterNum} · ${meta.abbrev}`}
+          eyebrow="Listen"
+          segments={narration}
+        />
+      )}
 
       {/* Tap-a-verse hint (one-time) */}
       {mounted && !hintDismissed && (

@@ -1,6 +1,9 @@
 node_modules/
 .next/
 out/
+# Self-hosted ONNX Runtime wasm for the neural voice — regenerated on install
+# by scripts/copy-ort-runtime.mjs (postinstall). Not committed (21MB binary).
+/public/ort/
 /build/
 *.log
 .env*
