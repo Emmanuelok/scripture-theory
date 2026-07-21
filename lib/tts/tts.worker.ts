@@ -16,16 +16,6 @@ const ctx = self as unknown as Ctx;
 const MODEL_ID = "onnx-community/Kokoro-82M-v1.0-ONNX";
 let ttsPromise: Promise<KokoroTTS> | null = null;
 
-async function hasWebGPU(): Promise<boolean> {
-  try {
-    const gpu = (navigator as unknown as { gpu?: { requestAdapter(): Promise<unknown> } }).gpu;
-    if (!gpu?.requestAdapter) return false;
-    return Boolean(await gpu.requestAdapter());
-  } catch {
-    return false;
-  }
-}
-
 function getTts(): Promise<KokoroTTS> {
   if (!ttsPromise) {
     // Self-hosted onnxruntime-web runtime (same-origin; see public/ort/).
@@ -34,32 +24,17 @@ function getTts(): Promise<KokoroTTS> {
     } catch {
       /* keep library default */
     }
+    // WASM/CPU with q8 weights: the reliable, correct path. It's slower than a
+    // GPU would be, but WebGPU proved unreliable in practice (q8 emits silence;
+    // fp16 failed on real hardware we can't reproduce), so we stay on WASM.
     ttsPromise = (async () => {
-      const webgpu = await hasWebGPU();
-      // WebGPU with fp16 is fast AND correct (floating point, well supported by
-      // the JSEP backend). We avoid q8 on WebGPU — its quantized ops emit silent
-      // audio. WASM/CPU q8 is the reliable but slow fallback.
-      const attempts: { device: "webgpu" | "wasm"; dtype: "fp16" | "q8" }[] = webgpu
-        ? [
-            { device: "webgpu", dtype: "fp16" },
-            { device: "wasm", dtype: "q8" },
-          ]
-        : [{ device: "wasm", dtype: "q8" }];
-      let lastError: unknown;
-      for (const attempt of attempts) {
-        try {
-          const tts = await KokoroTTS.from_pretrained(MODEL_ID, {
-            dtype: attempt.dtype,
-            device: attempt.device,
-            progress_callback: (p: unknown) => ctx.postMessage({ type: "progress", data: p }),
-          });
-          ctx.postMessage({ type: "device", device: attempt.device });
-          return tts;
-        } catch (err) {
-          lastError = err;
-        }
-      }
-      throw lastError ?? new Error("Kokoro failed to initialise");
+      const tts = await KokoroTTS.from_pretrained(MODEL_ID, {
+        dtype: "q8",
+        device: "wasm",
+        progress_callback: (p: unknown) => ctx.postMessage({ type: "progress", data: p }),
+      });
+      ctx.postMessage({ type: "device", device: "wasm" });
+      return tts;
     })();
   }
   return ttsPromise;
