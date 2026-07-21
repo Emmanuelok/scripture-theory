@@ -52,7 +52,7 @@ const DEVICE_VOICE_KEY = "scripture-theory-tts-voice";
 const RATE_KEY = "scripture-theory-tts-rate";
 const MODE_KEY = "scripture-theory-tts-mode";
 
-const APPROX_DOWNLOAD = "~86 MB, one time";
+const APPROX_DOWNLOAD = "one-time download";
 
 // A tiny silent WAV used to "unlock" the <audio> element inside the click
 // handler. Browsers (especially iOS Safari) only allow programmatic playback
@@ -134,6 +134,9 @@ export default function NeuralAudioPlayer({
   const cancelBlobRef = useRef<(() => void) | null>(null);
   const objectUrlsRef = useRef<string[]>([]);
   const startIndexRef = useRef(0);
+  // Live voice/speed so a change mid-reading applies to upcoming parts.
+  const voiceRef = useRef(neuralVoiceId);
+  const rateRef = useRef(rate);
 
   // A stable signature so we only reset when the *content* changes, not on
   // every parent re-render that hands us a fresh array identity.
@@ -216,6 +219,8 @@ export default function NeuralAudioPlayer({
   useEffect(() => {
     try { window.localStorage.setItem(RATE_KEY, String(rate)); } catch {}
   }, [rate]);
+  useEffect(() => { voiceRef.current = neuralVoiceId; }, [neuralVoiceId]);
+  useEffect(() => { rateRef.current = rate; }, [rate]);
   useEffect(() => {
     try { window.localStorage.setItem(MODE_KEY, mode); } catch {}
   }, [mode]);
@@ -370,7 +375,7 @@ export default function NeuralAudioPlayer({
       // end the whole reading. Returns null on error.
       const synth = async (i: number): Promise<Blob | null> => {
         try {
-          return await synthesize(textAt(i), { voice: neuralVoiceId, speed: rate });
+          return await synthesize(textAt(i), { voice: voiceRef.current, speed: rateRef.current });
         } catch (e) {
           // eslint-disable-next-line no-console
           console.error(`[tts] synth failed at part ${i + 1}:`, e);
@@ -706,8 +711,7 @@ export default function NeuralAudioPlayer({
           <select
             value={neuralVoiceId}
             onChange={(e) => setNeuralVoiceId(e.target.value)}
-            disabled={status !== "idle"}
-            className="rounded-full border border-ink-300 bg-card px-3 py-1 text-xs text-ink-700 max-w-[220px] truncate disabled:opacity-60"
+            className="rounded-full border border-ink-300 bg-card px-3 py-1 text-xs text-ink-700 max-w-[220px] truncate"
             aria-label="Reading voice"
             title={activeVoice.blurb}
           >

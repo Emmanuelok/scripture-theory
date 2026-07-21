@@ -26,6 +26,7 @@ let worker: Worker | null = null;
 let ready = false;
 let readyPromise: Promise<void> | null = null;
 let progressCb: ((p: LoadProgress) => void) | null = null;
+let activeDevice: TtsDevice | null = null;
 let seq = 0;
 const pending = new Map<number, { resolve: (b: Blob) => void; reject: (e: Error) => void }>();
 
@@ -42,7 +43,7 @@ export function isEngineLoaded(): boolean {
 }
 
 export function getActiveDevice(): TtsDevice | null {
-  return ready ? "wasm" : null;
+  return activeDevice;
 }
 
 function ensureWorker(): Worker {
@@ -53,6 +54,8 @@ function ensureWorker(): Worker {
     if (!m) return;
     if (m.type === "progress") {
       progressCb?.(m.data as LoadProgress);
+    } else if (m.type === "device") {
+      activeDevice = m.device as TtsDevice;
     } else if (m.type === "result") {
       pending.get(m.id)?.resolve(m.blob as Blob);
       pending.delete(m.id);
