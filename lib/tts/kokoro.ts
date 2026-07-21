@@ -69,11 +69,18 @@ export async function loadEngine(onProgress?: (p: LoadProgress) => void): Promis
   if (loadPromise) return loadPromise;
 
   loadPromise = (async () => {
-    // The bundler emits onnxruntime-web's wasm as a same-origin static asset
-    // (/_next/static/media/…), so we deliberately do NOT override wasmPaths —
-    // letting the library use that emitted asset is far more robust than a
-    // hand-placed path that a deploy might not include.
-    const { KokoroTTS } = await import("kokoro-js");
+    const { KokoroTTS, env } = await import("kokoro-js");
+
+    // Serve the onnxruntime-web runtime from our own origin. ORT loads BOTH its
+    // wasm binary AND its `.mjs` glue (a dynamic module import) from wasmPaths;
+    // the default is a jsdelivr CDN, whose script our CSP blocks — which breaks
+    // the whole engine with "no available backend found". The files live in
+    // public/ort/ (committed, so every deploy has them). 'self' covers both.
+    try {
+      (env as unknown as { wasmPaths?: string }).wasmPaths = "/ort/";
+    } catch {
+      /* if the library shape changes, fall back to its default */
+    }
 
     const webgpu = await hasWebGPU();
     // q8 keeps the one-time download small (~86 MB) and is broadly compatible

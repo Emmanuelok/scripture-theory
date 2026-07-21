@@ -36,15 +36,18 @@ touches the initial bundle or SSR.
 
 ## Deployment notes
 
-- **Same-origin wasm.** The build emits onnxruntime-web's wasm as a hashed
-  static asset (`/_next/static/media/…`), so the runtime loads it from our own
-  origin — no third-party CDN, and nothing for a deploy to forget. (We
-  deliberately do **not** override `wasmPaths`.) Only the model *weights* +
-  voices are fetched remotely, from `huggingface.co`.
+- **Self-hosted runtime (committed).** onnxruntime-web loads BOTH its wasm
+  binary and its `.mjs` glue (a dynamic module import) from `env.wasmPaths`; the
+  library default is a jsdelivr CDN, whose *script* our CSP blocks — which
+  otherwise breaks the engine with "no available backend found". So we ship both
+  files in `public/ort/` (committed, present in every deploy) and set
+  `wasmPaths = "/ort/"` (`lib/tts/kokoro.ts`). Regenerate after bumping
+  transformers with `node scripts/copy-ort-runtime.mjs`. Only the model
+  *weights* + voices are fetched remotely, from `huggingface.co`.
 - **CSP** (`next.config.js`) grants exactly what the engine needs:
   `'wasm-unsafe-eval'`, `connect-src` to `huggingface.co` (+ its CDN/Xet
-  subdomains) and `cdn.jsdelivr.net` (wasm fallback), and `blob:` for
-  `media-src`/`worker-src`.
+  subdomains), and `blob:` for `media-src`/`worker-src`. No third-party script
+  host is trusted.
 - **Install safety.** `.npmrc` skips the `onnxruntime-node` native binary
   download (we never use the Node runtime; skipping it keeps CI installs fast
   and deterministic).
