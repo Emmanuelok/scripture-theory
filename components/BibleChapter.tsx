@@ -179,6 +179,7 @@ export default function BibleChapter({
   const [loadingTranslation, setLoadingTranslation] = useState<TranslationId | null>(null);
   const [hintDismissed, setHintDismissed] = useState(false);
   const [listenOpen, setListenOpen] = useState(false);
+  const [listenReq, setListenReq] = useState<{ index: number; nonce: number }>({ index: 0, nonce: 0 });
 
   useEffect(() => {
     setMarks(loadMarks());
@@ -310,6 +311,16 @@ export default function BibleChapter({
   function clearSelection() {
     setSelection([]);
     setNoteOpen(false);
+  }
+
+  /** Open the Listen player and start reading from the first selected verse. */
+  function listenFromSelection() {
+    const ch = chapters[translationId] ?? fetched[translationId];
+    if (!ch || selection.length === 0) return;
+    const idx = ch.verses.findIndex((x) => x.v === selection[0]);
+    if (idx < 0) return;
+    setListenOpen(true);
+    setListenReq((p) => ({ index: idx, nonce: p.nonce + 1 }));
   }
 
   /** Apply a color highlight to every verse currently in the selection. */
@@ -492,6 +503,7 @@ export default function BibleChapter({
           title={`${bookName} ${chapterNum} · ${meta.abbrev}`}
           eyebrow="Listen"
           segments={narration}
+          playRequest={listenReq}
           resolveAudioUrl={(voiceId) =>
             resolveBibleAudioUrl(translationId, bookId, chapterNum, voiceId)
           }
@@ -725,6 +737,13 @@ export default function BibleChapter({
 
                     {/* Action chips */}
                     <div className="flex flex-wrap gap-1.5">
+                      <button
+                        onClick={listenFromSelection}
+                        className="rounded-full border border-flame-300 bg-card text-flame-700 px-3 py-1 text-xs hover:bg-flame-50"
+                        title="Read aloud starting from this verse"
+                      >
+                        🔊 Read from here
+                      </button>
                       <button
                         onClick={toggleBookmarkSelection}
                         className="rounded-full border border-ink-300 bg-card px-3 py-1 text-xs text-ink-800 hover:border-ink-900"

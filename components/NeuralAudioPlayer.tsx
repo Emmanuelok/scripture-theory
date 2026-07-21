@@ -5,7 +5,7 @@ import {
   getActiveDevice,
   isNeuralTtsSupported,
   loadEngine,
-  streamSpeech,
+  synthesize,
   type LoadProgress,
 } from "@/lib/tts/kokoro";
 import { DEFAULT_VOICE_ID, findVoice, VOICE_PRESETS } from "@/lib/tts/voices";
@@ -38,6 +38,12 @@ type Props = {
    * to synthesise on-device. Enables cached, studio-consistent Bible audio.
    */
   resolveAudioUrl?: (voiceId: string) => string | null | Promise<string | null>;
+  /**
+   * External "start from part N" trigger. Bump `nonce` (and set `index`) to make
+   * the player start reading from a given segment — e.g. the Bible reader's
+   * "Read from here" on a selected verse.
+   */
+  playRequest?: { index: number; nonce: number };
   className?: string;
 };
 
@@ -84,11 +90,19 @@ function silentWavUrl(): string {
   return silentUrlCache;
 }
 
+function fmtTime(s: number): string {
+  if (!Number.isFinite(s) || s < 0) s = 0;
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${String(sec).padStart(2, "0")}`;
+}
+
 export default function NeuralAudioPlayer({
   title,
   eyebrow = "Listen",
   segments,
   resolveAudioUrl,
+  playRequest,
   className = "",
 }: Props) {
   // Capability flags start optimistic so the server render and the first client
@@ -104,6 +118,7 @@ export default function NeuralAudioPlayer({
   const [loadPct, setLoadPct] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [engineBadge, setEngineBadge] = useState<string>("");
+  const [clock, setClock] = useState<{ current: number; duration: number }>({ current: 0, duration: 0 });
 
   const [neuralVoiceId, setNeuralVoiceId] = useState<string>(DEFAULT_VOICE_ID);
   const [deviceVoices, setDeviceVoices] = useState<SpeechSynthesisVoice[]>([]);
@@ -118,6 +133,7 @@ export default function NeuralAudioPlayer({
   const pauseWaitersRef = useRef<Array<() => void>>([]);
   const cancelBlobRef = useRef<(() => void) | null>(null);
   const objectUrlsRef = useRef<string[]>([]);
+  const startIndexRef = useRef(0);
 
   // A stable signature so we only reset when the *content* changes, not on
   // every parent re-render that hands us a fresh array identity.
@@ -129,7 +145,16 @@ export default function NeuralAudioPlayer({
   // ── init: audio element, device voices, saved prefs ────────────────────────
   useEffect(() => {
     if (typeof window === "undefined") return;
-    audioRef.current = new Audio();
+    const audio = new Audio();
+    audioRef.current = audio;
+    const onTime = () =>
+      setClock({
+        current: audio.currentTime || 0,
+        duration: Number.isFinite(audio.duration) ? audio.duration : 0,
+      });
+    audio.addEventListener("timeupdate", onTime);
+    audio.addEventListener("loadedmetadata", onTime);
+    audio.addEventListener("durationchange", onTime);
 
     // Resolve real capabilities now that we're on the client.
     setMounted(true);
@@ -163,6 +188,9 @@ export default function NeuralAudioPlayer({
 
     return () => {
       detach?.();
+      audio.removeEventListener("timeupdate", onTime);
+      audio.removeEventListener("loadedmetadata", onTime);
+      audio.removeEventListener("durationchange", onTime);
       hardStop();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -336,25 +364,45 @@ export default function NeuralAudioPlayer({
     setEngineBadge(deviceLabel());
     setStatus("playing");
     try {
-      for (let i = 0; i < segments.length; i++) {
+      const textAt = (i: number) =>
+        segments[i].label ? `${segments[i].label}. ${segments[i].text}` : segments[i].text;
+      // Synthesise one segment, isolating failures so a single bad verse can't
+      // end the whole reading. Returns null on error.
+      const synth = async (i: number): Promise<Blob | null> => {
+        try {
+          return await synthesize(textAt(i), { voice: neuralVoiceId, speed: rate });
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.error(`[tts] synth failed at part ${i + 1}:`, e);
+          return null;
+        }
+      };
+      const start = Math.min(Math.max(0, startIndexRef.current), Math.max(0, segments.length - 1));
+      // Pipeline: generate the next segment while the current one plays so
+      // WASM's slower synthesis doesn't stall playback between verses.
+      let nextBlob: Promise<Blob | null> = segments.length ? synth(start) : Promise.resolve(null);
+      for (let i = start; i < segments.length; i++) {
         if (stoppedRef.current || runId !== runIdRef.current) return;
         await waitIfPaused();
         if (stoppedRef.current || runId !== runIdRef.current) return;
         setPosition({ index: i + 1, total: segments.length });
-        const seg = segments[i];
-        const text = seg.label ? `${seg.label}. ${seg.text}` : seg.text;
-        for await (const blob of streamSpeech(text, { voice: neuralVoiceId, speed: rate })) {
-          if (stoppedRef.current || runId !== runIdRef.current) return;
-          await waitIfPaused();
-          if (stoppedRef.current || runId !== runIdRef.current) return;
-          const url = URL.createObjectURL(blob);
-          objectUrlsRef.current.push(url);
-          await playSource(url, true);
-        }
+        // eslint-disable-next-line no-console
+        console.info(`[tts] part ${i + 1}/${segments.length}`);
+        const blob = await nextBlob;
+        // Kick off the next generation before playing this clip.
+        nextBlob = i + 1 < segments.length ? synth(i + 1) : Promise.resolve(null);
+        if (stoppedRef.current || runId !== runIdRef.current) return;
+        await waitIfPaused();
+        if (stoppedRef.current || runId !== runIdRef.current) return;
+        if (!blob) continue; // failed segment — skip, keep reading
+        const url = URL.createObjectURL(blob);
+        objectUrlsRef.current.push(url);
+        await playSource(url, true);
       }
       if (!stoppedRef.current && runId === runIdRef.current) {
         setStatus("idle");
         setPosition(null);
+        startIndexRef.current = 0;
       }
     } catch (err) {
       if (runId !== runIdRef.current) return;
@@ -392,12 +440,13 @@ export default function NeuralAudioPlayer({
     // eslint-disable-next-line no-console
     console.info(`[tts] device voice: ${voices.length} voice(s), using "${voice?.name ?? "default"}"`);
 
-    let i = 0;
+    let i = Math.min(Math.max(0, startIndexRef.current), Math.max(0, segments.length - 1));
     const step = () => {
       if (stoppedRef.current || runId !== runIdRef.current) return;
       if (i >= segments.length) {
         setStatus("idle");
         setPosition(null);
+        startIndexRef.current = 0;
         return;
       }
       setPosition({ index: i + 1, total: segments.length });
@@ -424,7 +473,8 @@ export default function NeuralAudioPlayer({
   }
 
   // ── public controls ────────────────────────────────────────────────────────
-  function play() {
+  function play(startIndex = 0) {
+    startIndexRef.current = Math.max(0, startIndex);
     hardStop();
     stoppedRef.current = false;
     pausedRef.current = false;
@@ -493,7 +543,33 @@ export default function NeuralAudioPlayer({
     stoppedRef.current = false; // ready for a fresh play
     setStatus("idle");
     setPosition(null);
+    setClock({ current: 0, duration: 0 });
+    startIndexRef.current = 0;
   }
+
+  /** Restart playback from a given part index (0-based). */
+  function jumpTo(index: number) {
+    const clamped = Math.min(Math.max(0, index), Math.max(0, segments.length - 1));
+    play(clamped);
+  }
+  const currentZeroBased = (position?.index ?? 1) - 1;
+  function prevPart() { jumpTo(currentZeroBased - 1); }
+  function nextPart() { jumpTo(currentZeroBased + 1); }
+
+  /** Seek within the currently playing clip (device voice can't seek). */
+  function seekTo(seconds: number) {
+    const audio = audioRef.current;
+    if (audio && Number.isFinite(audio.duration) && audio.duration > 0) {
+      audio.currentTime = Math.min(Math.max(0, seconds), audio.duration);
+      setClock({ current: audio.currentTime, duration: audio.duration });
+    }
+  }
+
+  // Fulfil an external "play from part N" request (e.g. "Read from here").
+  useEffect(() => {
+    if (playRequest && playRequest.nonce > 0) play(playRequest.index);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playRequest?.nonce]);
 
   if (mounted && !neuralSupported && !deviceSupported) {
     return (
@@ -538,10 +614,33 @@ export default function NeuralAudioPlayer({
         </div>
       )}
 
+      {/* Seek bar for the current clip (neural / studio audio; the device
+          voice can't be scrubbed, so its duration stays 0 and this hides). */}
+      {(status === "playing" || status === "paused") && clock.duration > 0 && (
+        <div className="mb-3 flex items-center gap-2">
+          <span className="text-[10px] tabular-nums text-ink-500 w-9 text-right">
+            {fmtTime(clock.current)}
+          </span>
+          <input
+            type="range"
+            min={0}
+            max={clock.duration}
+            step={0.1}
+            value={Math.min(clock.current, clock.duration)}
+            onChange={(e) => seekTo(parseFloat(e.target.value))}
+            className="flex-1 accent-flame-600"
+            aria-label="Seek within the current part"
+          />
+          <span className="text-[10px] tabular-nums text-ink-500 w-9">
+            {fmtTime(clock.duration)}
+          </span>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center gap-2">
         {status === "idle" && (
           <button
-            onClick={play}
+            onClick={() => play()}
             className="inline-flex items-center gap-1.5 rounded-full bg-flame-600 text-ink-50 px-4 py-1.5 text-sm hover:bg-flame-500"
           >
             ▶ Play
@@ -570,6 +669,28 @@ export default function NeuralAudioPlayer({
           >
             ▶ Resume
           </button>
+        )}
+        {(status === "playing" || status === "paused") && segments.length > 1 && (
+          <>
+            <button
+              onClick={prevPart}
+              disabled={currentZeroBased <= 0}
+              title="Previous part"
+              aria-label="Previous part"
+              className="inline-flex items-center rounded-full border border-ink-300 px-2.5 py-1.5 text-sm text-ink-700 hover:border-ink-900 disabled:opacity-40 disabled:hover:border-ink-300"
+            >
+              ⏮
+            </button>
+            <button
+              onClick={nextPart}
+              disabled={currentZeroBased >= segments.length - 1}
+              title="Next part"
+              aria-label="Next part"
+              className="inline-flex items-center rounded-full border border-ink-300 px-2.5 py-1.5 text-sm text-ink-700 hover:border-ink-900 disabled:opacity-40 disabled:hover:border-ink-300"
+            >
+              ⏭
+            </button>
+          </>
         )}
         {(status === "playing" || status === "paused") && (
           <button

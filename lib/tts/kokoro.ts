@@ -113,16 +113,14 @@ export async function loadEngine(onProgress?: (p: LoadProgress) => void): Promis
 }
 
 /**
- * Stream audio for a block of text, sentence by sentence. Yields a WAV Blob per
- * chunk so playback can begin before the whole passage is synthesised.
+ * Synthesise a block of text into a single WAV Blob. One call per segment
+ * (e.g. a verse); the caller pipelines generation with playback.
  */
-export async function* streamSpeech(
+export async function synthesize(
   text: string,
   opts: { voice: KokoroVoiceId; speed?: number }
-): AsyncGenerator<Blob, void, void> {
+): Promise<Blob> {
   const tts = await loadEngine();
-  const stream = tts.stream(text, { voice: opts.voice as never, speed: opts.speed ?? 1 });
-  for await (const chunk of stream) {
-    yield chunk.audio.toBlob();
-  }
+  const audio = await tts.generate(text, { voice: opts.voice as never, speed: opts.speed ?? 1 });
+  return audio.toBlob();
 }
