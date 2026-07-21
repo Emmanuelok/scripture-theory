@@ -69,23 +69,19 @@ export async function loadEngine(onProgress?: (p: LoadProgress) => void): Promis
   if (loadPromise) return loadPromise;
 
   loadPromise = (async () => {
-    const { KokoroTTS, env } = await import("kokoro-js");
-
-    // Point onnxruntime-web at our same-origin, self-hosted wasm (public/ort/)
-    // so the tight CSP never needs to trust a third-party script host.
-    try {
-      (env as unknown as { wasmPaths?: string }).wasmPaths = "/ort/";
-    } catch {
-      /* if the shape changes, fall back to the library default */
-    }
+    // The bundler emits onnxruntime-web's wasm as a same-origin static asset
+    // (/_next/static/media/…), so we deliberately do NOT override wasmPaths —
+    // letting the library use that emitted asset is far more robust than a
+    // hand-placed path that a deploy might not include.
+    const { KokoroTTS } = await import("kokoro-js");
 
     const webgpu = await hasWebGPU();
-    // WebGPU: fp16 is a good quality/size balance (~163MB) and well supported by
-    // the JSEP webgpu backend. WASM (CPU): q8 keeps the download small (~86MB)
-    // and broadly compatible. If the preferred path throws, fall back.
-    const attempts: { device: TtsDevice; dtype: "fp16" | "q8" }[] = webgpu
+    // q8 keeps the one-time download small (~86 MB) and is broadly compatible
+    // on both the WebGPU and WASM backends. Prefer WebGPU (faster), fall back
+    // to CPU/WASM if it can't initialise.
+    const attempts: { device: TtsDevice; dtype: "q8" }[] = webgpu
       ? [
-          { device: "webgpu", dtype: "fp16" },
+          { device: "webgpu", dtype: "q8" },
           { device: "wasm", dtype: "q8" },
         ]
       : [{ device: "wasm", dtype: "q8" }];
@@ -93,6 +89,8 @@ export async function loadEngine(onProgress?: (p: LoadProgress) => void): Promis
     let lastError: unknown;
     for (const attempt of attempts) {
       try {
+        // eslint-disable-next-line no-console
+        console.info(`[tts] loading Kokoro (${attempt.device}, ${attempt.dtype})…`);
         const tts = await KokoroTTS.from_pretrained(MODEL_ID, {
           dtype: attempt.dtype,
           device: attempt.device,
@@ -100,8 +98,12 @@ export async function loadEngine(onProgress?: (p: LoadProgress) => void): Promis
         });
         instance = tts;
         activeDevice = attempt.device;
+        // eslint-disable-next-line no-console
+        console.info(`[tts] Kokoro ready on ${attempt.device}`);
         return tts;
       } catch (err) {
+        // eslint-disable-next-line no-console
+        console.warn(`[tts] ${attempt.device} load failed:`, err);
         lastError = err;
       }
     }

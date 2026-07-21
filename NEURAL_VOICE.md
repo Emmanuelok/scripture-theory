@@ -36,14 +36,15 @@ touches the initial bundle or SSR.
 
 ## Deployment notes
 
-- **Self-hosted wasm.** The onnxruntime-web runtime would normally be pulled
-  from a third-party CDN. To keep the strict CSP tight, `postinstall`
-  (`scripts/copy-ort-runtime.mjs`) copies it into `public/ort/` and we point the
-  runtime there (`lib/tts/kokoro.ts`). `public/ort/` is git-ignored and
-  regenerated on every install. Only the model *weights* are fetched remotely.
+- **Same-origin wasm.** The build emits onnxruntime-web's wasm as a hashed
+  static asset (`/_next/static/media/…`), so the runtime loads it from our own
+  origin — no third-party CDN, and nothing for a deploy to forget. (We
+  deliberately do **not** override `wasmPaths`.) Only the model *weights* +
+  voices are fetched remotely, from `huggingface.co`.
 - **CSP** (`next.config.js`) grants exactly what the engine needs:
   `'wasm-unsafe-eval'`, `connect-src` to `huggingface.co` (+ its CDN/Xet
-  subdomains), and `blob:` for `media-src`/`worker-src`.
+  subdomains) and `cdn.jsdelivr.net` (wasm fallback), and `blob:` for
+  `media-src`/`worker-src`.
 - **Install safety.** `.npmrc` skips the `onnxruntime-node` native binary
   download (we never use the Node runtime; skipping it keeps CI installs fast
   and deterministic).

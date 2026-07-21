@@ -46,7 +46,43 @@ const DEVICE_VOICE_KEY = "scripture-theory-tts-voice";
 const RATE_KEY = "scripture-theory-tts-rate";
 const MODE_KEY = "scripture-theory-tts-mode";
 
-const APPROX_DOWNLOAD = "~90 MB, one time";
+const APPROX_DOWNLOAD = "~86 MB, one time";
+
+// A tiny silent WAV used to "unlock" the <audio> element inside the click
+// handler. Browsers (especially iOS Safari) only allow programmatic playback
+// after a user gesture; playing this during the click grants the element
+// permission so the real audio — which starts seconds later, after the model
+// loads — isn't blocked.
+let silentUrlCache: string | null = null;
+function silentWavUrl(): string {
+  if (silentUrlCache) return silentUrlCache;
+  const sampleRate = 8000;
+  const samples = 1;
+  const buf = new ArrayBuffer(44 + samples);
+  const dv = new DataView(buf);
+  const ascii = (off: number, s: string) => {
+    for (let i = 0; i < s.length; i++) dv.setUint8(off + i, s.charCodeAt(i));
+  };
+  ascii(0, "RIFF");
+  dv.setUint32(4, 36 + samples, true);
+  ascii(8, "WAVE");
+  ascii(12, "fmt ");
+  dv.setUint32(16, 16, true);
+  dv.setUint16(20, 1, true);
+  dv.setUint16(22, 1, true);
+  dv.setUint32(24, sampleRate, true);
+  dv.setUint32(28, sampleRate, true);
+  dv.setUint16(32, 1, true);
+  dv.setUint16(34, 8, true);
+  ascii(36, "data");
+  dv.setUint32(40, samples, true);
+  dv.setUint8(44, 128); // 8-bit silence
+  let bin = "";
+  const bytes = new Uint8Array(buf);
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  silentUrlCache = "data:audio/wav;base64," + btoa(bin);
+  return silentUrlCache;
+}
 
 export default function NeuralAudioPlayer({
   title,
@@ -192,8 +228,14 @@ export default function NeuralAudioPlayer({
       audio.playbackRate = 1;
       const p = audio.play();
       if (p && typeof p.catch === "function") {
-        p.catch(() => {
-          // Autoplay/interrupt errors are handled via onerror/stop; ignore here.
+        p.catch((err: unknown) => {
+          // play() was rejected (e.g. autoplay policy). Never hang: if the run
+          // is still current, surface it so the loop stops with a clear error.
+          if (stoppedRef.current) { cleanup(); resolve(); return; }
+          // eslint-disable-next-line no-console
+          console.warn("[tts] audio.play() rejected:", err);
+          cleanup();
+          reject(err instanceof Error ? err : new Error("audio playback blocked"));
         });
       }
     });
@@ -253,14 +295,35 @@ export default function NeuralAudioPlayer({
 
     setStatus("preparing");
     setLoadPct(0);
+    // Watchdog: if the model download makes no progress for 45s (blocked host,
+    // dead connection), stop waiting and fall back rather than spin forever.
+    let lastTick = Date.now();
+    let stallTimer: ReturnType<typeof setInterval> | undefined;
+    const clearStall = () => { if (stallTimer) clearInterval(stallTimer); stallTimer = undefined; };
     try {
-      await loadEngine((p: LoadProgress) => {
-        if (p && typeof p.progress === "number") setLoadPct(Math.round(p.progress));
+      const watchdog = new Promise<never>((_, reject) => {
+        stallTimer = setInterval(() => {
+          if (Date.now() - lastTick > 45000) {
+            reject(new Error("voice download stalled — network too slow or blocked"));
+          }
+        }, 5000);
       });
-    } catch {
+      await Promise.race([
+        loadEngine((p: LoadProgress) => {
+          lastTick = Date.now();
+          if (p && typeof p.progress === "number") setLoadPct(Math.round(p.progress));
+        }),
+        watchdog,
+      ]);
+      clearStall();
+    } catch (err) {
+      clearStall();
       setLoadPct(null);
       if (runId !== runIdRef.current) return;
-      // Neural couldn't load — fall back to the device voice for this run.
+      // eslint-disable-next-line no-console
+      console.error("[tts] engine load failed — falling back to device voice:", err);
+      // Neural couldn't load (offline, blocked network, unsupported device).
+      // Fall back to the device voice for this run.
       setMode("device");
       setEngineBadge("Device voice");
       return runDevice(runId, true);
@@ -291,12 +354,18 @@ export default function NeuralAudioPlayer({
         setStatus("idle");
         setPosition(null);
       }
-    } catch {
-      if (runId === runIdRef.current) {
-        setStatus("idle");
-        setPosition(null);
-        setError("The natural voice hit a snag mid-passage. Switch to the device voice to keep going.");
-      }
+    } catch (err) {
+      if (runId !== runIdRef.current) return;
+      // eslint-disable-next-line no-console
+      console.error("[tts] playback error:", err);
+      setStatus("idle");
+      setPosition(null);
+      const blocked = err instanceof Error && /allow|gesture|NotAllowed/i.test(err.name + err.message);
+      setError(
+        blocked
+          ? "Your browser blocked audio autoplay. Tap Play once more to start."
+          : "Couldn't play the natural voice here. Switch to the device voice to keep going."
+      );
     }
   }
 
@@ -343,6 +412,24 @@ export default function NeuralAudioPlayer({
     hardStop();
     stoppedRef.current = false;
     pausedRef.current = false;
+
+    // Unlock the audio element within this user gesture so a later
+    // programmatic play() (after the model loads) isn't blocked by autoplay.
+    const a = audioRef.current;
+    if (a) {
+      try {
+        a.src = silentWavUrl();
+        const up = a.play();
+        if (up && typeof up.then === "function") {
+          up.then(() => {
+            if (a.src.startsWith("data:")) { a.pause(); a.currentTime = 0; }
+          }).catch(() => {});
+        }
+      } catch {
+        /* best effort */
+      }
+    }
+
     const runId = runIdRef.current; // hardStop bumped it; this is the current run
     if (mode === "neural" && neuralSupported) {
       void runNeural(runId);

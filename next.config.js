@@ -13,9 +13,11 @@ const isDev = process.env.NODE_ENV !== "production";
 // - Neural voice (Kokoro / onnxruntime-web, in-browser TTS):
 //     · 'wasm-unsafe-eval' lets the browser compile the WebAssembly runtime.
 //       (dev already grants the broader 'unsafe-eval' for Turbopack HMR.)
-//     · connect to huggingface.co (+ its CDN/Xet subdomains) fetches the model
-//       weights once; the wasm binary itself is self-hosted at /ort (same
-//       origin), so no third-party *script* host is trusted.
+//     · The onnxruntime-web wasm is emitted by the build as a same-origin
+//       static asset (/_next/static), so 'self' covers it; jsdelivr is only a
+//       fallback if the library reaches for its default CDN copy (data fetch,
+//       not script). connect to huggingface.co (+ its CDN/Xet subdomains)
+//       fetches the model weights + voices once.
 //     · media/worker blob: — generated audio plays from blob: URLs.
 // - dev also needs 'unsafe-eval' and ws: for Turbopack HMR.
 const hfModelHosts = "https://huggingface.co https://*.huggingface.co https://*.hf.co";
@@ -29,7 +31,7 @@ const csp = [
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
   `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'${isDev ? " 'unsafe-eval'" : ""}`,
-  `connect-src 'self' https://*.supabase.co wss://*.supabase.co ${hfModelHosts}${isDev ? " ws: http://localhost:*" : ""}`,
+  `connect-src 'self' https://*.supabase.co wss://*.supabase.co ${hfModelHosts} https://cdn.jsdelivr.net${isDev ? " ws: http://localhost:*" : ""}`,
   "media-src 'self' data: blob:",
   "manifest-src 'self'",
   "worker-src 'self' blob:",
