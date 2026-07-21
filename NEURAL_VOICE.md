@@ -51,15 +51,53 @@ touches the initial bundle or SSR.
   are never reached in the browser; `turbopack.resolveAlias` (and a parallel
   `webpack` fallback) map them to `lib/tts/node-stub.js`.
 
-## Next step (recommended): pre-generate Bible audio
+## Pre-generated Bible audio (instant, zero-download)
 
 For the Bible reader, the best experience is to render each chapter's audio
-**once** with Kokoro and store it in Supabase Storage, then stream it — instant,
-studio-consistent, zero per-user download, great on low-bandwidth devices. The
-player already supports this via the `resolveAudioUrl` prop; only the batch
-pipeline + a lookup resolver need to be added. Start with the highest-traffic,
-public-domain books (Gospels, Psalms) so there is no licensing question. The ESV
-carries separate audio terms — check Crossway before generating ESV audio.
+**once** and stream it from Supabase Storage — instant, studio-consistent, no
+per-user model download, great on low-bandwidth devices. This is wired up and
+ready; you just run the batch job (it can't run on the serverless app, and it
+needs network + a Supabase service key).
+
+**How it fits together**
+
+- `scripts/generate-bible-audio.mjs` — fetches public-domain text, synthesises
+  it with Kokoro, compresses (ffmpeg → mp3/opus, or WAV if ffmpeg is absent),
+  uploads to a public Supabase Storage bucket, and records availability in
+  `data/bible/audio-manifest.json`.
+- `lib/tts/bible-audio.ts` — `resolveBibleAudioUrl(...)` reads that manifest and
+  returns the recording's public URL, or `null` when a chapter hasn't been
+  generated (so the reader synthesises on-device). Wired into the reader via the
+  player's `resolveAudioUrl` prop.
+- Until the manifest lists a chapter, nothing changes — the reader just uses the
+  on-device voice. Generate audio, commit the updated manifest, and those
+  chapters start serving the recording.
+
+**Run it** (on a machine with network + optionally ffmpeg):
+
+```bash
+# smoke-test one chapter locally, no upload:
+npm run generate-bible-audio -- --books=john --limit=1 --dry-run
+
+# generate + upload the Gospels and Psalms:
+export SUPABASE_URL=https://<project>.supabase.co
+export SUPABASE_SERVICE_ROLE_KEY=<service-role-key>   # server secret, never client
+npm run generate-bible-audio -- --books=gospels,psalms
+```
+
+Then commit the updated `data/bible/audio-manifest.json`. The script creates the
+public `bible-audio` bucket if it doesn't exist. Flags: `--books`,
+`--translation`, `--voice`, `--format=mp3|opus|wav`, `--limit`, `--force`,
+`--dry-run`.
+
+**Notes**
+
+- Storage: mp3 is ~3–5 MB/chapter; Gospels + Psalms (~239 chapters) ≈ ~1 GB.
+  Use `--format=opus` to roughly halve that.
+- Start with public-domain translations (WEB, KJV). The **ESV carries separate
+  audio terms** — check Crossway before generating ESV audio.
+- Node generation needs espeak phonemes; if `phonemizer` complains on your OS,
+  install `espeak-ng` (e.g. `apt-get install espeak-ng`).
 
 ## Verifying
 

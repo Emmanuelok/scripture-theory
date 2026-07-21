@@ -10,6 +10,7 @@ import { referenceHref } from "@/lib/reference";
 import { studyLinksFor } from "@/lib/study-tools";
 import VerseCardModal from "@/components/VerseCardModal";
 import NeuralAudioPlayer, { type NarrationSegment } from "@/components/NeuralAudioPlayer";
+import { resolveBibleAudioUrl } from "@/lib/tts/bible-audio";
 import { slotKey } from "@/lib/slots";
 
 export type HighlightColor =
@@ -491,6 +492,9 @@ export default function BibleChapter({
           title={`${bookName} ${chapterNum} · ${meta.abbrev}`}
           eyebrow="Listen"
           segments={narration}
+          resolveAudioUrl={(voiceId) =>
+            resolveBibleAudioUrl(translationId, bookId, chapterNum, voiceId)
+          }
         />
       )}
 

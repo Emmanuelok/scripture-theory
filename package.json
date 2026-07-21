@@ -16,6 +16,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "ingest-bible": "node scripts/ingest-bible.mjs",
+    "generate-bible-audio": "node scripts/generate-bible-audio.mjs",
     "postinstall": "node scripts/copy-ort-runtime.mjs"
   },
   "dependencies": {

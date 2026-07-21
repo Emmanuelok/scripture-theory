@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "voice": "af_heart",
+  "format": "mp3",
+  "bucket": "bible-audio",
+  "baseUrl": "",
+  "chapters": {}
+}
