@@ -320,13 +320,15 @@ export default function NeuralAudioPlayer({
       clearStall();
       setLoadPct(null);
       if (runId !== runIdRef.current) return;
+      const msg = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
       // eslint-disable-next-line no-console
       console.error("[tts] engine load failed — falling back to device voice:", err);
       // Neural couldn't load (offline, blocked network, unsupported device).
-      // Fall back to the device voice for this run.
+      // Show the real reason and fall back to the device voice for this run.
       setMode("device");
       setEngineBadge("Device voice");
-      return runDevice(runId, true);
+      setError(`Natural voice couldn't load — ${msg}. Using your device's voice.`);
+      return runDevice(runId, false);
     }
     setLoadPct(null);
     if (stoppedRef.current || runId !== runIdRef.current) return;
@@ -381,10 +383,14 @@ export default function NeuralAudioPlayer({
     }
     setEngineBadge("Device voice");
     setStatus("playing");
+    // Voices can load lazily; re-read if our cached list is empty.
+    const voices = deviceVoices.length ? deviceVoices : window.speechSynthesis.getVoices();
     const voice =
-      deviceVoices.find((v) => v.voiceURI === deviceVoiceURI) ??
-      deviceVoices.find((v) => v.lang.toLowerCase().startsWith("en")) ??
-      deviceVoices[0];
+      voices.find((v) => v.voiceURI === deviceVoiceURI) ??
+      voices.find((v) => v.lang.toLowerCase().startsWith("en")) ??
+      voices[0];
+    // eslint-disable-next-line no-console
+    console.info(`[tts] device voice: ${voices.length} voice(s), using "${voice?.name ?? "default"}"`);
 
     let i = 0;
     const step = () => {
@@ -401,8 +407,18 @@ export default function NeuralAudioPlayer({
       utter.rate = rate;
       utter.lang = voice?.lang ?? "en-US";
       utter.onend = () => { i += 1; step(); };
-      utter.onerror = () => { setStatus("idle"); setPosition(null); };
+      utter.onerror = (e) => {
+        // eslint-disable-next-line no-console
+        console.error("[tts] speechSynthesis error:", e.error);
+        if (e.error !== "interrupted" && e.error !== "canceled") {
+          setStatus("idle");
+          setPosition(null);
+          setError(`Your device's voice failed (${e.error}). No offline voices may be installed.`);
+        }
+      };
       window.speechSynthesis.speak(utter);
+      // Chrome sometimes leaves the queue paused after a prior cancel(); nudge it.
+      try { window.speechSynthesis.resume(); } catch {}
     };
     step();
   }
@@ -425,6 +441,19 @@ export default function NeuralAudioPlayer({
             if (a.src.startsWith("data:")) { a.pause(); a.currentTime = 0; }
           }).catch(() => {});
         }
+      } catch {
+        /* best effort */
+      }
+    }
+
+    // Prime speechSynthesis in the same gesture so the device-voice fallback
+    // still speaks if it kicks in seconds later (after a failed neural load).
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      try {
+        window.speechSynthesis.cancel();
+        const warm = new SpeechSynthesisUtterance(" ");
+        warm.volume = 0;
+        window.speechSynthesis.speak(warm);
       } catch {
         /* best effort */
       }
