@@ -49,17 +49,6 @@ export function isNeuralTtsSupported(): boolean {
   return typeof WebAssembly !== "undefined";
 }
 
-async function hasWebGPU(): Promise<boolean> {
-  try {
-    const gpu = (navigator as unknown as { gpu?: { requestAdapter(): Promise<unknown> } }).gpu;
-    if (!gpu?.requestAdapter) return false;
-    const adapter = await gpu.requestAdapter();
-    return Boolean(adapter);
-  } catch {
-    return false;
-  }
-}
-
 /**
  * Load (once) and return the Kokoro engine. Concurrent callers share a single
  * in-flight promise; a failed load is not cached, so the next attempt retries.
@@ -82,16 +71,13 @@ export async function loadEngine(onProgress?: (p: LoadProgress) => void): Promis
       /* if the library shape changes, fall back to its default */
     }
 
-    const webgpu = await hasWebGPU();
-    // q8 keeps the one-time download small (~86 MB) and is broadly compatible
-    // on both the WebGPU and WASM backends. Prefer WebGPU (faster), fall back
-    // to CPU/WASM if it can't initialise.
-    const attempts: { device: TtsDevice; dtype: "q8" }[] = webgpu
-      ? [
-          { device: "webgpu", dtype: "q8" },
-          { device: "wasm", dtype: "q8" },
-        ]
-      : [{ device: "wasm", dtype: "q8" }];
+    // Run on the CPU/WASM backend with q8 weights. This is the correct,
+    // well-tested Kokoro configuration and keeps the one-time download small
+    // (~86 MB). We deliberately avoid WebGPU + q8: ONNX Runtime's WebGPU backend
+    // doesn't support q8's quantized ops and silently emits SILENT audio — the
+    // exact "plays but no sound" failure. WASM is a little slower but reliable,
+    // and sentence-level streaming keeps time-to-first-audio low.
+    const attempts: { device: TtsDevice; dtype: "q8" }[] = [{ device: "wasm", dtype: "q8" }];
 
     let lastError: unknown;
     for (const attempt of attempts) {
