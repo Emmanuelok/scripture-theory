@@ -15,8 +15,7 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "ingest-bible": "node scripts/ingest-bible.mjs",
-    "generate-bible-audio": "node scripts/generate-bible-audio.mjs"
+    "ingest-bible": "node scripts/ingest-bible.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.0",

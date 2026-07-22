@@ -20,6 +20,17 @@ const isDev = process.env.NODE_ENV !== "production";
 //     · media/worker blob: — generated audio plays from blob: URLs.
 // - dev also needs 'unsafe-eval' and ws: for Turbopack HMR.
 const hfModelHosts = "https://huggingface.co https://*.huggingface.co https://*.hf.co";
+
+// Pre-generated Bible audio is served from object storage (R2 / CDN). Allow that
+// origin so the <audio> element can play it. Driven by config, so it adapts to
+// whatever base URL is set (an R2 pub-*.r2.dev URL, a custom domain, etc.).
+let audioOrigin = "";
+try {
+  const b = process.env.NEXT_PUBLIC_BIBLE_AUDIO_BASE_URL;
+  if (b) audioOrigin = new URL(b).origin;
+} catch {
+  /* ignore a malformed value */
+}
 const csp = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -30,8 +41,8 @@ const csp = [
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
   `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'${isDev ? " 'unsafe-eval'" : ""}`,
-  `connect-src 'self' https://*.supabase.co wss://*.supabase.co ${hfModelHosts}${isDev ? " ws: http://localhost:*" : ""}`,
-  "media-src 'self' data: blob:",
+  `connect-src 'self' https://*.supabase.co wss://*.supabase.co ${hfModelHosts}${audioOrigin ? " " + audioOrigin : ""}${isDev ? " ws: http://localhost:*" : ""}`,
+  `media-src 'self' data: blob:${audioOrigin ? " " + audioOrigin : ""}`,
   "manifest-src 'self'",
   "worker-src 'self' blob:",
   ...(isDev ? [] : ["upgrade-insecure-requests"]),

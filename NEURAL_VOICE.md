@@ -57,55 +57,58 @@ touches the initial bundle or SSR.
 
 ## Pre-generated Bible audio (instant, zero-download)
 
-For the Bible reader, the best experience is to render each chapter's audio
-**once** and stream it from Supabase Storage — instant, studio-consistent, no
-per-user model download, great on low-bandwidth devices. This is wired up and
-ready; you just run the batch job (it can't run on the serverless app, and it
-needs network + a Supabase service key).
+The in-browser voice depends on each visitor's device downloading a ~90–160 MB
+model and running it (WebGPU/WASM) — which is fragile and slow on some hardware.
+The robust answer for the Bible reader is to render each chapter's audio **once**
+and serve it as a plain MP3 from object storage. No download, no GPU, no WASM —
+the browser just plays a file, instantly, on every device.
 
 **How it fits together**
 
-- `scripts/generate-bible-audio.mjs` — fetches public-domain text, synthesises
-  it with Kokoro, compresses (ffmpeg → mp3/opus, or WAV if ffmpeg is absent),
-  uploads to a public Supabase Storage bucket, and records availability in
+- `.github/workflows/generate-bible-audio.yml` — a GitHub Action that runs the
+  generation where the model is reachable (GitHub's runners), so nothing local
+  is needed.
+- `scripts/generate_bible_audio.py` — fetches public-domain text (bible-api.com),
+  synthesises it with the reference `kokoro` package, encodes MP3 (ffmpeg), and
+  uploads each chapter to a **Cloudflare R2** bucket, recording availability in
   `data/bible/audio-manifest.json`.
 - `lib/tts/bible-audio.ts` — `resolveBibleAudioUrl(...)` reads that manifest and
   returns the recording's public URL, or `null` when a chapter hasn't been
-  generated (so the reader synthesises on-device). Wired into the reader via the
-  player's `resolveAudioUrl` prop.
-- Until the manifest lists a chapter, nothing changes — the reader just uses the
-  on-device voice. Generate audio, commit the updated manifest, and those
-  chapters start serving the recording.
+  generated (so the reader falls back to on-device synthesis). Wired into the
+  reader via the player's `resolveAudioUrl` prop.
+- Until the manifest lists a chapter, nothing changes for the reader. Generate a
+  batch, the Action commits the updated manifest, and those chapters start
+  serving the recording.
 
-**Run it** (on a machine with network + optionally ffmpeg):
+**One-time setup**
 
-```bash
-# smoke-test one chapter locally, no upload:
-npm run generate-bible-audio -- --books=john --limit=1 --dry-run
+1. Create a free **Cloudflare R2** bucket and enable a public URL (`Settings →
+   Public access → r2.dev`, or attach a custom domain).
+2. Create an **R2 API token** (Object Read & Write).
+3. Add repo secrets (Settings → Secrets and variables → Actions):
+   `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`.
+4. Set the reader's base URL in Vercel:
+   `NEXT_PUBLIC_BIBLE_AUDIO_BASE_URL=https://pub-xxxx.r2.dev` (your public URL).
+   (An `NEXT_PUBLIC_SUPABASE_URL` Storage bucket is used as a fallback if this is
+   unset — object key `bucket/<translation>/<book>/<chapter>.<format>`.)
 
-# generate + upload the Gospels and Psalms:
-export SUPABASE_URL=https://<project>.supabase.co
-export SUPABASE_SERVICE_ROLE_KEY=<service-role-key>   # server secret, never client
-npm run generate-bible-audio -- --books=gospels,psalms
-```
+**Run it**
 
-Then commit the updated `data/bible/audio-manifest.json`. The script creates the
-public `bible-audio` bucket if it doesn't exist. Flags: `--books`,
-`--translation`, `--voice`, `--format=mp3|opus|wav`, `--limit`, `--force`,
-`--dry-run`.
+Actions tab → **Generate Bible audio** → Run workflow. Pick books
+(`gospels,psalms` to start; `nt`, `ot`, or `all` for more) and format. Generation
+is CPU-only (~seconds/chapter), so do it in **batches** — the manifest
+accumulates and already-done chapters are skipped, so re-running resumes. The
+whole Bible (~1,189 chapters) is a few hours total across runs.
 
 **Notes**
 
-- Storage: mp3 is ~3–5 MB/chapter; Gospels + Psalms (~239 chapters) ≈ ~1 GB.
-  Use `--format=opus` to roughly halve that.
+- Storage: MP3 ≈ 3–4 MB/chapter → whole Bible ≈ 3–4 GB (fits R2's 10 GB free
+  tier, which also has free egress). `opus` roughly halves it.
 - Start with public-domain translations (WEB, KJV). The **ESV carries separate
   audio terms** — check Crossway before generating ESV audio.
-- Node generation needs espeak phonemes; if `phonemizer` complains on your OS,
-  install `espeak-ng` (e.g. `apt-get install espeak-ng`).
 
 ## Verifying
 
-`npm run build` (Turbopack) must pass. Full end-to-end audio requires a browser
-that can fetch the model from Hugging Face — open the Bible reader, press
-**Listen → Play**, and confirm a warm voice reads the chapter (first play shows a
-one-time model-download progress bar).
+`npm run build` (Turbopack) must pass. After a generation run, open the Bible
+reader on a generated chapter → **Listen → Play**: it plays the pre-rendered MP3
+instantly (badge reads "Studio recording"), with no model-download bar.
