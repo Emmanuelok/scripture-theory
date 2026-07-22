@@ -2,7 +2,7 @@
   "version": 1,
   "voice": "af_heart",
   "format": "mp3",
-  "bucket": "bible-audio",
-  "baseUrl": "",
+  "bucket": "scripture-audio",
+  "baseUrl": "https://pub-8c8d02ff9648425a8a92e6c182314098.r2.dev",
   "chapters": {}
 }

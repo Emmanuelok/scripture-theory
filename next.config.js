@@ -26,7 +26,12 @@ const hfModelHosts = "https://huggingface.co https://*.huggingface.co https://*.
 // whatever base URL is set (an R2 pub-*.r2.dev URL, a custom domain, etc.).
 let audioOrigin = "";
 try {
-  const b = process.env.NEXT_PUBLIC_BIBLE_AUDIO_BASE_URL;
+  // Prefer the env var; otherwise fall back to the base URL baked into the
+  // manifest, so the audio host is allowed without extra Vercel config.
+  let b = process.env.NEXT_PUBLIC_BIBLE_AUDIO_BASE_URL;
+  if (!b) {
+    try { b = require("./data/bible/audio-manifest.json").baseUrl; } catch {}
+  }
   if (b) audioOrigin = new URL(b).origin;
 } catch {
   /* ignore a malformed value */
