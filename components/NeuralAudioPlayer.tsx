@@ -109,11 +109,12 @@ function fmtTime(s: number): string {
 // For a single pre-generated recording we don't (yet) have per-verse
 // timestamps, so we estimate which segment is playing from elapsed *fraction*
 // of the clip, weighting each segment by its text length (speech duration
-// tracks character count closely). The +12 accounts for the brief pause and
-// verse-number cadence between segments. Returns cumulative boundaries in
-// [0,1], length = segments.length + 1.
+// tracks character count closely). The recording is a continuous read with no
+// per-verse gaps, so we add only a small constant for the sentence-end pause
+// each verse tends to carry. Returns cumulative boundaries in [0,1], length =
+// segments.length + 1.
 function buildFracs(segs: NarrationSegment[]): number[] {
-  const weights = segs.map((s) => Math.max(1, (s.text?.length ?? 0) + 12));
+  const weights = segs.map((s) => Math.max(1, (s.text?.length ?? 0) + 5));
   const total = weights.reduce((a, b) => a + b, 0) || 1;
   const fracs = [0];
   let acc = 0;
@@ -315,14 +316,20 @@ export default function NeuralAudioPlayer({
     objectUrlsRef.current = [];
   }
 
-  /** Play a single audio source (blob URL or file URL); resolves when done. */
-  function playSource(url: string, revokeAfter: boolean): Promise<void> {
+  /**
+   * Play a single audio source (blob URL or file URL); resolves when done.
+   * `seekFrac` (0–1) starts playback partway in — used to begin a whole-chapter
+   * recording at a chosen verse ("Read from here").
+   */
+  function playSource(url: string, revokeAfter: boolean, seekFrac = 0): Promise<void> {
     return new Promise((resolve, reject) => {
       const audio = audioRef.current;
       if (!audio) return resolve();
+      let onMeta: (() => void) | null = null;
       const cleanup = () => {
         audio.onended = null;
         audio.onerror = null;
+        if (onMeta) { audio.removeEventListener("loadedmetadata", onMeta); onMeta = null; }
         cancelBlobRef.current = null;
         if (revokeAfter) {
           URL.revokeObjectURL(url);
@@ -338,6 +345,24 @@ export default function NeuralAudioPlayer({
       audio.onerror = () => { cleanup(); reject(new Error("audio playback error")); };
       audio.src = url;
       audio.playbackRate = 1;
+      if (seekFrac > 0) {
+        const doSeek = () => {
+          if (Number.isFinite(audio.duration) && audio.duration > 0) {
+            try {
+              audio.currentTime = Math.min(audio.duration - 0.1, seekFrac * audio.duration);
+            } catch { /* seek not ready */ }
+          }
+        };
+        // Duration may already be known (cached file) or arrive with metadata.
+        if (Number.isFinite(audio.duration) && audio.duration > 0) doSeek();
+        else {
+          onMeta = () => {
+            doSeek();
+            if (onMeta) { audio.removeEventListener("loadedmetadata", onMeta); onMeta = null; }
+          };
+          audio.addEventListener("loadedmetadata", onMeta);
+        }
+      }
       const p = audio.play();
       if (p && typeof p.catch === "function") {
         p.catch((err: unknown) => {
@@ -394,9 +419,13 @@ export default function NeuralAudioPlayer({
           setStatus("playing");
           setPosition({ index: 1, total: 1 });
           // Drive verse follow-along from playback progress while this plays.
-          studioSyncRef.current = { active: true, fracs: buildFracs(segments), last: -1 };
+          const fracs = buildFracs(segments);
+          studioSyncRef.current = { active: true, fracs, last: -1 };
+          // "Read from here": start the single recording at the chosen verse.
+          const startIdx = Math.min(Math.max(0, startIndexRef.current), Math.max(0, segments.length - 1));
+          const seekFrac = startIdx > 0 ? fracs[startIdx] : 0;
           try {
-            await playSource(url, false);
+            await playSource(url, false, seekFrac);
           } finally {
             studioSyncRef.current.active = false;
             emitActive(null);
@@ -404,6 +433,7 @@ export default function NeuralAudioPlayer({
           if (!stoppedRef.current && runId === runIdRef.current) {
             setStatus("idle");
             setPosition(null);
+            startIndexRef.current = 0;
           }
           return;
         }
@@ -477,7 +507,6 @@ export default function NeuralAudioPlayer({
         await waitIfPaused();
         if (stoppedRef.current || runId !== runIdRef.current) return;
         setPosition({ index: i + 1, total: segments.length });
-        emitActive(i);
         // eslint-disable-next-line no-console
         console.info(`[tts] part ${i + 1}/${segments.length}`);
         const blob = await nextBlob;
@@ -489,6 +518,9 @@ export default function NeuralAudioPlayer({
         if (!blob) continue; // failed segment — skip, keep reading
         const url = URL.createObjectURL(blob);
         objectUrlsRef.current.push(url);
+        // Highlight this verse exactly as its audio begins (not while it was
+        // still being synthesised) so the follow-along stays in sync.
+        emitActive(i);
         await playSource(url, true);
       }
       if (!stoppedRef.current && runId === runIdRef.current) {
