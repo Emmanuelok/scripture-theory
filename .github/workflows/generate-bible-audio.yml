@@ -1,0 +1,82 @@
+name: Generate Bible audio
+
+# Pre-renders Bible-chapter narration with Kokoro and uploads MP3s to a
+# Cloudflare R2 bucket, then commits the updated availability manifest so the
+# reader serves the recordings. Runs on demand (Actions tab → Run workflow).
+#
+# Required repo secrets (Settings → Secrets and variables → Actions):
+#   R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET
+#
+# Generation is CPU-only and ~seconds/chapter, so run it in batches — the
+# manifest accumulates and already-done chapters are skipped, so it resumes.
+
+on:
+  workflow_dispatch:
+    inputs:
+      books:
+        description: "Books/sets (e.g. gospels,psalms | nt | ot | all | john)"
+        required: true
+        default: "gospels,psalms"
+      format:
+        description: "Audio format"
+        required: true
+        default: "mp3"
+        type: choice
+        options: ["mp3", "opus", "wav"]
+      voice:
+        description: "Kokoro voice"
+        required: true
+        default: "af_heart"
+      limit:
+        description: "Max chapters this run (blank = no limit)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install system audio tools
+        run: sudo apt-get update && sudo apt-get install -y espeak-ng ffmpeg libsndfile1
+
+      - name: Install Python dependencies
+        run: pip install kokoro soundfile boto3 requests numpy
+
+      - name: Generate and upload
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+        run: |
+          LIMIT_ARG=""
+          if [ -n "${{ github.event.inputs.limit }}" ]; then
+            LIMIT_ARG="--limit ${{ github.event.inputs.limit }}"
+          fi
+          python scripts/generate_bible_audio.py \
+            --books "${{ github.event.inputs.books }}" \
+            --format "${{ github.event.inputs.format }}" \
+            --voice "${{ github.event.inputs.voice }}" \
+            $LIMIT_ARG
+
+      - name: Commit updated manifest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/bible/audio-manifest.json
+          if git diff --cached --quiet; then
+            echo "No manifest changes."
+          else
+            git commit -m "chore(audio): update availability manifest [skip ci]"
+            git push
+          fi

@@ -10,7 +10,32 @@ const isDev = process.env.NODE_ENV !== "production";
 //   (A nonce-based CSP is the recommended next hardening step.)
 // - img: self + the three whitelisted remote image hosts + data/blob.
 // - connect: self + Supabase (REST over https, realtime over wss).
+// - Neural voice (Kokoro / onnxruntime-web, in-browser TTS):
+//     · 'wasm-unsafe-eval' lets the browser compile the WebAssembly runtime.
+//       (dev already grants the broader 'unsafe-eval' for Turbopack HMR.)
+//     · The onnxruntime-web runtime (its `.mjs` glue + `.wasm` binary) is
+//       self-hosted at /ort (committed under public/ort), so 'self' covers both
+//       — no third-party script host. connect to huggingface.co (+ its CDN/Xet
+//       subdomains) fetches the model weights + voices once.
+//     · media/worker blob: — generated audio plays from blob: URLs.
 // - dev also needs 'unsafe-eval' and ws: for Turbopack HMR.
+const hfModelHosts = "https://huggingface.co https://*.huggingface.co https://*.hf.co";
+
+// Pre-generated Bible audio is served from object storage (R2 / CDN). Allow that
+// origin so the <audio> element can play it. Driven by config, so it adapts to
+// whatever base URL is set (an R2 pub-*.r2.dev URL, a custom domain, etc.).
+let audioOrigin = "";
+try {
+  // Prefer the env var; otherwise fall back to the base URL baked into the
+  // manifest, so the audio host is allowed without extra Vercel config.
+  let b = process.env.NEXT_PUBLIC_BIBLE_AUDIO_BASE_URL;
+  if (!b) {
+    try { b = require("./data/bible/audio-manifest.json").baseUrl; } catch {}
+  }
+  if (b) audioOrigin = new URL(b).origin;
+} catch {
+  /* ignore a malformed value */
+}
 const csp = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -20,11 +45,11 @@ const csp = [
   "img-src 'self' data: blob: https://flagcdn.com https://cdn.jsdelivr.net https://upload.wikimedia.org",
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
-  `connect-src 'self' https://*.supabase.co wss://*.supabase.co${isDev ? " ws: http://localhost:*" : ""}`,
-  "media-src 'self' data:",
+  `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'${isDev ? " 'unsafe-eval'" : ""}`,
+  `connect-src 'self' https://*.supabase.co wss://*.supabase.co ${hfModelHosts}${audioOrigin ? " " + audioOrigin : ""}${isDev ? " ws: http://localhost:*" : ""}`,
+  `media-src 'self' data: blob:${audioOrigin ? " " + audioOrigin : ""}`,
   "manifest-src 'self'",
-  "worker-src 'self'",
+  "worker-src 'self' blob:",
   ...(isDev ? [] : ["upgrade-insecure-requests"]),
 ].join("; ");
 
@@ -53,6 +78,35 @@ const nextConfig = {
     return [
       { source: "/:path*", headers: securityHeaders },
     ];
+  },
+  // Next 16 builds with Turbopack by default. kokoro-js imports a few Node
+  // built-ins at module scope that are only reached on its Node code path; in
+  // the browser bundle we alias them to an empty stub so the graph resolves.
+  turbopack: {
+    resolveAlias: {
+      fs: { browser: "./lib/tts/node-stub.js" },
+      "fs/promises": { browser: "./lib/tts/node-stub.js" },
+      path: { browser: "./lib/tts/node-stub.js" },
+    },
+  },
+  // Kept for parity when building with the legacy `--webpack` builder.
+  webpack: (config, { isServer }) => {
+    // kokoro-js (and transformers.js) reference Node built-ins that only matter
+    // in a Node runtime. In the browser bundle they're never reached (we use
+    // the web/wasm path), so map them to empty modules to keep the build clean.
+    if (!isServer) {
+      config.resolve = config.resolve || {};
+      config.resolve.fallback = {
+        ...(config.resolve.fallback || {}),
+        fs: false,
+        "fs/promises": false,
+        path: false,
+        crypto: false,
+        "onnxruntime-node": false,
+        sharp: false,
+      };
+    }
+    return config;
   },
 };
 

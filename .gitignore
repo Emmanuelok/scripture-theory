@@ -1,6 +1,8 @@
 node_modules/
 .next/
 out/
+# Local output from `generate-bible-audio --dry-run`
+/bible-audio-out/
 /build/
 *.log
 .env*
@@ -9,3 +11,7 @@ out/
 .vercel
 next-env.d.ts
 tsconfig.tsbuildinfo
+
+# Python bytecode
+__pycache__/
+*.pyc
