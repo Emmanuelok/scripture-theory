@@ -44,6 +44,14 @@ type Props = {
    * "Read from here" on a selected verse.
    */
   playRequest?: { index: number; nonce: number };
+  /**
+   * Fires with the index of the segment currently being spoken (0-based), or
+   * null when nothing is playing. Lets a caller follow along — e.g. the Bible
+   * reader highlights and scrolls to the verse being read. Exact for on-device
+   * per-segment playback; estimated (by text length) for a single pre-generated
+   * recording.
+   */
+  onActiveSegment?: (index: number | null) => void;
   className?: string;
 };
 
@@ -97,12 +105,39 @@ function fmtTime(s: number): string {
   return `${m}:${String(sec).padStart(2, "0")}`;
 }
 
+// For a single pre-generated recording we don't (yet) have per-verse
+// timestamps, so we estimate which segment is playing from elapsed *fraction*
+// of the clip, weighting each segment by its text length (speech duration
+// tracks character count closely). The +12 accounts for the brief pause and
+// verse-number cadence between segments. Returns cumulative boundaries in
+// [0,1], length = segments.length + 1.
+function buildFracs(segs: NarrationSegment[]): number[] {
+  const weights = segs.map((s) => Math.max(1, (s.text?.length ?? 0) + 12));
+  const total = weights.reduce((a, b) => a + b, 0) || 1;
+  const fracs = [0];
+  let acc = 0;
+  for (const w of weights) {
+    acc += w;
+    fracs.push(acc / total);
+  }
+  return fracs;
+}
+
+/** Index of the segment whose fractional range contains progress p ∈ [0,1]. */
+function segFromFracs(fracs: number[], p: number): number {
+  for (let i = 0; i < fracs.length - 1; i++) {
+    if (p < fracs[i + 1]) return i;
+  }
+  return Math.max(0, fracs.length - 2);
+}
+
 export default function NeuralAudioPlayer({
   title,
   eyebrow = "Listen",
   segments,
   resolveAudioUrl,
   playRequest,
+  onActiveSegment,
   className = "",
 }: Props) {
   // Capability flags start optimistic so the server render and the first client
@@ -137,6 +172,19 @@ export default function NeuralAudioPlayer({
   // Live voice/speed so a change mid-reading applies to upcoming parts.
   const voiceRef = useRef(neuralVoiceId);
   const rateRef = useRef(rate);
+  // Latest active-segment callback (kept in a ref so the audio event handlers,
+  // bound once, always call the current prop).
+  const onActiveSegmentRef = useRef(onActiveSegment);
+  // Follow-along state for a single pre-generated recording: while active, the
+  // timeupdate handler maps playback progress → segment index.
+  const studioSyncRef = useRef<{ active: boolean; fracs: number[]; last: number }>({
+    active: false,
+    fracs: [],
+    last: -1,
+  });
+  const emitActive = (i: number | null) => {
+    try { onActiveSegmentRef.current?.(i); } catch { /* caller's problem */ }
+  };
 
   // A stable signature so we only reset when the *content* changes, not on
   // every parent re-render that hands us a fresh array identity.
@@ -150,11 +198,22 @@ export default function NeuralAudioPlayer({
     if (typeof window === "undefined") return;
     const audio = new Audio();
     audioRef.current = audio;
-    const onTime = () =>
+    const onTime = () => {
       setClock({
         current: audio.currentTime || 0,
         duration: Number.isFinite(audio.duration) ? audio.duration : 0,
       });
+      // Follow-along for a single pre-generated recording: map progress → verse.
+      const sync = studioSyncRef.current;
+      if (sync.active && Number.isFinite(audio.duration) && audio.duration > 0) {
+        const p = Math.min(1, Math.max(0, audio.currentTime / audio.duration));
+        const i = segFromFracs(sync.fracs, p);
+        if (i !== sync.last) {
+          sync.last = i;
+          emitActive(i);
+        }
+      }
+    };
     audio.addEventListener("timeupdate", onTime);
     audio.addEventListener("loadedmetadata", onTime);
     audio.addEventListener("durationchange", onTime);
@@ -202,6 +261,8 @@ export default function NeuralAudioPlayer({
   // Stop and reset when the passage content changes.
   useEffect(() => {
     hardStop();
+    studioSyncRef.current.active = false;
+    emitActive(null);
     setStatus("idle");
     setPosition(null);
     setError(null);
@@ -221,6 +282,7 @@ export default function NeuralAudioPlayer({
   }, [rate]);
   useEffect(() => { voiceRef.current = neuralVoiceId; }, [neuralVoiceId]);
   useEffect(() => { rateRef.current = rate; }, [rate]);
+  useEffect(() => { onActiveSegmentRef.current = onActiveSegment; }, [onActiveSegment]);
   useEffect(() => {
     try { window.localStorage.setItem(MODE_KEY, mode); } catch {}
   }, [mode]);
@@ -314,7 +376,14 @@ export default function NeuralAudioPlayer({
           setEngineBadge("Studio recording");
           setStatus("playing");
           setPosition({ index: 1, total: 1 });
-          await playSource(url, false);
+          // Drive verse follow-along from playback progress while this plays.
+          studioSyncRef.current = { active: true, fracs: buildFracs(segments), last: -1 };
+          try {
+            await playSource(url, false);
+          } finally {
+            studioSyncRef.current.active = false;
+            emitActive(null);
+          }
           if (!stoppedRef.current && runId === runIdRef.current) {
             setStatus("idle");
             setPosition(null);
@@ -391,6 +460,7 @@ export default function NeuralAudioPlayer({
         await waitIfPaused();
         if (stoppedRef.current || runId !== runIdRef.current) return;
         setPosition({ index: i + 1, total: segments.length });
+        emitActive(i);
         // eslint-disable-next-line no-console
         console.info(`[tts] part ${i + 1}/${segments.length}`);
         const blob = await nextBlob;
@@ -408,6 +478,7 @@ export default function NeuralAudioPlayer({
         setStatus("idle");
         setPosition(null);
         startIndexRef.current = 0;
+        emitActive(null);
       }
     } catch (err) {
       if (runId !== runIdRef.current) return;
@@ -415,6 +486,7 @@ export default function NeuralAudioPlayer({
       console.error("[tts] playback error:", err);
       setStatus("idle");
       setPosition(null);
+      emitActive(null);
       const blocked = err instanceof Error && /allow|gesture|NotAllowed/i.test(err.name + err.message);
       setError(
         blocked
@@ -452,9 +524,11 @@ export default function NeuralAudioPlayer({
         setStatus("idle");
         setPosition(null);
         startIndexRef.current = 0;
+        emitActive(null);
         return;
       }
       setPosition({ index: i + 1, total: segments.length });
+      emitActive(i);
       const seg = segments[i];
       const utter = new SpeechSynthesisUtterance(seg.label ? `${seg.label}. ${seg.text}` : seg.text);
       if (voice) utter.voice = voice;
@@ -467,6 +541,7 @@ export default function NeuralAudioPlayer({
         if (e.error !== "interrupted" && e.error !== "canceled") {
           setStatus("idle");
           setPosition(null);
+          emitActive(null);
           setError(`Your device's voice failed (${e.error}). No offline voices may be installed.`);
         }
       };
@@ -545,6 +620,8 @@ export default function NeuralAudioPlayer({
 
   function stop() {
     hardStop();
+    studioSyncRef.current.active = false;
+    emitActive(null);
     stoppedRef.current = false; // ready for a fresh play
     setStatus("idle");
     setPosition(null);

@@ -180,6 +180,8 @@ export default function BibleChapter({
   const [hintDismissed, setHintDismissed] = useState(false);
   const [listenOpen, setListenOpen] = useState(false);
   const [listenReq, setListenReq] = useState<{ index: number; nonce: number }>({ index: 0, nonce: 0 });
+  // Verse currently being read aloud (for follow-along highlight + auto-scroll).
+  const [activeVerse, setActiveVerse] = useState<number | null>(null);
 
   useEffect(() => {
     setMarks(loadMarks());
@@ -288,6 +290,18 @@ export default function BibleChapter({
     () => (chapter ? chapter.verses.map((v) => ({ text: v.t })) : []),
     [chapter]
   );
+
+  // Follow-along: keep the verse being read centered in view.
+  useEffect(() => {
+    if (activeVerse == null || typeof document === "undefined") return;
+    const el = document.getElementById(`v${activeVerse}`);
+    el?.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [activeVerse]);
+
+  // Reset the follow-along highlight when the passage changes.
+  useEffect(() => {
+    setActiveVerse(null);
+  }, [translationId, bookId, chapterNum]);
 
   const lensMatch = useMemo(() => {
     const ref = `${bookName} ${chapterNum}`.toLowerCase();
@@ -504,6 +518,9 @@ export default function BibleChapter({
           eyebrow="Listen"
           segments={narration}
           playRequest={listenReq}
+          onActiveSegment={(i) =>
+            setActiveVerse(i == null ? null : chapter?.verses[i]?.v ?? null)
+          }
           resolveAudioUrl={(voiceId) =>
             resolveBibleAudioUrl(translationId, bookId, chapterNum, voiceId)
           }
@@ -542,18 +559,25 @@ export default function BibleChapter({
               const isBk = mounted && marks.bookmarks.includes(key);
               const hasNote = mounted && Boolean(marks.notes[key]);
               const isActive = mounted && selection.includes(verse.v);
+              const isReading = mounted && activeVerse === verse.v;
               const lineMode = prefs.layout === "line";
               const Tag = lineMode ? "div" : "span";
+              // While a verse is being read aloud, it gets a warm wash that
+              // takes precedence over any user highlight; it reverts after.
+              const bgCls = isReading
+                ? "bg-flame-100 ring-1 ring-flame-300 rounded px-1 -mx-1"
+                : color
+                  ? `${highlightBg(color)} rounded px-1 -mx-1`
+                  : "";
               return (
                 <Tag
                   key={verse.v}
                   id={`v${verse.v}`}
-                  className={`group cursor-pointer scroll-mt-24 transition-colors ${
-                    color ? `${highlightBg(color)} rounded px-1 -mx-1` : ""
-                  } ${
+                  className={`group cursor-pointer scroll-mt-24 transition-colors ${bgCls} ${
                     isActive ? "ring-2 ring-flame-400 ring-offset-2 ring-offset-card rounded" : ""
                   } ${lineMode ? "block" : ""}`}
                   onClick={() => toggleSelection(verse.v)}
+                  aria-current={isReading ? "true" : undefined}
                 >
                   <sup className="text-[0.6em] text-flame-700 font-sans font-medium align-super mr-0.5 select-none">
                     {verse.v}
