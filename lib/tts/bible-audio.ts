@@ -88,3 +88,12 @@ export function hasAnyBibleAudio(): boolean {
   const base = (process.env.NEXT_PUBLIC_BIBLE_AUDIO_BASE_URL || m.baseUrl || "").trim();
   return AUDIO_TRANSLATIONS.length > 0 && (Boolean(base) || Boolean(supabaseBase()));
 }
+
+/**
+ * Whether a translation offers pre-generated voice narration — drives the 🔊
+ * badge in the UI. Data-driven: any translation we add to audio coverage
+ * (AUDIO_TRANSLATIONS / the manifest) automatically shows the badge.
+ */
+export function translationHasAudio(translation: string): boolean {
+  return AUDIO_TRANSLATIONS.includes(translation);
+}

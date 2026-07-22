@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { oldTestament, newTestament } from "@/data/bible/canon";
 import { translationOrder, translations } from "@/data/bible/translations";
+import { translationHasAudio } from "@/lib/tts/bible-audio";
 import ContinueReadingCard from "@/components/ContinueReadingCard";
 import BookGrid from "@/components/BookGrid";
 import CanonGrid from "@/components/CanonGrid";
@@ -115,10 +116,11 @@ export default function BiblePage() {
             {translationOrder.map((t) => (
               <span
                 key={t}
-                className="inline-flex items-center rounded-full bg-ink-800/60 border border-ink-700/60 px-2.5 py-0.5 text-[10px] uppercase tracking-widest text-flame-300"
-                title={translations[t]?.name}
+                className="inline-flex items-center gap-1 rounded-full bg-ink-800/60 border border-ink-700/60 px-2.5 py-0.5 text-[10px] uppercase tracking-widest text-flame-300"
+                title={translationHasAudio(t) ? `${translations[t]?.name} · voice narration` : translations[t]?.name}
               >
                 {translations[t]?.abbrev ?? t}
+                {translationHasAudio(t) && <span aria-hidden>🔊</span>}
               </span>
             ))}
           </div>

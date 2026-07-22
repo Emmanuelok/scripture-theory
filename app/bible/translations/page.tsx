@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { translations, translationOrder, EDITORIAL_NOTE } from "@/data/bible/translations";
+import { translationHasAudio } from "@/lib/tts/bible-audio";
 import { seed } from "@/data/bible/seed";
 import { PageHero, Tile } from "@/components/ui/Tile";
 import { Glyph } from "@/components/ui/Glyph";
@@ -81,7 +82,17 @@ export default function TranslationsPage() {
                     />
                     <div className="relative">
                       <div className="flex items-baseline justify-between gap-2">
-                        <span className="font-serif text-ink-900 text-2xl">{t.abbrev}</span>
+                        <span className="flex items-center gap-2">
+                          <span className="font-serif text-ink-900 text-2xl">{t.abbrev}</span>
+                          {translationHasAudio(id) && (
+                            <span
+                              title="Voice narration available"
+                              className="inline-flex items-center gap-0.5 rounded-full border border-flame-200 bg-flame-50 px-1.5 py-0.5 text-[10px] font-medium text-flame-700"
+                            >
+                              <span aria-hidden>🔊</span> Voice
+                            </span>
+                          )}
+                        </span>
                         <span
                           className={`text-[10px] uppercase tracking-widest ${
                             t.requiresKey

@@ -10,7 +10,7 @@ import { referenceHref } from "@/lib/reference";
 import { studyLinksFor } from "@/lib/study-tools";
 import VerseCardModal from "@/components/VerseCardModal";
 import NeuralAudioPlayer, { type NarrationSegment } from "@/components/NeuralAudioPlayer";
-import { resolveBibleAudioUrl } from "@/lib/tts/bible-audio";
+import { resolveBibleAudioUrl, translationHasAudio } from "@/lib/tts/bible-audio";
 import { slotKey } from "@/lib/slots";
 
 export type HighlightColor =
@@ -440,6 +440,7 @@ export default function BibleChapter({
                 return (
                   <option key={id} value={id}>
                     {t.abbrev} — {t.name}
+                    {translationHasAudio(id) ? " 🔊" : ""}
                   </option>
                 );
               })}
@@ -644,6 +645,7 @@ export default function BibleChapter({
                         }`}
                       >
                         {t.abbrev} · {t.languageNative}
+                        {translationHasAudio(id) ? " 🔊" : ""}
                       </button>
                     );
                   })}
