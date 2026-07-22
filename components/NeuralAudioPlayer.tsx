@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   getActiveDevice,
   isNeuralTtsSupported,
@@ -160,6 +161,11 @@ export default function NeuralAudioPlayer({
   const [deviceVoiceURI, setDeviceVoiceURI] = useState<string>("");
   const [rate, setRate] = useState<number>(1);
 
+  // The player card; when it scrolls out of view mid-reading we surface a
+  // floating mini control bar so play/pause/skip stay within reach.
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [cardVisible, setCardVisible] = useState(true);
+
   // ── control refs (don't trigger re-renders) ───────────────────────────────
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const runIdRef = useRef(0);
@@ -283,6 +289,17 @@ export default function NeuralAudioPlayer({
   useEffect(() => { voiceRef.current = neuralVoiceId; }, [neuralVoiceId]);
   useEffect(() => { rateRef.current = rate; }, [rate]);
   useEffect(() => { onActiveSegmentRef.current = onActiveSegment; }, [onActiveSegment]);
+
+  // Track whether the player card is on-screen (drives the floating controls).
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([entry]) => setCardVisible(entry.isIntersecting), {
+      threshold: 0,
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
   useEffect(() => {
     try { window.localStorage.setItem(MODE_KEY, mode); } catch {}
   }, [mode]);
@@ -663,8 +680,11 @@ export default function NeuralAudioPlayer({
 
   const activeVoice = findVoice(neuralVoiceId);
 
+  const showFloating =
+    mounted && !cardVisible && (status === "playing" || status === "paused" || status === "preparing");
+
   return (
-    <section className={`rounded-2xl border border-ink-200 bg-card-subtle p-4 md:p-5 ${className}`}>
+    <section ref={sectionRef} className={`rounded-2xl border border-ink-200 bg-card-subtle p-4 md:p-5 ${className}`}>
       <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
         <div>
           <div className="text-[10px] uppercase tracking-widest text-flame-700">
@@ -854,6 +874,110 @@ export default function NeuralAudioPlayer({
             : "Your device's built-in voice. No download; quality varies by device."}
         </span>
       </div>
+
+      {/* Floating controls — appear once the player card scrolls out of view so
+          play/pause/skip/seek stay reachable while you follow the reading. */}
+      {showFloating &&
+        createPortal(
+          <div
+            className="fixed z-[60] bottom-4 inset-x-3 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-[min(94vw,600px)]"
+            style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+            role="region"
+            aria-label="Playback controls"
+          >
+            <div className="flex items-center gap-2 rounded-full border border-ink-200 bg-card/95 px-2.5 py-2 shadow-xl backdrop-blur supports-[backdrop-filter]:bg-card/90">
+              <span aria-hidden className="hidden sm:inline pl-1 text-flame-600">🔊</span>
+
+              {status === "preparing" ? (
+                <>
+                  <span className="flex-1 truncate pl-1 text-xs text-ink-600">
+                    Preparing the natural voice…
+                  </span>
+                  <button
+                    onClick={stop}
+                    aria-label="Stop"
+                    className="inline-flex h-8 items-center justify-center rounded-full border border-ink-300 px-3 text-sm text-ink-700 hover:border-ink-900"
+                  >
+                    ■
+                  </button>
+                </>
+              ) : (
+                <>
+                  {status === "playing" ? (
+                    <button
+                      onClick={pause}
+                      aria-label="Pause"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-ink-900 text-sm text-ink-50 hover:bg-flame-700"
+                    >
+                      ❚❚
+                    </button>
+                  ) : (
+                    <button
+                      onClick={resume}
+                      aria-label="Resume"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-flame-600 text-sm text-ink-50 hover:bg-flame-500"
+                    >
+                      ▶
+                    </button>
+                  )}
+
+                  {segments.length > 1 && (
+                    <>
+                      <button
+                        onClick={prevPart}
+                        disabled={currentZeroBased <= 0}
+                        aria-label="Previous part"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-ink-300 text-sm text-ink-700 hover:border-ink-900 disabled:opacity-40"
+                      >
+                        ⏮
+                      </button>
+                      <button
+                        onClick={nextPart}
+                        disabled={currentZeroBased >= segments.length - 1}
+                        aria-label="Next part"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-ink-300 text-sm text-ink-700 hover:border-ink-900 disabled:opacity-40"
+                      >
+                        ⏭
+                      </button>
+                    </>
+                  )}
+
+                  {clock.duration > 0 ? (
+                    <input
+                      type="range"
+                      min={0}
+                      max={clock.duration}
+                      step={0.1}
+                      value={Math.min(clock.current, clock.duration)}
+                      onChange={(e) => seekTo(parseFloat(e.target.value))}
+                      className="min-w-0 flex-1 accent-flame-600"
+                      aria-label="Seek within the current part"
+                    />
+                  ) : (
+                    <span className="flex-1" />
+                  )}
+
+                  <span className="shrink-0 pr-0.5 text-[10px] tabular-nums text-ink-500">
+                    {clock.duration > 0
+                      ? fmtTime(clock.current)
+                      : position
+                        ? `${position.index}/${position.total}`
+                        : ""}
+                  </span>
+
+                  <button
+                    onClick={stop}
+                    aria-label="Stop"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-ink-300 text-sm text-ink-700 hover:border-ink-900"
+                  >
+                    ■
+                  </button>
+                </>
+              )}
+            </div>
+          </div>,
+          document.body
+        )}
     </section>
   );
 }
