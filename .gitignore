@@ -11,3 +11,7 @@ out/
 .vercel
 next-env.d.ts
 tsconfig.tsbuildinfo
+
+# Python bytecode
+__pycache__/
+*.pyc
