@@ -4,5 +4,7 @@
   "format": "mp3",
   "bucket": "scripture-audio",
   "baseUrl": "https://pub-8c8d02ff9648425a8a92e6c182314098.r2.dev",
-  "chapters": {}
+  "chapters": {
+    "WEB/john/1": true
+  }
 }
