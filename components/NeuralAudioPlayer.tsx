@@ -53,6 +53,12 @@ type Props = {
    * recording.
    */
   onActiveSegment?: (index: number | null) => void;
+  /**
+   * Fires once when the whole passage finishes playing on its own (not on stop,
+   * pause, or a passage change). Lets the Bible reader auto-advance to the next
+   * chapter for continuous listening.
+   */
+  onEnded?: () => void;
   className?: string;
 };
 
@@ -140,6 +146,7 @@ export default function NeuralAudioPlayer({
   resolveAudioUrl,
   playRequest,
   onActiveSegment,
+  onEnded,
   className = "",
 }: Props) {
   // Capability flags start optimistic so the server render and the first client
@@ -182,6 +189,7 @@ export default function NeuralAudioPlayer({
   // Latest active-segment callback (kept in a ref so the audio event handlers,
   // bound once, always call the current prop).
   const onActiveSegmentRef = useRef(onActiveSegment);
+  const onEndedRef = useRef(onEnded);
   // Follow-along state for a single pre-generated recording: while active, the
   // timeupdate handler maps playback progress → segment index.
   const studioSyncRef = useRef<{ active: boolean; fracs: number[]; last: number }>({
@@ -191,6 +199,9 @@ export default function NeuralAudioPlayer({
   });
   const emitActive = (i: number | null) => {
     try { onActiveSegmentRef.current?.(i); } catch { /* caller's problem */ }
+  };
+  const fireEnded = () => {
+    try { onEndedRef.current?.(); } catch { /* caller's problem */ }
   };
 
   // A stable signature so we only reset when the *content* changes, not on
@@ -290,6 +301,7 @@ export default function NeuralAudioPlayer({
   useEffect(() => { voiceRef.current = neuralVoiceId; }, [neuralVoiceId]);
   useEffect(() => { rateRef.current = rate; }, [rate]);
   useEffect(() => { onActiveSegmentRef.current = onActiveSegment; }, [onActiveSegment]);
+  useEffect(() => { onEndedRef.current = onEnded; }, [onEnded]);
 
   // Track whether the player card is on-screen (drives the floating controls).
   useEffect(() => {
@@ -424,18 +436,43 @@ export default function NeuralAudioPlayer({
           // "Read from here": start the single recording at the chosen verse.
           const startIdx = Math.min(Math.max(0, startIndexRef.current), Math.max(0, segments.length - 1));
           const seekFrac = startIdx > 0 ? fracs[startIdx] : 0;
+          let studioErr: unknown = null;
           try {
             await playSource(url, false, seekFrac);
+          } catch (e) {
+            studioErr = e;
           } finally {
             studioSyncRef.current.active = false;
             emitActive(null);
           }
-          if (!stoppedRef.current && runId === runIdRef.current) {
-            setStatus("idle");
-            setPosition(null);
-            startIndexRef.current = 0;
+          if (studioErr) {
+            // Distinguish "browser blocked autoplay" (e.g. auto-advance to the
+            // next chapter with no fresh tap) from "file isn't there". On a
+            // block, stay on the ready recording and wait for a tap — don't
+            // fall back to the heavy on-device model. On a real load failure,
+            // fall through to synthesis.
+            const blocked =
+              studioErr instanceof Error &&
+              /NotAllowed|gesture|allow|blocked/i.test(studioErr.name + " " + studioErr.message);
+            if (blocked) {
+              if (!stoppedRef.current && runId === runIdRef.current) {
+                setStatus("idle");
+                setPosition(null);
+                startIndexRef.current = 0;
+                setError("Tap Play to keep listening.");
+              }
+              return;
+            }
+            // else: genuine load failure — fall through to on-device synthesis.
+          } else {
+            if (!stoppedRef.current && runId === runIdRef.current) {
+              setStatus("idle");
+              setPosition(null);
+              startIndexRef.current = 0;
+              fireEnded();
+            }
+            return;
           }
-          return;
         }
       } catch {
         /* fall through to on-device synthesis */
@@ -528,6 +565,7 @@ export default function NeuralAudioPlayer({
         setPosition(null);
         startIndexRef.current = 0;
         emitActive(null);
+        fireEnded();
       }
     } catch (err) {
       if (runId !== runIdRef.current) return;
@@ -574,6 +612,7 @@ export default function NeuralAudioPlayer({
         setPosition(null);
         startIndexRef.current = 0;
         emitActive(null);
+        fireEnded();
         return;
       }
       setPosition({ index: i + 1, total: segments.length });

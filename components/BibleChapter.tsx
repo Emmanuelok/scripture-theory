@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import type { ChapterText } from "@/data/bible/seed";
 import { passages as lensPassages } from "@/data/lens";
@@ -57,6 +58,10 @@ function MARKS_STORAGE() {
 }
 const TRANSLATION_PREF = "scripture-theory-translation";
 const READER_PREFS = "scripture-theory-reader";
+// Continuous-listening: a persisted preference + a one-shot intent flag that
+// survives the client-side navigation to the next chapter.
+const CONTINUOUS_PREF = "scripture-theory-continuous-listen";
+const AUTOPLAY_INTENT = "scripture-theory-autoplay-next";
 
 const FONT_SCALES = [
   { value: 0.875, label: "S" },
@@ -182,6 +187,10 @@ export default function BibleChapter({
   const [listenReq, setListenReq] = useState<{ index: number; nonce: number }>({ index: 0, nonce: 0 });
   // Verse currently being read aloud (for follow-along highlight + auto-scroll).
   const [activeVerse, setActiveVerse] = useState<number | null>(null);
+  // Continuous listening: keep reading into the next chapter automatically.
+  const router = useRouter();
+  const [continuousListen, setContinuousListen] = useState(false);
+  const [pendingAutoplay, setPendingAutoplay] = useState(false);
 
   useEffect(() => {
     setMarks(loadMarks());
@@ -302,6 +311,41 @@ export default function BibleChapter({
   useEffect(() => {
     setActiveVerse(null);
   }, [translationId, bookId, chapterNum]);
+
+  // Load the continuous-listen preference and pick up an auto-advance intent
+  // handed over by the previous chapter (both survive client-side navigation).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      setContinuousListen(window.localStorage.getItem(CONTINUOUS_PREF) === "1");
+    } catch {}
+    let intent = false;
+    try {
+      intent = window.sessionStorage.getItem(AUTOPLAY_INTENT) === "1";
+      if (intent) window.sessionStorage.removeItem(AUTOPLAY_INTENT);
+    } catch {}
+    if (intent) {
+      setListenOpen(true);
+      setPendingAutoplay(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Persist the continuous-listen preference.
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(CONTINUOUS_PREF, continuousListen ? "1" : "0");
+    } catch {}
+  }, [continuousListen]);
+
+  // Once an auto-advanced chapter's text is ready, start reading it from the top.
+  useEffect(() => {
+    if (!pendingAutoplay || !mounted || !listenOpen) return;
+    if (!narration.length) return; // wait for the chapter to load
+    setListenReq((p) => ({ index: 0, nonce: p.nonce + 1 }));
+    setPendingAutoplay(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingAutoplay, mounted, listenOpen, narration.length]);
 
   const lensMatch = useMemo(() => {
     const ref = `${bookName} ${chapterNum}`.toLowerCase();
@@ -513,19 +557,47 @@ export default function BibleChapter({
 
       {/* Listen — natural-voice narration of the current chapter */}
       {mounted && listenOpen && chapter && (
-        <NeuralAudioPlayer
-          key={`${translationId}:${bookId}:${chapterNum}`}
-          title={`${bookName} ${chapterNum} · ${meta.abbrev}`}
-          eyebrow="Listen"
-          segments={narration}
-          playRequest={listenReq}
-          onActiveSegment={(i) =>
-            setActiveVerse(i == null ? null : chapter?.verses[i]?.v ?? null)
-          }
-          resolveAudioUrl={(voiceId) =>
-            resolveBibleAudioUrl(translationId, bookId, chapterNum, voiceId)
-          }
-        />
+        <div className="space-y-2">
+          <NeuralAudioPlayer
+            key={`${translationId}:${bookId}:${chapterNum}`}
+            title={`${bookName} ${chapterNum} · ${meta.abbrev}`}
+            eyebrow="Listen"
+            segments={narration}
+            playRequest={listenReq}
+            onActiveSegment={(i) =>
+              setActiveVerse(i == null ? null : chapter?.verses[i]?.v ?? null)
+            }
+            onEnded={() => {
+              if (!continuousListen || !next) return;
+              try {
+                window.sessionStorage.setItem(AUTOPLAY_INTENT, "1");
+              } catch {}
+              router.push(`/bible/${next.book}/${next.chapter}`);
+            }}
+            resolveAudioUrl={(voiceId) =>
+              resolveBibleAudioUrl(translationId, bookId, chapterNum, voiceId)
+            }
+          />
+          <label className="flex items-center gap-2 px-1 text-xs text-ink-600 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={continuousListen}
+              onChange={(e) => setContinuousListen(e.target.checked)}
+              className="accent-flame-600"
+            />
+            <span>
+              Continuous listening
+              {next ? (
+                <span className="text-ink-400">
+                  {" "}
+                  — roll into {next.bookName} {next.chapter} automatically
+                </span>
+              ) : (
+                <span className="text-ink-400"> — keep reading into the next chapter</span>
+              )}
+            </span>
+          </label>
+        </div>
       )}
 
       {/* Tap-a-verse hint (one-time) */}
