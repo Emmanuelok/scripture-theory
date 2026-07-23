@@ -80,15 +80,24 @@ def resolve_book_ids(raw, books):
 
 
 def fetch_chapter_text(book_name, chapter, api_key):
+    import time
+
     import requests
 
     url = f"https://bible-api.com/{book_name} {chapter}?translation={api_key}"
-    r = requests.get(url, timeout=30)
-    r.raise_for_status()
-    data = r.json()
-    verses = data.get("verses") or []
-    text = " ".join(re.sub(r"\s+", " ", (v.get("text") or "")).strip() for v in verses)
-    return text.strip()
+    last = None
+    for attempt in range(3):  # bible-api.com occasionally times out / rate-limits
+        try:
+            r = requests.get(url, timeout=30)
+            r.raise_for_status()
+            data = r.json()
+            verses = data.get("verses") or []
+            text = " ".join(re.sub(r"\s+", " ", (v.get("text") or "")).strip() for v in verses)
+            return text.strip()
+        except Exception as e:  # noqa: BLE001 — retry any transient failure
+            last = e
+            time.sleep(2 * (attempt + 1))
+    raise last
 
 
 def to_np(audio):
@@ -127,6 +136,17 @@ def make_r2_client():
         aws_secret_access_key=os.environ["R2_SECRET_ACCESS_KEY"],
         region_name="auto",
     )
+
+
+def r2_object_exists(s3, bucket, key):
+    """True if the object is already in R2. Lets runs resume off storage itself,
+    so a re-run (or a parallel shard) never regenerates a finished chapter and
+    doesn't depend on a shared manifest."""
+    try:
+        s3.head_object(Bucket=bucket, Key=key)
+        return True
+    except Exception:
+        return False
 
 
 def main():
@@ -183,8 +203,17 @@ def main():
             if args.limit and done >= args.limit:
                 break
             key = f"{translation}/{bid}/{ch}"
-            if manifest["chapters"].get(key) and not args.force:
-                continue
+            obj_key = f"{translation}/{bid}/{ch}.{fmt}"
+            if not args.force:
+                # Resume off the manifest OR off R2 itself (idempotent + safe for
+                # parallel shards). Record R2 hits locally so the manifest stays
+                # a useful record.
+                if manifest["chapters"].get(key):
+                    continue
+                if s3 is not None and r2_object_exists(s3, bucket, obj_key):
+                    manifest["chapters"][key] = True
+                    print(f"[have] {obj_key}", flush=True)
+                    continue
             try:
                 text = fetch_chapter_text(book["name"], ch, api_key)
                 if not text:
@@ -201,7 +230,6 @@ def main():
                     out_path = os.path.join(td, f"a.{fmt}")
                     sf.write(wav_path, audio, 24000)
                     encode(wav_path, out_path, fmt)
-                    obj_key = f"{translation}/{bid}/{ch}.{fmt}"
                     size = os.path.getsize(out_path)
                     if args.dry_run:
                         dest = out_dir / obj_key
