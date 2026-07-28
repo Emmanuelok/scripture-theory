@@ -16,7 +16,13 @@ on:
       books:
         description: "Books/sets (e.g. gospels,psalms | nt | ot | all | john)"
         required: true
-        default: "gospels,psalms"
+        default: "all"
+      translation:
+        description: "Translation to narrate (public domain only)"
+        required: true
+        default: "WEB"
+        type: choice
+        options: ["WEB", "KJV", "ASV"]
       format:
         description: "Audio format"
         required: true
@@ -33,7 +39,7 @@ on:
         default: ""
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   generate:
@@ -65,32 +71,13 @@ jobs:
           fi
           python scripts/generate_bible_audio.py \
             --books "${{ github.event.inputs.books }}" \
+            --translation "${{ github.event.inputs.translation }}" \
             --format "${{ github.event.inputs.format }}" \
             --voice "${{ github.event.inputs.voice }}" \
             $LIMIT_ARG
 
-      - name: Commit updated manifest (best-effort)
-        if: always()
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/bible/audio-manifest.json || true
-          if git diff --cached --quiet; then
-            echo "No manifest changes."
-            exit 0
-          fi
-          git commit -m "chore(audio): update availability manifest [skip ci]" || exit 0
-          branch="${GITHUB_REF_NAME}"
-          # Parallel shards may push concurrently — rebase and retry, and never
-          # fail the job over it (the audio is already in R2; the site plays it
-          # by object existence, so the manifest is just a record).
-          for i in 1 2 3 4 5 6; do
-            if git push origin "HEAD:${branch}"; then
-              echo "manifest pushed"
-              exit 0
-            fi
-            echo "push rejected; rebasing (attempt ${i})…"
-            git pull --rebase --autostash origin "${branch}" || true
-            sleep $(( (RANDOM % 5) + 2 ))
-          done
-          echo "manifest push skipped after retries (audio is in R2; playback unaffected)"
+      # No commit step: the reader resolves audio by asking R2 for the object,
+      # so there's no generated availability map to write back. That keeps runs
+      # side-effect-free and lets any number of shards run concurrently without
+      # racing on a shared file. Coverage is asserted by the script itself —
+      # it exits non-zero if any chapter in the batch is still missing.

@@ -168,10 +168,25 @@ def main():
     books = load_canon()
     book_ids = resolve_book_ids(args.books, books)
 
+    # The manifest is hand-maintained CONFIG (baseUrl, format, translations) —
+    # the reader resolves a chapter's audio by asking R2 for the object, so
+    # there is no generated availability map to keep in sync (and therefore no
+    # cross-shard merge conflicts). We only read it here, to sanity-check that
+    # what we're about to generate matches what the app will request.
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    manifest.setdefault("chapters", {})
-    manifest["voice"] = args.voice
-    manifest["format"] = fmt
+    if manifest.get("format") and manifest["format"] != fmt:
+        print(
+            f"WARNING: generating .{fmt} but the app requests .{manifest['format']} "
+            f"(data/bible/audio-manifest.json). These must match.",
+            file=sys.stderr,
+        )
+    covered = manifest.get("translations") or ["WEB"]
+    if translation not in covered:
+        print(
+            f"WARNING: '{translation}' is not in the manifest's translations list "
+            f"{covered}; the reader won't offer these recordings until it is.",
+            file=sys.stderr,
+        )
 
     s3 = None
     if not args.dry_run:
@@ -195,6 +210,8 @@ def main():
     pipeline = KPipeline(lang_code=lang_code)
 
     done = 0
+    have = 0
+    failed = []
     for bid in book_ids:
         book = books.get(bid)
         if not book:
@@ -205,22 +222,20 @@ def main():
             key = f"{translation}/{bid}/{ch}"
             obj_key = f"{translation}/{bid}/{ch}.{fmt}"
             if not args.force:
-                # Resume off the manifest OR off R2 itself (idempotent + safe for
-                # parallel shards). Record R2 hits locally so the manifest stays
-                # a useful record.
-                if manifest["chapters"].get(key):
-                    continue
+                # Resume off R2 itself: idempotent, needs no shared state, and
+                # is safe to run in parallel shards.
                 if s3 is not None and r2_object_exists(s3, bucket, obj_key):
-                    manifest["chapters"][key] = True
-                    print(f"[have] {obj_key}", flush=True)
+                    have += 1
                     continue
             try:
                 text = fetch_chapter_text(book["name"], ch, api_key)
                 if not text:
+                    failed.append(f"{key} (no text)")
                     print(f"[skip] {key}: no text", file=sys.stderr)
                     continue
                 parts = [to_np(audio) for _, _, audio in pipeline(text, voice=args.voice, speed=1)]
                 if not parts:
+                    failed.append(f"{key} (no audio)")
                     print(f"[skip] {key}: no audio", file=sys.stderr)
                     continue
                 audio = np.concatenate(parts)
@@ -241,16 +256,27 @@ def main():
                             s3.put_object(Bucket=bucket, Key=obj_key, Body=f.read(), ContentType=content_type)
                         print(f"[upload] {obj_key} ({size // 1024} KB)", flush=True)
 
-                manifest["chapters"][key] = True
                 done += 1
             except Exception as e:  # keep going; one bad chapter shouldn't stop the batch
+                failed.append(f"{key} ({e})")
                 print(f"[fail] {key}: {e}", file=sys.stderr)
         if args.limit and done >= args.limit:
             break
 
-    manifest["chapters"] = {k: manifest["chapters"][k] for k in sorted(manifest["chapters"])}
-    MANIFEST.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-    print(f"\nDone. {done} chapter(s) generated. Manifest updated.", flush=True)
+    print(
+        f"\nDone. {done} generated, {have} already present, {len(failed)} failed.",
+        flush=True,
+    )
+    if failed:
+        # Fail loudly: a green run must mean "this batch is fully covered", so a
+        # silently-skipped chapter can't masquerade as success. Re-running is
+        # cheap — everything already in R2 is skipped.
+        print("\nChapters still missing:", file=sys.stderr)
+        for f in failed[:50]:
+            print(f"  - {f}", file=sys.stderr)
+        if len(failed) > 50:
+            print(f"  … and {len(failed) - 50} more", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

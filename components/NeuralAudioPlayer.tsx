@@ -299,7 +299,12 @@ export default function NeuralAudioPlayer({
     try { window.localStorage.setItem(RATE_KEY, String(rate)); } catch {}
   }, [rate]);
   useEffect(() => { voiceRef.current = neuralVoiceId; }, [neuralVoiceId]);
-  useEffect(() => { rateRef.current = rate; }, [rate]);
+  useEffect(() => {
+    rateRef.current = rate;
+    // A studio recording is a plain file, so speed applies instantly.
+    const audio = audioRef.current;
+    if (audio && studioSyncRef.current.active) audio.playbackRate = rate;
+  }, [rate]);
   useEffect(() => { onActiveSegmentRef.current = onActiveSegment; }, [onActiveSegment]);
   useEffect(() => { onEndedRef.current = onEnded; }, [onEnded]);
 
@@ -333,7 +338,12 @@ export default function NeuralAudioPlayer({
    * `seekFrac` (0–1) starts playback partway in — used to begin a whole-chapter
    * recording at a chosen verse ("Read from here").
    */
-  function playSource(url: string, revokeAfter: boolean, seekFrac = 0): Promise<void> {
+  function playSource(
+    url: string,
+    revokeAfter: boolean,
+    seekFrac = 0,
+    applyRate = false
+  ): Promise<void> {
     return new Promise((resolve, reject) => {
       const audio = audioRef.current;
       if (!audio) return resolve();
@@ -356,7 +366,9 @@ export default function NeuralAudioPlayer({
       audio.onended = () => { cleanup(); resolve(); };
       audio.onerror = () => { cleanup(); reject(new Error("audio playback error")); };
       audio.src = url;
-      audio.playbackRate = 1;
+      // Neural clips bake the speed in at synthesis time, so only a
+      // pre-generated recording gets the rate applied on playback.
+      audio.playbackRate = applyRate ? rateRef.current : 1;
       if (seekFrac > 0) {
         const doSeek = () => {
           if (Number.isFinite(audio.duration) && audio.duration > 0) {
@@ -418,66 +430,77 @@ export default function NeuralAudioPlayer({
     return "Natural voice";
   }
 
+  // ── pre-generated ("studio") recording ─────────────────────────────────────
+  /**
+   * Try the pre-generated recording for this passage. Runs on EVERY device and
+   * in either voice mode — when a studio recording exists it is both the best
+   * quality and the most reliable option (a plain <audio> file; no model
+   * download, no WASM, no speechSynthesis quirks), so it always wins.
+   *
+   * Returns "played" (finished normally), "blocked" (browser refused autoplay —
+   * the recording is ready and waiting for a tap), or "missing" (no recording,
+   * or it failed to load → caller should synthesise instead).
+   */
+  async function tryStudio(runId: number): Promise<"played" | "blocked" | "missing"> {
+    if (!resolveAudioUrl) return "missing";
+    let url: string | null = null;
+    try {
+      url = await resolveAudioUrl(neuralVoiceId);
+    } catch {
+      return "missing";
+    }
+    if (!url || runId !== runIdRef.current || stoppedRef.current) return "missing";
+
+    setEngineBadge("Studio recording");
+    setStatus("playing");
+    setPosition({ index: 1, total: 1 });
+    // Drive verse follow-along from playback progress while this plays.
+    const fracs = buildFracs(segments);
+    studioSyncRef.current = { active: true, fracs, last: -1 };
+    // "Read from here": start the single recording at the chosen verse.
+    const startIdx = Math.min(Math.max(0, startIndexRef.current), Math.max(0, segments.length - 1));
+    const seekFrac = startIdx > 0 ? fracs[startIdx] : 0;
+    let studioErr: unknown = null;
+    try {
+      await playSource(url, false, seekFrac, true);
+    } catch (e) {
+      studioErr = e;
+    } finally {
+      studioSyncRef.current.active = false;
+      emitActive(null);
+    }
+
+    if (!studioErr) {
+      if (!stoppedRef.current && runId === runIdRef.current) {
+        setStatus("idle");
+        setPosition(null);
+        startIndexRef.current = 0;
+        fireEnded();
+      }
+      return "played";
+    }
+    // Distinguish "browser blocked autoplay" (e.g. auto-advance to the next
+    // chapter with no fresh tap) from "the file isn't there". On a block, stay
+    // on the ready recording and wait for a tap — don't fall back to the heavy
+    // on-device model.
+    const blocked =
+      studioErr instanceof Error &&
+      /NotAllowed|gesture|allow|blocked/i.test(studioErr.name + " " + studioErr.message);
+    if (blocked) {
+      if (!stoppedRef.current && runId === runIdRef.current) {
+        setStatus("idle");
+        setPosition(null);
+        startIndexRef.current = 0;
+        setError("Tap Play to keep listening.");
+      }
+      return "blocked";
+    }
+    return "missing";
+  }
+
   // ── neural playback ────────────────────────────────────────────────────────
   async function runNeural(runId: number): Promise<void> {
     setError(null);
-
-    // Prefer a pre-generated recording if one exists.
-    if (resolveAudioUrl) {
-      try {
-        const url = await resolveAudioUrl(neuralVoiceId);
-        if (url && runId === runIdRef.current && !stoppedRef.current) {
-          setEngineBadge("Studio recording");
-          setStatus("playing");
-          setPosition({ index: 1, total: 1 });
-          // Drive verse follow-along from playback progress while this plays.
-          const fracs = buildFracs(segments);
-          studioSyncRef.current = { active: true, fracs, last: -1 };
-          // "Read from here": start the single recording at the chosen verse.
-          const startIdx = Math.min(Math.max(0, startIndexRef.current), Math.max(0, segments.length - 1));
-          const seekFrac = startIdx > 0 ? fracs[startIdx] : 0;
-          let studioErr: unknown = null;
-          try {
-            await playSource(url, false, seekFrac);
-          } catch (e) {
-            studioErr = e;
-          } finally {
-            studioSyncRef.current.active = false;
-            emitActive(null);
-          }
-          if (studioErr) {
-            // Distinguish "browser blocked autoplay" (e.g. auto-advance to the
-            // next chapter with no fresh tap) from "file isn't there". On a
-            // block, stay on the ready recording and wait for a tap — don't
-            // fall back to the heavy on-device model. On a real load failure,
-            // fall through to synthesis.
-            const blocked =
-              studioErr instanceof Error &&
-              /NotAllowed|gesture|allow|blocked/i.test(studioErr.name + " " + studioErr.message);
-            if (blocked) {
-              if (!stoppedRef.current && runId === runIdRef.current) {
-                setStatus("idle");
-                setPosition(null);
-                startIndexRef.current = 0;
-                setError("Tap Play to keep listening.");
-              }
-              return;
-            }
-            // else: genuine load failure — fall through to on-device synthesis.
-          } else {
-            if (!stoppedRef.current && runId === runIdRef.current) {
-              setStatus("idle");
-              setPosition(null);
-              startIndexRef.current = 0;
-              fireEnded();
-            }
-            return;
-          }
-        }
-      } catch {
-        /* fall through to on-device synthesis */
-      }
-    }
 
     setStatus("preparing");
     setLoadPct(0);
@@ -678,11 +701,20 @@ export default function NeuralAudioPlayer({
     }
 
     const runId = runIdRef.current; // hardStop bumped it; this is the current run
-    if (mode === "neural" && neuralSupported) {
-      void runNeural(runId);
-    } else {
-      runDevice(runId);
-    }
+    void (async () => {
+      setError(null);
+      // A pre-generated recording beats every on-device option — it works the
+      // same on a phone as on a desktop — so try it first regardless of the
+      // chosen voice mode. Only when there's no recording do we synthesise.
+      const studio = await tryStudio(runId);
+      if (studio !== "missing") return;
+      if (stoppedRef.current || runId !== runIdRef.current) return;
+      if (mode === "neural" && neuralSupported) {
+        await runNeural(runId);
+      } else {
+        runDevice(runId);
+      }
+    })();
   }
 
   function pause() {
